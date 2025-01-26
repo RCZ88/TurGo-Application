@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/dest_studentDashboard">
+
+    <fragment
+        android:id="@+id/dest_studentDashboard"
+        android:name="com.example.turgo.Student_Dashboard"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_student_dashboard" />
+
+    <fragment
+        android:id="@+id/dest_studentProfile"
+        android:name="com.example.turgo.Profile"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/dest_studentExploreCourses"
+        android:name="com.example.turgo.student_ExploreCourse"
+        android:label="fragment_navigation_explore"
+        tools:layout="@layout/fragment_student_explore_courses" />
+    <fragment
+        android:id="@+id/dest_studentMyCourses"
+        android:name="com.example.turgo.Student_MyCourses"
+        android:label="fragment_student_my_courses"
+        tools:layout="@layout/fragment_student_my_courses" />
+    <fragment
+        android:id="@+id/dest_studentTaskList"
+        android:name="com.example.turgo.Student_TaskList"
+        android:label="fragment_dest_student_task_list"
+        tools:layout="@layout/fragment_student__task_list" />
+</navigation>

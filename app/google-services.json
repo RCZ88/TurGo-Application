@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "785810247074",
+    "firebase_url": "https://turg0-4pp-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "turg0-4pp",
+    "storage_bucket": "turg0-4pp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785810247074:android:3a4e25fa8a82f49ee5b6fb",
+        "android_client_info": {
+          "package_name": "com.example.turgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "785810247074-jatjjgv3pjo31851rn017345s8gmt01k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.turgo",
+            "certificate_hash": "bc4c3d3fb30eb2b177a4ffcf1c1ac0495adfc832"
+          }
+        },
+        {
+          "client_id": "785810247074-gue812o3s5n2qh9a4k5rmtqego8rjkvd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE9la4Tg5sfvsugKXD0mxqRhxi0b-l6pc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "785810247074-gue812o3s5n2qh9a4k5rmtqego8rjkvd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
