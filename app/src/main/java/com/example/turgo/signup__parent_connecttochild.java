@@ -1,10 +1,5 @@
 package com.example.turgo;
 
-import static com.example.turgo.QRCmanager.scanCode;
-
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,21 +16,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -149,9 +135,9 @@ public class signup__parent_connecttochild extends Fragment implements checkFrag
         String uid = et_childIdManual.getText().toString();
         Log.d("UID INPUTTED: ", uid);
         if(!uid.isBlank()){
-            User.getUserDataFromDB(uid, new UserCallback() {
+            User.getUserDataFromDB(uid, new ObjectCallBack<User>() {
                 @Override
-                public void onUserRetrieved(User user) {
+                public void onObjectRetrieved(User user) {
                     childFound = (Student) user;
                     tv_childFound.setText(user.getFullName());
                 }

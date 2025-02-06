@@ -1,12 +1,17 @@
 package com.example.turgo;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,6 +20,9 @@ import android.view.ViewGroup;
  */
 public class Student_MyCourses extends Fragment {
 
+    RecyclerView rv_myCourses;
+    Student user;
+    Course courseClicked = null;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -58,7 +66,27 @@ public class Student_MyCourses extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_student_my_courses, container, false);
+        View view = inflater.inflate(R.layout.fragment_student_my_courses, container, false);
+        StudentScreen activity = (StudentScreen) getActivity();
+        assert activity != null;
+        this.user = activity.getStudent();
+        RecyclerView recyclerView = view.findViewById(R.id.rv_ListOfMyCourses);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        ArrayList<Course> courses =  user.getCourseTaken();// Your method to get courses
+        CourseAdapter adapter = new CourseAdapter(courses, user, new OnItemClickListener<Course>() {
+            @Override
+            public void onItemClick(Course item) {
+                selectCourse(item);
+            }
+        });
+        recyclerView.setAdapter(adapter);
+
+        return view;
+    }
+
+    public void selectCourse(Course course){
+        Intent intent = new Intent(requireContext(), course_fullPage.class);
+        intent.putExtra("SelectedCourse", course);
     }
 }

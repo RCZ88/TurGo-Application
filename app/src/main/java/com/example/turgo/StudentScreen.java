@@ -5,9 +5,7 @@ import android.util.Log;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentContainer;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -19,11 +17,11 @@ import com.google.firebase.database.DatabaseError;
 
 public class StudentScreen extends AppCompatActivity {
 
-private ActivityStudentScreenBinding binding;
-private Student student;
-private FirebaseUser fbUser;
-private NavHostFragment navHostFragment;
-private BottomNavigationView navView;
+    private ActivityStudentScreenBinding binding;
+    private Student student;
+    private FirebaseUser fbUser;
+    private NavHostFragment navHostFragment;
+    private BottomNavigationView navView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +48,9 @@ private BottomNavigationView navView;
 
         student = (Student) getIntent().getSerializableExtra("Student Object");
         if(student == null){
-            User.getUserDataFromDB(fbUser.getUid(), new UserCallback() {
+            User.getUserDataFromDB(fbUser.getUid(), new ObjectCallBack<User>() {
                 @Override
-                public void onUserRetrieved(User user) {
+                public void onObjectRetrieved(User user) {
                     Log.d("Firebase", "Retrieved User: " + user.toString());
                     student = (Student) user;
                 }
@@ -66,4 +64,43 @@ private BottomNavigationView navView;
         }
     }
 
+    public ActivityStudentScreenBinding getBinding() {
+        return binding;
+    }
+
+    public void setBinding(ActivityStudentScreenBinding binding) {
+        this.binding = binding;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public FirebaseUser getFbUser() {
+        return fbUser;
+    }
+
+    public void setFbUser(FirebaseUser fbUser) {
+        this.fbUser = fbUser;
+    }
+
+    public NavHostFragment getNavHostFragment() {
+        return navHostFragment;
+    }
+
+    public void setNavHostFragment(NavHostFragment navHostFragment) {
+        this.navHostFragment = navHostFragment;
+    }
+
+    public BottomNavigationView getNavView() {
+        return navView;
+    }
+
+    public void setNavView(BottomNavigationView navView) {
+        this.navView = navView;
+    }
 }

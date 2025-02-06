@@ -35,6 +35,7 @@ public class SignUpPage extends AppCompatActivity {
 
     public String userType;
     View fc_signUpStages;
+    RTDBManager<User> rtdbManager = new RTDBManager<>();
 
     Fragment frag_userCategory, frag_userDetails,
             frag_contactInfo, frag_passwordSetup, frag_confirmSelection;
@@ -133,15 +134,18 @@ public class SignUpPage extends AppCompatActivity {
             String nickname = fud.et_nickname.getText().toString();
             String email = fci.et_email.getText().toString();
             String phoneNumber = fci.et_phoneNumber.getText().toString();
+            String gender = fud.gender;
 
             switch (userType) {
                 case "Student":
                     newUser = new Student(
                             fullName,
+                            gender,
                             dateOfBirth,
                             nickname,
                             email,
-                            phoneNumber
+                            phoneNumber,
+                            this
                     );
 
                     signup__student_selectcourse fssc = (signup__student_selectcourse) signUpSegments[2];
@@ -153,6 +157,7 @@ public class SignUpPage extends AppCompatActivity {
                 case "Teacher":
                     newUser = new Teacher(
                             fullName,
+                            gender,
                             dateOfBirth,
                             nickname,
                             email,
@@ -168,6 +173,7 @@ public class SignUpPage extends AppCompatActivity {
                 case "Parent":
                     newUser = new Parent(
                             fullName,
+                            gender,
                             dateOfBirth,
                             nickname,
                             email,
@@ -183,6 +189,7 @@ public class SignUpPage extends AppCompatActivity {
                 case "Admin":
                     newUser = new Admin(
                             fullName,
+                            gender,
                             dateOfBirth,
                             nickname,
                             email,
@@ -225,20 +232,12 @@ public class SignUpPage extends AppCompatActivity {
                                         }
                                     });
 
-
-                            FirebaseDatabase db = FirebaseDatabase.getInstance("https://turg0-4pp-default-rtdb.asia-southeast1.firebasedatabase.app");
-                            DatabaseReference myRef = db.getReference("Users").child(uid);
-
-                            myRef.setValue(newUser)
-                                    .addOnSuccessListener(aVoid ->{
-                                        Log.d("User Data Saving", "User data saved successfully!");
-                                        Intent i = new Intent(SignUpPage.this, SignInPage.class);
-                                        finish();
-                                        startActivity(i);
-                                    }).addOnFailureListener(e ->{
-                                        Log.e("User Data Saving", "Error Saving Data" + e.getMessage());
-                                    });
-
+                            boolean firebaseUserDataSaving = rtdbManager.storeData(User.SERIALIZE_INTENT_CODE, uid, newUser, "User", "User");
+                            if(firebaseUserDataSaving){
+                                Intent i = new Intent(SignUpPage.this, SignInPage.class);
+                                finish();
+                                startActivity(i);
+                            }
                         }
                     } else {
                         Log.e("SIGNUP", "Error creating user: " + task.getException());

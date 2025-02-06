@@ -1,45 +1,105 @@
 package com.example.turgo;
 
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
-public class Meeting {
-    private Schedule scheduleOf;
-    private ArrayList<Student> studentsAttended;
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.UUID;
+
+public class Meeting implements Serializable {
+    private final String meetingID;
+    private static final String FIREBASE_DB_REFERENCE = "Meetings";
+    private final RTDBManager<Meeting> rtdbManager;
+    private Schedule meetingOfSchedule;
+    private HashMap<Student, LocalTime> studentsAttended;
     private LocalDate dateOfMeeting;
     private LocalTime startTimeChange;
+    private LocalTime endTimeChange;
     private Room roomChange;
     private boolean completed;
 
-    public Meeting(Schedule scheduleOf, ArrayList<Student> studentsAttended, LocalDate dateOfMeeting){
-        this.scheduleOf = scheduleOf;
-        this.studentsAttended = studentsAttended;
+
+    public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting){
+        meetingID = UUID.randomUUID().toString();
+        this.meetingOfSchedule = meetingOfSchedule;
+        studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
-        startTimeChange = null;
+        startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
+        endTimeChange = meetingOfSchedule.getMeetingEnd();
         roomChange = null;
         completed = false;
+        rtdbManager = new RTDBManager<>();
+    }
+
+    public void doTimeChanges(LocalTime start, LocalTime end){
+        this.startTimeChange = start;
+        this.endTimeChange = end;
+    }
+
+    @SuppressLint("ScheduleExactAlarm")
+    public static void setMeetingEndAlarm(Context context, LocalDate date, LocalTime endTime, Student student, Meeting meeting){
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        LocalDateTime dateTime = LocalDateTime.of(date, endTime);
+        long millis = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+        Intent intent = new Intent(context, MeetingAlarmReciever.class);
+        intent.putExtra("Student", student);
+        intent.putExtra("Meeting", meeting);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (alarmManager != null) {
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, millis , pendingIntent);
+        }
+    }
+
+    public LocalTime getEndTimeChange() {
+        return endTimeChange;
+    }
+
+    public void setEndTimeChange(LocalTime endTimeChange) {
+        this.endTimeChange = endTimeChange;
+    }
+
+    public void updateDB(Meeting meeting){
+        rtdbManager.storeData(FIREBASE_DB_REFERENCE, meetingID, meeting, "Meeting", "Meeting");
     }
     public void changeDay(LocalDate date){
         this.dateOfMeeting = date;
     }
 
-    public Schedule getScheduleOf() {
-        return scheduleOf;
+    public Schedule getMeetingOfSchedule() {
+        return meetingOfSchedule;
     }
 
-    public void setScheduleOf(Schedule scheduleOf) {
-        this.scheduleOf = scheduleOf;
+    public void setMeetingOfSchedule(Schedule meetingOfSchedule) {
+        this.meetingOfSchedule = meetingOfSchedule;
     }
 
-    public ArrayList<Student> getStudentsAttended() {
+    public HashMap<Student, LocalTime> getStudentsAttended() {
         return studentsAttended;
     }
 
-    public void setStudentsAttended(ArrayList<Student> studentsAttended) {
+    public void setStudentsAttended(HashMap<Student, LocalTime> studentsAttended) {
         this.studentsAttended = studentsAttended;
     }
 
@@ -75,7 +135,28 @@ public class Meeting {
         this.completed = completed;
     }
 
-    public void addStudentAttendance(Student student){
-        studentsAttended.add(student);
+    public void addStudentAttendance(Student student, LocalTime time){
+        studentsAttended.put(student, time);
+    }
+    public String getMeetingID(){
+        return meetingID;
+    }
+
+    public static void getMeetingFromDB(String UID, ObjectCallBack<Meeting> objectCallBack){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(FIREBASE_DB_REFERENCE).child(UID);
+
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Meeting meeting = snapshot.getValue(Meeting.class);
+                objectCallBack.onObjectRetrieved(meeting);
+                Log.d("Firebase Data Retrieval", "Successfully Retrieved Meeting!");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase Database Error", "Error Retrieving Data of Meeting: "+ error);
+            }
+        });
     }
 }

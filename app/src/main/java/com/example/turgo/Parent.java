@@ -7,8 +7,8 @@ import java.util.Date;
 
 public class Parent extends User implements Serializable {
     private ArrayList<Student> children;
-    public Parent(String fullName, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
-        super("PARENT", fullName, birthDate, nickname, email, phoneNumber, "parObj");
+    public Parent(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
+        super("PARENT", gender, fullName, birthDate, nickname, email, phoneNumber, "parObj");
         this.children = new ArrayList<>();
     }
 

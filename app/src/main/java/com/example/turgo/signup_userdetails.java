@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -31,7 +33,9 @@ public class signup_userdetails extends Fragment implements checkFragmentComplet
     private static final String ARG_PARAM2 = "param2";
     EditText et_fullName, et_nickname, et_dateOfBirth;
     Spinner sp_latestEducation;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch sw_gender;
+    String gender;
     EditText[]userDetailsText;
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -77,8 +81,20 @@ public class signup_userdetails extends Fragment implements checkFragmentComplet
         et_dateOfBirth = view.findViewById(R.id.ti_DateOfBirth);
         userDetailsText = new EditText[]{et_fullName, et_nickname, et_dateOfBirth};
         sw_gender = view.findViewById(R.id.switch_Gender);
+        this.gender = "Male";
         sp_latestEducation = view.findViewById(R.id.spin_LatEdu);
         setupSPLE();
+
+        sw_gender.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b){
+                    gender = "Female";
+                }else{
+                    gender = "Male";
+                }
+            }
+        });
 
         et_dateOfBirth.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -9,11 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,11 +21,9 @@ import java.util.List;
  */
 public class Profile extends Fragment {
 
-    HashMap<String, ArrayList<String>> profileDetails;
-    ArrayList<String>personalInfo;
-    ArrayList<String>contact;
-    ArrayList<String>preferences;
-    ArrayList<String>languange;
+    TextView tv_settingPreferences;
+    User user;
+    ArrayList<Setting>settings;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -37,6 +34,9 @@ public class Profile extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    public Profile(User suer){
+        this.user = user;
+    }
     public Profile() {
         // Required empty public constructor
     }
@@ -69,39 +69,44 @@ public class Profile extends Fragment {
     }
 
     private void initializeContent(){
-        profileDetails = new HashMap<>();
-        personalInfo = new ArrayList<>();
-        contact = new ArrayList<>();
-        languange = new ArrayList<>();
+        settings = new ArrayList<>();
+        Setting personalInfo = new Setting("Personal Info");
+        settings.add(personalInfo);
+        Setting contact = new Setting("Contact");
+        settings.add(contact);
+        Setting preferences = new Setting("Preferences");
+        settings.add(preferences);
+        Setting language = new Setting("Language");
+        settings.add(language);
 
-        personalInfo.add("Full Name");
-        personalInfo.add("Nickname");
-        personalInfo.add("Date of Birth");
-        personalInfo.add("Gender");
+        personalInfo.addSubSettings("Full Name", user.getFullName(), SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Nickname", user.getNickname(), SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Date Of Birth", user.getBirthDate(), SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Gender", user.getGender(), SettingEditType.SPINNER);
 
-        contact.add("Email");
-        contact.add("Phone Number");
+        contact.addSubSettings("Email", user.getEmail(), SettingEditType.EDIT_TEXT);
+        contact.addSubSettings("Phone Number", user.getPhoneNumber(), SettingEditType.EDIT_TEXT);
 
-        preferences.add("Theme");
-        preferences.add("Notifications");
+        preferences.addSubSettings("Theme", user.getTheme().getTheme(), SettingEditType.SPINNER);
+        preferences.addSubSettings("Notifications", "Notif", SettingEditType.SPINNER);//to be changed later
+        if(user instanceof Student){
+            preferences.addSubSettings("Auto Schedule Meeting", Integer.toString(((Student)user).getAutoSchedule()), SettingEditType.SPINNER);
+        }
 
-        languange.add("Language");
+        language.addSubSettings("Language", user.getLanguage().getDisplayName(), SettingEditType.SPINNER);
 
-        profileDetails.put("Personal Info", personalInfo);
-        profileDetails.put("Contact", contact);
-        profileDetails.put("Preferences", preferences);
-        profileDetails.put("Language", languange);
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         initializeContent();
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
+        this.tv_settingPreferences = view.findViewById(R.id.tv_SelectedSettingOption);
         @SuppressLint({"MissingInflatedId", "LocalSuppress"})
         ExpandableListView expandableListView = view.findViewById(R.id.el_ProfileTraits);
-        ArrayList<String> expandableListTitle = new ArrayList<>(profileDetails.keySet());
-        CustomExpandableListAdapter adapter = new CustomExpandableListAdapter(getContext(), expandableListTitle, profileDetails);
+        SettingsListAdapter adapter = new SettingsListAdapter(getContext(), this.settings);
 
 // Set the adapter
         expandableListView.setAdapter(adapter);
@@ -115,4 +120,5 @@ public class Profile extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
+
 }

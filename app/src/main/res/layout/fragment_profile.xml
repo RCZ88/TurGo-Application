@@ -50,7 +50,7 @@
     <ExpandableListView
         android:id="@+id/el_ProfileTraits"
         android:layout_width="0dp"
-        android:layout_height="643dp"
+        android:layout_height="0dp"
         android:dividerHeight="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

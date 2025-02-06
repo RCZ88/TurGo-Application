@@ -21,6 +21,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class User implements Serializable {
+    private static final String FIREBASE_DB_REFERENCE = "Users";
+    public static String SERIALIZE_INTENT_CODE;
     private String UID;
     private String type;
     private String fullName;
@@ -28,17 +30,22 @@ public class User implements Serializable {
     private String birthDate;
     private String nickname;
     private String email;
+    private String gender;
     private String phoneNumber;
-    public static String SERIALIZE_INTENT_CODE;
+    private Language language;
+    private Theme theme;
 
-    public User(String type, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_INTENT_CODE) throws ParseException {
+    public User(String type, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_INTENT_CODE) throws ParseException {
         this.type = type;
         this.fullName = fullName;
         this.birthDate = birthDate;
+        this.gender = gender;
         calculateAge();
         this.nickname = nickname;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.language = Language.ENGLISH;
+        this.theme = Theme.SYSTEM;
         User.SERIALIZE_INTENT_CODE = SERIALIZE_INTENT_CODE;
     }
 
@@ -114,6 +121,30 @@ public class User implements Serializable {
         this.type = type;
     }
 
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public Theme getTheme() {
+        return theme;
+    }
+
+    public void setTheme(Theme theme) {
+        this.theme = theme;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -126,8 +157,8 @@ public class User implements Serializable {
                 '}';
     }
 
-     public static void getUserDataFromDB(String uid, UserCallback callback) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+     public static void getUserDataFromDB(String uid, ObjectCallBack<User> callback) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(FIREBASE_DB_REFERENCE).child(uid);
 
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("RestrictedApi")
@@ -153,7 +184,7 @@ public class User implements Serializable {
                     }
 
                     if (user != null) {
-                        callback.onUserRetrieved(user); // Pass the user back to the callback
+                        callback.onObjectRetrieved(user); // Pass the user back to the callback
                     } else {
                         callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE)); // Handle null user
                     }

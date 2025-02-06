@@ -2,7 +2,6 @@ package com.example.turgo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -50,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
             tv_userDisplay.setText(currentUser.getDisplayName());
             userFound = (User) getIntent().getSerializableExtra("User Object");
             if(userFound == null){
-                User.getUserDataFromDB(currentUser.getUid(), new UserCallback() {
+                User.getUserDataFromDB(currentUser.getUid(), new ObjectCallBack<User>() {
                     @Override
-                    public void onUserRetrieved(User user) {
+                    public void onObjectRetrieved(User user) {
                         Log.d("Firebase", "Retrieved User: " + user.toString());
                         userFound = user;
                         tv_userDetails.setText(userFound.toString());
