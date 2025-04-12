@@ -7,35 +7,20 @@
     tools:context=".Student_Dashboard">
 
     <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:text="DASHBOARD"
-        android:textAlignment="center"
-        android:textSize="48sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
         android:id="@+id/tv_StudentGreeting"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="28dp"
         android:text="Good Morning, [Student Name]! Let’s ace your learning today!"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.533"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_home" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/linearLayout9"
-        android:layout_width="396dp"
-        android:layout_height="153dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,13 +30,13 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="62dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/textView19"
-                android:layout_width="353dp"
-                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="Upcoming Class:"
                 android:textAlignment="center"
                 android:textSize="28sp"
@@ -59,21 +44,15 @@
                 tools:layout_editor_absoluteX="26dp"
                 tools:layout_editor_absoluteY="136dp" />
 
-            <ImageButton
-                android:id="@+id/btn_MoreInfo"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:contentDescription="Load More Info"
-                android:src="@drawable/caret_down" />
-
         </LinearLayout>
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fcv_UpcomingClass"
-            android:name="com.example.turgo.CourseName"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:name="com.example.turgo.MeetingDisplay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            tools:layout="@layout/fragment_meeting_display" />
 
     </LinearLayout>
 
@@ -82,7 +61,7 @@
         android:layout_width="181dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout12"
         app:layout_constraintHorizontal_bias="0.0"
@@ -110,7 +89,7 @@
         android:id="@+id/linearLayout12"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
@@ -134,7 +113,7 @@
         <ImageButton
             android:id="@+id/btn_ScanQRAttendance"
             android:layout_width="125dp"
-            android:layout_height="132dp"
+            android:layout_height="125dp"
             android:layout_marginTop="16dp"
             android:contentDescription="Scan an Attendance QR Code"
             android:onClick="attendMeetingScan"
@@ -146,7 +125,7 @@
         android:id="@+id/LinearLayout13"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="24dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout10"
@@ -170,28 +149,35 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <ImageButton
-                android:id="@+id/imageButton3"
+                android:id="@+id/ib_PrevTask"
                 android:layout_width="57dp"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:layout_weight="0"
                 android:contentDescription="Previous Task"
                 android:src="@drawable/caret_left" />
 
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vp2_TasksContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0" />
+
             <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentContainerView2"
-                android:name="com.example.turgo.signup__parent_connecttochild"
-                android:layout_width="296dp"
-                android:layout_height="80dp" />
+                android:id="@+id/fcv_TaskDisplay"
+                android:name="com.example.turgo.TaskDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:layout="@layout/fragment_task_display" />
 
             <ImageButton
-                android:id="@+id/imageButton4"
+                android:id="@+id/ib_NextTask"
                 android:layout_width="57dp"
-                android:layout_height="wrap_content"
+                android:layout_height="80dp"
                 android:contentDescription="Next Task"
                 android:src="@drawable/caret_right" />
         </LinearLayout>

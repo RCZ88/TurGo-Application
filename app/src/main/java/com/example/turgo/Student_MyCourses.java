@@ -86,7 +86,7 @@ public class Student_MyCourses extends Fragment {
     }
 
     public void selectCourse(Course course){
-        Intent intent = new Intent(requireContext(), course_fullPage.class);
+        Intent intent = new Intent(requireContext(), CourseJoinedFullPage.class);
         intent.putExtra("SelectedCourse", course);
     }
 }

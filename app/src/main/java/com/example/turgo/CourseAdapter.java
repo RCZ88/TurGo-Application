@@ -22,7 +22,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
     @Override
     public CourseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.course_display_non_fragment, parent, false);
+                .inflate(R.layout.course_display, parent, false);
         return new CourseViewHolder(view, listener, this);
     }
 

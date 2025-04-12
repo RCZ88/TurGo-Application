@@ -44,6 +44,7 @@ public class Student extends User implements Serializable {
         scheduleCompletedThisWeek = new ArrayList<>();
         allAgendas = new ArrayList<>();
         percentageCompleted = 0;
+        notificationEarlyDuration = Duration.ofMinutes(30);
         autoSchedule = 1;
         nextMeeting = null;
         lateAttendance = 0;
@@ -52,7 +53,14 @@ public class Student extends User implements Serializable {
         findCourseRelated();
     }
     public Student(){}
-
+    public ArrayList<Meeting> getAllMeetingOfCourse(Course course, ArrayList<Meeting>meetings){
+        for(Meeting meeting : this.meetingHistory){
+            if(meeting.getMeetingOfSchedule().getScheduleOfCourse() == course){
+                meetings.add(meeting);
+            }
+        }
+        return meetings;
+    }
     public void calculatePercentageCompleted(){
         int amountOfSchedules = allSchedules.size();
         int completed = scheduleCompletedThisWeek.size();
@@ -75,7 +83,7 @@ public class Student extends User implements Serializable {
             for(int j = 0; j<allSchedules.size(); j++){
                 if(!allSchedules.get(j).isHasScheduled()){
                     LocalDate meetingDate= today.plusWeeks(i-1).with(TemporalAdjusters.nextOrSame(allSchedules.get(j).getDay()));
-                    Meeting meeting = new Meeting(allSchedules.get(j), meetingDate);
+                    Meeting meeting = new Meeting(allSchedules.get(j), meetingDate, this, context);
                     Meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(), meeting.getEndTimeChange(), this, meeting);
                     preScheduledMeetings.add(meeting);
                     meeting.getMeetingOfSchedule()
@@ -157,6 +165,22 @@ public class Student extends User implements Serializable {
         course.addStudent(this);
         allSchedules = getAllSchedule();
         addScheduledMeeting();
+    }
+
+    public Duration getNotificationEarlyDuration() {
+        return notificationEarlyDuration;
+    }
+
+    public void setNotificationEarlyDuration(Duration notificationEarlyDuration) {
+        this.notificationEarlyDuration = notificationEarlyDuration;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public ArrayList<Course> getCourseTaken(){

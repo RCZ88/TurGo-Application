@@ -1,19 +1,22 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -21,6 +24,8 @@ import android.widget.Toast;
 import com.google.firebase.database.DatabaseError;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,8 +36,11 @@ public class Student_Dashboard extends Fragment {
     RecyclerView rv_coursesCompletedThisWeek;
     FragmentContainerView fcv_upcomingSchedule;
     Student user;
+    ArrayList<Task> studentTasks;
+    ViewPager2 vp2_listOfTasks;
     ProgressBar pb_progressThisWeek;
-    ImageButton btn_details;
+    ImageButton btn_details, ib_prevTask, ib_nextTask;
+    TaskPagerAdapter adapter;
     boolean expanded;
 
     Handler handler = new Handler();
@@ -78,6 +86,7 @@ public class Student_Dashboard extends Fragment {
         }
     }
 
+    @SuppressLint({"MissingInflatedId", "CommitTransaction"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -88,45 +97,59 @@ public class Student_Dashboard extends Fragment {
 
         StudentScreen activity = (StudentScreen) getActivity();
         this.user = activity.getStudent();
+        studentTasks = user.getUncompletedTask();
+
         rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(this.getContext()));
         ScheduleAdapter sa = new ScheduleAdapter(user.getScheduleCompletedThisWeek());
         rv_coursesCompletedThisWeek.setAdapter(sa);
 
         pb_progressThisWeek = view.findViewById(R.id.pb_WeeksProgress);
-        new Thread(()->{
-            double progress = user.getPercentageCompleted();
-            handler.post(() -> pb_progressThisWeek.setProgress((int)Math.ceil(progress)));
-            try {
-                Thread.sleep(500); // Simulate a task
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        double progress = user.getPercentageCompleted();
+        pb_progressThisWeek.setProgress((int)Math.ceil(progress));
 
-        fcv_upcomingSchedule = view.findViewById(R.id.fcv_UpcomingClass);
-        CourseName courseName = new CourseName();
+        vp2_listOfTasks = view.findViewById(R.id.vp2_TasksContainer);
+        adapter = new TaskPagerAdapter(getActivity(), studentTasks);
+        vp2_listOfTasks.setAdapter(adapter);
+
+        ib_nextTask.setOnClickListener(view12 -> {
+            int currentItem = vp2_listOfTasks.getCurrentItem();
+            if(currentItem < adapter.getItemCount()){
+                vp2_listOfTasks.setCurrentItem(currentItem + 1, true);
+            }
+        });
+        ib_prevTask.setOnClickListener(view13 -> {
+            int currentItem = vp2_listOfTasks.getCurrentItem();
+            if(currentItem > 0){
+                vp2_listOfTasks.setCurrentItem(currentItem - 1, true);
+            }
+        });
+
 
         Meeting nextMeeting = user.getNextMeeting();
         Schedule meetingOfSchedule = nextMeeting.getMeetingOfSchedule();
-
-        courseName.tv_startTime.setText(nextMeeting.getStartTimeChange().toString());
-        courseName.tv_courseName.setText(meetingOfSchedule.getScheduleOfCourse().getCourseName());
-        courseName.iv_courseIcon.setImageBitmap(meetingOfSchedule.getScheduleOfCourse().getLogo());
-
+        fcv_upcomingSchedule = view.findViewById(R.id.fcv_UpcomingClass);
+        MeetingDisplay meetingDisplay = new MeetingDisplay();
+        FragmentManager fragmentManager = getChildFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
+        fragmentTransaction.commit();
 
         CourseDetails courseDetails = new CourseDetails();
-        courseDetails.tv_teacherName.setText(meetingOfSchedule.getScheduleOfCourse().getTeacher().getFullName());
+        Course scheduleOfCourse = meetingOfSchedule.getScheduleOfCourse();
+        courseDetails.tv_teacherName.setText(scheduleOfCourse.getTeacher().getFullName());
         courseDetails.tv_room.setText((meetingOfSchedule.getRoom().getRoomId()));
-        courseDetails.tv_dayOfWeek.setText(meetingOfSchedule.getScheduleOfCourse().getDaysOfSchedule());
-        courseDetails.tv_nextMeetingDate.setText(user.getClosestMeetingOfCourse(meetingOfSchedule.getScheduleOfCourse()).toString());
+        courseDetails.tv_dayOfWeek.setText(scheduleOfCourse.getDaysOfSchedule(user));
+        courseDetails.tv_nextMeetingDate.setText(user.getClosestMeetingOfCourse(scheduleOfCourse).toString());
         courseDetails.tv_duration.setText(meetingOfSchedule.getDuration());
-        courseDetails.iv_courseLogo.setImageBitmap(meetingOfSchedule.getScheduleOfCourse().getLogo());
+        courseDetails.iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
+
         if(savedInstanceState != null){
-            getFragmentManager()
+            getChildFragmentManager()
                     .beginTransaction()
-                    .replace(fcv_upcomingSchedule.getId(), courseName)
+                    .replace(fcv_upcomingSchedule.getId(), meetingDisplay)
                     .commit();
         }
+
         expanded = false;
         btn_details.setImageResource(R.drawable.caret_down);
 
@@ -134,7 +157,7 @@ public class Student_Dashboard extends Fragment {
             if(!expanded){
                 expanded = true;
                 if(savedInstanceState != null){
-                    getFragmentManager()
+                    getChildFragmentManager()
                             .beginTransaction()
                             .replace(fcv_upcomingSchedule.getId(), courseDetails);
                 }
@@ -142,9 +165,9 @@ public class Student_Dashboard extends Fragment {
             }else{
                 expanded = false;
                 if(savedInstanceState != null){
-                    getFragmentManager()
+                    getChildFragmentManager()
                             .beginTransaction()
-                            .replace(fcv_upcomingSchedule.getId(), courseName)
+                            .replace(fcv_upcomingSchedule.getId(), meetingDisplay)
                             .commit();
                 }
                 btn_details.setImageResource(R.drawable.caret_down);

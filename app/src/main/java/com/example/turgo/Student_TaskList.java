@@ -3,10 +3,12 @@ package com.example.turgo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,7 +16,8 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class Student_TaskList extends Fragment {
-
+    RecyclerView rv_tasks;
+    Button btn_viewPastTasks;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -58,7 +61,20 @@ public class Student_TaskList extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_student__task_list, container, false);
+        Student student = ((StudentScreen)getActivity()).getStudent();
+        TaskAdapter taskAdapter = new TaskAdapter(student.getAllTask(), student);
+        rv_tasks = view.findViewById(R.id.rv_stl_AllTask);
+        btn_viewPastTasks = view.findViewById(R.id.btn_ViewPastTask);
+        rv_tasks.setAdapter(taskAdapter);
+        btn_viewPastTasks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_student__task_list, container, false);
+        return view;
     }
 }

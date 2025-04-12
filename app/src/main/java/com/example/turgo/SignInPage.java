@@ -172,7 +172,7 @@ public class SignInPage extends AppCompatActivity {
             switch(userData.getType()){
                 case "Student":
                     i = new Intent(SignInPage.this, StudentScreen.class);
-                    i.putExtra(Student.SERIALIZE_INTENT_CODE, user);
+                    i.putExtra(Student.SERIALIZE_KEY_CODE, user);
                     startActivity(i);
                     finish();
                     break;

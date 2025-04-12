@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +37,9 @@ public class SignUpPage extends AppCompatActivity {
     public String userType;
     View fc_signUpStages;
     RTDBManager<User> rtdbManager = new RTDBManager<>();
+    double progress;
+
+    ProgressBar pb_signUpProgress;
 
     Fragment frag_userCategory, frag_userDetails,
             frag_contactInfo, frag_passwordSetup, frag_confirmSelection;
@@ -63,6 +67,9 @@ public class SignUpPage extends AppCompatActivity {
         frag_contactInfo = new signup_ContactInformation();
         frag_confirmSelection = new signup_ConfirmData();
 
+        pb_signUpProgress = findViewById(R.id.pb_SignUpProgress);
+        pb_signUpProgress.setMax(AMOUNTOFSEGMENT);
+
         fc_signUpStages = findViewById(R.id.fcv_UserInfo);
         if (fc_signUpStages == null) {
             Log.e("SignUpPage", "FragmentContainerView (fcv_UserInfo) is NULL");
@@ -89,12 +96,17 @@ public class SignUpPage extends AppCompatActivity {
         });
     }
 
+    public void updateProgressBar(){
+        pb_signUpProgress.setProgress(currentSegmentIndex);
+    }
+
     public void goToNextSegment(View view){
         completedSegments[currentSegmentIndex] = ((checkFragmentCompletion)signUpSegments[currentSegmentIndex]).checkIfCompleted();
         boolean condition1 = currentSegmentIndex < signUpSegments.length;
         boolean condition2 = completedSegments[currentSegmentIndex];
         if(condition1 && condition2){
             currentSegmentIndex++;
+            updateProgressBar();
             updateFragment();
         }else{
             Log.e("Next Segment Button", "current Segment is less then segmentIndex: " + condition1 + "current segment Completed: " + condition2);
@@ -103,6 +115,7 @@ public class SignUpPage extends AppCompatActivity {
     public void goToPreviousSegment(View view){
         if(currentSegmentIndex > 0){
             currentSegmentIndex--;
+            updateProgressBar();
             updateFragment();
         }
     }
@@ -161,7 +174,8 @@ public class SignUpPage extends AppCompatActivity {
                             dateOfBirth,
                             nickname,
                             email,
-                            phoneNumber
+                            phoneNumber,
+                            this
                     );
 
                     signup_UserDetails_Teacher fudf = (signup_UserDetails_Teacher) signUpSegments[2];
@@ -232,7 +246,7 @@ public class SignUpPage extends AppCompatActivity {
                                         }
                                     });
 
-                            boolean firebaseUserDataSaving = rtdbManager.storeData(User.SERIALIZE_INTENT_CODE, uid, newUser, "User", "User");
+                            boolean firebaseUserDataSaving = rtdbManager.storeData(User.SERIALIZE_KEY_CODE, uid, newUser, "User", "User");
                             if(firebaseUserDataSaving){
                                 Intent i = new Intent(SignUpPage.this, SignInPage.class);
                                 finish();

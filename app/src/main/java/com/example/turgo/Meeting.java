@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,23 +32,35 @@ public class Meeting implements Serializable {
     private final RTDBManager<Meeting> rtdbManager;
     private Schedule meetingOfSchedule;
     private HashMap<Student, LocalTime> studentsAttended;
+    private User preScheduledBy;
     private LocalDate dateOfMeeting;
     private LocalTime startTimeChange;
     private LocalTime endTimeChange;
     private Room roomChange;
     private boolean completed;
+    private final Context context;
 
 
-    public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting){
+    public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
         meetingID = UUID.randomUUID().toString();
         this.meetingOfSchedule = meetingOfSchedule;
         studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
         endTimeChange = meetingOfSchedule.getMeetingEnd();
+        this.preScheduledBy = preScheduledBy;
         roomChange = null;
         completed = false;
         rtdbManager = new RTDBManager<>();
+        this.context = context;
+        assignAlarmNotification(this.meetingOfSchedule.getStudents());
+    }
+
+    public void assignAlarmNotification(ArrayList<Student>students){
+        LocalDateTime ldt = LocalDateTime.of(this.dateOfMeeting, startTimeChange);
+        for(Student student : students){
+            MeetingAlarm.setMeetingAlarm(this.context, ldt, this.getMeetingOfSchedule().getScheduleOfCourse(), student);
+        }
     }
 
     public void doTimeChanges(LocalTime start, LocalTime end){
@@ -70,6 +83,14 @@ public class Meeting implements Serializable {
         if (alarmManager != null) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, millis , pendingIntent);
         }
+    }
+
+    public User getPreScheduledBy() {
+        return preScheduledBy;
+    }
+
+    public void setPreScheduledBy(User preScheduledBy) {
+        this.preScheduledBy = preScheduledBy;
     }
 
     public LocalTime getEndTimeChange() {

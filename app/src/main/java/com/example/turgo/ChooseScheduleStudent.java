@@ -10,10 +10,10 @@ import android.view.ViewGroup;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link CourseExploreDetails#newInstance} factory method to
+ * Use the {@link ChooseScheduleStudent#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CourseExploreDetails extends Fragment {
+public class ChooseScheduleStudent extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +24,7 @@ public class CourseExploreDetails extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public CourseExploreDetails() {
+    public ChooseScheduleStudent() {
         // Required empty public constructor
     }
 
@@ -34,11 +34,11 @@ public class CourseExploreDetails extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment CourseExploreDetails.
+     * @return A new instance of fragment ChooseScheduleStudent.
      */
     // TODO: Rename and change types and number of parameters
-    public static CourseExploreDetails newInstance(String param1, String param2) {
-        CourseExploreDetails fragment = new CourseExploreDetails();
+    public static ChooseScheduleStudent newInstance(String param1, String param2) {
+        ChooseScheduleStudent fragment = new ChooseScheduleStudent();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -59,6 +59,6 @@ public class CourseExploreDetails extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_explore_course_full_page, container, false);
+        return inflater.inflate(R.layout.fragment_choose_schedule_student, container, false);
     }
 }

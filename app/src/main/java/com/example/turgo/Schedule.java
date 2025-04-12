@@ -9,6 +9,7 @@ public class Schedule {
     private Course scheduleOfCourse;
     private int numberOfStudents;
     private ArrayList<Student> students;
+    private boolean isPrivate;
     private boolean hasScheduled;
     private User scheduler;
     private LocalTime meetingStart;
@@ -17,16 +18,23 @@ public class Schedule {
     private DayOfWeek day;
     private Room room;
 
-    public Schedule(Course scheduleOfCourse, LocalTime meetingStart, int duration, DayOfWeek day, Room room){
+    public Schedule(Course scheduleOfCourse, LocalTime meetingStart, int duration, DayOfWeek day, Room room, boolean isPrivate){
         this.scheduleOfCourse = scheduleOfCourse;
         this.meetingStart = meetingStart;
         this.duration = duration;
         this.day = day;
         this.meetingEnd = meetingStart.plus(Duration.ofMinutes(duration));
         this.room = room;
+        this.isPrivate = isPrivate;
         this.students = new ArrayList<>();
         this.hasScheduled = false;
         scheduler = null;
+    }
+    public boolean isPrivate(){
+        return this.isPrivate;
+    }
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public LocalTime getMeetingStart() {

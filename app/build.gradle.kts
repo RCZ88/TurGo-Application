@@ -44,6 +44,9 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.preference)
@@ -94,4 +97,5 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.zxing.android.embedded)
+    implementation(libs.flexbox)
 }

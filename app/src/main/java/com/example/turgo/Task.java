@@ -10,6 +10,7 @@ import java.util.UUID;
 public class Task implements Serializable {
     private String taskID;
     private static final String FIREBASE_DB_REFERENCE = "Tasks";
+    public static String SERIALIZE_KEY_CODE = "taskObj";
     private RTDBManager<Task> rtdbManager;
     private ArrayList<Student>studentsAssigned;
     private String title;

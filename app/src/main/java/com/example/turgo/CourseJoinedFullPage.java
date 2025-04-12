@@ -17,24 +17,21 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-
 import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link course_fullPage#newInstance} factory method to
+ * Use the {@link CourseJoinedFullPage#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class course_fullPage extends Fragment {
+public class CourseJoinedFullPage extends Fragment {
     Course course;
     Student student;
-    TextView tv_courseTeacher, tv_courseDays, tv_agendaDate, tv_courseAgenda, tv_noTaskMessage;
+    TextView tv_courseTeacher, tv_courseDays, tv_nextMeetingDate, tv_noTaskMessage, tv_courseTitle;
     ImageView iv_courseBackgroundImage;
     RecyclerView rv_listOfTasks, rv_latestAgenda;
-    Button btn_viewAllAgenda;
+    Button btn_viewAllAgenda, btn_viewAllMeeting;
     TaskAdapter taskAdapter;
-    CollapsingToolbarLayout collapsingToolbar;
     ArrayList<Task> tasks;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -46,7 +43,7 @@ public class course_fullPage extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public course_fullPage() {
+    public CourseJoinedFullPage() {
         // Required empty public constructor
     }
 
@@ -59,8 +56,8 @@ public class course_fullPage extends Fragment {
      * @return A new instance of fragment course_fullPage.
      */
     // TODO: Rename and change types and number of parameters
-    public static course_fullPage newInstance(String param1, String param2) {
-        course_fullPage fragment = new course_fullPage();
+    public static CourseJoinedFullPage newInstance(String param1, String param2) {
+        CourseJoinedFullPage fragment = new CourseJoinedFullPage();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -90,20 +87,21 @@ public class course_fullPage extends Fragment {
         student = ((StudentScreen) getActivity()).getStudent();
         tasks = student.getAllTaskOfCourse(course);
 
-        tv_courseTeacher = view.findViewById(R.id.courseTeacher);
-        tv_courseDays = view.findViewById(R.id.courseDays);
+        tv_courseTeacher = view.findViewById(R.id.tv_cfp_TeacherName);
+        tv_courseDays = view.findViewById(R.id.tv_cfp_ScheduleDays);
+        tv_nextMeetingDate = view.findViewById(R.id.tv_cfp_NextMeeting);
         tv_noTaskMessage = view.findViewById(R.id.noTasksMessage);
-        collapsingToolbar = view.findViewById(R.id.toolbar);
+        tv_courseTitle = view.findViewById(R.id.tv_cfp_CourseTitle);
         iv_courseBackgroundImage = view.findViewById(R.id.courseImage);
-        rv_listOfTasks = view.findViewById(R.id.taskRecyclerView);
-        rv_latestAgenda = view.findViewById(R.id.rv_LatestTask);
+
+        rv_listOfTasks = view.findViewById(R.id.rv_cfp_ListOfTasks);
+        rv_latestAgenda = view.findViewById(R.id.rv_cfp_ListOFAgenda);
         btn_viewAllAgenda = view.findViewById(R.id.btn_ViewAllAgendaOfCourse);
-        collapsingToolbar.setTitle(course.getCourseName());
+        tv_courseTitle.setText(course.getCourseName());
         tv_courseTeacher.setText(course.getTeacher().getFullName());
-        tv_courseAgenda.setText(student.getLatestAgendaOfCourse(course).getContents());
-        tv_courseDays.setText(course.getDaysOfSchedule());
-        tv_agendaDate.setText(student.getLatestAgendaOfCourse(course).getDate().toString());
+        tv_courseDays.setText(course.getDaysOfSchedule(student));
         tv_noTaskMessage.setText("Yay you're Free! No Task Found!");
+
         iv_courseBackgroundImage.setImageBitmap(course.getBackground());
 
         loadTasks();
@@ -115,6 +113,17 @@ public class course_fullPage extends Fragment {
             ft.replace(R.id.nav_host_fragment, new AllAgendaPage(student.getAgendaOfCourse(course)));
             ft.addToBackStack(null);
             ft.commit();
+        });
+        btn_viewAllMeeting.setOnClickListener(view12 -> {
+            StudentMeetings studentMeetings = new StudentMeetings();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+            studentMeetings.setArguments(bundle);
+
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment, studentMeetings)
+                    .addToBackStack(null)
+                    .commit();
         });
         return view;
     }

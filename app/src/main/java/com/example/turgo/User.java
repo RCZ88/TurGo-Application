@@ -22,7 +22,7 @@ import java.util.Objects;
 
 public class User implements Serializable {
     private static final String FIREBASE_DB_REFERENCE = "Users";
-    public static String SERIALIZE_INTENT_CODE;
+    public static String SERIALIZE_KEY_CODE;
     private String UID;
     private String type;
     private String fullName;
@@ -35,7 +35,7 @@ public class User implements Serializable {
     private Language language;
     private Theme theme;
 
-    public User(String type, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_INTENT_CODE) throws ParseException {
+    public User(String type, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_KEY_CODE) throws ParseException {
         this.type = type;
         this.fullName = fullName;
         this.birthDate = birthDate;
@@ -46,7 +46,7 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
         this.language = Language.ENGLISH;
         this.theme = Theme.SYSTEM;
-        User.SERIALIZE_INTENT_CODE = SERIALIZE_INTENT_CODE;
+        User.SERIALIZE_KEY_CODE = SERIALIZE_KEY_CODE;
     }
 
     public User(){}
