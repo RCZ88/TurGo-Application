@@ -34,7 +34,7 @@ public class Student extends User implements Serializable {
     private Context context;
 
     public Student(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber, Context context) throws ParseException {
-        super("STUDENT", gender, fullName, birthDate, nickname, email, phoneNumber, "stuOBJ");
+        super(UserType.STUDENT, gender, fullName, birthDate, nickname, email, phoneNumber, "stuOBJ");
         courseTaken = new ArrayList<>();
         courseInterested = new ArrayList<>();
         courseRelated = new ArrayList<>();
@@ -160,9 +160,9 @@ public class Student extends User implements Serializable {
             }
         }
     }
-    public void joinCourse(Course course){
-        courseTaken.add(course);
-        course.addStudent(this);
+    public void joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules){
+        course.addStudent(this, paymentPreferences, privateOrGroup, payment, schedules);
+        course.getSchedules().addAll(schedules);
         allSchedules = getAllSchedule();
         addScheduledMeeting();
     }

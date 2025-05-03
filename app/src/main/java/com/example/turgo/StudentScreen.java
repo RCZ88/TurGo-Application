@@ -1,14 +1,22 @@
 package com.example.turgo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.PopupWindow;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.turgo.databinding.ActivityStudentScreenBinding;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,6 +30,7 @@ public class StudentScreen extends AppCompatActivity {
     private FirebaseUser fbUser;
     private NavHostFragment navHostFragment;
     private BottomNavigationView navView;
+    private Button btn_dropDownMail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +69,36 @@ public class StudentScreen extends AppCompatActivity {
                     Log.e("Firebase", "Error retrieving user: " + error.getMessage());
                 }
             });
-
+            String fragmentToShow = getIntent().getStringExtra("ShowFragment");
+            if(fragmentToShow.equals("CourseJoinedFullPage")){
+                Bundle bundle = new Bundle();
+                Intent intent = new Intent();
+                Course course = (Course)intent.getSerializableExtra("CourseJoined");
+                bundle.putSerializable("Course", course);
+                CourseJoinedFullPage cjfp = new CourseJoinedFullPage();
+                cjfp.setArguments(bundle);
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nav_host_fragment, cjfp)
+                        .addToBackStack(null)
+                        .commit();
+            }
         }
+        btn_dropDownMail.setOnClickListener(view -> {
+            View popDownView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
+
+            PopupWindow popupWindow = new PopupWindow(popDownView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            RecyclerView rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
+            MailSmallAdapter mailSmallAdapter = new MailSmallAdapter(student.getInbox());
+            rv_MailDropDown.setAdapter(mailSmallAdapter);
+
+            popupWindow.showAsDropDown(btn_dropDownMail);
+
+            Button seeAll = findViewById(R.id.btn_mailDropDown);
+            seeAll.setOnClickListener(view1 -> {
+
+            });
+        });
     }
 
     public ActivityStudentScreenBinding getBinding() {

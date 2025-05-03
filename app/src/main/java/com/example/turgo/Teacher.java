@@ -21,7 +21,7 @@ public class Teacher extends User implements Serializable {
     private String teacherResume;
     private int teachYearExperience;
     public Teacher(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber, Context context) throws ParseException {
-        super("TEACHER", gender, fullName, birthDate, nickname, email, phoneNumber, "teaObj");
+        super(UserType.TEACHER, gender, fullName, birthDate, nickname, email, phoneNumber, "teaObj");
         scheduledMeetings = new ArrayList<>();
         coursesTeach = new ArrayList<>();
         profileImage = ContextCompat.getDrawable(context, R.drawable.chalkboard_user);

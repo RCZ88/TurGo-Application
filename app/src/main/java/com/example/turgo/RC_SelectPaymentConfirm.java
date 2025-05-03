@@ -133,10 +133,7 @@ public class RC_SelectPaymentConfirm extends Fragment {
         tv_ppm = view.findViewById(R.id.tv_PricePerMonth);
         tv_savePercentage = view.findViewById(R.id.tv_DiscountAmount);
 
-        double costPW = 0;
-        for(double price: prices){
-            costPW+= price;
-        }
+        double costPW = prices.stream().mapToDouble(price -> price).sum();
         String cpw = "Rp. " + (int)costPW;
 
         double costPM = costPW * 4 * (100 -course.getMonthlyDiscountPercentage())/100;
@@ -153,11 +150,15 @@ public class RC_SelectPaymentConfirm extends Fragment {
         VL_pmSlot = view.findViewById(R.id.vl_pmContainer);
         btn_sm.setOnClickListener(view1 -> {
             pwm = false;
+            rc.setPaymentPreferences(false);
+            rc.setSelectedPrice((int)costPW);
             VL_pwSlot.setBackgroundColor(Color.parseColor("#FFC107"));
             VL_pmSlot.setBackgroundColor(Color.parseColor("#63A375"));
         });
         btn_sw.setOnClickListener(view12 -> {
             pwm = true;
+            rc.setPaymentPreferences(true);
+            rc.setSelectedPrice((int)costPM);
             VL_pmSlot.setBackgroundColor(Color.parseColor("#FFC107"));
             VL_pwSlot.setBackgroundColor(Color.parseColor("#63A375"));
         });

@@ -82,8 +82,11 @@ public class CourseJoinedFullPage extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_course_full_page, container, false);
         assert getActivity() != null;
-        Intent intent = getActivity().getIntent();
-        course = (Course) intent.getSerializableExtra("Selected Course");
+//        Intent intent = getActivity().getIntent();
+//        course = (Course) intent.getSerializableExtra("Selected Course");
+        if(getArguments() != null){
+            course = (Course) getArguments().getSerializable("Course");
+        }
         student = ((StudentScreen) getActivity()).getStudent();
         tasks = student.getAllTaskOfCourse(course);
 

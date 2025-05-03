@@ -8,8 +8,9 @@ public class ObjectManager {
     protected static final ArrayList<Room> ROOMS = new ArrayList<>();
     protected static final ArrayList<CourseType> COURSE_TYPES = new ArrayList<>();
 
-    public static void ADD_USER(User user){
+    public static boolean ADD_USER(User user){
         USERS.add(user);
-        RTDBManager<>
+        RTDBManager<User> rm = new RTDBManager<>();
+        return rm.storeData(User.SERIALIZE_KEY_CODE, user.getUID(), user, "User", "User");
     }
 }

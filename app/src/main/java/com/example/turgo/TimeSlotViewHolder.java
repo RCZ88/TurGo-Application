@@ -18,6 +18,7 @@ public class TimeSlotViewHolder extends RecyclerView.ViewHolder {
     boolean scheduleExist;
     public TimeSlotViewHolder(@NonNull View itemView, OnItemClickListener<TimeSlot>listener){
         super(itemView);
+        tv_timeSlot = itemView.findViewById(R.id.tv_SingleText);
         itemView.setOnClickListener(view -> listener.onItemClick(ts));
         if(ts.getExistingSchedule() != null){
             scheduleExist = true;

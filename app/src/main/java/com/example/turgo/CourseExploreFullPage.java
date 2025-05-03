@@ -87,6 +87,12 @@ public class CourseExploreFullPage extends Fragment {
         tv_teacherName.setText(course.getTeacher().getFullName());
         tv_teacherDescription.setText(course.getTeacher().getTeacherResume());
 
+        btn_joinCourse.setOnClickListener(view1 -> {
+            Intent intent1 = new Intent(getContext(), RegisterCourse.class);
+            intent1.putExtra("Student", ((StudentScreen)getContext()).getStudent());
+            intent1.putExtra(Course.SERIALIZE_KEY_CODE, course);
+        });
+
         return view;
     }
 }

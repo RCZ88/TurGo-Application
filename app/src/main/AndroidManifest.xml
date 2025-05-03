@@ -25,6 +25,16 @@
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".MailPageFull"
+            android:exported="false"
+            android:label="@string/title_activity_mail_page_full" />
+        <activity
+            android:name=".MailExpandFull"
+            android:exported="false" />
+        <activity
+            android:name=".MailFullPage"
+            android:exported="false" />
+        <activity
             android:name=".RegisterCourse"
             android:exported="false" />
         <activity

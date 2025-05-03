@@ -57,48 +57,47 @@ public class DayTimeArrangement {
         }
         return freeSlots;
     }
-    public void applySchedule(LocalTime start, int duration, Student student, boolean paymentPreferences, int cost){//private
-        ArrayList<TimeSlot> freeSlots = findFreeSlots(true, 1, duration);
-        for(TimeSlot ts : freeSlots){
-            if(isTimeEqualOrBetween(start, start.plus(Duration.ofMinutes(duration)), ts.getStart(), ts.getEnd())){
-                Schedule schedule = new Schedule(atCourse, start, duration ,day, Room.getEmptyRoom(start, start.plus(Duration.ofMinutes(duration)), day), true);
-                schedule.addStudent(student);
-                atCourse.addStudent(student, paymentPreferences, false, cost, schedule);
-                atCourse.addSchedule(schedule);
-                occupied.add(schedule);
-                break;
-            }
-        }
-    }
 
-    public void applySchedule(LocalTime start, int duration, int maxPeople, Student student, boolean paymentPreferences, int cost){
-        ArrayList<TimeSlot>freeSlots = findFreeSlots(false, maxPeople, duration);
-        for(TimeSlot timeSlot : freeSlots){
-            if(isTimeEqualOrBetween(start, start.plus(Duration.ofMinutes(duration)), timeSlot.getStart(), timeSlot.getEnd())){
-                boolean found = false;
-                for(Schedule schedule : occupied){
-                    if(!(schedule.isPrivate()) && schedule.getMeetingStart().equals(start)){
-                        System.out.println("Schedule found! Adding student...");
-                        schedule.addStudent(student);
-                        atCourse.addStudent(student, paymentPreferences, true, cost, schedule);
-                        System.out.println("Student Successfully Added");
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found){
-                    System.out.println("No Existing Schedule found of that Time! Creating a new Schedule");
-                    Schedule newSchedule = new Schedule(atCourse, start, duration, day, Room.getEmptyRoom(start, start.plus(Duration.ofMinutes(duration)), day), false);
-                    atCourse.addStudent(student, paymentPreferences, true, cost, newSchedule);
-                    newSchedule.addStudent(student);
-                    atCourse.addSchedule(newSchedule);
-                    occupied.add(newSchedule);
-                    System.out.println("Schedule successfully created!");
-                    break;
-                }
-            }
-        }
-    }
+    //FOR IF CUSTOM INPUT OWN TIME.
+//    public void applySchedule(LocalTime start, int duration, Student student, boolean paymentPreferences, int cost){//private
+//        ArrayList<TimeSlot> freeSlots = findFreeSlots(true, 1, duration);
+//        for(TimeSlot ts : freeSlots){
+//            if(isTimeEqualOrBetween(start, start.plus(Duration.ofMinutes(duration)), ts.getStart(), ts.getEnd())){
+//                Schedule schedule = new Schedule(atCourse, start, duration ,day, Room.getEmptyRoom(start, start.plus(Duration.ofMinutes(duration)), day), true);
+//                schedule.addStudent(student);
+//                atCourse.addSchedule(schedule);
+//                occupied.add(schedule);
+//                break;
+//            }
+//        }
+//    }
+//
+//    public void applySchedule(LocalTime start, int duration, int maxPeople, Student student, boolean paymentPreferences, int cost){
+//        ArrayList<TimeSlot>freeSlots = findFreeSlots(false, maxPeople, duration);
+//        for(TimeSlot timeSlot : freeSlots){
+//            if(isTimeEqualOrBetween(start, start.plus(Duration.ofMinutes(duration)), timeSlot.getStart(), timeSlot.getEnd())){
+//                boolean found = false;
+//                for(Schedule schedule : occupied){
+//                    if(!(schedule.isPrivate()) && schedule.getMeetingStart().equals(start)){
+//                        System.out.println("Schedule found! Adding student...");
+//                        schedule.addStudent(student);
+//                        System.out.println("Student Successfully Added");
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if(!found){
+//                    System.out.println("No Existing Schedule found of that Time! Creating a new Schedule");
+//                    Schedule newSchedule = new Schedule(atCourse, start, duration, day, Room.getEmptyRoom(start, start.plus(Duration.ofMinutes(duration)), day), false);
+//                    newSchedule.addStudent(student);
+//                    atCourse.addSchedule(newSchedule);
+//                    occupied.add(newSchedule);
+//                    System.out.println("Schedule successfully created!");
+//                    break;
+//                }
+//            }
+//        }
+//    }
     public ArrayList<TimeSlot>splitSlots(int duration, ArrayList<TimeSlot>emptySlots){
         Duration d = Duration.ofMinutes(duration);
         ArrayList<TimeSlot>timeSlots = new ArrayList<>();

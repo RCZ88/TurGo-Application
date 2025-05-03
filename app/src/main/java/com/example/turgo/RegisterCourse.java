@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,14 +15,10 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentContainer;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 public class RegisterCourse extends AppCompatActivity {
     int amtOfRegisFrag = 3;
@@ -30,7 +27,7 @@ public class RegisterCourse extends AppCompatActivity {
 
     ProgressBar pb_regisProgress;
 
-    Fragment frag_AvailDayTime, frag_PrivateDurationAmount;
+    Fragment frag_UserInfo, frag_AvailDayTime, frag_PrivateDurationAmount, frag_SelectPaymentConfirm;
 
     View fc_container;
 
@@ -41,9 +38,13 @@ public class RegisterCourse extends AppCompatActivity {
     private Course course;
     private boolean isPrivate;
     private int duration;
+    private int selectedPrice;
     private ArrayList<DayOfWeek>dowSelected;
     private HashMap<TimeSlot, Integer> timeSlotPeopleAmountSelected;
+    private String school, educationGrade, reasonForJoining;
     int currentFragIndex;
+    private Student student;
+    private boolean paymentPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +58,18 @@ public class RegisterCourse extends AppCompatActivity {
         });
         Intent intent = getIntent();
         this.course = (Course) intent.getSerializableExtra(Course.SERIALIZE_KEY_CODE);
-
+        this.student = (Student) intent.getSerializableExtra("Student");
         fc_container = findViewById(R.id.fcv_RegisterFragment);
 
-        RC_PrivateDurationAmount rc_privateDurationAmount = new RC_PrivateDurationAmount();
-        RC_AvailableDayTime rc_availableDayTime = new RC_AvailableDayTime();
-        RC_SelectPaymentConfirm rc_selectPaymentConfirm = new RC_SelectPaymentConfirm();
+        frag_UserInfo = new RC_UserInformation();
+        frag_PrivateDurationAmount = new RC_PrivateDurationAmount();
+        frag_AvailDayTime = new RC_AvailableDayTime();
+        frag_SelectPaymentConfirm = new RC_SelectPaymentConfirm();
 
-        registerFragments[0] = rc_privateDurationAmount;
-        registerFragments[1] = rc_availableDayTime;
-        registerFragments[2] = rc_selectPaymentConfirm;
+        registerFragments[0] = frag_UserInfo;
+        registerFragments[1] = frag_PrivateDurationAmount;
+        registerFragments[2] = frag_AvailDayTime;
+        registerFragments[3] = frag_SelectPaymentConfirm;
 
         btn_prev = findViewById(R.id.btn_previous_rc);
         btn_next = findViewById(R.id.btn_next_rc);
@@ -76,7 +79,7 @@ public class RegisterCourse extends AppCompatActivity {
             if(currentFragIndex < amtOfRegisFrag){
                 nextFragment();
             }else{
-
+                Log.e("Frag Limited", "Fragment End Reached");
             }
         });
     }
@@ -132,6 +135,39 @@ public class RegisterCourse extends AppCompatActivity {
     public void setAmountOfMeetingPerWeek(int amountOfMeetingPerWeek) {
         this.amountOfMeetingPerWeek = amountOfMeetingPerWeek;
     }
+
+    public int getSelectedPrice() {
+        return selectedPrice;
+    }
+
+    public void setSelectedPrice(int selectedPrice) {
+        this.selectedPrice = selectedPrice;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getEducationGrade() {
+        return educationGrade;
+    }
+
+    public void setEducationGrade(String educationGrade) {
+        this.educationGrade = educationGrade;
+    }
+
+    public String getReasonForJoining() {
+        return reasonForJoining;
+    }
+
+    public void setReasonForJoining(String reasonForJoining) {
+        this.reasonForJoining = reasonForJoining;
+    }
+
     public void apply(){
         ArrayList<Schedule> schedules = new ArrayList<>();
         ArrayList<TimeSlot> timeSlotSelected = new ArrayList<>();
@@ -139,11 +175,20 @@ public class RegisterCourse extends AppCompatActivity {
         for(int i = 0; i<dowSelected.size(); i++){
             TimeSlot timeSlot = timeSlotSelected.get(i);
             Schedule schedule = new Schedule(course, timeSlot.getStart(), (int)(timeSlot.getTime().getSeconds()/60), dowSelected.get(i), Room.getEmptyRoom(timeSlot.getStart(), timeSlot.getEnd(), dowSelected.get(i)), isPrivate);
+            schedules.add(schedule);
         }
         if(course.isAutoAcceptStudent()){
-
+            student.joinCourse(course, paymentPreferences, isPrivate, selectedPrice, schedules);
+            Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, StudentScreen.class);
+            intent.putExtra("ShowFragment", "CourseJoinedFullPage");
+            intent.putExtra("CourseJoined", course);
+            startActivity(intent);
+            finish();
         }else{
-
+            MailApplyCourse acm = new MailApplyCourse(student, course.getTeacher(), schedules, course, reasonForJoining, school, educationGrade);
+            User.sendMail(acm);
+            Toast.makeText(this, "Apply Course Mail Request Sent!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -171,5 +216,21 @@ public class RegisterCourse extends AppCompatActivity {
     public void updateCurrentFragment(){
         getSupportFragmentManager().beginTransaction().replace(fc_container.getId(), registerFragments[currentFragIndex]);
         btn_prev.setEnabled(currentFragIndex > 0);
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public boolean isPaymentPreferences() {
+        return paymentPreferences;
+    }
+
+    public void setPaymentPreferences(boolean paymentPreferences) {
+        this.paymentPreferences = paymentPreferences;
     }
 }

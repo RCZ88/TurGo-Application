@@ -12,7 +12,7 @@ public class DayViewHolder extends RecyclerView.ViewHolder {
     TextView tv_Day;
     public DayViewHolder(@NonNull View itemView, OnItemClickListener<DayOfWeek>listener) {
         super(itemView);
-        tv_Day = itemView.findViewById(R.id.tv_Day);
+        tv_Day = itemView.findViewById(R.id.tv_SingleText);
         itemView.setOnClickListener(view -> {
             listener.onItemClick(DayOfWeek.valueOf((String) tv_Day.getText()));
         });

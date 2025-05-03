@@ -169,16 +169,16 @@ public class SignInPage extends AppCompatActivity {
             // User signed in successfully
             Log.d("Firebase User", "User: " + user.getDisplayName() + ", Email: " + user.getEmail());
             Intent i = null;
-            switch(userData.getType()){
-                case "Student":
+            switch(userData.getUserType()){
+                case STUDENT:
                     i = new Intent(SignInPage.this, StudentScreen.class);
                     i.putExtra(Student.SERIALIZE_KEY_CODE, user);
                     startActivity(i);
                     finish();
                     break;
-                case "Teacher":
-                case "Admin":
-                case "Parent":
+                case TEACHER:
+                case ADMIN:
+                case PARENT:
             }
 
             assert i != null;

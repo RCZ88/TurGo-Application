@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class User implements Serializable {
     private static final String FIREBASE_DB_REFERENCE = "Users";
     public static String SERIALIZE_KEY_CODE;
     private String UID;
-    private String type;
+    private UserType userType;
     private String fullName;
     private int age;
     private String birthDate;
@@ -34,9 +35,10 @@ public class User implements Serializable {
     private String phoneNumber;
     private Language language;
     private Theme theme;
+    private ArrayList<Mail> inbox;
 
-    public User(String type, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_KEY_CODE) throws ParseException {
-        this.type = type;
+    public User(UserType userType, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_KEY_CODE) throws ParseException {
+        this.userType = userType;
         this.fullName = fullName;
         this.birthDate = birthDate;
         this.gender = gender;
@@ -113,12 +115,20 @@ public class User implements Serializable {
 
     public void setBirthDate(String birthDate){this.birthDate = birthDate;}
 
-    public String getType() {
-        return type;
+    public UserType getUserType() {
+        return userType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
+
+    public ArrayList<Mail> getInbox() {
+        return inbox;
+    }
+
+    public void setInbox(ArrayList<Mail> inbox) {
+        this.inbox = inbox;
     }
 
     public String getGender() {
@@ -155,6 +165,9 @@ public class User implements Serializable {
                 ", email='" + email + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
+    }
+    public static void sendMail(Mail mail){
+        mail.getTo().inbox.add(mail);
     }
 
      public static void getUserDataFromDB(String uid, ObjectCallBack<User> callback) {

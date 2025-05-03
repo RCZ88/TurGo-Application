@@ -96,18 +96,18 @@ public class Course implements Serializable {
         }
         return null;
     }
-    public void applySchedule(DayOfWeek day, LocalTime start, int duration, boolean isPrivate, int maxPeople, Student student, boolean payment, int cost){
-        if(getDTAOfDay(day).getMaxMeeting() < getDTAOfDay(day).getOccupied().size()){
-            if(isPrivate){
-                getDTAOfDay(day).applySchedule(start, duration, student, payment, cost);
-            }else{
-                getDTAOfDay(day).applySchedule(start, duration, maxPeople, student, payment, cost);
-            }
-            updateDB(this);
-        }else{
-            Log.i("Day selecting", "Max meeting of Teacher has been Reached! Please select a different Day!");
-        }
-    }
+//    public void applySchedule(DayOfWeek day, LocalTime start, int duration, boolean isPrivate, int maxPeople, Student student, boolean payment, int cost){
+//        if(getDTAOfDay(day).getMaxMeeting() < getDTAOfDay(day).getOccupied().size()){
+//            if(isPrivate){
+//                getDTAOfDay(day).applySchedule(start, duration, student, payment, cost);
+//            }else{
+//                getDTAOfDay(day).applySchedule(start, duration, maxPeople, student, payment, cost);
+//            }
+//            updateDB(this);
+//        }else{
+//            Log.i("Day selecting", "Max meeting of Teacher has been Reached! Please select a different Day!");
+//        }
+//    }
     public String getDaysAvailable(){
         StringBuilder sb = new StringBuilder();
         for(DayTimeArrangement dta : dayTimeArrangement){
@@ -277,13 +277,26 @@ public class Course implements Serializable {
 
     public CourseType getCourseType(){ return courseType; }
 
-    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, Schedule schedule){
+    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules){
         StudentCourse sc = new StudentCourse(student, this, paymentPreferences, privateOrGroup, payment);
-        sc.addSchedule(schedule);
+        sc.setSchedulesOfCourse(schedules);
         studentsCourse.add(sc);
         students.add(student);
+        for(Schedule schedule : schedules){
+            if(!getDTAOfDay(schedule.getDay()).getOccupied().contains(schedule)){//if a new schedule, add the schedule
+                getDTAOfDay(schedule.getDay()).getOccupied().add(schedule);
+            }else{
+                for(Schedule s : getDTAOfDay(schedule.getDay()).getOccupied()){
+                    if(s == schedule){
+                        s.addStudent(student);
+                        break;
+                    }
+                }
+            }
+        }
         updateDB(this);
     }
+
 
     public String getCourseName() {
         return courseName;

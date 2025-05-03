@@ -18,14 +18,9 @@ import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 
@@ -34,7 +29,7 @@ public class SignUpPage extends AppCompatActivity {
     public static final int MODSEGMENT1 = 2;
     public static final int AMOUNTOFSEGMENT = 6;
 
-    public String userType;
+    public UserType userType;
     View fc_signUpStages;
     RTDBManager<User> rtdbManager = new RTDBManager<>();
     double progress;
@@ -148,9 +143,8 @@ public class SignUpPage extends AppCompatActivity {
             String email = fci.et_email.getText().toString();
             String phoneNumber = fci.et_phoneNumber.getText().toString();
             String gender = fud.gender;
-
             switch (userType) {
-                case "Student":
+                case STUDENT:
                     newUser = new Student(
                             fullName,
                             gender,
@@ -167,7 +161,7 @@ public class SignUpPage extends AppCompatActivity {
                     }
                     break;
 
-                case "Teacher":
+                case TEACHER:
                     newUser = new Teacher(
                             fullName,
                             gender,
@@ -184,7 +178,7 @@ public class SignUpPage extends AppCompatActivity {
                     }
                     break;
 
-                case "Parent":
+                case PARENT:
                     newUser = new Parent(
                             fullName,
                             gender,
@@ -200,7 +194,7 @@ public class SignUpPage extends AppCompatActivity {
                     }
                     break;
 
-                case "Admin":
+                case ADMIN:
                     newUser = new Admin(
                             fullName,
                             gender,
@@ -229,6 +223,7 @@ public class SignUpPage extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
 // Create the user in Firebase Authentication
         User newUser = createUser();
+        ObjectManager.ADD_USER(newUser);
         auth.createUserWithEmailAndPassword(newUser.getEmail(), Objects.requireNonNull(((signup_PasswordSetup) frag_passwordSetup).pi_password.getText()).toString())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -246,7 +241,7 @@ public class SignUpPage extends AppCompatActivity {
                                         }
                                     });
 
-                            boolean firebaseUserDataSaving = rtdbManager.storeData(User.SERIALIZE_KEY_CODE, uid, newUser, "User", "User");
+                            boolean firebaseUserDataSaving = ObjectManager.ADD_USER(newUser);
                             if(firebaseUserDataSaving){
                                 Intent i = new Intent(SignUpPage.this, SignInPage.class);
                                 finish();

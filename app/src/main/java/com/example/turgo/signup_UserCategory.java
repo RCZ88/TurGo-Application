@@ -1,6 +1,5 @@
 package com.example.turgo;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,7 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
@@ -78,24 +76,23 @@ public class signup_UserCategory extends Fragment implements checkFragmentComple
             segmentComplete = true;
             RadioButton selectedOption = view.findViewById(i);
             String selected = selectedOption.getText().toString();
-            signUpPage.userType = selected;
 
             switch(selected){
                 case "Student":
                     signUpPage.signUpSegments[SignUpPage.MODSEGMENT1] = new signup__student_selectcourse();
-                    signUpPage.userType = "Student";
+                    signUpPage.userType = UserType.STUDENT;
                     break;
                 case "Parent":
                     signUpPage.signUpSegments[SignUpPage.MODSEGMENT1] = new signup__parent_connecttochild();
-                    signUpPage.userType = "Parent";
+                    signUpPage.userType = UserType.PARENT;
                     break;
                 case "Teacher":
                     signUpPage.signUpSegments[SignUpPage.MODSEGMENT1] = new signup_UserDetails_Teacher();
-                    signUpPage.userType = "Teacher";
+                    signUpPage.userType = UserType.TEACHER;
                     break;
                 case "Admin":
                     signUpPage.signUpSegments[SignUpPage.MODSEGMENT1] = new signup_admin_empty();
-                    signUpPage.userType = "Admin";
+                    signUpPage.userType = UserType.ADMIN;
                     break;
             }
         });
