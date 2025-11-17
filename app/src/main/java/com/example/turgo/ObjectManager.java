@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 public class ObjectManager {
@@ -8,9 +9,13 @@ public class ObjectManager {
     protected static final ArrayList<Room> ROOMS = new ArrayList<>();
     protected static final ArrayList<CourseType> COURSE_TYPES = new ArrayList<>();
 
-    public static boolean ADD_USER(User user){
+    public static void ADD_USER(User user) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         USERS.add(user);
-        RTDBManager<User> rm = new RTDBManager<>();
-        return rm.storeData(User.SERIALIZE_KEY_CODE, user.getUID(), user, "User", "User");
+        user.updateUserDB();
+    }
+
+    public static void ADD_COURSE(Course course){
+        COURSES.add(course);
+
     }
 }

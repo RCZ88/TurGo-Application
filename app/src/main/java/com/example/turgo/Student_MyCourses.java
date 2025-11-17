@@ -1,9 +1,9 @@
 package com.example.turgo;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,6 +11,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -69,17 +74,19 @@ public class Student_MyCourses extends Fragment {
         View view = inflater.inflate(R.layout.fragment_student_my_courses, container, false);
         StudentScreen activity = (StudentScreen) getActivity();
         assert activity != null;
-        this.user = activity.getStudent();
+        StudentFirebase studentFirebase = activity.getStudent();
+
+        try {
+            this.user = studentFirebase.convertToNormal();
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
+                 java.lang.InstantiationException | ParseException e) {
+            throw new RuntimeException(e);
+        }
         RecyclerView recyclerView = view.findViewById(R.id.rv_ListOfMyCourses);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ArrayList<Course> courses =  user.getCourseTaken();// Your method to get courses
-        CourseAdapter adapter = new CourseAdapter(courses, user, new OnItemClickListener<Course>() {
-            @Override
-            public void onItemClick(Course item) {
-                selectCourse(item);
-            }
-        });
+        CourseAdapter adapter = new CourseAdapter(courses, user, this::selectCourse, requireContext());
         recyclerView.setAdapter(adapter);
 
         return view;
@@ -89,6 +96,16 @@ public class Student_MyCourses extends Fragment {
 //        Intent intent = new Intent(requireContext(), CourseJoinedFullPage.class);
 //        intent.putExtra("SelectedCourse", course);
         Bundle bundle = new Bundle();
+        bundle.putSerializable("Course", course);
+        bundle.putSerializable("StudentCourse", user.getStudentCourseFromCourse(course));
+
+        CourseJoinedFullPage fragment = new CourseJoinedFullPage();
+        fragment.setArguments(bundle);
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.nhf_ss_FragContainer, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
 
     }
 }

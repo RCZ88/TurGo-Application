@@ -1,14 +1,20 @@
 package com.example.turgo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.UUID;
 
-public class Dropbox {
+public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase>{
+    private final FirebaseNode fbn = FirebaseNode.DROPBOX;
+    private final Class<DropboxFirebase> fbc = DropboxFirebase.class;
     private ArrayList<Submission>submissions;
+    private final String UID;
     private Task ofTask;
     public Dropbox(Task ofTask){
         submissions = new ArrayList<>();
         this.ofTask = ofTask;
         setupSubmissions(ofTask.getStudentsAssigned());
+        UID = UUID.randomUUID().toString();
     }
     public Submission getSubmissionSlot(Student student){
         for(Submission submission : submissions){
@@ -24,6 +30,19 @@ public class Dropbox {
         }
     }
 
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<DropboxFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+    public String getID() {
+        return UID;
+    }
 
     public ArrayList<Submission> getSubmissions() {
         return submissions;

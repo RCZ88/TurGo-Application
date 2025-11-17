@@ -3,10 +3,18 @@ package com.example.turgo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -15,6 +23,7 @@ import android.view.ViewGroup;
  */
 public class student_ExploreCourse extends Fragment {
 
+    private Student student;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -59,6 +68,22 @@ public class student_ExploreCourse extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_student_explore_courses, container, false);
+        View view = inflater.inflate(R.layout.fragment_student_explore_courses, container, false);
+        StudentScreen sc = (StudentScreen) requireActivity();
+        StudentFirebase sf = sc.getStudent();
+        try {
+            student = sf.convertToNormal();
+        } catch (NoSuchMethodException | java.lang.InstantiationException | IllegalAccessException |
+                 InvocationTargetException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+        ArrayList<Course> coursesInterested = student.getExploreCourse();
+        CourseAdapter courseAdapter = new CourseAdapter(coursesInterested, student, item -> {
+            CourseExploreFullPage fragment = new CourseExploreFullPage();
+            requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.nhf_ss_FragContainer, fragment).addToBackStack(null).commit();
+        }, requireContext());
+        RecyclerView rv_courses = view.findViewById(R.id.rv_exploreCourses);
+        rv_courses.setAdapter(courseAdapter);
+        return view;
     }
 }

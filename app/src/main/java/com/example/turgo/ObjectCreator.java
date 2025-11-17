@@ -7,8 +7,8 @@ public class ObjectCreator {
         final Teacher[] ta= new Teacher[1];
         User.getUserDataFromDB("os40TM8yvSRuKHJiTNcgNVGYmgh2", new ObjectCallBack<User>() {
             @Override
-            public void onObjectRetrieved(User Object) {
-                ta[0] = (Teacher)Object;
+            public void onObjectRetrieved(User object) {
+                ta[0] = (Teacher) object;
             }
 
             @Override

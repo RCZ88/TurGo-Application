@@ -137,9 +137,9 @@ public class signup__parent_connecttochild extends Fragment implements checkFrag
         if(!uid.isBlank()){
             User.getUserDataFromDB(uid, new ObjectCallBack<User>() {
                 @Override
-                public void onObjectRetrieved(User user) {
-                    childFound = (Student) user;
-                    tv_childFound.setText(user.getFullName());
+                public void onObjectRetrieved(User object) {
+                    childFound = (Student) object;
+                    tv_childFound.setText(object.getFullName());
                 }
 
                 @Override

@@ -10,6 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Student_TaskList#newInstance} factory method to
@@ -62,16 +67,33 @@ public class Student_TaskList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_student__task_list, container, false);
-        Student student = ((StudentScreen)getActivity()).getStudent();
-        TaskAdapter taskAdapter = new TaskAdapter(student.getAllTask(), student);
+        Student student = null;
+        assert getActivity() != null;
+        StudentFirebase sf = ((StudentScreen)getActivity()).getStudent();
+        try {
+            student = (Student)sf.convertToNormal();
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
+                 java.lang.InstantiationException | ParseException e) {
+            throw new RuntimeException(e);
+        }
+        TaskAdapter taskAdapter = new TaskAdapter(student.getAllTask(), student, item -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
+
+            TaskFullPage tfp = new TaskFullPage();
+            tfp.setArguments(bundle);
+
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.nhf_ss_FragContainer, tfp)
+                    .addToBackStack(null)
+                    .commit();
+        });
         rv_tasks = view.findViewById(R.id.rv_stl_AllTask);
         btn_viewPastTasks = view.findViewById(R.id.btn_ViewPastTask);
         rv_tasks.setAdapter(taskAdapter);
-        btn_viewPastTasks.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        btn_viewPastTasks.setOnClickListener(view1 -> {
 
-            }
         });
 
         // Inflate the layout for this fragment

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 
 /**
@@ -73,7 +74,8 @@ public class signup_ConfirmData extends Fragment implements checkFragmentComplet
         btn_SignUp.setOnClickListener(v ->{
             try {
                 sup.signUp();
-            } catch (ParseException e) {
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | java.lang.InstantiationException e) {
                 throw new RuntimeException(e);
             }
         });

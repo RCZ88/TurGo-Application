@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_mail"
+        android:icon="@drawable/envelope"
+        android:title="Mail" />
+    <item
+        android:id="@+id/action_notifications"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="Notifications" />
+</menu>

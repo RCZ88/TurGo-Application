@@ -12,7 +12,7 @@ import java.time.ZoneId;
 public class MeetingAlarm {
     //Meeting alarm notification
     @SuppressLint("ScheduleExactAlarm")
-    public static void setMeetingAlarm(Context context, LocalDateTime dateTime, Course course, Student student){
+    public static void setMeetingAlarm(Context context, LocalDateTime dateTime, Course course, Student student, Schedule schedule){
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         LocalDateTime notifyAt = dateTime.minus(student.getNotificationEarlyDuration());
         long millis = notifyAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -20,6 +20,8 @@ public class MeetingAlarm {
         Intent intent = new Intent(context, CourseNotification.class);
         intent.putExtra(Course.SERIALIZE_KEY_CODE, course);
         intent.putExtra(Student.SERIALIZE_KEY_CODE, student);
+        intent.putExtra(Schedule.SERIALIZE_KEY_CODE, schedule);
+        intent.putExtra("NotifEarlyDuration", student.getNotificationEarlyDuration());
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

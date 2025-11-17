@@ -11,6 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link MeetingDisplay#newInstance} factory method to
@@ -74,11 +79,19 @@ public class MeetingDisplay extends Fragment {
         tv_courseTitle = view.findViewById(R.id.tv_mdf_CourseTitle);
 
         assert activity != null;
-        Course scheduleOfCourse = activity.getStudent().getNextMeeting().getMeetingOfSchedule().getScheduleOfCourse();
-        iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
+        Student student = null;
+        try {
+            student = activity.getStudent().convertToNormal();
+        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | java.lang.InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        Course scheduleOfCourse = student.getNextMeeting().getMeetingOfSchedule().getScheduleOfCourse();
+//        iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
+        Glide.with(requireContext()).load(scheduleOfCourse.getLogo()).into(iv_courseLogo);
         tv_courseTitle.setText(scheduleOfCourse.getCourseName());
-        tv_courseTime.setText(activity.getStudent().getNextMeeting().getStartTimeChange().toString());
-        tv_courseDateDay.setText(activity.getStudent().getNextMeeting().getDateOfMeeting().toString());
+        tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
+        tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
 
         return view;
     }

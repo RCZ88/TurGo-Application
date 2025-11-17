@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 
 /**
@@ -84,15 +85,28 @@ public class TaskDisplay extends Fragment {
         tv_submissionTime = view.findViewById(R.id.tv_ftd_TimeSubmission);
         iv_submissionStatus =view.findViewById(R.id.iv_ftd_SubmissionStatus);
 
-        if(getArguments()!= null){
+        if(getArguments()!= null) {
             task = (Task) getArguments().getSerializable(Task.SERIALIZE_KEY_CODE);
-            LocalDateTime submissionDate = task.getSubmissionDate();
+            LocalDateTime submissionDate = task.getDueDate();
             tv_date.setText(submissionDate.getDayOfMonth());
             tv_month.setText(submissionDate.getMonth().toString());
             tv_taskTitle.setText(task.getTitle());
             String submissionTime = submissionDate.getHour() + " : " + submissionDate.getMinute();
             tv_submissionTime.setText(submissionTime);
-            iv_submissionStatus.setImageResource(task.isComplete(activity.getStudent()) ? R.drawable.checkbox : R.drawable.pending);
+            StudentFirebase sf = activity.getStudent();
+            Student s;
+            try {
+                s = (Student) sf.constructClass(Student.class, sf.getID());
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (java.lang.InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            iv_submissionStatus.setImageResource(task.isComplete(s) ? R.drawable.checkbox : R.drawable.pending);
         }
         return view;
     }

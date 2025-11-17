@@ -8,13 +8,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 public class MailSmallAdapter extends RecyclerView.Adapter<MailSmallViewHolder> {
-    private ArrayList<Mail>mails;
+    private String userID;
+    private ArrayList<MailFirebase>mails;
+    Class<? extends User>userType;
 
-    public MailSmallAdapter(ArrayList<Mail>mails){
+    public MailSmallAdapter(String userID, ArrayList<MailFirebase>mails, Class<? extends User>userType){
+        this.userID = userID;
         this.mails = mails;
+        this.userType = userType;
     }
     @NonNull
     @Override
@@ -26,16 +33,24 @@ public class MailSmallAdapter extends RecyclerView.Adapter<MailSmallViewHolder> 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull MailSmallViewHolder holder, int position) {
-        Mail mail = mails.get(position);
-        if(mail instanceof MailApplyCourse){
+        MailFirebase<?, ?> mail = mails.get(position);
+        if(mail instanceof MACFirebase){
             holder.tv_titleHeading.setText(mail.getHeader());
             holder.tv_shortPreview.setText(mail.getPreview());
-            holder.tv_fromUser.setText(mail.getFrom().getFullName());
+            final UserFirebase[] user = {null};
+            RequireUpdate.retrieveUser(userID, user);
+            holder.tv_fromUser.setText(user[0].getFullName());
         }
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return mails.size();
     }
+
+    public void addMail(MailFirebase mail) {
+        mails.add(mail);
+        notifyItemInserted(mails.size() - 1);
+    }
+
 }

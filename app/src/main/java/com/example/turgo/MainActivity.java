@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
             if(userFound == null){
                 User.getUserDataFromDB(currentUser.getUid(), new ObjectCallBack<User>() {
                     @Override
-                    public void onObjectRetrieved(User user) {
-                        Log.d("Firebase", "Retrieved User: " + user.toString());
-                        userFound = user;
+                    public void onObjectRetrieved(User object) {
+                        Log.d("Firebase", "Retrieved User: " + object.toString());
+                        userFound = object;
                         tv_userDetails.setText(userFound.toString());
                     }
 

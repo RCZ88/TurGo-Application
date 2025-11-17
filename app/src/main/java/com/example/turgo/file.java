@@ -1,24 +1,69 @@
 package com.example.turgo;
 
-import java.io.File;
-import java.time.LocalDateTime;
+import android.net.Uri;
 
-public class file {
-    private File file;
+import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public class file implements RequireUpdate<file, fileFirebase>{
+    private final FirebaseNode fbn = FirebaseNode.FILE;
+    private final Class<fileFirebase> fbc = fileFirebase.class;
+    private final String fileID;
+    private String secureURL; //Cloudinary
+    private String fileName;
+    private static RTDBManager<String> linkRTDB;
     private User uploader;
     private LocalDateTime fileCreateDate;
-    public file(File file, User user, LocalDateTime fileCreateDate){
-        this.file = file;
+    private LocalDateTime submitTime;
+    private Task ofTask;
+    public file(String fileName, String cloudinaryURL, User user, LocalDateTime fileCreateDate){
+        this.fileID = UUID.randomUUID().toString();
+        this.secureURL = cloudinaryURL;
         this.uploader = user;
+        this.fileName = fileName;
         this.fileCreateDate = fileCreateDate;
     }
 
-    public File getFile() {
-        return file;
+    public FirebaseNode getFbn() {
+        return fbn;
     }
 
-    public void setFile(File file) {
-        this.file = file;
+    public Class<fileFirebase> getFbc() {
+        return fbc;
+    }
+
+    public String getFileID() {
+        return fileID;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public static RTDBManager<String> getLinkRTDB() {
+        return linkRTDB;
+    }
+
+    public static void setLinkRTDB(RTDBManager<String> linkRTDB) {
+        file.linkRTDB = linkRTDB;
+    }
+
+    public void setOfTask(Task task){
+        ofTask = task;
+    }
+    public Task getOfTask(){
+        return ofTask;
+    }
+    public void setSubmitTime(LocalDateTime submitTime){
+        this.submitTime = submitTime;
+    }
+    public LocalDateTime getSubmitTime(){
+        return submitTime;
     }
 
     public User getUploader() {
@@ -35,5 +80,30 @@ public class file {
 
     public void setFileCreateDate(LocalDateTime fileCreateDate) {
         this.fileCreateDate = fileCreateDate;
+    }
+
+    public String getSecureURL() {
+        return secureURL;
+    }
+
+    public void setSecureURL(String secureURL) {
+        this.secureURL = secureURL;
+        linkRTDB.storeData("URL Cloudinary", uploader.getUID(), secureURL, "Submission url", "Submission url");
+    }
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<fileFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return fileID;
     }
 }

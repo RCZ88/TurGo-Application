@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class RegisterCourse extends AppCompatActivity {
     int currentFragIndex;
     private Student student;
     private boolean paymentPreferences;
+    private boolean nextJoin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +80,14 @@ public class RegisterCourse extends AppCompatActivity {
         btn_next.setOnClickListener(view -> {
             if(currentFragIndex < amtOfRegisFrag){
                 nextFragment();
+                if(nextJoin){
+                    try {
+                        apply();
+                    } catch (InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
             }else{
                 Log.e("Frag Limited", "Fragment End Reached");
             }
@@ -168,7 +178,7 @@ public class RegisterCourse extends AppCompatActivity {
         this.reasonForJoining = reasonForJoining;
     }
 
-    public void apply(){
+    public void apply() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         ArrayList<Schedule> schedules = new ArrayList<>();
         ArrayList<TimeSlot> timeSlotSelected = new ArrayList<>();
         timeSlotSelected.addAll(timeSlotPeopleAmountSelected.keySet());
@@ -178,6 +188,7 @@ public class RegisterCourse extends AppCompatActivity {
             schedules.add(schedule);
         }
         if(course.isAutoAcceptStudent()){
+
             student.joinCourse(course, paymentPreferences, isPrivate, selectedPrice, schedules);
             Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, StudentScreen.class);
@@ -200,6 +211,7 @@ public class RegisterCourse extends AppCompatActivity {
             if(currentFragIndex == amtOfRegisFrag){
                 if(course.isAutoAcceptStudent()){
                     btn_next.setText("Join");
+                    nextJoin = true;
                 }else{
                     btn_next.setText("Request to Join");
                 }

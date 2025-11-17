@@ -1,5 +1,8 @@
 package com.example.turgo;
 
+import static com.example.turgo.UserType.STUDENT;
+import static com.example.turgo.UserType.TEACHER;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -12,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -32,7 +36,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -164,21 +172,24 @@ public class SignInPage extends AppCompatActivity {
     }
 
 
-    private void updateUI(FirebaseUser user, User userData) {
+    private void updateUI(FirebaseUser user, UserFirebase userData) {
         if (user != null) {
             // User signed in successfully
             Log.d("Firebase User", "User: " + user.getDisplayName() + ", Email: " + user.getEmail());
             Intent i = null;
-            switch(userData.getUserType()){
-                case STUDENT:
-                    i = new Intent(SignInPage.this, StudentScreen.class);
-                    i.putExtra(Student.SERIALIZE_KEY_CODE, user);
-                    startActivity(i);
-                    finish();
-                    break;
-                case TEACHER:
-                case ADMIN:
-                case PARENT:
+            if (userData.getUserType().equals(STUDENT.type())) {
+                i = new Intent(SignInPage.this, StudentScreen.class);
+                i.putExtra(Student.SERIALIZE_KEY_CODE, user);
+                i.putExtra("ShowFragment", PageNames.STUDENT_DASHBOARD);
+                startActivity(i);
+                finish();
+            }else if(userData.getUserType().equals(TEACHER.type())){
+                i = new Intent(SignInPage.this, TeacherScreen.class);
+                i.putExtra(Teacher.SERIALIZE_KEY_CODE, user);
+                i.putExtra("ShowFragment", PageNames.TEACHER_DASHBOARD);
+                startActivity(i);
+                finish();
+
             }
 
             assert i != null;
@@ -228,19 +239,10 @@ public class SignInPage extends AppCompatActivity {
     }
 
     private void selectUserFromDB(String uid, FirebaseUser FireUser) {
-        User.getUserDataFromDB(uid, new ObjectCallBack<User>() {
-            @Override
-            public void onObjectRetrieved(User user) {
-                Log.d("Firebase", "Retrieved User: " + user.toString());
-                updateUI(FireUser ,user);
-            }
+        final UserFirebase[] u = {null};
+        RequireUpdate.retrieveUser(uid, u);
+        updateUI(FireUser, u[0]);
 
-            @Override
-            public void onError(DatabaseError error) {
-                Log.e("Firebase", "Error retrieving user: " + error.getMessage());
-            }
-        });
     }
-
 
 }

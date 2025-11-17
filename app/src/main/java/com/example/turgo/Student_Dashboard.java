@@ -21,10 +21,13 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.database.DatabaseError;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -32,9 +35,10 @@ import java.util.ArrayList;
  * Use the {@link Student_Dashboard#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Student_Dashboard extends Fragment {
+public class Student_Dashboard extends Fragment{
     RecyclerView rv_coursesCompletedThisWeek;
     FragmentContainerView fcv_upcomingSchedule;
+    StudentFirebase fbStudent;
     Student user;
     ArrayList<Task> studentTasks;
     ViewPager2 vp2_listOfTasks;
@@ -96,7 +100,15 @@ public class Student_Dashboard extends Fragment {
         rv_coursesCompletedThisWeek = view.findViewById(R.id.rv_CourseCompleted);
 
         StudentScreen activity = (StudentScreen) getActivity();
-        this.user = activity.getStudent();
+        assert activity != null;
+        fbStudent = activity.getStudent();
+        try {
+            user = fbStudent.convertToNormal();
+        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | java.lang.InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        Task t = new Task();
         studentTasks = user.getUncompletedTask();
 
         rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(this.getContext()));
@@ -137,12 +149,12 @@ public class Student_Dashboard extends Fragment {
         CourseDetails courseDetails = new CourseDetails();
         Course scheduleOfCourse = meetingOfSchedule.getScheduleOfCourse();
         courseDetails.tv_teacherName.setText(scheduleOfCourse.getTeacher().getFullName());
-        courseDetails.tv_room.setText((meetingOfSchedule.getRoom().getRoomId()));
+        courseDetails.tv_room.setText((meetingOfSchedule.getRoom().getID()));
         courseDetails.tv_dayOfWeek.setText(scheduleOfCourse.getDaysOfSchedule(user));
         courseDetails.tv_nextMeetingDate.setText(user.getClosestMeetingOfCourse(scheduleOfCourse).toString());
         courseDetails.tv_duration.setText(meetingOfSchedule.getDuration());
-        courseDetails.iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
-
+//        courseDetails.iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
+        Glide.with(requireContext()).load(scheduleOfCourse.getLogo()).into(courseDetails.iv_courseLogo);
         if(savedInstanceState != null){
             getChildFragmentManager()
                     .beginTransaction()
@@ -184,8 +196,8 @@ public class Student_Dashboard extends Fragment {
 
             Meeting.getMeetingFromDB(result.getContents(), new ObjectCallBack<Meeting>() {
                 @Override
-                public void onObjectRetrieved(Meeting Object) {
-                    currentMeeting = Object;
+                public void onObjectRetrieved(Meeting object) {
+                    currentMeeting = object;
                     user.attendMeeting(currentMeeting);
                     int hour = currentMeeting.getMeetingOfSchedule().getMeetingEnd().getHour();
                     int minute = currentMeeting.getMeetingOfSchedule().getMeetingEnd().getMinute();
@@ -200,4 +212,60 @@ public class Student_Dashboard extends Fragment {
 
         }
     });
+//
+//    @Override
+//    public void prepareObjects() throws ParseException {
+//        //Cannot resolve method 'getUncompletedTask' in 'StudentFirebase'
+//        //Cannot resolve method 'getScheduleCompletedThisWeek' in 'StudentFirebase'
+//        //Cannot resolve method 'getNextMeeting' in 'StudentFirebase'
+//        //'getDaysOfSchedule(com.example.turgo.Student)' in 'com.example.turgo.Course' cannot be applied to '(com.example.turgo.StudentFirebase)'
+//        //Cannot resolve method 'getClosestMeetingOfCourse' in 'StudentFirebase'
+//        //Cannot resolve method 'attendMeeting' in 'StudentFirebase'
+//
+//        Task t = new Task();
+//        Schedule s = new Schedule();
+//        Meeting m = new Meeting();
+//
+//        final ArrayList<TaskFirebase>[] uncompletedTask = new ArrayList[]{new ArrayList<>()};
+//        t.retrieveListFromUser(user.getID(), "uncompletedTaskIds", new ObjectCallBack<ArrayList<TaskFirebase>>() {
+//            @Override
+//            public void onObjectRetrieved(ArrayList<TaskFirebase> object) {
+//                uncompletedTask[0] = object;
+//            }
+//
+//            @Override
+//            public void onError(DatabaseError error) {
+//
+//            }
+//        });
+//        this.uncompletedTask = uncompletedTask[0];
+//
+//        final ArrayList<ScheduleFirebase>[] scheduleCompletedThisWeek = new ArrayList[]{new ArrayList<>()};
+//        s.retrieveListFromUser(user.getID(), "scheduleCompletedThisWeek", new ObjectCallBack<ArrayList<ScheduleFirebase>>() {
+//            @Override
+//            public void onObjectRetrieved(ArrayList<ScheduleFirebase> object) {
+//                scheduleCompletedThisWeek[0] = object;
+//            }
+//
+//            @Override
+//            public void onError(DatabaseError error) {
+//
+//            }
+//        });
+//
+//        final MeetingFirebase[] nextMeeting = {null};
+//        m.retrieveOnce(new ObjectCallBack<MeetingFirebase>() {
+//            @Override
+//            public void onObjectRetrieved(MeetingFirebase object) {
+//                nextMeeting[0] = object;
+//            }
+//
+//            @Override
+//            public void onError(DatabaseError error) {
+//
+//            }
+//        }, user.getID());
+//        Student student = this.user.convertToNormal();
+//
+//    }
 }

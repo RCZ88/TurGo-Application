@@ -16,6 +16,7 @@ public class MailSmallViewHolder extends RecyclerView.ViewHolder {
         tv_fromUser = itemView.findViewById(R.id.tv_UserSent);
         tv_shortPreview = itemView.findViewById(R.id.tv_ShortMailContent);
         tv_titleHeading = itemView.findViewById(R.id.tv_TitleHeading);
+        ll_mailPreview = itemView.findViewById(R.id.ll_MailSmallDisplay);
         ll_mailPreview.setOnClickListener(view -> {
             Intent intent = new Intent(itemView.getContext(), MailExpandFull.class);
             itemView.getContext().startActivity(intent);

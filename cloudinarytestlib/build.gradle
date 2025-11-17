@@ -1,0 +1,13 @@
+plugins {
+    id 'java-library'
+}
+
+
+dependencies {
+    implementation(libs.cloudinary.http44)
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}

@@ -17,19 +17,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.UUID;
 
-public class Meeting implements Serializable {
+public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.MEETING;
+    private final Class<MeetingFirebase> fbc = MeetingFirebase.class;
     private final String meetingID;
     private static final String FIREBASE_DB_REFERENCE = "Meetings";
-    private final RTDBManager<Meeting> rtdbManager;
     private Schedule meetingOfSchedule;
     private HashMap<Student, LocalTime> studentsAttended;
     private User preScheduledBy;
@@ -51,15 +52,31 @@ public class Meeting implements Serializable {
         this.preScheduledBy = preScheduledBy;
         roomChange = null;
         completed = false;
-        rtdbManager = new RTDBManager<>();
         this.context = context;
         assignAlarmNotification(this.meetingOfSchedule.getStudents());
     }
+    public Meeting(String meetingID, Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
+        this.meetingID = meetingID;
+        this.meetingOfSchedule = meetingOfSchedule;
+        studentsAttended = new HashMap<>();
+        this.dateOfMeeting = dateOfMeeting;
+        startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
+        endTimeChange = meetingOfSchedule.getMeetingEnd();
+        this.preScheduledBy = preScheduledBy;
+        roomChange = null;
+        completed = false;
+        this.context = context;
+        assignAlarmNotification(this.meetingOfSchedule.getStudents());
+    }
+    public Meeting(){
+        meetingID = "";
+        context = null;
 
+    }
     public void assignAlarmNotification(ArrayList<Student>students){
         LocalDateTime ldt = LocalDateTime.of(this.dateOfMeeting, startTimeChange);
         for(Student student : students){
-            MeetingAlarm.setMeetingAlarm(this.context, ldt, this.getMeetingOfSchedule().getScheduleOfCourse(), student);
+            MeetingAlarm.setMeetingAlarm(this.context, ldt, this.getMeetingOfSchedule().getScheduleOfCourse(), student, meetingOfSchedule);
         }
     }
 
@@ -101,9 +118,22 @@ public class Meeting implements Serializable {
         this.endTimeChange = endTimeChange;
     }
 
-    public void updateDB(Meeting meeting){
-        rtdbManager.storeData(FIREBASE_DB_REFERENCE, meetingID, meeting, "Meeting", "Meeting");
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
     }
+
+    @Override
+    public Class<MeetingFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return this.meetingID;
+    }
+
     public void changeDay(LocalDate date){
         this.dateOfMeeting = date;
     }

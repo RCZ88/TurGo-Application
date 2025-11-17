@@ -1,48 +1,54 @@
 package com.example.turgo;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.UUID;
 
-public class Task implements Serializable {
+public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.TASK;
+    private final Class<TaskFirebase> fbc = TaskFirebase.class;
     private String taskID;
-    private static final String FIREBASE_DB_REFERENCE = "Tasks";
     public static String SERIALIZE_KEY_CODE = "taskObj";
-    private RTDBManager<Task> rtdbManager;
+    private static RTDBManager<Task> rtdbManager;
     private ArrayList<Student>studentsAssigned;
     private String title;
     private String description;
-    private LocalDateTime submissionDate;
+    private LocalDateTime dueDate;
     private Course taskOfCourse;
     private Schedule fromSchedule;
     private LocalDate dateAssigned;
     private final Dropbox dropbox;
     private Teacher publisher;
 
-    public Task(String title, ArrayList<Student>studentsAssigned, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher){
+    public Task(String title, ArrayList<Student>studentsAssigned, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher, boolean dropbox){
         this.taskID = UUID.randomUUID().toString();
         this.title = title;
         this.description = description;
-        this.submissionDate = submissionDate;
+        this.dueDate = submissionDate;
         this.taskOfCourse = taskOfCourse;
         this.fromSchedule = fromSchedule;
         this.studentsAssigned = studentsAssigned;
         this.dateAssigned = LocalDate.now();
         this.publisher = publisher;
-        this.dropbox = new Dropbox(this);
+        if(dropbox){
+            this.dropbox = new Dropbox(this);
+        }else{
+            this.dropbox = null;
+        }
         rtdbManager = new RTDBManager<>();
     }
 
-    public void updateDB(Task task){
-        rtdbManager.storeData(FIREBASE_DB_REFERENCE, taskID, task, "Task", "Task");
+    public Task(){
+        this.dropbox = null;
     }
 
     public void submit(file file, Student student){
         dropbox.getSubmissionSlot(student).addFile(file);
     }
+
 
     public String getTitle() {
         return title;
@@ -60,12 +66,12 @@ public class Task implements Serializable {
         this.description = description;
     }
 
-    public LocalDateTime getSubmissionDate() {
-        return submissionDate;
+    public LocalDateTime getDueDate() {
+        return dueDate;
     }
 
-    public void setSubmissionDate(LocalDateTime submissionDate) {
-        this.submissionDate = submissionDate;
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 
     public Course getTaskOfCourse() {
@@ -116,6 +122,16 @@ public class Task implements Serializable {
         this.dateAssigned = dateAssigned;
     }
 
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<TaskFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
     public boolean isComplete(Student student){
         for(Submission submission : dropbox.getSubmissions()){
             if(submission.getOf() == student){
@@ -138,5 +154,11 @@ public class Task implements Serializable {
 
     public Dropbox getDropbox() {
         return dropbox;
+    }
+
+
+    @Override
+    public String getID() {
+        return this.taskID;
     }
 }

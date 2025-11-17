@@ -1,44 +1,124 @@
 package com.example.turgo;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-
-import androidx.core.content.ContextCompat;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class Teacher extends User implements Serializable {
-    private Drawable profileImage;
+public class Teacher extends User implements Serializable, RequireUpdate<Teacher, TeacherFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.TEACHER;
+    private static final int MAX_LATEST_SUBMISSION_SIZE = 3;
+    private final Class<TeacherFirebase> fbc = TeacherFirebase.class;
+    public static String SERIALIZE_KEY_CODE = "teacherObj";
+    private String profileImageCloudinary;
     private Context context;
     private ArrayList<Course> coursesTeach;
+    private ArrayList<SubmissionDisplay> latestSubmission;
     private ArrayList<String> courseTypeTeach;
     private ArrayList<Meeting> scheduledMeetings;
+    private ArrayList<Meeting> completedMeetings;
     private ArrayList<Agenda> agendas;
-    private ArrayList<DayTimeArrangement>availableTimes;
+    private ArrayList<DayTimeArrangement> timeArrangements; //one object for each day of the week.
     private String teacherResume;
     private int teachYearExperience;
     public Teacher(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber, Context context) throws ParseException {
-        super(UserType.TEACHER, gender, fullName, birthDate, nickname, email, phoneNumber, "teaObj");
+        super(UserType.TEACHER, gender, fullName, birthDate, nickname, email, phoneNumber);
         scheduledMeetings = new ArrayList<>();
         coursesTeach = new ArrayList<>();
-        profileImage = ContextCompat.getDrawable(context, R.drawable.chalkboard_user);
+        profileImageCloudinary = "https://res.cloudinary.com/daccry0jr/image/upload/v1761196379/islooktidmooszzfrga3.png";
         courseTypeTeach = new ArrayList<>();
         agendas = new ArrayList<>();
+        completedMeetings = new ArrayList<>();
+        latestSubmission = new ArrayList<>();
         this.context = context;
     }
-    public Teacher(){}
 
-    public void createAgenda(String contents, LocalDate date, Meeting ofMeeting, Student student, Course ofCourse){
-        Agenda agenda = new Agenda(contents, date, ofMeeting, this, student, ofCourse);
-        this.agendas.add(agenda);
-        student.addAgenda(agenda);
+
+    @Override
+    public void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        updateDB();
     }
 
-    public void setProfileImage(Drawable profileImage){
-        this.profileImage = profileImage;
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<TeacherFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+    @Override
+    public String getID() {
+        return getUID();
+    }
+    public void addLatestSubmission(SubmissionDisplay submission){
+        latestSubmission.add(0, submission);
+        if(latestSubmission.size() > MAX_LATEST_SUBMISSION_SIZE){
+            latestSubmission.remove(latestSubmission.size() - 1);
+        }
+    }
+
+    public ArrayList<SubmissionDisplay> getLatestSubmission() {
+        return latestSubmission;
+    }
+
+    public void setLatestSubmission(ArrayList<SubmissionDisplay> latestSubmission) {
+        this.latestSubmission = latestSubmission;
+    }
+
+    public String getProfileImageCloudinary() {
+        return profileImageCloudinary;
+    }
+
+    public void setProfileImageCloudinary(String profileImageCloudinary) {
+        this.profileImageCloudinary = profileImageCloudinary;
+    }
+    public ArrayList<Schedule>getAllSchedule(){
+        ArrayList< Schedule> allSchedule = new ArrayList<>();
+        for(DayTimeArrangement dta : timeArrangements){
+            allSchedule.addAll(dta.getOccupied());
+        }
+        return allSchedule;
+    }
+
+    public static String getSerializeKeyCode() {
+        return SERIALIZE_KEY_CODE;
+    }
+
+    public static void setSerializeKeyCode(String serializeKeyCode) {
+        SERIALIZE_KEY_CODE = serializeKeyCode;
+    }
+
+    public Class<TeacherFirebase> getFbc() {
+        return fbc;
+    }
+
+    public FirebaseNode getFbn() {
+        return fbn;
+    }
+
+    public Teacher(){}
+
+    public void createAgenda(String contents, LocalDate date, Meeting ofMeeting, Student student, Course ofCourse) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        Agenda agenda = new Agenda(contents, date, ofMeeting, this, student, ofCourse);
+        this.agendas.add(agenda);
+        updateUserDB();
+        student.addAgenda(agenda);
+        student.getStudentCourseFromCourse(ofCourse);
+        student.updateUserDB();
+    }
+    public void addTask(Task task, Course course) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        for(Student student : task.getStudentsAssigned()){
+            student.getStudentCourseFromCourse(course).getTasks().add(task);
+            student.updateUserDB();
+        }
+
     }
     public void addCourse(Course course){
         coursesTeach.add(course);
@@ -64,20 +144,25 @@ public class Teacher extends User implements Serializable {
         return teachYearExperience;
     }
 
-    public ArrayList<DayTimeArrangement> getAvailableTimes() {
-        return availableTimes;
+    public ArrayList<DayTimeArrangement> getTimeArrangements() {
+        return timeArrangements;
     }
 
-    public void setAvailableTimes(ArrayList<DayTimeArrangement> availableTimes) {
-        this.availableTimes = availableTimes;
+    public void setTimeArrangements(ArrayList<DayTimeArrangement> timeArrangements) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        this.timeArrangements = timeArrangements;
+    }
+
+    public void addDTA(DayTimeArrangement dta) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        timeArrangements.add(dta);
+        updateUserDB();
     }
 
     public void setTeachYearExperience(int teachYearExperience) {
         this.teachYearExperience = teachYearExperience;
     }
 
-    public Drawable getProfileImage() {
-        return profileImage;
+    public String getProfileImage() {
+        return profileImageCloudinary;
     }
 
     public Context getContext() {
@@ -119,10 +204,39 @@ public class Teacher extends User implements Serializable {
     public void addScheduledMeeting(Meeting meeting){
         scheduledMeetings.add(meeting);
     }
+
+    public ArrayList<Meeting> getCompletedMeetings() {
+        return completedMeetings;
+    }
+
+    public void setCompletedMeetings(ArrayList<Meeting> completedMeetings) {
+        this.completedMeetings = completedMeetings;
+    }
+
+    public TeacherMini toTM(){
+        ArrayList<String>courseNames = new ArrayList<>();
+        for(Course course : coursesTeach){
+            courseNames.add(course.getCourseName());
+        }
+        return new TeacherMini(this.getFullName(), String.join(", ", courseNames), this.getPfpCloudinary(), this.getID());
+    }
+
+    public ArrayList<Schedule> getSchedulesOfDay(DayOfWeek day){
+        for(DayTimeArrangement dta : timeArrangements){
+            if(dta.getDay() == day){
+                return dta.getOccupied();
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public String toString() {
         return super.toString() + "Teacher{" +
                 "courseTypeTeach=" + courseTypeTeach +
                 '}';
     }
+
+
 }

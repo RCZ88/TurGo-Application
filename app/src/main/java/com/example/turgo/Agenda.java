@@ -3,8 +3,15 @@ package com.example.turgo;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.UUID;
 
-public class Agenda implements Serializable {
+public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebase> {
+    private final String agenda_ID;
+
+    private static final FirebaseNode fbn = FirebaseNode.AGENDA;
+    private static final Class<AgendaFirebase> fbc = AgendaFirebase.class;
+    private RTDBManager<AgendaFirebase>agendaRTDB;
+    private file agendaImage;
     private LocalDate date;
     private String contents;
     private Meeting ofMeeting;
@@ -19,7 +26,20 @@ public class Agenda implements Serializable {
         this.teacher = teacher;
         this.student = student;
         this.ofCourse = ofCourse;
+        agenda_ID = UUID.randomUUID().toString();
     }
+
+    public Agenda(file file, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, Course ofCourse){
+        agendaImage = file;
+        this.date = date;
+        this.ofMeeting = ofMeeting;
+        this.teacher = teacher;
+        this.student = student;
+        this.ofCourse = ofCourse;
+        agenda_ID = UUID.randomUUID().toString();
+    }
+
+
 
     public String getContents() {
         return contents;
@@ -67,5 +87,21 @@ public class Agenda implements Serializable {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<AgendaFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+    @Override
+    public String getID() {
+        return agenda_ID;
     }
 }

@@ -1,7 +1,6 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -17,6 +16,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -87,7 +90,13 @@ public class CourseJoinedFullPage extends Fragment {
         if(getArguments() != null){
             course = (Course) getArguments().getSerializable("Course");
         }
-        student = ((StudentScreen) getActivity()).getStudent();
+        StudentFirebase studentFirebase = ((StudentScreen) getActivity()).getStudent();
+        try {
+            student = studentFirebase.convertToNormal();
+        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | java.lang.InstantiationException e) {
+            throw new RuntimeException(e);
+        }
         tasks = student.getAllTaskOfCourse(course);
 
         tv_courseTeacher = view.findViewById(R.id.tv_cfp_TeacherName);
@@ -105,7 +114,8 @@ public class CourseJoinedFullPage extends Fragment {
         tv_courseDays.setText(course.getDaysOfSchedule(student));
         tv_noTaskMessage.setText("Yay you're Free! No Task Found!");
 
-        iv_courseBackgroundImage.setImageBitmap(course.getBackground());
+//        iv_courseBackgroundImage.setImageBitmap(course.getBackground());
+        Glide.with(requireContext()).load(course.getBackground()).into(iv_courseBackgroundImage);
 
         loadTasks();
         setLatestAgenda();
@@ -113,7 +123,7 @@ public class CourseJoinedFullPage extends Fragment {
         btn_viewAllAgenda.setOnClickListener(view1 -> {
             FragmentManager fm = getActivity().getSupportFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.nav_host_fragment, new AllAgendaPage(student.getAgendaOfCourse(course)));
+            ft.replace(R.id.nhf_ss_FragContainer, new AllAgendaPage(student.getAgendaOfCourse(course)));
             ft.addToBackStack(null);
             ft.commit();
         });
@@ -124,7 +134,7 @@ public class CourseJoinedFullPage extends Fragment {
             studentMeetings.setArguments(bundle);
 
             requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nav_host_fragment, studentMeetings)
+                    .replace(R.id.nhf_ss_FragContainer, studentMeetings)
                     .addToBackStack(null)
                     .commit();
         });
@@ -145,7 +155,22 @@ public class CourseJoinedFullPage extends Fragment {
             tv_noTaskMessage.setVisibility(View.GONE);
             rv_listOfTasks.setVisibility(View.VISIBLE);
             rv_listOfTasks.setLayoutManager(new LinearLayoutManager(getContext()));
-            taskAdapter = new TaskAdapter(student.getAllTaskOfCourse(course), student);
+            taskAdapter = new TaskAdapter(student.getAllTaskOfCourse(course), student, new OnItemClickListener<Task>() {
+                @Override
+                public void onItemClick(Task item) {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
+
+                    TaskFullPage tfp = new TaskFullPage();
+                    tfp.setArguments(bundle);
+
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.nhf_ss_FragContainer, tfp)
+                            .addToBackStack(null)
+                            .commit();
+                }
+            });
             rv_listOfTasks.setAdapter(taskAdapter);
         }
     }

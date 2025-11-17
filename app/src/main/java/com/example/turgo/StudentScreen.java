@@ -3,14 +3,18 @@ package com.example.turgo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -21,16 +25,26 @@ import com.example.turgo.databinding.ActivityStudentScreenBinding;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-public class StudentScreen extends AppCompatActivity {
+import java.util.ArrayList;
+
+public class StudentScreen extends AppCompatActivity{
 
     private ActivityStudentScreenBinding binding;
-    private Student student;
+    private StudentFirebase student;
     private FirebaseUser fbUser;
     private NavHostFragment navHostFragment;
     private BottomNavigationView navView;
-    private Button btn_dropDownMail;
+    private Toolbar topAppBar;
+    private ArrayList<MailFirebase>inbox = new ArrayList<>();
+    private ArrayList<NotificationFirebase>notifs = new ArrayList<>();
+    private MailSmallAdapter mailSmallAdapter;
+    private NotifAdapter notifAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,13 +53,13 @@ public class StudentScreen extends AppCompatActivity {
         binding = ActivityStudentScreenBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        navView = findViewById(R.id.nv_BottomNavigation);
+        navView = findViewById(R.id.nv_ss_BottomNavigation);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.dest_studentDashboard, R.id.dest_studentMyCourses, R.id.dest_studentExploreCourses, R.id.dest_studentProfile)
                 .build();
-        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nhf_ss_FragContainer);
         assert navHostFragment != null;
         NavController navController = navHostFragment.getNavController();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -55,20 +69,9 @@ public class StudentScreen extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         fbUser = auth.getCurrentUser();
 
-        student = (Student) getIntent().getSerializableExtra("Student Object");
-        if(student == null){
-            User.getUserDataFromDB(fbUser.getUid(), new ObjectCallBack<User>() {
-                @Override
-                public void onObjectRetrieved(User user) {
-                    Log.d("Firebase", "Retrieved User: " + user.toString());
-                    student = (Student) user;
-                }
+        student = (StudentFirebase) getIntent().getSerializableExtra(Student.SERIALIZE_KEY_CODE);
+        if(student != null){
 
-                @Override
-                public void onError(DatabaseError error) {
-                    Log.e("Firebase", "Error retrieving user: " + error.getMessage());
-                }
-            });
             String fragmentToShow = getIntent().getStringExtra("ShowFragment");
             if(fragmentToShow.equals("CourseJoinedFullPage")){
                 Bundle bundle = new Bundle();
@@ -79,26 +82,185 @@ public class StudentScreen extends AppCompatActivity {
                 cjfp.setArguments(bundle);
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.nav_host_fragment, cjfp)
+                        .replace(R.id.nhf_ss_FragContainer, cjfp)
+                        .addToBackStack(null)
+                        .commit();
+            }else if(fragmentToShow.equals(PageNames.STUDENT_DASHBOARD.getPageName())){
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nhf_ss_FragContainer, new Student_Dashboard())
                         .addToBackStack(null)
                         .commit();
             }
         }
-        btn_dropDownMail.setOnClickListener(view -> {
+        enableUserSync();
+        prepareObjects();
+        topAppBar = findViewById(R.id.tb_ss_topAppBar);
+        topAppBar.setTitle(student.getFullName());
+        setSupportActionBar(topAppBar);
+        if(student != null){
+            UserPresenceManager.startTracking(fbUser.getUid());
+        }
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item){
+        if(item.getItemId() == R.id.action_mail){
             View popDownView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
 
             PopupWindow popupWindow = new PopupWindow(popDownView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             RecyclerView rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
-            MailSmallAdapter mailSmallAdapter = new MailSmallAdapter(student.getInbox());
+            mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, Student.class);
             rv_MailDropDown.setAdapter(mailSmallAdapter);
 
-            popupWindow.showAsDropDown(btn_dropDownMail);
 
-            Button seeAll = findViewById(R.id.btn_mailDropDown);
+            View anchor = findViewById(R.id.action_mail);
+
+            if(anchor != null){
+                popupWindow.showAsDropDown(anchor, -50, 10);
+            }else{
+                Log.e("Dropdown Error", "No Anchor Found!(Null)");
+            }
+
+            Button seeAll = popDownView.findViewById(R.id.btn_ViewAllMail);
             seeAll.setOnClickListener(view1 -> {
-
+                Intent intent = new Intent(StudentScreen.this, MailPageFull.class);
+                startActivity(intent);
             });
+            return true;
+        }else if(item.getItemId() == R.id.action_notifications){
+            View popDownView = getLayoutInflater().inflate(R.layout.notification_drop_down, null);
+
+            PopupWindow popupWindow = new PopupWindow(popDownView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            RecyclerView rv_NotifDropDwon = popDownView.findViewById(R.id.rv_NotifDropDown);
+            notifAdapter = new NotifAdapter(notifs);
+            rv_NotifDropDwon.setAdapter(notifAdapter);
+
+            View anchor = findViewById(R.id.action_notifications);
+
+            if(anchor != null) {
+                popupWindow.showAsDropDown(anchor, -50, 10);
+            }else{
+                Log.e("Dropdown Error", "No Anchor Found!");
+            }
+            return true;
+        }else{
+            return super.onOptionsItemSelected(item);
+        }
+    }
+    public void prepareObjects(){
+        DatabaseReference studentRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath()).child(student.getID());
+        studentRef.child("inboxIDs").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                String mailID = snapshot.getValue(String.class);
+                Mail m = new Mail();
+                m.retrieveOnce(new ObjectCallBack<MailFirebase>() {
+                    @Override
+                    public void onObjectRetrieved(MailFirebase object) {
+                        inbox.add(object);
+                        //updates the UI and the adapter in general
+                        mailSmallAdapter.addMail(object);
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                }, mailID);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
+
+        studentRef.child("notitficationIDs").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                String notifID = snapshot.getValue(String.class);
+                Notification<?> n = new Notification<>();
+                n.retrieveOnce(new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(NotificationFirebase object) {
+                        notifs.add(object);
+                        notifAdapter.addNotification(object);
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                }, notifID);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+//        studentRef.child("notitficationIDs").addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                Notification<?>n= new Notification<>();
+//                for(DataSnapshot ds : snapshot.getChildren()){
+//                    n.retrieveOnce(new ObjectCallBack<NotificationFirebase>() {
+//                        @Override
+//                        public void onObjectRetrieved(NotificationFirebase object) {
+//                            notif.add(ds.getValue(NotificationFirebase.class));
+//                        }
+//
+//                        @Override
+//                        public void onError(DatabaseError error) {
+//
+//                        }
+//                    }, ds.getValue(String.class));
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+
+    }
+
+    public void enableUserSync(){
+        RequireUpdate.retrieveUser(student.getID(), new StudentFirebase[]{student});
     }
 
     public ActivityStudentScreenBinding getBinding() {
@@ -109,13 +271,6 @@ public class StudentScreen extends AppCompatActivity {
         this.binding = binding;
     }
 
-    public Student getStudent() {
-        return student;
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-    }
 
     public FirebaseUser getFbUser() {
         return fbUser;
@@ -139,5 +294,53 @@ public class StudentScreen extends AppCompatActivity {
 
     public void setNavView(BottomNavigationView navView) {
         this.navView = navView;
+    }
+
+    public StudentFirebase getStudent() {
+        return student;
+    }
+
+    public void setStudent(StudentFirebase student) {
+        this.student = student;
+    }
+
+    public Toolbar getTopAppBar() {
+        return topAppBar;
+    }
+
+    public void setTopAppBar(Toolbar topAppBar) {
+        this.topAppBar = topAppBar;
+    }
+
+    public ArrayList<MailFirebase> getInbox() {
+        return inbox;
+    }
+
+    public void setInbox(ArrayList<MailFirebase> inbox) {
+        this.inbox = inbox;
+    }
+
+    public ArrayList<NotificationFirebase> getNotifs() {
+        return notifs;
+    }
+
+    public void setNotifs(ArrayList<NotificationFirebase> notifs) {
+        this.notifs = notifs;
+    }
+
+    public MailSmallAdapter getMailSmallAdapter() {
+        return mailSmallAdapter;
+    }
+
+    public void setMailSmallAdapter(MailSmallAdapter mailSmallAdapter) {
+        this.mailSmallAdapter = mailSmallAdapter;
+    }
+
+    public NotifAdapter getNotifAdapter() {
+        return notifAdapter;
+    }
+
+    public void setNotifAdapter(NotifAdapter notifAdapter) {
+        this.notifAdapter = notifAdapter;
     }
 }

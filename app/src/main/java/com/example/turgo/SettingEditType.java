@@ -2,7 +2,8 @@ package com.example.turgo;
 
 public enum SettingEditType {
     EDIT_TEXT("EditText"),
-    SPINNER("Spinner");
+    SPINNER("Spinner"),
+    UPLOAD("Upload");
 
     private String type;
     SettingEditType(String type){

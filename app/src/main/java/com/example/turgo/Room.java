@@ -1,19 +1,22 @@
 package com.example.turgo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
-public class Room {
-    private int roomId;
+public class Room implements RequireUpdate<Room, RoomFirebase>{
+    private final FirebaseNode fbn = FirebaseNode.ROOM;
+    private final Class<RoomFirebase> fbc = RoomFirebase.class;
+    private static RTDBManager<RoomFirebase>roomRTDB;
+    private String roomId;
     private ArrayList<CourseType>suitableCourseType;
     private boolean used;
     private Meeting currentlyOccupiedBy;
     private ArrayList<Schedule>schedules;//schedules that uses this room;
 
 
-    public Room(int roomId){
+    public Room(String roomId){
         this.roomId = roomId;
         this.suitableCourseType = new ArrayList<>();
         this.used = false;
@@ -31,6 +34,7 @@ public class Room {
 
 
     public static Room getEmptyRoom(LocalTime timeStart, LocalTime timeEnd, DayOfWeek day){
+
         for(Room room : ObjectManager.ROOMS){
             if(!room.getSchedules().isEmpty()){
                 for(Schedule schedule : room.getSchedules()){
@@ -70,11 +74,8 @@ public class Room {
         this.schedules = schedules;
     }
 
-    public int getRoomId() {
-        return roomId;
-    }
 
-    public void setRoomId(int roomId) {
+    public void setRoomId(String roomId) {
         this.roomId = roomId;
     }
 
@@ -86,4 +87,20 @@ public class Room {
         this.used = used;
     }
 
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<RoomFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return roomId;
+    }
 }

@@ -2,4 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="onlineGreen">#76B041</color>
+    <color name="offlineRed">#D64550</color>
 </resources>

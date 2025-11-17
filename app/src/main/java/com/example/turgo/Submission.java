@@ -1,11 +1,16 @@
 package com.example.turgo;
 
-import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-public class Submission {
+public class Submission implements RequireUpdate<Submission, SubmissionFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.SUBMISSION;
+    private final Class<SubmissionFirebase> fbc = SubmissionFirebase.class;
+    private String submission_ID;
     private HashMap<file, Boolean>files; //include lateness (true if late false if on time)
     private Dropbox dropbox;
     private Student of;
@@ -16,6 +21,7 @@ public class Submission {
         this.dropbox = dropbox;
         this.completed = false;
         this.of = of;
+        this.submission_ID = UUID.randomUUID().toString();
     }
 
     public void addFile(file file){
@@ -25,12 +31,16 @@ public class Submission {
             completed = true;
         }
     }
-    public boolean isLate(file file){
-        return Boolean.TRUE.equals(files.get(file));
+    public ArrayList<file> getFilesOnly(){
+        ArrayList<file> files = new ArrayList<>();
+        for(Map.Entry<file, Boolean>file : this.files.entrySet()){
+            files.add(file.getKey());
+        }
+        return files;
     }
 
     public boolean isLate(LocalDateTime time){
-        if(time.isAfter(dropbox.getOfTask().getSubmissionDate())){
+        if(time.isAfter(dropbox.getOfTask().getDueDate())){
             return true;
         }
         return false;
@@ -66,5 +76,21 @@ public class Submission {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<SubmissionFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return this.submission_ID;
     }
 }

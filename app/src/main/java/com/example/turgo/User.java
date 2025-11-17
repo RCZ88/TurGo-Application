@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -11,9 +12,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -21,9 +24,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
-public class User implements Serializable {
-    private static final String FIREBASE_DB_REFERENCE = "Users";
-    public static String SERIALIZE_KEY_CODE;
+public abstract class User implements Serializable{
+    protected static final String FIREBASE_DB_REFERENCE = "users";
+    public static String SERIALIZE_KEY_CODE = "userObj";
     private String UID;
     private UserType userType;
     private String fullName;
@@ -36,8 +39,10 @@ public class User implements Serializable {
     private Language language;
     private Theme theme;
     private ArrayList<Mail> inbox;
-
-    public User(UserType userType, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber, String SERIALIZE_KEY_CODE) throws ParseException {
+    private ArrayList<Mail> outbox;
+    private ArrayList<Notification<?>> notifications;
+    private String pfpCloudinary;
+    public User(UserType userType, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber) throws ParseException {
         this.userType = userType;
         this.fullName = fullName;
         this.birthDate = birthDate;
@@ -48,11 +53,46 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
         this.language = Language.ENGLISH;
         this.theme = Theme.SYSTEM;
-        User.SERIALIZE_KEY_CODE = SERIALIZE_KEY_CODE;
+        this.inbox = new ArrayList<>();
+        this.outbox = new ArrayList<>();
+        this.notifications = new ArrayList<>();
+        addStatusToDB();
+    }
+    public abstract FirebaseNode getFirebaseNode();
+    public abstract void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException;
+    public static String getSerializeKeyCode() {
+        return SERIALIZE_KEY_CODE;
+    }
+
+    public static void setSerializeKeyCode(String serializeKeyCode) {
+        SERIALIZE_KEY_CODE = serializeKeyCode;
     }
 
     public User(){}
+    public UserStatus getUserStatus(){
+        return UserPresenceManager.getUserStatus(this);
+    }
 
+    public ArrayList<Mail> getOutbox() {
+        return outbox;
+    }
+
+    public void setOutbox(ArrayList<Mail> outbox) {
+        this.outbox = outbox;
+    }
+
+    public ArrayList<Notification<?>> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(ArrayList<Notification<?>> notifications) {
+        this.notifications = notifications;
+    }
+
+    private void addStatusToDB(){
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USER_STATUS.getPath()).child(UID);
+        userRef.setValue(new UserStatus(UID, true, LocalDateTime.now()));
+    }
 
     public void calculateAge() throws ParseException {
         Date dateOfBirth;
@@ -166,53 +206,68 @@ public class User implements Serializable {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 '}';
     }
-    public static void sendMail(Mail mail){
-        mail.getTo().inbox.add(mail);
+    public static void sendMail(Mail mail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        User to = mail.getTo();
+        to.inbox.add(mail);
+        User from = mail.getFrom();
+        from.outbox.add(mail);
+        to.updateUserDB();
+        from.updateUserDB();
     }
+
 
      public static void getUserDataFromDB(String uid, ObjectCallBack<User> callback) {
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(FIREBASE_DB_REFERENCE).child(uid);
 
-        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("RestrictedApi")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String type = snapshot.child("type").getValue(String.class);
-                    User user = null;
+         userRef.addValueEventListener(new ValueEventListener() {
+             @SuppressLint("RestrictedApi")
+             @Override
+             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                 if (snapshot.exists()) {
+                     String type = snapshot.child("type").getValue(String.class);
+                     User user = null;
 
-                    switch (Objects.requireNonNull(type)) {
-                        case "STUDENT":
-                            user = snapshot.getValue(Student.class);
-                            break;
-                        case "TEACHER":
-                            user = snapshot.getValue(Teacher.class);
-                            break;
-                        case "PARENT":
-                            user = snapshot.getValue(Parent.class);
-                            break;
-                        case "ADMIN":
-                            user = snapshot.getValue(Admin.class);
-                            break;
-                    }
+                     switch (Objects.requireNonNull(type)) {
+                         case "STUDENT":
+                             user = snapshot.getValue(Student.class);
+                             break;
+                         case "TEACHER":
+                             user = snapshot.getValue(Teacher.class);
+                             break;
+                         case "PARENT":
+                             user = snapshot.getValue(Parent.class);
+                             break;
+                         case "ADMIN":
+                             user = snapshot.getValue(Admin.class);
+                             break;
+                     }
 
-                    if (user != null) {
-                        callback.onObjectRetrieved(user); // Pass the user back to the callback
-                    } else {
-                        callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE)); // Handle null user
-                    }
-                } else {
-                    callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE)); // Handle no data found
-                }
-            }
+                     if (user != null) {
+                         callback.onObjectRetrieved(user);
+                     } else {
+                         callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE));
+                     }
+                 } else {
+                     callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE));
+                 }
+             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                callback.onError(error); // Pass the error back to the callback
-            }
-        });
+             @Override
+             public void onCancelled(@NonNull DatabaseError error) {
+                 callback.onError(error);
+             }
+         });
     }
 
+    public void recieveNotification(Notification<?>notification){
+        this.notifications.add(notification);
+    }
 
+    public String getPfpCloudinary() {
+        return pfpCloudinary;
+    }
 
+    public void setPfpCloudinary(String pfpCloudinary) {
+        this.pfpCloudinary = pfpCloudinary;
+    }
 }

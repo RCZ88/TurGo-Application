@@ -1,24 +1,49 @@
 package com.example.turgo;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-public class Mail {
+public class Mail implements RequireUpdate<Mail, MailFirebase> {
+    private final String mailID;
+    private final FirebaseNode fbn = FirebaseNode.MAIL;
     private User from;
     private User to;
     private LocalDateTime timeSent;
     private LocalDateTime timeOpened;
     private String header, body;
     private boolean opened;
+    public Mail(){
+        this.mailID = UUID.randomUUID().toString();
+    }
 
-    public Mail(User from, User to) {
+    public Mail( User from, User to) {
+        this.mailID = UUID.randomUUID().toString();
         this.from = from;
         this.to = to;
         timeSent = LocalDateTime.now();
     }
 
-    public void open(){
-        opened = true;
-        timeOpened = LocalDateTime.now();
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return FirebaseNode.MAIL;
+    }
+
+    @Override
+    public Class<MailFirebase> getFirebaseClass() {
+        return MailFirebase.class;
+    }
+
+    @Override
+    public String getID() {
+        return mailID;
+    }
+
+    public String getMailID() {
+        return mailID;
+    }
+
+    public FirebaseNode getFbn() {
+        return fbn;
     }
 
     public User getFrom() {
@@ -75,9 +100,5 @@ public class Mail {
 
     public void setOpened(boolean opened) {
         this.opened = opened;
-    }
-
-    public String getPreview(){
-        return body.substring(0, 30);
     }
 }

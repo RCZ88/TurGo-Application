@@ -1,17 +1,45 @@
 package com.example.turgo;
 
-public class CourseType {
+import androidx.annotation.NonNull;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
+
+public class CourseType implements RequireUpdate<CourseType, CourseTypeFirebase>{
+    private FirebaseNode fbn = FirebaseNode.COURSETYPE;
+    private Class<CourseTypeFirebase> fbc = CourseTypeFirebase.class;
+    private String courseType_ID;
     private String courseType;
-    private static RTDBManager<CourseType> courseTypeManager;
-    private static final String FIREBASE_DB_REFERENCE = "CourseTypes";
-    public CourseType(String courseType){
+    public CourseType(String courseType) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        courseType_ID = UUID.randomUUID().toString();
         this.courseType = courseType;
-        updateToDB(this);
+        updateDB();
+    }
+    public CourseType(){
+
     }
     public String getCourseType(){
         return courseType;
     }
-    public static void updateToDB(CourseType courseType){
-        courseTypeManager.storeData(FIREBASE_DB_REFERENCE, courseType.getCourseType(), courseType, "CourseType", "CourseType");
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<CourseTypeFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return courseType_ID;
+    }
+
+    @NonNull
+    public String toString(){
+        return courseType;
     }
 }

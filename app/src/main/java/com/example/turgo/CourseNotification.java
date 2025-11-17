@@ -13,15 +13,23 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class CourseNotification extends BroadcastReceiver {
     private static final String CHANNEL_ID = "course_notifications";
     private Course course;
     private Student student;
-
+    private Schedule schedule;
+    private Duration notifEarlyDuration;
     @Override
     public void onReceive(Context context, Intent intent) {
         course = (Course) intent.getSerializableExtra(Course.SERIALIZE_KEY_CODE);
         student = (Student) intent.getSerializableExtra(Student.SERIALIZE_KEY_CODE);
+        schedule = (Schedule) intent.getSerializableExtra(Schedule.SERIALIZE_KEY_CODE);
+        notifEarlyDuration = (Duration) intent.getSerializableExtra("NotifEarlyDuration");
+
+
         createNotificationChannel(context);
         sendNotification(context);
 
@@ -62,5 +70,7 @@ public class CourseNotification extends BroadcastReceiver {
             return;
         }
         notificationManager.notify(1, builder.build());
+        Notif_MeetingReminder nmr = new Notif_MeetingReminder(schedule, LocalDateTime.now(), course, student, (int)(Math.floor(notifEarlyDuration.toMinutes())));
+        Notification.sendNotification(nmr);
     }
 }

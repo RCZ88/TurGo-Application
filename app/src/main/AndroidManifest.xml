@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
+        android:name=".TurgoApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,14 +26,21 @@
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".ComposeEmail"
+            android:exported="false" />
+        <activity
+            android:name=".TeacherScreen"
+            android:exported="false" />
+        <activity
+            android:name=".CreateCourse"
+            android:exported="false"
+            android:theme="@style/Theme.TurGo" />
+        <activity
             android:name=".MailPageFull"
             android:exported="false"
             android:label="@string/title_activity_mail_page_full" />
         <activity
             android:name=".MailExpandFull"
-            android:exported="false" />
-        <activity
-            android:name=".MailFullPage"
             android:exported="false" />
         <activity
             android:name=".RegisterCourse"

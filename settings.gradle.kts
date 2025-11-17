@@ -16,9 +16,10 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") } // <---- add this
     }
 }
 
 rootProject.name = "TurGo"
 include(":app")
- 
+include(":cloudinarytestlib")

@@ -92,6 +92,7 @@ public class Profile extends Fragment {
         if(user instanceof Student){
             preferences.addSubSettings("Auto Schedule Meeting", Integer.toString(((Student)user).getAutoSchedule()), SettingEditType.SPINNER);
         }
+        preferences.addSubSettings("Profile Picture", user.getPfpCloudinary(), SettingEditType.UPLOAD );
 
         language.addSubSettings("Language", user.getLanguage().getDisplayName(), SettingEditType.SPINNER);
 

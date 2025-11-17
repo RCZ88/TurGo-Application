@@ -1,12 +1,17 @@
 package com.example.turgo;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.UUID;
 
-public class DayTimeArrangement {
+public class DayTimeArrangement implements RequireUpdate<DayTimeArrangement,DTAFirebase>{
+    private final FirebaseNode fbn = FirebaseNode.DTA;
+    private final Class<DTAFirebase>fbc = DTAFirebase.class;
+    private final String DTA_ID;
     private Teacher ofTeacher;
     private Course atCourse;
     private DayOfWeek day;
@@ -23,6 +28,7 @@ public class DayTimeArrangement {
         this.end = end;
         occupied = atCourse.getScheduleOfDay(day);
         this.maxMeeting = maxMeeting;
+        DTA_ID = UUID.randomUUID().toString();
     }
     public ArrayList<TimeSlot> findFreeSlots(boolean isPrivate, int maxPeople, int duration){
         ArrayList<TimeSlot> freeSlots = new ArrayList<>();
@@ -168,5 +174,21 @@ public class DayTimeArrangement {
 
     public void setMaxMeeting(int maxMeeting) {
         this.maxMeeting = maxMeeting;
+    }
+
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<DTAFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+    @Override
+    public String getID() {
+        return DTA_ID;
     }
 }

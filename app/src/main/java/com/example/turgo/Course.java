@@ -1,27 +1,31 @@
 package com.example.turgo;
 
+import static com.example.turgo.ObjectManager.ADD_COURSE;
 import static com.example.turgo.Tool.getDrawableFromId;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.DayOfWeek;
-import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class Course implements Serializable {
+public class Course implements Serializable, RequireUpdate<Course, CourseFirebase>{
     private final String courseID;
-    private static final String FIREBASE_DB_REFERENCE = "Courses";
-    public static final String SERIALIZE_KEY_CODE = "courseObj";
-    private static RTDBManager<Course>rtdbManager;
+    private Class<CourseFirebase> fbc = CourseFirebase.class;
+    public static final String SERIALIZE_KEY_CODE = "courses";
+    private final FirebaseNode fbn = FirebaseNode.COURSE;
     Context context;
-    private Bitmap logo;
-    private Bitmap background;
+    private ArrayList<String> imagesCloudinary;
+    private String logoCloudinary;
+    private String backgroundCloudinary;
     private CourseType courseType;
     private String courseName;
     private String courseDescription;
@@ -61,7 +65,61 @@ public class Course implements Serializable {
         prices = new ArrayList<>();
         setCourseLogo();
         setCourseBanner(1);
-        rtdbManager = new RTDBManager<>();
+    }
+    public Course(){
+        courseID = UUID.randomUUID().toString();
+    }
+
+    public void setMonthlyDiscountPercentage(double monthlyDiscountPercentage) {
+        this.monthlyDiscountPercentage = monthlyDiscountPercentage;
+    }
+
+    public void setHourlyCost(double hourlyCost) {
+        this.hourlyCost = hourlyCost;
+    }
+
+    public void setBaseCost(double baseCost) {
+        this.baseCost = baseCost;
+    }
+
+    public void setStudentsCourse(ArrayList<StudentCourse> studentsCourse) {
+        this.studentsCourse = studentsCourse;
+    }
+
+    public String getBackgroundCloudinary() {
+        return backgroundCloudinary;
+    }
+
+    public void setBackgroundCloudinary(String backgroundCloudinary) {
+        this.backgroundCloudinary = backgroundCloudinary;
+    }
+
+    public String getLogoCloudinary() {
+        return logoCloudinary;
+    }
+
+    public void setLogoCloudinary(String logoCloudinary) {
+        this.logoCloudinary = logoCloudinary;
+    }
+
+    public ArrayList<String> getImagesCloudinary() {
+        return imagesCloudinary;
+    }
+
+    public void setImagesCloudinary(ArrayList<String> imagesCloudinary) {
+        this.imagesCloudinary = imagesCloudinary;
+    }
+
+    public FirebaseNode getFbn() {
+        return fbn;
+    }
+
+    public Class<CourseFirebase> getFbc() {
+        return fbc;
+    }
+
+    public void setFbc(Class<CourseFirebase> fbc) {
+        this.fbc = fbc;
     }
 
     public boolean isAutoAcceptStudent() {
@@ -135,6 +193,14 @@ public class Course implements Serializable {
         }
         return schedules;
     }
+    public boolean hasStudent(Student student){
+        for(Student s : students){
+            if(s == student){
+                return true;
+            }
+        }
+        return false;
+    }
     public DayTimeArrangement getDTAOfDay(DayOfWeek day){
         for(DayTimeArrangement dta : this.dayTimeArrangement){
             if(dta.getDay() == day){
@@ -157,8 +223,20 @@ public class Course implements Serializable {
         return getDTAOfDay(day).findFreeSlots(isPrivate, maxPeople, duration);
     }
 
-    public void updateDB(Course course){
-        rtdbManager.storeData(FIREBASE_DB_REFERENCE, courseName, course, "Course", "Course");
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<CourseFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID(){
+        return courseID;
     }
 
     public ArrayList<DayTimeArrangement> getDayTimeArrangement() {
@@ -177,16 +255,15 @@ public class Course implements Serializable {
         setCourseBanner(color);
     }
     public void setCourseBanner(int color){
-        Drawable banner = null;
+        String banner = null;
         switch(color){
             case 1:
-                banner = getDrawableFromId(context, R.drawable.banner_blue);
+                this.backgroundCloudinary = BuildInBanner.BLUE.getLink();
             case 2:
-                banner = getDrawableFromId(context, R.drawable.banner_green);
+                this.backgroundCloudinary = BuildInBanner.GREEN.getLink();
             case 3:
-                banner = getDrawableFromId(context, R.drawable.banner_red);
+                this.backgroundCloudinary = BuildInBanner.RED.getLink();
         }
-        this.background = Tool.drawableToBitmap(banner);
     }
     public void setCourseLogo(){
         Drawable logo = null;
@@ -210,7 +287,6 @@ public class Course implements Serializable {
             case "Bimbel":
                 logo = getDrawableFromId(context, R.drawable.book);
         }
-        this.logo = Tool.drawableToBitmap(logo);
     }
 
     public int getMaxStudentPerMeeting() {
@@ -277,11 +353,14 @@ public class Course implements Serializable {
 
     public CourseType getCourseType(){ return courseType; }
 
-    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules){
+    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         StudentCourse sc = new StudentCourse(student, this, paymentPreferences, privateOrGroup, payment);
         sc.setSchedulesOfCourse(schedules);
         studentsCourse.add(sc);
         students.add(student);
+        student.getCourseTaken().add(this);
+        student.getStudentCourseTaken().add(sc);
+        student.updateUserDB();
         for(Schedule schedule : schedules){
             if(!getDTAOfDay(schedule.getDay()).getOccupied().contains(schedule)){//if a new schedule, add the schedule
                 getDTAOfDay(schedule.getDay()).getOccupied().add(schedule);
@@ -294,7 +373,32 @@ public class Course implements Serializable {
                 }
             }
         }
-        updateDB(this);
+        updateDB();
+    }
+    public Meeting getNextMeetingOfNextSchedule(){
+        ArrayList<Schedule>scheduleToday= new ArrayList<>();
+        Schedule nextSchedule = null;
+        for(Schedule schedule : schedules){
+            if(schedule.getDay().getValue() == LocalDate.now().getDayOfWeek().getValue()){
+                scheduleToday.add(schedule);
+            }
+            if(schedule.getDay().getValue() > LocalDate.now().getDayOfWeek().getValue()){
+                nextSchedule = schedule;
+                break;
+            }
+        }
+        if(!scheduleToday.isEmpty()){
+            for(Schedule schedule : scheduleToday){
+                if(schedule.getMeetingStart().isAfter(LocalTime.now())){
+                    return new Meeting(schedule, LocalDate.now(), null, context);
+                }
+            }
+        }else{
+            assert nextSchedule != null;
+            LocalDate nextDate = LocalDate.now().with(TemporalAdjusters.next(nextSchedule.getDay()));
+            return new Meeting(nextSchedule, nextDate, null, context);
+        }
+        return null;
     }
 
 
@@ -329,13 +433,13 @@ public class Course implements Serializable {
     public void setSchedules(ArrayList<Schedule> schedules) {
         this.schedules = schedules;
     }
-    public void addSchedule(Schedule schedule){
+    public void addSchedule(Schedule schedule) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         schedules.add(schedule);
-        updateDB(this);
+        updateDB();
 
     }
-    public Bitmap getLogo() {
-        return logo;
+    public String getLogo() {
+        return logoCloudinary;
     }
     public ArrayList<Schedule> getScheduleOfStudent(Student student){
         ArrayList<Schedule>sos = new ArrayList<>();
@@ -363,8 +467,8 @@ public class Course implements Serializable {
     public String getCourseID(){
         return this.courseID;
     }
-    public void setLogo(Bitmap logo) {
-        this.logo = logo;
+    public void setLogo(String logo) {
+        this.logoCloudinary = logo;
     }
 
     public Agenda getCurrentAgenda(){
@@ -379,21 +483,14 @@ public class Course implements Serializable {
         this.context = context;
     }
 
-    public Bitmap getBackground() {
-        return background;
+    public String getBackground() {
+        return backgroundCloudinary;
     }
 
-    public void setBackground(Bitmap background) {
-        this.background = background;
+    public void setBackground(String background) {
+        this.backgroundCloudinary = background;
     }
 
-    public RTDBManager<Course> getRtdbManager() {
-        return rtdbManager;
-    }
-
-    public void setRtdbManager(RTDBManager<Course> rtdbManager) {
-        this.rtdbManager = rtdbManager;
-    }
 
     public ArrayList<Agenda> getAgenda() {
         return agendas;
@@ -401,5 +498,14 @@ public class Course implements Serializable {
 
     public void setAgenda(ArrayList<Agenda> agenda) {
         this.agendas = agenda;
+    }
+
+    public StudentCourse getSCofStudent(Student student){
+        for(StudentCourse sc : studentsCourse){
+            if(sc.getStudent() == student){
+                return sc;
+            }
+        }
+        return null;
     }
 }

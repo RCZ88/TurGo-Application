@@ -16,10 +16,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder>{
     private final ArrayList<Task> tasks;
     private User user;
     private Drawable d_Submitted, d_nSubmitted;
+    private OnItemClickListener<Task>listener;
 
-    public TaskAdapter(ArrayList<Task> tasks, User user) {
+    public TaskAdapter(ArrayList<Task> tasks, User user, OnItemClickListener<Task>listener) {
         this.tasks = tasks;
         this.user = user;
+        this.listener = listener;
 
     }
 
@@ -31,17 +33,18 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder>{
         d_Submitted = Tool.getDrawableFromId(view.getContext(), R.drawable.checkbox);
         d_nSubmitted = Tool.getDrawableFromId(view.getContext(), R.drawable.pending);
 
-        return new TaskViewHolder(view);
+        return new TaskViewHolder(view, listener);
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = tasks.get(position);
-        LocalDateTime submissionDate = task.getSubmissionDate();
+        LocalDateTime submissionDate = task.getDueDate();
         holder.tv_TaskMonth.setText(submissionDate.getMonth().toString());
         holder.tv_TaskDate.setText(submissionDate.getDayOfMonth());
         holder.tv_TaskTime.setText(submissionDate.getHour() + ":" + submissionDate.getMinute());
+        holder.task = task;
         if(task.getDropbox().getSubmissionSlot((Student)user).isCompleted()){
             holder.iv_submissionStatus.setImageBitmap(Tool.drawableToBitmap(d_Submitted));
         }else{
@@ -51,6 +54,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder>{
 
     @Override
     public int getItemCount() {
-        return 0;
+        return tasks.size();
     }
 }

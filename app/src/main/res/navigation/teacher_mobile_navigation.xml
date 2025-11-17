@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/dest_studentDashboard">
+
+    <fragment
+        android:id="@+id/dest_teacherDashbaord"
+        android:name="com.example.turgo.TeacherDashboard"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_teacher_dashboard" />
+
+    <fragment
+        android:id="@+id/dest_teacherProfile"
+        android:name="com.example.turgo.Profile"
+        android:label="@string/title_notifications"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/dest_teacherAllCourse"
+        android:name="com.example.turgo.TeacherAllCourse"
+        android:label="fragment_navigation_explore"
+        tools:layout="@layout/fragment_teacher_all_course" />
+    <fragment
+        android:id="@+id/dest_teacherCreateTask"
+        android:name="com.example.turgo.TeacherCreateTask"
+        android:label="fragment_student_my_courses"
+        tools:layout="@layout/fragment_teacher_create_task" />
+    <fragment
+        android:id="@+id/dest_teacherViewSchedules"
+        android:name="com.example.turgo.TeacherScheduleList"
+        android:label="fragment_dest_student_task_list"
+        tools:layout="@layout/fragment_teacher_schedule_list" />
+</navigation>

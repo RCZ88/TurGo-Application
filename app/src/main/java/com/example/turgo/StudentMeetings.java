@@ -69,9 +69,9 @@ public class StudentMeetings extends Fragment {
         StudentScreen studentScreen = (StudentScreen) getActivity();
         assert studentScreen != null;
         this.student = studentScreen.getStudent();
-        MeetingAdapter pastMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course, student.getMeetingHistory()));
+        MeetingAdapter pastMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));
         rv_pastMeetings.setAdapter(pastMeeting);
-        MeetingAdapter futureMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course, student.getPreScheduledMeetings()));
+        MeetingAdapter futureMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));
         rv_futureMeeting.setAdapter(futureMeeting);
 
         return view;

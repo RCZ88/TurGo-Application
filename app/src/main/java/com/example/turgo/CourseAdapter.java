@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,16 +8,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
     private final ArrayList<Course>courses;
     protected OnItemClickListener<Course> listener;
+    private Context context;
     Student student;
-    public CourseAdapter(ArrayList<Course> courses, Student student, OnItemClickListener<Course> listener){
+    public CourseAdapter(ArrayList<Course> courses, Student student, OnItemClickListener<Course> listener, Context context){
         this.courses = courses;
         this.student = student;
         this.listener = listener;
+        this.context = context;
+
     }
     @NonNull
     @Override
@@ -31,7 +37,8 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
         holder.tv_nextMeeting.setText(student.getClosestMeetingOfCourse(courses.get(position)).toString());
         holder.tv_courseTeacher.setText(courses.get(position).getTeacher().getFullName());
         holder.tv_CourseName.setText(courses.get(position).getCourseName());
-        holder.iv_courseIcon.setImageBitmap(courses.get(position).getLogo());
+        Glide.with(context).load(courses.get(position).getLogo()).into(holder.iv_courseIcon);
+//        holder.iv_courseIcon.setImageBitmap(courses.get(position).getLogo());
         holder.courseAdapter = this;
     }
 

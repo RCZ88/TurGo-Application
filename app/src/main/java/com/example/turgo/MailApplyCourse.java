@@ -1,8 +1,11 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseReference;
+
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-public class MailApplyCourse extends Mail{
+public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFirebase>{
     private ArrayList<Schedule> schedules;
     private Course course;
     private String reasonForJoining;
@@ -26,5 +29,61 @@ public class MailApplyCourse extends Mail{
 
     public void setSchedules(ArrayList<Schedule> schedules) {
         this.schedules = schedules;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    public String getReasonForJoining() {
+        return reasonForJoining;
+    }
+
+    public void setReasonForJoining(String reasonForJoining) {
+        this.reasonForJoining = reasonForJoining;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getGrade() {
+        return grade;
+    }
+
+    public void setGrade(String grade) {
+        this.grade = grade;
+    }
+
+    @Override
+    public DatabaseReference getDBRef(String ID) {
+        return super.getDBRef(ID);
+    }
+
+    @Override
+    public void retrieveOnce(ObjectCallBack<MailFirebase> ocb, String ID) {
+        super.retrieveOnce(ocb, ID);
+    }
+
+    @Override
+    public ArrayList<MailFirebase> retrieveListFromUser(String userID, String listName, ObjectCallBack<ArrayList<MailFirebase>> ocb) {
+        return super.retrieveListFromUser(userID, listName, ocb);
+    }
+
+    @Override
+    public void toggleRealtime(String ID, MailFirebase[] mutableObject) {
+        super.toggleRealtime(ID, mutableObject);
+    }
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return FirebaseNode.MAIL_APPLY_COURSE;
     }
 }

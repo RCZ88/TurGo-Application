@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Objects;
@@ -151,14 +152,14 @@ public class SignUpPage extends AppCompatActivity {
                             dateOfBirth,
                             nickname,
                             email,
-                            phoneNumber,
-                            this
+                            phoneNumber
                     );
 
                     signup__student_selectcourse fssc = (signup__student_selectcourse) signUpSegments[2];
                     for (String courseType : fssc.selectedCourses) {
                         ((Student) newUser).addCourseInterest(courseType);
                     }
+                    ((Student)newUser).updateDB();
                     break;
 
                 case TEACHER:
@@ -176,6 +177,7 @@ public class SignUpPage extends AppCompatActivity {
                     for (String subjectType : fudf.selectedSubjects) {
                         ((Teacher) newUser).addCourseTeach(subjectType);
                     }
+                    ((Teacher)newUser).updateDB();
                     break;
 
                 case PARENT:
@@ -217,7 +219,7 @@ public class SignUpPage extends AppCompatActivity {
             return null;
         }
     }
-    public void signUp() throws ParseException {
+    public void signUp() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
 
 // Firebase Authentication and Firestore setup
         FirebaseAuth auth = FirebaseAuth.getInstance();
@@ -241,12 +243,17 @@ public class SignUpPage extends AppCompatActivity {
                                         }
                                     });
 
-                            boolean firebaseUserDataSaving = ObjectManager.ADD_USER(newUser);
-                            if(firebaseUserDataSaving){
-                                Intent i = new Intent(SignUpPage.this, SignInPage.class);
-                                finish();
-                                startActivity(i);
+
+                            try {
+                                ObjectManager.ADD_USER(newUser);
+                            } catch (InvocationTargetException | InstantiationException |
+                                     IllegalAccessException | NoSuchMethodException e) {
+                                throw new RuntimeException(e);
                             }
+
+                            Intent i = new Intent(SignUpPage.this, SignInPage.class);
+                            finish();
+                            startActivity(i);
                         }
                     } else {
                         Log.e("SIGNUP", "Error creating user: " + task.getException());

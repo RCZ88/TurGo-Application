@@ -1,11 +1,20 @@
 package com.example.turgo;
 
+import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.UUID;
 
-public class Schedule {
+public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.SCHEDULE;
+    private final Class<ScheduleFirebase>fbc = ScheduleFirebase.class;
+    public final String scheduleID;
+    public static String SERIALIZE_KEY_CODE = "scheduleObj";
     private Course scheduleOfCourse;
     private int numberOfStudents;
     private ArrayList<Student> students;
@@ -19,6 +28,7 @@ public class Schedule {
     private Room room;
 
     public Schedule(Course scheduleOfCourse, LocalTime meetingStart, int duration, DayOfWeek day, Room room, boolean isPrivate){
+        this.scheduleID = UUID.randomUUID().toString();
         this.scheduleOfCourse = scheduleOfCourse;
         this.meetingStart = meetingStart;
         this.duration = duration;
@@ -30,6 +40,16 @@ public class Schedule {
         this.hasScheduled = false;
         scheduler = null;
     }
+    public LocalDate getNextMeetingDate(){
+        DayOfWeek day = this.day;
+        LocalDate today = LocalDate.now();
+        LocalDate nextMeeting = today.with(TemporalAdjusters.nextOrSame(day)); //gets the nearest date of day
+        if(nextMeeting.equals(today) && LocalTime.now().isAfter(meetingEnd)){
+            nextMeeting = nextMeeting.plusWeeks(1);
+        }
+        return nextMeeting;
+    }
+    public Schedule(){scheduleID = "";}
     public boolean isPrivate(){
         return this.isPrivate;
     }
@@ -93,6 +113,10 @@ public class Schedule {
         this.numberOfStudents = numberOfStudents;
     }
 
+    public String getScheduleID() {
+        return scheduleID;
+    }
+
     public ArrayList<Student> getStudents() {
         return students;
     }
@@ -120,4 +144,21 @@ public class Schedule {
     public void setScheduler(User scheduler) {
         this.scheduler = scheduler;
     }
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<ScheduleFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+
+    @Override
+    public String getID() {
+        return this.scheduleID;
+    }
+
 }

@@ -1,8 +1,13 @@
 package com.example.turgo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.UUID;
 
-public class StudentCourse {
+public class StudentCourse implements Serializable, RequireUpdate<StudentCourse, StudentCourseFirebase> {
+    private final FirebaseNode fbn = FirebaseNode.STUDENTCOURSE;
+    private final Class<StudentCourseFirebase>fbc = StudentCourseFirebase.class;
+    private final String sc_ID;
     private Student student;
     private Course ofCourse;
     private ArrayList<Schedule> schedulesOfCourse;
@@ -20,7 +25,13 @@ public class StudentCourse {
         tasks = new ArrayList<>();
         agendas = new ArrayList<>();
         this.pricePer = pricePer;
+        sc_ID = UUID.randomUUID().toString();
     }
+
+    public String getSc_ID() {
+        return sc_ID;
+    }
+
     public void addSchedule(Schedule schedule){
         schedulesOfCourse.add(schedule);
     }
@@ -87,5 +98,20 @@ public class StudentCourse {
 
     public void setPricePer(int pricePer) {
         this.pricePer = pricePer;
+    }
+
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return fbn;
+    }
+
+    @Override
+    public Class<StudentCourseFirebase> getFirebaseClass() {
+        return fbc;
+    }
+
+    @Override
+    public String getID() {
+        return sc_ID;
     }
 }

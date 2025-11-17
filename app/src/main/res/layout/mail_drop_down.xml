@@ -9,6 +9,7 @@
         android:id="@+id/rv_MailDropDown"
         android:layout_width="0dp"
         android:layout_height="172dp"
+        android:contentDescription="list of mails"
         android:scrollbarSize="8dp"
         android:scrollbarStyle="insideInset"
         android:scrollbars="vertical"
