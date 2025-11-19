@@ -5,8 +5,20 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="?attr/actionBarSize"
     tools:context=".MailPageFull">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/tb_MailTopBar"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="#A64E4E"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/mail_topbar_menu"
+        app:title="TURGO Mails"
+        app:titleTextColor="#FFFFFF" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nv_MailPage"
@@ -18,17 +30,16 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/mail_nav_menu" />
 
-    <fragment
-        android:id="@+id/nav_host_fragment_activity_mail_page_full"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/fcv_MPF_Container"
         android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         app:defaultNavHost="true"
-        app:layout_constraintBottom_toTopOf="@id/nv_MailPage"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/mail_navigation" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tb_MailTopBar"
+        tools:layout="@layout/fragment_mail_inbox" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_WriteMail"

@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 public enum FirebaseNode implements FirebasePathEnum{
+    USER("users"),
     STUDENT("users/students"),
     TEACHER("users/teachers"),
     PARENT("users/parents"),

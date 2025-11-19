@@ -1,27 +1,40 @@
 package com.example.turgo;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Mail implements RequireUpdate<Mail, MailFirebase> {
+public class Mail implements RequireUpdate<Mail, MailFirebase>, Serializable {
     private final String mailID;
     private final FirebaseNode fbn = FirebaseNode.MAIL;
+    public static final String SERIALIZE_KEY_CODE = "mailObj";
     private User from;
     private User to;
     private LocalDateTime timeSent;
     private LocalDateTime timeOpened;
     private String header, body;
+    private boolean draft;
     private boolean opened;
     public Mail(){
         this.mailID = UUID.randomUUID().toString();
     }
 
+    public Mail(User from, User to, String header, String body){
+        this.mailID = UUID.randomUUID().toString();
+        this.from = from;
+        this.to = to;
+        timeSent = LocalDateTime.now();
+        this.header = header;
+        this.body = body;
+        opened = false;
+    }
     public Mail( User from, User to) {
         this.mailID = UUID.randomUUID().toString();
         this.from = from;
         this.to = to;
         timeSent = LocalDateTime.now();
     }
+
 
     @Override
     public FirebaseNode getFirebaseNode() {
@@ -100,5 +113,16 @@ public class Mail implements RequireUpdate<Mail, MailFirebase> {
 
     public void setOpened(boolean opened) {
         this.opened = opened;
+    }
+    public String getPreview(){
+        return body.substring(0, 30);
+    }
+
+    public boolean isDraft() {
+        return draft;
+    }
+
+    public void setDraft(boolean draft) {
+        this.draft = draft;
     }
 }

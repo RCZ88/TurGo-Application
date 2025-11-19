@@ -40,6 +40,7 @@ public abstract class User implements Serializable{
     private Theme theme;
     private ArrayList<Mail> inbox;
     private ArrayList<Mail> outbox;
+    private ArrayList<Mail> draftMails;
     private ArrayList<Notification<?>> notifications;
     private String pfpCloudinary;
     public User(UserType userType, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber) throws ParseException {
@@ -55,6 +56,7 @@ public abstract class User implements Serializable{
         this.theme = Theme.SYSTEM;
         this.inbox = new ArrayList<>();
         this.outbox = new ArrayList<>();
+        this.draftMails = new ArrayList<>();
         this.notifications = new ArrayList<>();
         addStatusToDB();
     }
@@ -75,6 +77,17 @@ public abstract class User implements Serializable{
 
     public ArrayList<Mail> getOutbox() {
         return outbox;
+    }
+
+    public ArrayList<Mail> getDraftMails() {
+        return draftMails;
+    }
+    public void addDraftMail(Mail draftMail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        draftMails.add(draftMail);
+        updateUserDB();
+    }
+    public void setDraftMails(ArrayList<Mail> draftMails) {
+        this.draftMails = draftMails;
     }
 
     public void setOutbox(ArrayList<Mail> outbox) {
@@ -222,7 +235,7 @@ public abstract class User implements Serializable{
          userRef.addValueEventListener(new ValueEventListener() {
              @SuppressLint("RestrictedApi")
              @Override
-             public void onDataChange(@NonNull DataSnapshot snapshot) {
+             public void onDataChange(@NonNull DataSnapshot snapshot) throws RuntimeException {
                  if (snapshot.exists()) {
                      String type = snapshot.child("type").getValue(String.class);
                      User user = null;
@@ -243,7 +256,13 @@ public abstract class User implements Serializable{
                      }
 
                      if (user != null) {
-                         callback.onObjectRetrieved(user);
+                         try {
+                             callback.onObjectRetrieved(user);
+                         } catch (ParseException | InvocationTargetException |
+                                  NoSuchMethodException | IllegalAccessException |
+                                  InstantiationException e) {
+                             throw new RuntimeException(e);
+                         }
                      } else {
                          callback.onError(DatabaseError.fromCode(DatabaseError.DATA_STALE));
                      }

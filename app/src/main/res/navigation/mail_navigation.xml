@@ -14,6 +14,11 @@
         android:id="@+id/navigation_outbox"
         android:name="com.example.turgo.MailOutgoing"
         android:label="fragment_mail_outgoing"
-        tools:layout="@layout/fragment_mail_outgoing" />
+        tools:layout="@layout/fragment_outbox_view_all" />
+    <fragment
+        android:id="@+id/navigation_drafts"
+        android:name="com.example.turgo.DraftMailViewAll"
+        android:label="fragment_mail_outgoing"
+        tools:layout="@layout/fragment_draft_mail_view_all" />
 
 </navigation>

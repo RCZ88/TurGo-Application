@@ -31,6 +31,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class StudentScreen extends AppCompatActivity{
@@ -41,7 +43,7 @@ public class StudentScreen extends AppCompatActivity{
     private NavHostFragment navHostFragment;
     private BottomNavigationView navView;
     private Toolbar topAppBar;
-    private ArrayList<MailFirebase>inbox = new ArrayList<>();
+    private ArrayList<MailFirebase> inboxFirebase = new ArrayList<>();
     private ArrayList<NotificationFirebase>notifs = new ArrayList<>();
     private MailSmallAdapter mailSmallAdapter;
     private NotifAdapter notifAdapter;
@@ -111,7 +113,15 @@ public class StudentScreen extends AppCompatActivity{
 
             PopupWindow popupWindow = new PopupWindow(popDownView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             RecyclerView rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
-            mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, Student.class);
+            ArrayList<Mail> inbox;
+            try {
+                Student studentNormal = student.convertToNormal();
+                inbox = new ArrayList<>(studentNormal.getInbox());
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, false);
             rv_MailDropDown.setAdapter(mailSmallAdapter);
 
 
@@ -158,10 +168,10 @@ public class StudentScreen extends AppCompatActivity{
                 Mail m = new Mail();
                 m.retrieveOnce(new ObjectCallBack<MailFirebase>() {
                     @Override
-                    public void onObjectRetrieved(MailFirebase object) {
-                        inbox.add(object);
+                    public void onObjectRetrieved(MailFirebase object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                        inboxFirebase.add(object);
                         //updates the UI and the adapter in general
-                        mailSmallAdapter.addMail(object);
+                        mailSmallAdapter.addMail(object.convertToNormal());
                     }
 
                     @Override
@@ -312,12 +322,12 @@ public class StudentScreen extends AppCompatActivity{
         this.topAppBar = topAppBar;
     }
 
-    public ArrayList<MailFirebase> getInbox() {
-        return inbox;
+    public ArrayList<MailFirebase> getInboxFirebase() {
+        return inboxFirebase;
     }
 
-    public void setInbox(ArrayList<MailFirebase> inbox) {
-        this.inbox = inbox;
+    public void setInboxFirebase(ArrayList<MailFirebase> inboxFirebase) {
+        this.inboxFirebase = inboxFirebase;
     }
 
     public ArrayList<NotificationFirebase> getNotifs() {

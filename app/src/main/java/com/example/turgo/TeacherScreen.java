@@ -45,7 +45,7 @@ public class TeacherScreen extends AppCompatActivity {
     private MailSmallAdapter mailSmallAdapter;
     private NotifAdapter notifAdapter;
     private ArrayList<NotificationFirebase> notifs = new ArrayList<>();
-    private ArrayList<MailFirebase> inbox = new ArrayList<>();
+    private ArrayList<Mail> inbox = new ArrayList<>();
     private Toolbar topAppBar;
     NavHostFragment navHostFragment;
     BottomNavigationView navView;
@@ -111,7 +111,7 @@ public class TeacherScreen extends AppCompatActivity {
 
             PopupWindow popupWindow = new PopupWindow(popDownView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             RecyclerView rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
-            mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, Student.class);
+            mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, false);
             rv_MailDropDown.setAdapter(mailSmallAdapter);
 
 
@@ -156,12 +156,12 @@ public class TeacherScreen extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String mailID = snapshot.getValue(String.class);
                 Mail m = new Mail();
-                m.retrieveOnce(new ObjectCallBack<MailFirebase>() {
+                m.retrieveOnce(new ObjectCallBack<>() {
                     @Override
-                    public void onObjectRetrieved(MailFirebase object) {
-                        inbox.add(object);
+                    public void onObjectRetrieved(MailFirebase object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                        inbox.add(object.convertToNormal());
                         //updates the UI and the adapter in general
-                        mailSmallAdapter.addMail(object);
+                        mailSmallAdapter.addMail(object.convertToNormal());
                     }
 
                     @Override

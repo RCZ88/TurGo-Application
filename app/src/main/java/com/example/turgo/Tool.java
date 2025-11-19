@@ -21,6 +21,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -66,6 +68,25 @@ public class Tool {
         }
 
         return result;
+    }
+
+    public static User getUserOfId(String userID) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        UserFirebase [] user = new UserFirebase[1];
+        RequireUpdate.retrieveUser(userID, user);
+        if(user[0] instanceof StudentFirebase){
+            StudentFirebase sf = (StudentFirebase)user[0];
+            return sf.convertToNormal();
+        }else if(user[0] instanceof TeacherFirebase){
+            TeacherFirebase tf = (TeacherFirebase)user[0];
+            return tf.convertToNormal();
+        } else if (user[0] instanceof ParentFirebase) {
+            ParentFirebase pf = (ParentFirebase)user[0];
+            return pf.convertToNormal();
+        }else if(user[0] instanceof AdminFirebase){
+            AdminFirebase af = (AdminFirebase)user[0];
+            return af.convertToNormal();
+        }
+        return null;
     }
     public static String uploadToCloudinary(File file){
         final String[] secureURL = new String[1];

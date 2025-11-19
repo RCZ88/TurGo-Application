@@ -1,5 +1,8 @@
 package com.example.turgo;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+
 public class PricingFirebase implements FirebaseClass<Pricing>{
     private String pricing_ID;
     private boolean privateOrGroup;
@@ -19,6 +22,11 @@ public class PricingFirebase implements FirebaseClass<Pricing>{
     @Override
     public String getID() {
         return pricing_ID;
+    }
+
+    @Override
+    public Pricing convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        return (Pricing) constructClass(Pricing.class, pricing_ID);
     }
 
     public String getPricing_ID() {
