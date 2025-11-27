@@ -21,11 +21,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
 
 public class MainActivity extends AppCompatActivity {
-    Button btn_SignUp, btn_SignOut;
-    TextView tv_userDisplay, tv_userDetails;
-    FirebaseUser currentUser;
+//    TextView tv_userDisplay, tv_userDetails;
+    FirebaseUser currentUser;   
     User userFound;
-    ImageView iv_qrCode;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -33,20 +31,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        updateUser();
-        btn_SignUp = findViewById(R.id.btn_ToSignUp);
-        btn_SignOut = findViewById(R.id.btn_SignOut);
-        tv_userDisplay = findViewById(R.id.tv_User);
-        tv_userDetails = findViewById(R.id.tv_UserString);
-        iv_qrCode = findViewById(R.id.iv_GeneratedQR);
+//        btn_SignUp = findViewById(R.id.btn_ToSignUp);
+//        btn_SignIn = findViewById(R.id.btn_ToSignIn);
+//        btn_SignOut = findViewById(R.id.btn_SignOut);
+//        tv_userDisplay = findViewById(R.id.tv_User);
+//        tv_userDetails = findViewById(R.id.tv_UserString);
+//        iv_qrCode = findViewById(R.id.iv_GeneratedQR);
 
         FirebaseApp.initializeApp(this);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
 
+
         if(hasUser()){
             Log.d("FireBase User", "Firebase User Found");
-            tv_userDisplay.setText(currentUser.getDisplayName());
+//            tv_userDisplay.setText(currentUser.getDisplayName());
             userFound = (User) getIntent().getSerializableExtra("User Object");
             if(userFound == null){
                 User.getUserDataFromDB(currentUser.getUid(), new ObjectCallBack<User>() {
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onObjectRetrieved(User object) {
                         Log.d("Firebase", "Retrieved User: " + object.toString());
                         userFound = object;
-                        tv_userDetails.setText(userFound.toString());
                     }
 
                     @Override
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         }else{
             Log.d("Auth User", "User Not found!");
-            tv_userDisplay.setText("Guest");
+//            tv_userDisplay.setText("Guest");
         }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ConstraintLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -75,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
     }
-    public void generateQR(View view){
-        iv_qrCode.setImageBitmap(QRCmanager.generateQR(currentUser.getUid()));
-    }
+//    public void generateQR(View view){
+//        iv_qrCode.setImageBitmap(QRCmanager.generateQR(currentUser.getUid()));
+//    }
     public void toSignUpActivity(View view){
         Intent i = new Intent(this, SignUpPage.class);
         startActivity(i);
@@ -115,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         // 6. Refresh the activity
         refreshActivity();
     }
-    
+
     private void clearAuthPreferences() {
         // Clear Firebase Auth preferences
         getSharedPreferences("com.google.firebase.auth", MODE_PRIVATE)

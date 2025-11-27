@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import android.util.Log;
+
 import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
@@ -9,25 +11,24 @@ import java.util.ArrayList;
 public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teacher> {
     // Firebase-compatible fields
 
-    private String profileImageID; // Store as profileImageID instead of Drawable
-    private ArrayList<String> coursesTeachIds; // Store course IDs instead of Course objects
+    private String profileImageCloudinary; // Store as profileImageCloudinary instead of Drawable
+    private ArrayList<String> coursesTeach; // Store course IDs instead of Course objects
     private ArrayList<String> courseTypeTeach; // Already strings, keep as is
-    private ArrayList<String> scheduledMeetingsIds; // Store meeting IDs instead of Meeting objects
-    private ArrayList<String> agendasIds; // Store agenda IDs instead of Agenda objects
-    private ArrayList<String> availableTimesIds; // Store arrangement IDs instead of DayTimeArrangement objects
+    private ArrayList<String> scheduledMeetings; // Store meeting IDs instead of Meeting objects
+    private ArrayList<String> agendas; // Store agenda IDs instead of Agenda objects
+    private ArrayList<String> timeArrangements; // Store arrangement IDs instead of DayTimeArrangement objects
     private String teacherResume;
     private int teachYearExperience;
-    private String pfpCloudinary;
 
     // Default constructor required for Firebase
     public TeacherFirebase() {
         super(UserType.TEACHER.type());
         // Initialize empty lists
-        coursesTeachIds = new ArrayList<>();
+        coursesTeach = new ArrayList<>();
         courseTypeTeach = new ArrayList<>();
-        scheduledMeetingsIds = new ArrayList<>();
-        agendasIds = new ArrayList<>();
-        availableTimesIds = new ArrayList<>();
+        scheduledMeetings = new ArrayList<>();
+        agendas = new ArrayList<>();
+        timeArrangements = new ArrayList<>();
     }
 
     @Override
@@ -35,84 +36,103 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
         setID(from.getID());
         setFullName(from.getFullName());
         setNickname(from.getNickname());
-        setBirthdate(from.getBirthDate());
+        setBirthDate(from.getBirthDate());
         setAge(from.getAge());
         setEmail(from.getEmail());
         setGender(from.getGender());
         setPhoneNumber(from.getPhoneNumber());
-        setLanguangeID(from.getLanguage().getDisplayName());
+        setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
-        setPfpCloudinary(from.getPfpCloudinary());
 
-        // Convert profile image Drawable to path/string if available
         if (from.getProfileImage() != null) {
-            // This would need implementation based on how you store images
-            // For now, we'll assume a method to convert Drawable to path
-            profileImageID = from.getProfileImage();
+            profileImageCloudinary = from.getProfileImage();
+        } else {
+            profileImageCloudinary = ""; // or default placeholder path
         }
 
-        // Convert ArrayList<Course> to ArrayList<String> of IDs
         if (from.getCoursesTeach() != null) {
-            coursesTeachIds = convertToIdList(from.getCoursesTeach());
+            coursesTeach = convertToIdList(from.getCoursesTeach());
+        } else {
+            coursesTeach = new ArrayList<>();
         }
 
-        // Copy course types directly (already strings)
         if (from.getCourseTypeTeach() != null) {
             courseTypeTeach = from.getCourseTypeTeach();
+        } else {
+            courseTypeTeach = new ArrayList<>();
         }
 
-        // Convert ArrayList<Meeting> to ArrayList<String> of IDs
         if (from.getScheduledMeetings() != null) {
-            scheduledMeetingsIds = convertToIdList(from.getScheduledMeetings());
+            scheduledMeetings = convertToIdList(from.getScheduledMeetings());
+        } else {
+            scheduledMeetings = new ArrayList<>();
         }
 
-        // Convert ArrayList<Agenda> to ArrayList<String> of IDs
         if (from.getAgendas() != null) {
-            agendasIds = convertToIdList(from.getAgendas());
+            agendas = convertToIdList(from.getAgendas());
+        } else {
+            agendas = new ArrayList<>();
         }
 
-        // Convert ArrayList<DayTimeArrangement> to ArrayList<String> of IDs
         if (from.getTimeArrangements() != null) {
-            availableTimesIds = convertToIdList(from.getTimeArrangements());
+            timeArrangements = convertToIdList(from.getTimeArrangements());
+        } else {
+            timeArrangements = new ArrayList<>();
         }
 
-        // Copy primitive fields directly
-        teacherResume = from.getTeacherResume();
+        if (from.getTeacherResume() != null) {
+            teacherResume = from.getTeacherResume();
+        } else {
+            teacherResume = "";
+        }
+
         teachYearExperience = from.getTeachYearExperience();
     }
 
-    public String getPfpCloudinary() {
-        return pfpCloudinary;
-    }
-
-    public void setPfpCloudinary(String pfpCloudinary) {
-        this.pfpCloudinary = pfpCloudinary;
-    }
+//
+//    public String getPfpCloudinary() {
+//        return pfpCloudinary;
+//    }
+//
+//    public void setPfpCloudinary(String pfpCloudinary) {
+//        this.pfpCloudinary = pfpCloudinary;
+//    }
 
     @Override
     public String getID() {
         return super.getID();
     }
-
     @Override
-    public Teacher convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (Teacher) constructClass(Teacher.class, super.getID());
+    public void convertToNormal(ObjectCallBack<Teacher> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Teacher.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Teacher) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                Log.e("Error", error.getMessage());
+            }
+        });
     }
 
-    public String getProfileImageID() {
-        return profileImageID;
+
+
+    public String getProfileImageCloudinary() {
+        return profileImageCloudinary;
     }
 
-    public void setProfileImageID(String profileImageID) {
-        this.profileImageID = profileImageID;
+    public void setProfileImageCloudinary(String profileImageCloudinary) {
+        this.profileImageCloudinary = profileImageCloudinary;
     }
 
-    public ArrayList<String> getCoursesTeachIds() {
-        return coursesTeachIds;
+    public ArrayList<String> getCoursesTeach() {
+        return coursesTeach;
     }
 
-    public void setCoursesTeachIds(ArrayList<String> coursesTeachIds) {
-        this.coursesTeachIds = coursesTeachIds;
+    public void setCoursesTeach(ArrayList<String> coursesTeach) {
+        this.coursesTeach = coursesTeach;
     }
 
     public ArrayList<String> getCourseTypeTeach() {
@@ -123,28 +143,28 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
         this.courseTypeTeach = courseTypeTeach;
     }
 
-    public ArrayList<String> getScheduledMeetingsIds() {
-        return scheduledMeetingsIds;
+    public ArrayList<String> getScheduledMeetings() {
+        return scheduledMeetings;
     }
 
-    public void setScheduledMeetingsIds(ArrayList<String> scheduledMeetingsIds) {
-        this.scheduledMeetingsIds = scheduledMeetingsIds;
+    public void setScheduledMeetings(ArrayList<String> scheduledMeetings) {
+        this.scheduledMeetings = scheduledMeetings;
     }
 
-    public ArrayList<String> getAgendasIds() {
-        return agendasIds;
+    public ArrayList<String> getAgendas() {
+        return agendas;
     }
 
-    public void setAgendasIds(ArrayList<String> agendasIds) {
-        this.agendasIds = agendasIds;
+    public void setAgendas(ArrayList<String> agendas) {
+        this.agendas = agendas;
     }
 
-    public ArrayList<String> getAvailableTimesIds() {
-        return availableTimesIds;
+    public ArrayList<String> getTimeArrangements() {
+        return timeArrangements;
     }
 
-    public void setAvailableTimesIds(ArrayList<String> availableTimesIds) {
-        this.availableTimesIds = availableTimesIds;
+    public void setTimeArrangements(ArrayList<String> timeArrangements) {
+        this.timeArrangements = timeArrangements;
     }
 
     public String getTeacherResume() {
@@ -164,8 +184,8 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
     }
     public TeacherMini toTM(){
         ArrayList<String>courseNames = new ArrayList<>();
-        for(String courseIDs : coursesTeachIds){
-            (new Course()).retrieveOnce(new ObjectCallBack<CourseFirebase>() {
+        for(String courseIDs : coursesTeach){
+            (new Course()).retrieveOnce(new ObjectCallBack<>() {
                 @Override
                 public void onObjectRetrieved(CourseFirebase object) {
                     courseNames.add(object.getCourseName());
@@ -177,7 +197,13 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
                 }
             }, courseIDs);
         }
-        return new TeacherMini(this.getFullName(), String.join(", ", courseNames), pfpCloudinary, super.getID());
+        String courseTeach = "";
+        if(!courseNames.isEmpty()){
+            String.join(", ", courseNames);
+        }else{
+            courseTeach = "None";
+        }
+        return new TeacherMini(this.getFullName(), courseTeach, profileImageCloudinary, super.getID());
     }
 
 }

@@ -65,11 +65,19 @@ public class TeacherAllCourse extends Fragment {
         rv_allCourse = view.findViewById(R.id.rv_TAC_AllCourse);
         TeacherScreen ts = (TeacherScreen) getActivity();
         Teacher teacher = ts.getTeacher();
-        CourseTeachersAdapter adapter = new CourseTeachersAdapter( teacher.getCoursesTeach(), item -> {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("course", item);
-            TeacherCourseScreen teacherCourseScreen = new TeacherCourseScreen();
-            teacherCourseScreen.setArguments(bundle);
+        CourseTeachersAdapter adapter = new CourseTeachersAdapter(teacher.getCoursesTeach(), new OnItemClickListener<Course>() {
+            @Override
+            public void onItemClick(Course item) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
+                TeacherCourseScreen teacherCourseScreen = new TeacherCourseScreen();
+                teacherCourseScreen.setArguments(bundle);
+            }
+
+            @Override
+            public void onItemLongClick(Course item) {
+
+            }
         });
         rv_allCourse.setAdapter(adapter);
         return view;

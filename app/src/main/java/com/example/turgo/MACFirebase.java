@@ -1,11 +1,13 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MACFirebase extends MailFirebase implements FirebaseClass<Mail>{
-    private ArrayList<String> schedulesIDs;
+    private ArrayList<String> schedules;
     private Course course;
     private String reasonForJoining;
     private String school;
@@ -17,8 +19,8 @@ public class MACFirebase extends MailFirebase implements FirebaseClass<Mail>{
     @Override
     public void importObjectData(Mail from) {
         setMailID(from.getID());
-        setFromId(from.getFrom().getUID());
-        setToId(from.getTo().getUID());
+        setFrom(from.getFrom().getUid());
+        setTo(from.getTo().getUid());
         setTimeSent(from.getTimeSent().toString());
         setTimeOpened(from.getTimeOpened().toString());
         setHeader(from.getHeader());
@@ -26,24 +28,34 @@ public class MACFirebase extends MailFirebase implements FirebaseClass<Mail>{
         setOpened(from.isOpened());
         MailApplyCourse fromMAC = (MailApplyCourse)from;
 
-        schedulesIDs = convertToIdList(fromMAC.getSchedules());
+        schedules = convertToIdList(fromMAC.getSchedules());
         course = fromMAC.getCourse();
         reasonForJoining = fromMAC.getReasonForJoining();
         school = fromMAC.getSchool();
         grade = fromMAC.getGrade();
     }
 
-    @Override
-    public MailApplyCourse convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (MailApplyCourse) constructClass(MailApplyCourse.class, getID());
+
+    public void convertToNormal(ObjectCallBack<Mail> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(MailApplyCourse.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((MailApplyCourse) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
-    public ArrayList<String> getSchedulesIDs() {
-        return schedulesIDs;
+    public ArrayList<String> getSchedules() {
+        return schedules;
     }
 
-    public void setSchedulesIDs(ArrayList<String> schedulesIDs) {
-        this.schedulesIDs = schedulesIDs;
+    public void setSchedules(ArrayList<String> schedules) {
+        this.schedules = schedules;
     }
 
     public Course getCourse() {

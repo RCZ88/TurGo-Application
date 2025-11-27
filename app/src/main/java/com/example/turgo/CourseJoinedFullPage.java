@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -92,7 +93,17 @@ public class CourseJoinedFullPage extends Fragment {
         }
         StudentFirebase studentFirebase = ((StudentScreen) getActivity()).getStudent();
         try {
-            student = studentFirebase.convertToNormal();
+            studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                  IllegalAccessException | java.lang.InstantiationException e) {
             throw new RuntimeException(e);
@@ -169,6 +180,11 @@ public class CourseJoinedFullPage extends Fragment {
                             .replace(R.id.nhf_ss_FragContainer, tfp)
                             .addToBackStack(null)
                             .commit();
+                }
+
+                @Override
+                public void onItemLongClick(Task item) {
+
                 }
             });
             rv_listOfTasks.setAdapter(taskAdapter);

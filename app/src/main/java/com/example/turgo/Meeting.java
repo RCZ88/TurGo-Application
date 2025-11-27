@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -200,7 +201,12 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Meeting meeting = snapshot.getValue(Meeting.class);
-                objectCallBack.onObjectRetrieved(meeting);
+                try {
+                    objectCallBack.onObjectRetrieved(meeting);
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
                 Log.d("Firebase Data Retrieval", "Successfully Retrieved Meeting!");
             }
 

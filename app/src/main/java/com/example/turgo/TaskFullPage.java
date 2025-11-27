@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,6 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.firebase.database.DatabaseError;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,7 +77,6 @@ public class TaskFullPage extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
-            task = (Task)getArguments().getSerializable(Task.SERIALIZE_KEY_CODE);
 
         }
     }
@@ -92,6 +94,11 @@ public class TaskFullPage extends Fragment {
         tv_taskTitle = view.findViewById(R.id.tv_tfp_TaskTitle);
         tv_noSubmission = view.findViewById(R.id.tv_tfp_noSubmission);
 
+        Bundle bundle = new Bundle();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            task = bundle.getSerializable(Task.SERIALIZE_KEY_CODE, Task.class);
+        }
+
         tv_taskTitle.setText(task.getTitle());
         tv_taskDate.setText(task.getDueDate().getDayOfMonth());
         tv_taskMonth.setText(task.getDueDate().getMonth().toString());
@@ -104,7 +111,17 @@ public class TaskFullPage extends Fragment {
         rv_filesSubmitted = view.findViewById(R.id.rv_FilesSubmitted);
         StudentFirebase studentFirebase = ((StudentScreen)getActivity()).getStudent();
         try {
-            student = studentFirebase.convertToNormal();
+            studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                  IllegalAccessException | java.lang.InstantiationException e) {
             throw new RuntimeException(e);
@@ -134,16 +151,26 @@ public class TaskFullPage extends Fragment {
                     int count = data.getClipData().getItemCount();
                     for(int i =0; i<count; i++){
                         Uri uriFile = data.getClipData().getItemAt(i).getUri();
-                        String secure_url = "";
+                        final String[] secure_url = {""};
                         File tempFile;
                         try {
                             tempFile = Tool.uriToFile(uriFile, getContext());
-                            secure_url = Tool.uploadToCloudinary(tempFile);
+                            Tool.uploadToCloudinary( tempFile, new ObjectCallBack<>() {
+                                @Override
+                                public void onObjectRetrieved(String object) {
+                                    secure_url[0] = object;
+                                }
+
+                                @Override
+                                public void onError(DatabaseError error) {
+
+                                }
+                            });
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
 
-                        filesUploaded.add(new file(tempFile.getName(), secure_url, student, LocalDateTime.now()));
+                        filesUploaded.add(new file(tempFile.getName(), secure_url[0], student, LocalDateTime.now()));
                     }
                 }else if(data.getData() != null){
                     Uri uriFile = data.getData();
@@ -153,8 +180,19 @@ public class TaskFullPage extends Fragment {
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    String secure_url = Tool.uploadToCloudinary(tempFile);
-                    filesUploaded.add(new file(tempFile.getName(), secure_url, student, LocalDateTime.now()));
+                    final String[] secure_url = {""};
+                    Tool.uploadToCloudinary( tempFile, new ObjectCallBack<String>() {
+                        @Override
+                        public void onObjectRetrieved(String object) {
+                            secure_url[0] = object;
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+
+                        }
+                    });
+                    filesUploaded.add(new file(tempFile.getName(), secure_url[0], student, LocalDateTime.now()));
                 }
                 FileAdapter fileAdapter = new FileAdapter(filesUploaded);
                 rv_filesUploaded.setAdapter(fileAdapter);

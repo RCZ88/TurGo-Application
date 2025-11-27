@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.DayOfWeek;
@@ -9,17 +11,17 @@ import java.util.ArrayList;
 public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim arrangement
     // Firebase-compatible fields
     private String DTA_ID;
-    private String ofTeacherID; // Store Teacher ID instead of Teacher object
-    private String atCourseID; // Store Course ID instead of Course object
+    private String ofTeacher; // Store Teacher ID instead of Teacher object
+    private String atCourse; // Store Course ID instead of Course object
     private String day; // Store DayOfWeek as String
     private String start; // Store LocalTime as String in "HH:mm" format
     private String end; // Store LocalTime as String in "HH:mm" format
-    private ArrayList<String> occupiedIDs; // Store Schedule IDs instead of Schedule objects
+    private ArrayList<String> occupied; // Store Schedule IDs instead of Schedule objects
     private int maxMeeting;
 
     // Default constructor required for Firebase
     public DTAFirebase() {
-        occupiedIDs = new ArrayList<>();
+        occupied = new ArrayList<>();
     }
 
     @Override
@@ -29,11 +31,11 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
 
         // Convert object references to IDs
         if (from.getOfTeacher() != null) {
-            ofTeacherID = from.getOfTeacher().getID();
+            ofTeacher = from.getOfTeacher().getID();
         }
 
         if (from.getAtCourse() != null) {
-            atCourseID = from.getAtCourse().getID();
+            atCourse = from.getAtCourse().getID();
         }
 
         // Convert DayOfWeek to String
@@ -53,7 +55,7 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
 
         // Convert ArrayList<Schedule> to ArrayList<String> of IDs
         if (from.getOccupied() != null) {
-            occupiedIDs = convertToIdList(from.getOccupied());
+            occupied = convertToIdList(from.getOccupied());
         }
 
         // Copy primitive field directly
@@ -66,8 +68,18 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
     }
 
     @Override
-    public DayTimeArrangement convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (DayTimeArrangement) constructClass(DayTimeArrangement.class, getID());
+    public void convertToNormal(ObjectCallBack<DayTimeArrangement> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(DayTimeArrangement.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((DayTimeArrangement) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
     public String getDTA_ID() {
@@ -78,20 +90,20 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
         this.DTA_ID = DTA_ID;
     }
 
-    public String getOfTeacherID() {
-        return ofTeacherID;
+    public String getOfTeacher() {
+        return ofTeacher;
     }
 
-    public void setOfTeacherID(String ofTeacherID) {
-        this.ofTeacherID = ofTeacherID;
+    public void setOfTeacher(String ofTeacher) {
+        this.ofTeacher = ofTeacher;
     }
 
-    public String getAtCourseID() {
-        return atCourseID;
+    public String getAtCourse() {
+        return atCourse;
     }
 
-    public void setAtCourseID(String atCourseID) {
-        this.atCourseID = atCourseID;
+    public void setAtCourse(String atCourse) {
+        this.atCourse = atCourse;
     }
 
     public String getDay() {
@@ -118,12 +130,12 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
         this.end = end;
     }
 
-    public ArrayList<String> getOccupiedIDs() {
-        return occupiedIDs;
+    public ArrayList<String> getOccupied() {
+        return occupied;
     }
 
-    public void setOccupiedIDs(ArrayList<String> occupiedIDs) {
-        this.occupiedIDs = occupiedIDs;
+    public void setOccupied(ArrayList<String> occupied) {
+        this.occupied = occupied;
     }
 
     public int getMaxMeeting() {

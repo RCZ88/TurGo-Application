@@ -9,4 +9,15 @@
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+    <integer-array name="logo_list">
+        <item>@drawable/idea_course_icon</item>
+        <item>@drawable/science_course_icon</item>
+        <item>@drawable/language_course_icon</item>
+        <item>@drawable/music_course_icon</item>
+    </integer-array>
+    <integer-array name="banner_list">
+        <item>@drawable/banner_blue</item>
+        <item>@drawable/banner_red</item>
+        <item>@drawable/banner_green</item>
+    </integer-array>
 </resources>

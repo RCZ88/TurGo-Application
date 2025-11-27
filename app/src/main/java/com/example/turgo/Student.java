@@ -4,9 +4,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.cloudinary.android.MediaManager;
-import com.cloudinary.android.callback.ErrorInfo;
-import com.cloudinary.android.callback.UploadCallback;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,7 +20,6 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Map;
 
 public class Student extends User implements Serializable, RequireUpdate<Student, StudentFirebase>{
     private final FirebaseNode fbn = FirebaseNode.STUDENT;
@@ -80,7 +76,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
 
     @Override
     public String getID() {
-        return getUID();
+        return getUid();
     }
 
     @Override
@@ -101,6 +97,21 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public Student(){}
+
+    @Override
+    public String getSerializeCode() {
+        return SERIALIZE_KEY_CODE;
+    }
+
+    public ArrayList<Task>getCompletedTask(){
+        ArrayList<Task>uncompleted = new ArrayList<>();
+        for(Task task:allTask){
+            if(!uncompletedTask.contains(task)){
+                uncompleted.add(task);
+            }
+        }
+        return uncompleted;
+    }
 
     public ArrayList<Meeting> getAllMeetingOfCourse(Course course){
         ArrayList<Meeting>meetings = new ArrayList<>();
@@ -437,8 +448,19 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                             if(courseInterested.contains(object.getCourseType())){
                                 //course type is interested by the student
                                 try {
-                                    Course courseInterested = cf.convertToNormal();
-                                    ci.add(courseInterested);
+                                    final Course[] courseInterested = new Course[1];
+                                    cf.convertToNormal(new ObjectCallBack<Course>() {
+                                        @Override
+                                        public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                                            courseInterested[0] = object;
+                                        }
+
+                                        @Override
+                                        public void onError(DatabaseError error) {
+
+                                        }
+                                    });
+                                    ci.add(courseInterested[0]);
                                 } catch (ParseException | InvocationTargetException |
                                          NoSuchMethodException | IllegalAccessException |
                                          InstantiationException e) {
@@ -473,7 +495,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             if(task.getDropbox().getSubmissionSlot(this).isLate(file.getSubmitTime())){
                 this.lateSubmissions ++;
             }
-            String folderPath = "turgo/submissions/"+task.getTaskOfCourse().getCourseID()+"/"+task.getTaskID()+"/"+getUID();
+            String folderPath = "turgo/submissions/"+task.getTaskOfCourse().getCourseID()+"/"+task.getTaskID()+"/"+ getUid();
             task.getDropbox().updateDB();
         }
         ArrayList<String>fileNames = new ArrayList<>();

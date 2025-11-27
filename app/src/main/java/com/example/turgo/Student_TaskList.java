@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.lang.reflect.InvocationTargetException;
@@ -67,33 +68,56 @@ public class Student_TaskList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_student__task_list, container, false);
-        Student student = null;
+        final Student[] student = {null};
         assert getActivity() != null;
         StudentFirebase sf = ((StudentScreen)getActivity()).getStudent();
         try {
-            student = (Student)sf.convertToNormal();
+            sf.convertToNormal(new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student[0] = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                  java.lang.InstantiationException | ParseException e) {
             throw new RuntimeException(e);
         }
-        TaskAdapter taskAdapter = new TaskAdapter(student.getAllTask(), student, item -> {
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
+        TaskAdapter taskAdapter = new TaskAdapter(student[0].getAllTask(), student[0], new OnItemClickListener<Task>() {
+            @Override
+            public void onItemClick(Task item) {
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
 
-            TaskFullPage tfp = new TaskFullPage();
-            tfp.setArguments(bundle);
+                TaskFullPage tfp = new TaskFullPage();
+                tfp.setArguments(bundle);
 
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.nhf_ss_FragContainer, tfp)
-                    .addToBackStack(null)
-                    .commit();
+                requireActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.nhf_ss_FragContainer, tfp)
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+            @Override
+            public void onItemLongClick(Task item) {
+
+            }
         });
         rv_tasks = view.findViewById(R.id.rv_stl_AllTask);
         btn_viewPastTasks = view.findViewById(R.id.btn_ViewPastTask);
         rv_tasks.setAdapter(taskAdapter);
         btn_viewPastTasks.setOnClickListener(view1 -> {
-
+            Student_PastTasks spt = new Student_PastTasks();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.nhf_ss_FragContainer, spt)
+                    .addToBackStack(null)
+                    .commit();
         });
 
         // Inflate the layout for this fragment

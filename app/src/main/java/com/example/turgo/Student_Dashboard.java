@@ -103,7 +103,17 @@ public class Student_Dashboard extends Fragment{
         assert activity != null;
         fbStudent = activity.getStudent();
         try {
-            user = fbStudent.convertToNormal();
+            fbStudent.convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    user = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                  IllegalAccessException | java.lang.InstantiationException e) {
             throw new RuntimeException(e);

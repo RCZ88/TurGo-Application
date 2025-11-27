@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -77,17 +78,37 @@ public class Student_MyCourses extends Fragment {
         StudentFirebase studentFirebase = activity.getStudent();
 
         try {
-            this.user = studentFirebase.convertToNormal();
+             studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    user = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
                  java.lang.InstantiationException | ParseException e) {
             throw new RuntimeException(e);
         }
-        RecyclerView recyclerView = view.findViewById(R.id.rv_ListOfMyCourses);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        RecyclerView rv_myCourses = view.findViewById(R.id.rv_ListOfMyCourses);
+        rv_myCourses.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ArrayList<Course> courses =  user.getCourseTaken();// Your method to get courses
-        CourseAdapter adapter = new CourseAdapter(courses, user, this::selectCourse, requireContext());
-        recyclerView.setAdapter(adapter);
+        CourseAdapter adapter = new CourseAdapter(courses, user, new OnItemClickListener<Course>() {
+            @Override
+            public void onItemClick(Course item) {
+                selectCourse(item);
+            }
+
+            @Override
+            public void onItemLongClick(Course item) {
+
+            }
+        }, requireContext());
+        rv_myCourses.setAdapter(adapter);
 
         return view;
     }

@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -113,13 +114,23 @@ public class ComposeMail extends AppCompatActivity {
             String body = et_body.getText().toString();
             ArrayList<file> files = new ArrayList<>();
             for(Uri uri : filesUploaded){
-                String path;
+                final String[] path = new String[1];
                 try {
-                    path = Tool.uploadToCloudinary(Tool.uriToFile(uri, this));
+                    Tool.uploadToCloudinary(Tool.uriToFile(uri, this), new ObjectCallBack<String>() {
+                        @Override
+                        public void onObjectRetrieved(String object) {
+                            path[0] = object;
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+
+                        }
+                    });
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                files.add(new file(Tool.getFileName(this, uri), path, user, LocalDateTime.now()));
+                files.add(new file(Tool.getFileName(this, uri), path[0], user, LocalDateTime.now()));
             }
             for(file file : files){
                 try {
@@ -146,8 +157,19 @@ public class ComposeMail extends AppCompatActivity {
             ArrayList<file>attachments = new ArrayList<>();
             for(Uri file : filesUploaded){
                 try {
-                    String cloudinaryUrl = Tool.uploadToCloudinary(Tool.uriToFile(file, this));
-                    file theFile = new file(Tool.getFileName(this, file), cloudinaryUrl, user, LocalDateTime.now());
+                    final String[] cloudinaryUrl = {""};
+                    Tool.uploadToCloudinary(Tool.uriToFile(file, this), new ObjectCallBack<String>() {
+                        @Override
+                        public void onObjectRetrieved(String object) {
+                            cloudinaryUrl[0] = object;
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+
+                        }
+                    });
+                    file theFile = new file(Tool.getFileName(this, file), cloudinaryUrl[0], user, LocalDateTime.now());
                     attachments.add(theFile);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

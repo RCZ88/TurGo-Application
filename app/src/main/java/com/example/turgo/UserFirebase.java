@@ -5,45 +5,47 @@ import java.util.ArrayList;
 
 public abstract class UserFirebase implements Serializable{
     private String userType;
-    private String ID;
+    private String uid;
     private String fullName;
     private String nickname;
-    private String birthdate;
+    private String birthDate;
     private int age;
     private String email;
     private String gender;
     private String phoneNumber;
-    private String languangeID;
+    private String language;
     private String theme;
-    private ArrayList<String> inboxIDs;
-    private ArrayList<String> outboxIDs;
-    private ArrayList<String> notificationIDs;
+    private ArrayList<String> inbox;
+    private ArrayList<String> outbox;
+    private ArrayList<String> draftMails;
+    private ArrayList<String> notifications;
     public UserFirebase(String userType){
         this.userType = userType;
     }
+    public UserFirebase(){};
 
-    public ArrayList<String> getInboxIDs() {
-        return inboxIDs;
+    public ArrayList<String> getInbox() {
+        return inbox;
     }
 
-    public void setInboxIDs(ArrayList<String> inboxIDs) {
-        this.inboxIDs = inboxIDs;
+    public void setInbox(ArrayList<String> inbox) {
+        this.inbox = inbox;
     }
 
-    public ArrayList<String> getOutboxIDs() {
-        return outboxIDs;
+    public ArrayList<String> getOutbox() {
+        return outbox;
     }
 
-    public void setOutboxIDs(ArrayList<String> outboxIDs) {
-        this.outboxIDs = outboxIDs;
+    public void setOutbox(ArrayList<String> outbox) {
+        this.outbox = outbox;
     }
 
-    public ArrayList<String> getNotificationIDs() {
-        return notificationIDs;
+    public ArrayList<String> getNotifications() {
+        return notifications;
     }
 
-    public void setNotificationIDs(ArrayList<String> notificationIDs) {
-        this.notificationIDs = notificationIDs;
+    public void setNotifications(ArrayList<String> notifications) {
+        this.notifications = notifications;
     }
 
     public void setUserType(String userType) {
@@ -55,11 +57,11 @@ public abstract class UserFirebase implements Serializable{
     }
 
     public String getID() {
-        return ID;
+        return uid;
     }
 
     public void setID(String ID) {
-        this.ID = ID;
+        this.uid = ID;
     }
 
     public String getFullName() {
@@ -78,12 +80,12 @@ public abstract class UserFirebase implements Serializable{
         this.nickname = nickname;
     }
 
-    public String getBirthdate() {
-        return birthdate;
+    public String getBirthDate() {
+        return birthDate;
     }
 
-    public void setBirthdate(String birthdate) {
-        this.birthdate = birthdate;
+    public void setBirthDate(String birthDate) {
+        this.birthDate = birthDate;
     }
 
     public int getAge() {
@@ -118,12 +120,12 @@ public abstract class UserFirebase implements Serializable{
         this.phoneNumber = phoneNumber;
     }
 
-    public String getLanguangeID() {
-        return languangeID;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLanguangeID(String languangeID) {
-        this.languangeID = languangeID;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getTheme() {
@@ -132,5 +134,21 @@ public abstract class UserFirebase implements Serializable{
 
     public void setTheme(String theme) {
         this.theme = theme;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public ArrayList<String> getDraftMails() {
+        return draftMails;
+    }
+
+    public void setDraftMails(ArrayList<String> draftMails) {
+        this.draftMails = draftMails;
     }
 }

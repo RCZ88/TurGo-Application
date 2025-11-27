@@ -95,7 +95,7 @@ public class StudentScreen extends AppCompatActivity{
                         .commit();
             }
         }
-        enableUserSync();
+        syncUser();
         prepareObjects();
         topAppBar = findViewById(R.id.tb_ss_topAppBar);
         topAppBar.setTitle(student.getFullName());
@@ -115,8 +115,19 @@ public class StudentScreen extends AppCompatActivity{
             RecyclerView rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
             ArrayList<Mail> inbox;
             try {
-                Student studentNormal = student.convertToNormal();
-                inbox = new ArrayList<>(studentNormal.getInbox());
+                final Student[] studentNormal = new Student[1];
+                student.convertToNormal(new ObjectCallBack<Student>() {
+                    @Override
+                    public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                        studentNormal[0] = object;
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                });
+                inbox = new ArrayList<>(studentNormal[0].getInbox());
             } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                      IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
@@ -166,12 +177,24 @@ public class StudentScreen extends AppCompatActivity{
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String mailID = snapshot.getValue(String.class);
                 Mail m = new Mail();
-                m.retrieveOnce(new ObjectCallBack<MailFirebase>() {
+                m.retrieveOnce(new ObjectCallBack<>() {
                     @Override
                     public void onObjectRetrieved(MailFirebase object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                         inboxFirebase.add(object);
                         //updates the UI and the adapter in general
-                        mailSmallAdapter.addMail(object.convertToNormal());
+                        final Mail[] mail = new Mail[1];
+                        object.convertToNormal(new ObjectCallBack<Mail>() {
+                            @Override
+                            public void onObjectRetrieved(Mail object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                                mail[0] = object;
+                            }
+
+                            @Override
+                            public void onError(DatabaseError error) {
+
+                            }
+                        });
+                        mailSmallAdapter.addMail(mail[0]);
                     }
 
                     @Override
@@ -269,8 +292,18 @@ public class StudentScreen extends AppCompatActivity{
 
     }
 
-    public void enableUserSync(){
-        RequireUpdate.retrieveUser(student.getID(), new StudentFirebase[]{student});
+    public void syncUser(){
+        RequireUpdate.retrieveUser(student.getID(), new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Object object) {
+                student = (StudentFirebase) object;
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
     public ActivityStudentScreenBinding getBinding() {

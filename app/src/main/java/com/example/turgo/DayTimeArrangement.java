@@ -26,7 +26,12 @@ public class DayTimeArrangement implements RequireUpdate<DayTimeArrangement,DTAF
         this.day = day;
         this.start = start;
         this.end = end;
-        occupied = atCourse.getScheduleOfDay(day);
+        if(atCourse != null && atCourse.getSchedules() != null){
+            occupied = atCourse.getScheduleOfDay(day);
+        }else{
+            occupied = new ArrayList<>();
+        }
+
         this.maxMeeting = maxMeeting;
         DTA_ID = UUID.randomUUID().toString();
     }

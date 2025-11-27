@@ -28,6 +28,9 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
         this.ofCourse = ofCourse;
         agenda_ID = UUID.randomUUID().toString();
     }
+    public Agenda(){
+        agenda_ID = "";
+    }
 
     public Agenda(file file, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, Course ofCourse){
         agendaImage = file;

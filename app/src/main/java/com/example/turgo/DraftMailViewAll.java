@@ -64,7 +64,7 @@ public class DraftMailViewAll extends Fragment {
         MailPageFull mailPageFull = (MailPageFull) requireActivity();
         User user = mailPageFull.getUser();
         rv_drafts = view.findViewById(R.id.rv_DMVA_DraftMails);
-        MailSmallAdapter adapter = new MailSmallAdapter(user.getUID(), user.getOutbox(), true, mailPageFull);
+        MailSmallAdapter adapter = new MailSmallAdapter(user.getUid(), user.getOutbox(), true, mailPageFull);
         rv_drafts.setAdapter(adapter);
         return view;
     }

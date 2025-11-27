@@ -1,6 +1,6 @@
 package com.example.turgo;
 
-import android.content.Context;
+import android.util.Log;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -10,12 +10,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Teacher extends User implements Serializable, RequireUpdate<Teacher, TeacherFirebase> {
-    private final FirebaseNode fbn = FirebaseNode.TEACHER;
+    private static final FirebaseNode fbn = FirebaseNode.TEACHER;
     private static final int MAX_LATEST_SUBMISSION_SIZE = 3;
-    private final Class<TeacherFirebase> fbc = TeacherFirebase.class;
-    public static String SERIALIZE_KEY_CODE = "teacherObj";
+    private static final Class<TeacherFirebase> fbc = TeacherFirebase.class;
+    public static final String SERIALIZE_KEY_CODE = "teacherObj";
     private String profileImageCloudinary;
-    private Context context;
     private ArrayList<Course> coursesTeach;
     private ArrayList<SubmissionDisplay> latestSubmission;
     private ArrayList<String> courseTypeTeach;
@@ -25,7 +24,7 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     private ArrayList<DayTimeArrangement> timeArrangements; //one object for each day of the week.
     private String teacherResume;
     private int teachYearExperience;
-    public Teacher(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber, Context context) throws ParseException {
+    public Teacher(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
         super(UserType.TEACHER, gender, fullName, birthDate, nickname, email, phoneNumber);
         scheduledMeetings = new ArrayList<>();
         coursesTeach = new ArrayList<>();
@@ -34,7 +33,6 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         agendas = new ArrayList<>();
         completedMeetings = new ArrayList<>();
         latestSubmission = new ArrayList<>();
-        this.context = context;
     }
 
 
@@ -55,7 +53,8 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
 
     @Override
     public String getID() {
-        return getUID();
+        Log.d("Teacher", "getID: " + getUid());
+        return getUid();
     }
     public void addLatestSubmission(SubmissionDisplay submission){
         latestSubmission.add(0, submission);
@@ -91,10 +90,6 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         return SERIALIZE_KEY_CODE;
     }
 
-    public static void setSerializeKeyCode(String serializeKeyCode) {
-        SERIALIZE_KEY_CODE = serializeKeyCode;
-    }
-
     public Class<TeacherFirebase> getFbc() {
         return fbc;
     }
@@ -104,6 +99,11 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     }
 
     public Teacher(){}
+
+    @Override
+    public String getSerializeCode() {
+        return SERIALIZE_KEY_CODE;
+    }
 
     public void createAgenda(String contents, LocalDate date, Meeting ofMeeting, Student student, Course ofCourse) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         Agenda agenda = new Agenda(contents, date, ofMeeting, this, student, ofCourse);
@@ -165,13 +165,6 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         return profileImageCloudinary;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 
     public void setCoursesTeach(ArrayList<Course> coursesTeach) {
         this.coursesTeach = coursesTeach;

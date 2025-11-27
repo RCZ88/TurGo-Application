@@ -1,5 +1,9 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,5 +40,20 @@ public class SubmissionFirebase implements FirebaseClass<Submission>{
     @Override
     public String getID() {
         return submission_ID;
+    }
+
+    @Override
+    public void convertToNormal(ObjectCallBack<Submission> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Submission.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Submission) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 }

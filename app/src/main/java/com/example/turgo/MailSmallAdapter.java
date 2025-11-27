@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,18 @@ public class MailSmallAdapter extends RecyclerView.Adapter<MailSmallViewHolder> 
             holder.tv_shortPreview.setText(mail.getPreview());
             holder.mail = mails.get(position);
             final UserFirebase[] user = {null};
-            RequireUpdate.retrieveUser(userID, user);
+            RequireUpdate.retrieveUser(userID, new ObjectCallBack<>() {
+
+                @Override
+                public void onObjectRetrieved(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                    user[0] = (UserFirebase) object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+                    Log.e("MailSmallAdapter", "Error Retrieve User: " + error.getMessage());
+                }
+            });
             holder.tv_fromUser.setText(user[0].getFullName());
         }
     }

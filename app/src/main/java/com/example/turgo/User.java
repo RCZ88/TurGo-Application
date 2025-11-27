@@ -1,7 +1,6 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
@@ -27,7 +26,7 @@ import java.util.Objects;
 public abstract class User implements Serializable{
     protected static final String FIREBASE_DB_REFERENCE = "users";
     public static String SERIALIZE_KEY_CODE = "userObj";
-    private String UID;
+    private String uid;
     private UserType userType;
     private String fullName;
     private int age;
@@ -58,7 +57,6 @@ public abstract class User implements Serializable{
         this.outbox = new ArrayList<>();
         this.draftMails = new ArrayList<>();
         this.notifications = new ArrayList<>();
-        addStatusToDB();
     }
     public abstract FirebaseNode getFirebaseNode();
     public abstract void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException;
@@ -101,10 +99,12 @@ public abstract class User implements Serializable{
     public void setNotifications(ArrayList<Notification<?>> notifications) {
         this.notifications = notifications;
     }
+    public abstract String getSerializeCode();
+
 
     private void addStatusToDB(){
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USER_STATUS.getPath()).child(UID);
-        userRef.setValue(new UserStatus(UID, true, LocalDateTime.now()));
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USER_STATUS.getPath()).child(uid);
+        userRef.setValue(new UserStatus(uid, true, LocalDateTime.now().toString()));
     }
 
     public void calculateAge() throws ParseException {
@@ -148,12 +148,12 @@ public abstract class User implements Serializable{
         this.email = email;
     }
 
-    public String getUID(){
-        return UID;
+    public String getUid(){
+        return uid;
     }
 
-    public void setUID(String uid) {
-        UID = uid;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getPhoneNumber() {
@@ -208,17 +208,29 @@ public abstract class User implements Serializable{
         this.language = language;
     }
 
+
     @Override
     public String toString() {
         return "User{" +
+                "UID='" + uid + '\'' +
+                ", userType=" + userType +
                 ", fullName='" + fullName + '\'' +
                 ", age=" + age +
-                ", birthDate=" + birthDate +
+                ", birthDate='" + birthDate + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", email='" + email + '\'' +
+                ", gender='" + gender + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", language=" + language +
+                ", theme=" + theme +
+                ", inbox=" + inbox +
+                ", outbox=" + outbox +
+                ", draftMails=" + draftMails +
+                ", notifications=" + notifications +
+                ", pfpCloudinary='" + pfpCloudinary + '\'' +
                 '}';
     }
+
     public static void sendMail(Mail mail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         User to = mail.getTo();
         to.inbox.add(mail);

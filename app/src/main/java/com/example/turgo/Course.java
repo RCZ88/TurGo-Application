@@ -21,6 +21,10 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private final String courseID;
     private Class<CourseFirebase> fbc = CourseFirebase.class;
     public static final String SERIALIZE_KEY_CODE = "courses";
+    public static final int PER_MONTH_INDEX = 0;
+    public static final int PER_MEETING_INDEX = 1;
+    public static final int PRIVATE_INDEX = 0;
+    public static final int GROUP_INDEX = 1;
     private final FirebaseNode fbn = FirebaseNode.COURSE;
     Context context;
     private ArrayList<String> imagesCloudinary;

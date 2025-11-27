@@ -6,58 +6,94 @@
     android:layout_height="match_parent"
     tools:context=".cc_SetTeacher">
 
-    <TextView
-        android:id="@+id/textView66"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Teacher Selection"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <SearchView
-        android:id="@+id/sv_CC_SearchTeacher"
-        android:layout_width="214dp"
-        android:layout_height="37dp"
-        android:layout_marginTop="52dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView66" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_CC_SelectTeacher"
-        android:layout_width="319dp"
-        android:layout_height="358dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sv_CC_SearchTeacher" />
+            <TextView
+                android:id="@+id/textView66"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Teacher Selection"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/textView84"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Teacher Selected"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/rv_CC_TeacherSelected"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rv_CC_SelectTeacher" />
+            <SearchView
+                android:id="@+id/sv_CC_SearchTeacher"
+                android:layout_width="214dp"
+                android:layout_height="37dp"
+                android:layout_marginTop="32dp"
+                android:background="@drawable/edittext_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.497"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView66" >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_CC_TeacherSelected"
-        android:layout_width="315dp"
-        android:layout_height="65dp"
-        tools:layout_editor_absoluteX="47dp"
-        tools:layout_editor_absoluteY="583dp" />
+            </SearchView>
+
+            <TextView
+                android:id="@+id/tv_CC_NoTeacherAvailable"
+                android:layout_width="324dp"
+                android:layout_height="263dp"
+                android:layout_marginTop="28dp"
+                android:layout_weight="1"
+                android:background="@drawable/recycler_view_border"
+                android:gravity="center"
+                android:text="No Teacher Available!"
+                android:textAlignment="gravity"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_CC_SelectTeacher"
+                android:layout_width="324dp"
+                android:layout_height="263dp"
+                android:layout_marginTop="28dp"
+                android:background="@drawable/recycler_view_border"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical" />
+
+            <TextView
+                android:id="@+id/textView84"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="Teacher Selected"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rv_CC_SelectTeacher" />
+
+            <TextView
+                android:id="@+id/tv_CC_NoTeacherSelected"
+                android:layout_width="315dp"
+                android:layout_height="122dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/recycler_view_border"
+                android:gravity="center"
+                android:text="No Teacher Selected Yet!"
+                android:visibility="gone" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_CC_TeacherSelected"
+                android:layout_width="315dp"
+                android:layout_height="122dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/recycler_view_border"
+                android:scrollbars="vertical" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

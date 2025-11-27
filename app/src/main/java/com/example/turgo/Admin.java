@@ -1,18 +1,17 @@
 package com.example.turgo;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.Date;
 
-public class Admin extends User implements Serializable  {
-    public static String SERIALIZE_KEY_CODE = "adminObj";
+public class Admin extends User implements Serializable, RequireUpdate<Admin, AdminFirebase>  {
+    public static final String SERIALIZE_KEY_CODE = "adminObj";
     public Admin(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
         super(UserType.ADMIN, gender, fullName, birthDate, nickname, email, phoneNumber);
 
     }
-    public void createNewCourse(){
 
-    }
 
     @Override
     public FirebaseNode getFirebaseNode() {
@@ -20,10 +19,25 @@ public class Admin extends User implements Serializable  {
     }
 
     @Override
-    public void updateUserDB() {
+    public Class<AdminFirebase> getFirebaseClass() {
+        return AdminFirebase.class;
+    }
 
+    @Override
+    public String getID() {
+        return super.getUid();
+    }
+
+    @Override
+    public void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        updateDB();
     }
 
 
     public Admin(){}
+
+    @Override
+    public String getSerializeCode() {
+        return SERIALIZE_KEY_CODE;
+    }
 }

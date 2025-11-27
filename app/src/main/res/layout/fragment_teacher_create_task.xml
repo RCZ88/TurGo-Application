@@ -6,11 +6,22 @@
     android:layout_height="match_parent"
     tools:context=".TeacherCreateTask">
 
+    <Button
+        android:id="@+id/btn_TCT_CreateTask"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="Create Task"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout38" />
+
     <TextView
         android:id="@+id/textView90"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="8dp"
         android:text="Create Task"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -19,66 +30,86 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:id="@+id/linearLayout36"
-        android:layout_width="wrap_content"
+        android:id="@+id/linearLayout54"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="12dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="5dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView90">
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout37">
 
-        <TextView
-            android:id="@+id/textView95"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
-            android:text="Task Title:" />
+            android:layout_margin="5dp"
+            android:layout_marginHorizontal="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/et_TCT_TaskTitle"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/textView100"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Task of Course?" />
+
+            <TextView
+                android:id="@+id/tv_TCK_PresetCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:visibility="gone" />
+
+            <Spinner
+                android:id="@+id/sp_TCT_TaskOfCourse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text" />
-    </LinearLayout>
+            android:layout_margin="5dp"
+            android:layout_marginHorizontal="10dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/linearLayout37"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout36">
+            <TextView
+                android:id="@+id/textView101"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select Student (To Asign to)" />
 
-        <TextView
-            android:id="@+id/textView96"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description" />
+            <TextView
+                android:id="@+id/tv_TCK_PresetStudent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="bla bla, blabla"
+                android:visibility="gone" />
 
-        <EditText
-            android:id="@+id/etml_TCT_TaskDescription"
-            android:layout_width="281dp"
-            android:layout_height="93dp"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine" />
+            <Spinner
+                android:id="@+id/sp_TCT_SelectStudent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/linearLayout38"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal"
         android:padding="12dp"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="468dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout54">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -151,82 +182,55 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayout36"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:gravity="center_horizontal"
-        android:orientation="horizontal"
+        android:orientation="vertical"
+        android:padding="5dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout37">
+        app:layout_constraintTop_toBottomOf="@+id/textView90">
 
-        <LinearLayout
-            android:layout_width="180dp"
+        <TextView
+            android:id="@+id/textView95"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:text="Task Title:" />
 
-            <TextView
-                android:id="@+id/textView100"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Task of Course?" />
-
-            <TextView
-                android:id="@+id/tv_TCK_PresetCourse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TextView"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/sp_TCT_TaskOfCourse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="180dp"
+        <EditText
+            android:id="@+id/et_TCT_TaskTitle"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView101"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Student (To Asign to)" />
-
-            <TextView
-                android:id="@+id/tv_TCK_PresetStudent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="bla bla, blabla"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/sp_TCT_SelectStudent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            
-
-        </LinearLayout>
+            android:ems="10"
+            android:inputType="text" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/btn_TCT_CreateTask"
+    <LinearLayout
+        android:id="@+id/linearLayout37"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="Create Task"
+        android:layout_marginTop="16dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout38" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout36">
+
+        <TextView
+            android:id="@+id/textView96"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description" />
+
+        <EditText
+            android:id="@+id/etml_TCT_TaskDescription"
+            android:layout_width="281dp"
+            android:layout_height="93dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

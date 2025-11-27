@@ -27,7 +27,9 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         this.pricePer = pricePer;
         sc_ID = UUID.randomUUID().toString();
     }
-
+    public StudentCourse(){
+        sc_ID = "";
+    }
     public String getSc_ID() {
         return sc_ID;
     }

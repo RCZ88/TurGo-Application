@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -21,23 +22,49 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
     Class<FBC>getFirebaseClass();
 
 
-//    public default void storeToDB() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
-//        FBC fbc = getFirebaseClass().getDeclaredConstructor().newInstance();
-//        fbc.importObjectData((C)this);
-//        DatabaseReference drf = FirebaseDatabase.getInstance().getReference(getFirebaseNode().getPath()).child(getID());
-//        drf.setValue(fbc);
-//    }
 
     default DatabaseReference getDBRef(String ID){
         return FirebaseDatabase.getInstance().getReference(getFirebaseNode().getPath() + "/" + ID);
     }
-    static Pair<DatabaseReference, Class<? extends UserFirebase>> getUserDBRef(String ID){
+    static void getUserDBRef(String ID, ObjectCallBack<Pair<DatabaseReference, Class<? extends UserFirebase>>>pairObjectCallBack){
         final String[] type = {""};
-        DatabaseReference userRoleRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USERIDROLES.getPath()  + "/" + ID+ "/role");
+        Log.d("User Type Retrieving", "Retrieving User Type from ID" + ID + "...");
+        String path = FirebaseNode.USERIDROLES.getPath() + "/" + ID + "/role";
+        Log.d("User Type Path: ", path);
+        DatabaseReference userRoleRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USERIDROLES.getPath()).child(ID).child("role");
         userRoleRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("DEBUG", "onDataChange CALLED!");
+                Log.d("DEBUG", "Snapshot exists: " + snapshot.exists());
+                Log.d("DEBUG", "Snapshot value: " + snapshot.getValue());
+                Log.d("DEBUG", "Snapshot key: " + snapshot.getKey());
+
                 type[0] = snapshot.getValue(String.class);
+                Log.d("User Type Retrieved: ", type[0]);
+
+                String studentType = UserType.STUDENT.type();
+                String teacherType = UserType.TEACHER.type();
+                String parentType = UserType.PARENT.type();
+                String adminType = UserType.ADMIN.type();
+
+                Pair<DatabaseReference, Class<? extends UserFirebase>> returnPair = null;
+
+                if(type[0].equals(studentType)){
+                    returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath()).child(ID), StudentFirebase.class);
+                } else if (type[0].equals(teacherType)) {
+                    returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(FirebaseNode.TEACHER.getPath()).child(ID), TeacherFirebase.class);
+                }else if(type[0].equals(adminType)){
+                    returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(FirebaseNode.ADMIN.getPath()).child(ID), AdminFirebase.class);
+                }else if(type[0].equals(parentType)){
+                    returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(FirebaseNode.PARENT.getPath()).child(ID), ParentFirebase.class);
+                }
+                try {
+                    pairObjectCallBack.onObjectRetrieved(returnPair);
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             @Override
@@ -45,70 +72,43 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
 
             }
         });
-        User u = null;
-
-        String studentType = STUDENT.type();
-        String teacherType = UserType.TEACHER.type();
-        String parentType = UserType.PARENT.type();
-        String adminType = UserType.ADMIN.type();
-
-        Pair<DatabaseReference, Class<? extends UserFirebase>> returnPair = null;
-
-        if(type[0].equals(studentType)){
-            returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(studentType + "/" + ID), StudentFirebase.class);
-        } else if (type[0].equals(teacherType)) {
-            returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(teacherType + "/" + ID), TeacherFirebase.class);
-        } /*else if(type[0].equals(parentType)){
-            returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(parentType + "/" + ID), ParentFirebase.class);
-        }else if (type[0].equals(adminType)){
-            returnPair = new Pair<>(FirebaseDatabase.getInstance().getReference(adminType + "/" + ID), AdminFirebase.class);
-        }*/
-        return returnPair;
     }
     //can be used on any class (preferably)
-    static void retrieveUser(String ID, UserFirebase[] mutatableUser){
-        Pair<DatabaseReference, Class<? extends UserFirebase>> userPair= getUserDBRef(ID);
-        DatabaseReference dbRef = userPair.one;
-        Class<? extends UserFirebase> type = userPair.two;
-        final UserFirebase[] u = {null};
-        dbRef.addValueEventListener(new ValueEventListener() {
+    static void retrieveUser(String ID, ObjectCallBack<Object>user){
+        final Pair<DatabaseReference, Class<? extends UserFirebase>>[] userPair = new Pair[1];
+        getUserDBRef(ID, new ObjectCallBack<>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                 u[0] = snapshot.getValue(type);
-//                 ocb.onObjectRetrieved(u[0]);
-                 mutatableUser[0] = snapshot.getValue(type);
+            public void onObjectRetrieved(Pair<DatabaseReference, Class<? extends UserFirebase>> object) {
+                userPair[0] = object;
+                DatabaseReference dbRef = userPair[0].one;
+                Class<? extends UserFirebase> type = userPair[0].two;
+                dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        try {
+                            user.onObjectRetrieved(snapshot.getValue(type));
+                        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                                 IllegalAccessException | InstantiationException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onError(DatabaseError error) {
 
             }
         });
 
+
     }
-//    static <T extends FirebaseClass<?>> ArrayList<T> retrieveListOf(T emptyObject) throws NoSuchMethodException {
-//        DatabaseReference dr = FirebaseDatabase.getInstance().getReference(emptyObject.);
-//        ArrayList<T> listOfObject = new ArrayList<>();
-//        dr.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                for(Object firebaseObject : snapshot.getChildren()){
-//                    try {
-//                        listOfObject.add((T) ((FirebaseClass<?>)firebaseObject).constructClass(this.getClass(), ));
-//                    } catch (NoSuchMethodException | InstantiationException |
-//                             IllegalAccessException | InvocationTargetException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//        return listOfObject;
-//    }
     default void retrieveOnce(ObjectCallBack<FBC> ocb, String ID){
 
         DatabaseReference databaseRef = getDBRef(ID);
@@ -117,7 +117,12 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 FBC fbc = snapshot.getValue(getFirebaseClass());
                 if(fbc != null){
-                    ocb.onObjectRetrieved(fbc);
+                    try {
+                        ocb.onObjectRetrieved(fbc);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
 
@@ -129,8 +134,19 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
 
     }
     default ArrayList<FBC> retrieveListFromUser(String userID, String listName, ObjectCallBack<ArrayList<FBC>>ocb){
-        Pair<DatabaseReference, Class<? extends UserFirebase>> pair = getUserDBRef(userID);
-        DatabaseReference databaseRef = pair.one.child(listName);
+        final Pair<DatabaseReference, Class<? extends UserFirebase>>[] pair = new Pair[1];
+        getUserDBRef(userID, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Pair<DatabaseReference, Class<? extends UserFirebase>> object) {
+                pair[0] = object;
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+        DatabaseReference databaseRef = pair[0].one.child(listName);
         ArrayList<FBC>listOfObjects = new ArrayList<>();
         databaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -140,7 +156,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
                     listOfIDs.add(child.getValue(String.class));
                 }
                 for(String id : listOfIDs){
-                    retrieveOnce(new ObjectCallBack<FBC>() {
+                    retrieveOnce(new ObjectCallBack<>() {
                         @Override
                         public void onObjectRetrieved(FBC object) {
                             listOfObjects.add(object);
@@ -152,7 +168,12 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
                         }
                     }, id);
                 }
-                ocb.onObjectRetrieved(listOfObjects);
+                try {
+                    ocb.onObjectRetrieved(listOfObjects);
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
 
             }
 
@@ -184,8 +205,10 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
         });
     }
     default void updateDB() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        Log.d("RequireUpdate(UpdateDB)", "Updating User to DB...");
         FBC firebaseObj = getFirebaseClass().getDeclaredConstructor().newInstance();
         firebaseObj.importObjectData((C)this);
+        Log.d("RequireUpdate(UpdateDB)", "Successfully Converted to FirebaseClass: " +firebaseObj);
 
         FirebaseNode fn  = getFirebaseNode();
         String path = fn.getPath();

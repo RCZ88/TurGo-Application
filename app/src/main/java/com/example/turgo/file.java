@@ -1,8 +1,5 @@
 package com.example.turgo;
 
-import android.net.Uri;
-
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,6 +21,8 @@ public class file implements RequireUpdate<file, fileFirebase>{
         this.fileName = fileName;
         this.fileCreateDate = fileCreateDate;
     }
+    public file(){this.fileID = UUID.randomUUID().toString();;}
+
 
     public FirebaseNode getFbn() {
         return fbn;
@@ -88,7 +87,7 @@ public class file implements RequireUpdate<file, fileFirebase>{
 
     public void setSecureURL(String secureURL) {
         this.secureURL = secureURL;
-        linkRTDB.storeData("URL Cloudinary", uploader.getUID(), secureURL, "Submission url", "Submission url");
+        linkRTDB.storeData("URL Cloudinary", uploader.getUid(), secureURL, "Submission url", "Submission url");
     }
 
     @Override

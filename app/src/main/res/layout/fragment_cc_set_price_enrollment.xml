@@ -106,15 +106,20 @@
                 android:layout_width="137dp"
                 android:layout_height="40dp"
                 android:layout_margin="18sp"
-                android:text="Group and or Private"
+                android:text="Accepted Meetings"
                 android:textAlignment="center" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/cg_CC_GroupPrivate"
+            <Switch
+                android:id="@+id/sw_CC_GroupType"
                 android:layout_width="match_parent"
-                android:layout_height="100dp">
+                android:layout_height="wrap_content"
+                android:text="Group" />
 
-            </com.google.android.material.chip.ChipGroup>
+            <Switch
+                android:id="@+id/sw_CC_PrivateType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Private" />
 
         </LinearLayout>
 
@@ -134,12 +139,17 @@
                 android:text="Accepted Payment Methods"
                 android:textAlignment="center" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/cg_CC_PaymentMethods"
+            <Switch
+                android:id="@+id/sw_CC_PerMonth"
                 android:layout_width="match_parent"
-                android:layout_height="100dp">
+                android:layout_height="wrap_content"
+                android:text="Per Month" />
 
-            </com.google.android.material.chip.ChipGroup>
+            <Switch
+                android:id="@+id/sw_CC_PerMeeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Per Meeting" />
 
         </LinearLayout>
     </LinearLayout>
@@ -149,11 +159,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout29"
-        tools:layout_editor_absoluteX="0dp">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout29">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="190dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
@@ -197,11 +209,11 @@
                 android:text="Auto Accept Students?"
                 android:textAlignment="center" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/ch_CC_AutoAccept"
+            <CheckBox
+                android:id="@+id/cb_CC_AutoAccept"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal" />
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
     </LinearLayout>
 

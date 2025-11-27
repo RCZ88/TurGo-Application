@@ -68,7 +68,7 @@ public class MailInbox extends Fragment {
         User user = mailPageFull.getUser();
 
         
-        MailSmallAdapter mailSmallAdapter = new MailSmallAdapter(user.getUID(), inbox, false, mailPageFull);
+        MailSmallAdapter mailSmallAdapter = new MailSmallAdapter(user.getUid(), inbox, false, mailPageFull);
         RecyclerView rv_mailInbox =  view.findViewById(R.id.rv_mailinbox_mails);
         rv_mailInbox.setAdapter(mailSmallAdapter);
 

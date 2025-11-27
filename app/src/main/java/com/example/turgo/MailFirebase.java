@@ -1,13 +1,14 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.time.ZoneId;
 
 public class MailFirebase implements FirebaseClass<Mail> {
     private String mailID;
-    private String fromId;
-    private String toId;
+    private String from;
+    private String to;
     private String timeSent;    // stored as epoch millis
     private String timeOpened;  // nullable, epoch millis
     private String header;
@@ -27,20 +28,20 @@ public class MailFirebase implements FirebaseClass<Mail> {
         this.mailID = mailID;
     }
 
-    public String getFromId() {
-        return fromId;
+    public String getFrom() {
+        return from;
     }
 
-    public void setFromId(String fromId) {
-        this.fromId = fromId;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public String getToId() {
-        return toId;
+    public String getTo() {
+        return to;
     }
 
-    public void setToId(String toId) {
-        this.toId = toId;
+    public void setTo(String to) {
+        this.to = to;
     }
 
     public String getTimeSent() {
@@ -86,8 +87,8 @@ public class MailFirebase implements FirebaseClass<Mail> {
     @Override
     public void importObjectData(Mail from) {
         this.mailID = from.getID();
-        this.fromId = (from.getFrom() != null) ? from.getFrom().getUID() : null;
-        this.toId   = (from.getTo()   != null) ? from.getTo().getUID()   : null;
+        this.from = (from.getFrom() != null) ? from.getFrom().getUid() : null;
+        this.to   = (from.getTo()   != null) ? from.getTo().getUid()   : null;
         this.timeSent = from.getTimeSent().toString();
         this.timeOpened = from.getTimeOpened().toString();
         this.header = from.getHeader();
@@ -96,17 +97,22 @@ public class MailFirebase implements FirebaseClass<Mail> {
     }
 
     @Override
-    public void importObjectData(F from) {
-
-    }
-
-    @Override
     public String getID() {
         return mailID;
     }
 
     @Override
-    public Mail convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return null;
+    public void convertToNormal(ObjectCallBack<Mail> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Mail.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Mail) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 }

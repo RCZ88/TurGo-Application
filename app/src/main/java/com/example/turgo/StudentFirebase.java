@@ -1,11 +1,9 @@
 package com.example.turgo;
 
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.DatabaseError;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -19,17 +17,17 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
     private int lateAttendance;
     private int lateSubmissions;
 
-    private ArrayList<String> courseTakenIds;
-    private ArrayList<String> studentCourseTakenIds;
+    private ArrayList<String> courseTaken;
+    private ArrayList<String> studentCourseTaken;
     private ArrayList<String> courseInterested; // already a list of types (Strings)
-    private ArrayList<String> courseRelatedIds;
-    private ArrayList<String> preScheduledMeetingIds;
-    private ArrayList<String> meetingHistoryIds;
-    private ArrayList<String> scheduleCompletedThisWeekIds;
-    private ArrayList<String> allScheduleIds;
-    private ArrayList<String> allTaskIds;
-    private ArrayList<String> uncompletedTaskIds;
-    private ArrayList<String> allAgendaIds;
+    private ArrayList<String> courseRelated;
+    private ArrayList<String> preScheduledMeetings;
+    private ArrayList<String> meetingHistory;
+    private ArrayList<String> scheduleCompletedThisWeek;
+    private ArrayList<String> allSchedules;
+    private ArrayList<String> allTask;
+    private ArrayList<String> uncompletedTask;
+    private ArrayList<String> allAgendas;
 
     public StudentFirebase(){
         super(UserType.STUDENT.type());
@@ -39,16 +37,16 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         setID(from.getID());
         setFullName(from.getFullName());
         setNickname(from.getNickname());
-        setBirthdate(from.getBirthDate());
+        setBirthDate(from.getBirthDate());
         setAge(from.getAge());
         setEmail(from.getEmail());
         setGender(from.getGender());
         setPhoneNumber(from.getPhoneNumber());
-        setLanguangeID(from.getLanguage().getDisplayName());
+        setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
-        setInboxIDs(convertToIdList(from.getInbox()));
-        setOutboxIDs(convertToIdList(from.getOutbox()));
-        setNotificationIDs(convertToIdList(from.getNotifications()));
+        setInbox(convertToIdList(from.getInbox()));
+        setOutbox(convertToIdList(from.getOutbox()));
+        setNotifications(convertToIdList(from.getNotifications()));
 
         // Progress / scheduling
         percentageCompleted = from.getPercentageCompleted();
@@ -64,17 +62,17 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         lateSubmissions = from.getLateSubmissions();
 
         // Lists -> ID lists (use convertToIdList helper for object lists)
-        courseTakenIds = convertToIdList(from.getCourseTaken());
-        studentCourseTakenIds = convertToIdList(from.getStudentCourseTaken());
+        courseTaken = convertToIdList(from.getCourseTaken());
+        studentCourseTaken = convertToIdList(from.getStudentCourseTaken());
         courseInterested = from.getCourseInterested(); // already a list of strings
-        courseRelatedIds = convertToIdList(from.getCourseRelated());
-        preScheduledMeetingIds = convertToIdList(from.getPreScheduledMeetings());
-        meetingHistoryIds = convertToIdList(from.getMeetingHistory());
-        scheduleCompletedThisWeekIds = convertToIdList(from.getScheduleCompletedThisWeek());
-        allScheduleIds = convertToIdList(from.getAllSchedules());
-        allTaskIds = convertToIdList(from.getAllTask());
-        uncompletedTaskIds = convertToIdList(from.getUncompletedTask());
-        allAgendaIds = convertToIdList(from.getAllAgendas());
+        courseRelated = convertToIdList(from.getCourseRelated());
+        preScheduledMeetings = convertToIdList(from.getPreScheduledMeetings());
+        meetingHistory = convertToIdList(from.getMeetingHistory());
+        scheduleCompletedThisWeek = convertToIdList(from.getScheduleCompletedThisWeek());
+        allSchedules = convertToIdList(from.getAllSchedules());
+        allTask = convertToIdList(from.getAllTask());
+        uncompletedTask = convertToIdList(from.getUncompletedTask());
+        allAgendas = convertToIdList(from.getAllAgendas());
     }
 
     @Override
@@ -82,8 +80,18 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         return super.getID();
     }
     @Override
-    public Student convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (Student) constructClass(Student.class, super.getID());
+    public void convertToNormal(ObjectCallBack<Student> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Student.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Student) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
 
@@ -143,20 +151,20 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         this.lateSubmissions = lateSubmissions;
     }
 
-    public ArrayList<String> getCourseTakenIds() {
-        return courseTakenIds;
+    public ArrayList<String> getCourseTaken() {
+        return courseTaken;
     }
 
-    public void setCourseTakenIds(ArrayList<String> courseTakenIds) {
-        this.courseTakenIds = courseTakenIds;
+    public void setCourseTaken(ArrayList<String> courseTaken) {
+        this.courseTaken = courseTaken;
     }
 
-    public ArrayList<String> getStudentCourseTakenIds() {
-        return studentCourseTakenIds;
+    public ArrayList<String> getStudentCourseTaken() {
+        return studentCourseTaken;
     }
 
-    public void setStudentCourseTakenIds(ArrayList<String> studentCourseTakenIds) {
-        this.studentCourseTakenIds = studentCourseTakenIds;
+    public void setStudentCourseTaken(ArrayList<String> studentCourseTaken) {
+        this.studentCourseTaken = studentCourseTaken;
     }
 
     public ArrayList<String> getCourseInterested() {
@@ -167,67 +175,67 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         this.courseInterested = courseInterested;
     }
 
-    public ArrayList<String> getCourseRelatedIds() {
-        return courseRelatedIds;
+    public ArrayList<String> getCourseRelated() {
+        return courseRelated;
     }
 
-    public void setCourseRelatedIds(ArrayList<String> courseRelatedIds) {
-        this.courseRelatedIds = courseRelatedIds;
+    public void setCourseRelated(ArrayList<String> courseRelated) {
+        this.courseRelated = courseRelated;
     }
 
-    public ArrayList<String> getPreScheduledMeetingIds() {
-        return preScheduledMeetingIds;
+    public ArrayList<String> getPreScheduledMeetings() {
+        return preScheduledMeetings;
     }
 
-    public void setPreScheduledMeetingIds(ArrayList<String> preScheduledMeetingIds) {
-        this.preScheduledMeetingIds = preScheduledMeetingIds;
+    public void setPreScheduledMeetings(ArrayList<String> preScheduledMeetings) {
+        this.preScheduledMeetings = preScheduledMeetings;
     }
 
-    public ArrayList<String> getMeetingHistoryIds() {
-        return meetingHistoryIds;
+    public ArrayList<String> getMeetingHistory() {
+        return meetingHistory;
     }
 
-    public void setMeetingHistoryIds(ArrayList<String> meetingHistoryIds) {
-        this.meetingHistoryIds = meetingHistoryIds;
+    public void setMeetingHistory(ArrayList<String> meetingHistory) {
+        this.meetingHistory = meetingHistory;
     }
 
-    public ArrayList<String> getScheduleCompletedThisWeekIds() {
-        return scheduleCompletedThisWeekIds;
+    public ArrayList<String> getScheduleCompletedThisWeek() {
+        return scheduleCompletedThisWeek;
     }
 
-    public void setScheduleCompletedThisWeekIds(ArrayList<String> scheduleCompletedThisWeekIds) {
-        this.scheduleCompletedThisWeekIds = scheduleCompletedThisWeekIds;
+    public void setScheduleCompletedThisWeek(ArrayList<String> scheduleCompletedThisWeek) {
+        this.scheduleCompletedThisWeek = scheduleCompletedThisWeek;
     }
 
-    public ArrayList<String> getAllScheduleIds() {
-        return allScheduleIds;
+    public ArrayList<String> getAllSchedules() {
+        return allSchedules;
     }
 
-    public void setAllScheduleIds(ArrayList<String> allScheduleIds) {
-        this.allScheduleIds = allScheduleIds;
+    public void setAllSchedules(ArrayList<String> allSchedules) {
+        this.allSchedules = allSchedules;
     }
 
-    public ArrayList<String> getAllTaskIds() {
-        return allTaskIds;
+    public ArrayList<String> getAllTask() {
+        return allTask;
     }
 
-    public void setAllTaskIds(ArrayList<String> allTaskIds) {
-        this.allTaskIds = allTaskIds;
+    public void setAllTask(ArrayList<String> allTask) {
+        this.allTask = allTask;
     }
 
-    public ArrayList<String> getUncompletedTaskIds() {
-        return uncompletedTaskIds;
+    public ArrayList<String> getUncompletedTask() {
+        return uncompletedTask;
     }
 
-    public void setUncompletedTaskIds(ArrayList<String> uncompletedTaskIds) {
-        this.uncompletedTaskIds = uncompletedTaskIds;
+    public void setUncompletedTask(ArrayList<String> uncompletedTask) {
+        this.uncompletedTask = uncompletedTask;
     }
 
-    public ArrayList<String> getAllAgendaIds() {
-        return allAgendaIds;
+    public ArrayList<String> getAllAgendas() {
+        return allAgendas;
     }
 
-    public void setAllAgendaIds(ArrayList<String> allAgendaIds) {
-        this.allAgendaIds = allAgendaIds;
+    public void setAllAgendas(ArrayList<String> allAgendas) {
+        this.allAgendas = allAgendas;
     }
 }

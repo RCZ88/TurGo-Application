@@ -65,7 +65,7 @@ public class OutboxViewAll extends Fragment {
         MailPageFull mailPageFull = (MailPageFull) requireActivity();
         User user = mailPageFull.getUser();
         rv_outbox = view.findViewById(R.id.rv_OVA_Outbox);
-        MailSmallAdapter adapter = new MailSmallAdapter(user.getUID(), user.getOutbox(), false, mailPageFull);
+        MailSmallAdapter adapter = new MailSmallAdapter(user.getUid(), user.getOutbox(), false, mailPageFull);
         rv_outbox.setAdapter(adapter);
         return view;
     }

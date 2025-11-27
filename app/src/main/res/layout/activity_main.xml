@@ -5,94 +5,108 @@
     android:id="@+id/ConstraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FDFDFD"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <ImageView
+        android:id="@+id/imageView22"
+        android:layout_width="361dp"
+        android:layout_height="88dp"
+        android:layout_marginTop="64dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btn_ToSignUp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="toSignUpActivity"
-        android:text="Sign Up"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/btn_ToSignIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="toSignInActivity"
-        android:text="Sign In"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.84" />
+        app:srcCompat="@drawable/turgo_logo_flat" />
 
-    <TextView
-        android:id="@+id/tv_User"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout49"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:text="Guest"
-        android:textSize="24sp"
+        android:layout_marginTop="104dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView22">
 
-    <Button
-        android:id="@+id/btn_SignOut"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:onClick="signOut"
-        android:text="Sign Out"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Back to Learning by Signing In!"
+            android:textSize="18dp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tv_UserString"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/btn_ToSignIn"
+            android:layout_width="250dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:onClick="toSignInActivity"
+            android:text="Sign In"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="User.toString"
+        android:layout_marginTop="68dp"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_ToSignUp" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout49">
 
-    <Button
-        android:id="@+id/btn_GenerateQRCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
-        android:onClick="generateQR"
-        android:text="Generate QR"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        <TextView
+            android:id="@+id/textView140"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="Don't Have an Account?"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/iv_GeneratedQR"
-        android:layout_width="112dp"
-        android:layout_height="105dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_GenerateQRCode"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_UserString"
-        app:srcCompat="@drawable/qrcode" />
+        <Button
+            android:id="@+id/btn_ToSignUp"
+            android:layout_width="250dp"
+            android:layout_height="60dp"
+            android:onClick="toSignUpActivity"
+            android:text="Sign Up"
+            android:textSize="20sp" />
+    </LinearLayout>
+
+    <!--    <TextView-->
+    <!--        android:id="@+id/tv_UserString"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginTop="40dp"-->
+    <!--        android:text="User.toString"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintHorizontal_bias="0.498"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/btn_ToSignUp" />-->
+
+    <!--    <Button-->
+    <!--        android:id="@+id/btn_GenerateQRCode"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginBottom="48dp"-->
+    <!--        android:onClick="generateQR"-->
+    <!--        android:text="Generate QR"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent" />-->
+
+    <!--    <ImageView-->
+    <!--        android:id="@+id/iv_GeneratedQR"-->
+    <!--        android:layout_width="112dp"-->
+    <!--        android:layout_height="105dp"-->
+    <!--        app:layout_constraintBottom_toTopOf="@+id/btn_GenerateQRCode"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:layout_constraintTop_toBottomOf="@+id/tv_UserString"-->
+    <!--        app:srcCompat="@drawable/qrcode" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

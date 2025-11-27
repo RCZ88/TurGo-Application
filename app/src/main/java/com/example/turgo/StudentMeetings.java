@@ -10,6 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link StudentMeetings#newInstance} factory method to
@@ -68,7 +73,22 @@ public class StudentMeetings extends Fragment {
         this.course = (Course) getArguments().getSerializable(Course.SERIALIZE_KEY_CODE);
         StudentScreen studentScreen = (StudentScreen) getActivity();
         assert studentScreen != null;
-        this.student = studentScreen.getStudent();
+        try {
+            studentScreen.getStudent().convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
+        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                 IllegalAccessException | java.lang.InstantiationException e) {
+            throw new RuntimeException(e);
+        }
         MeetingAdapter pastMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));
         rv_pastMeetings.setAdapter(pastMeeting);
         MeetingAdapter futureMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));

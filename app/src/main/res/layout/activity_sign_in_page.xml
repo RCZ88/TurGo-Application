@@ -19,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pt_Password" />
+        app:layout_constraintTop_toBottomOf="@+id/et_SIP_PasswordField" />
 
     <TextView
         android:id="@+id/tv_SignIn"
@@ -40,7 +40,7 @@
         android:id="@+id/pt_EmailOrUsername"
         android:layout_width="284dp"
         android:layout_height="57dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="48dp"
         android:ems="10"
         android:hint="Email or Username"
         android:inputType="text"
@@ -49,18 +49,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_SignIn" />
 
-    <EditText
-        android:id="@+id/pt_Password"
-        android:layout_width="284dp"
-        android:layout_height="57dp"
-        android:layout_marginTop="32dp"
-        android:ems="10"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/et_SIP_PasswordField"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="348dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:hint="Password"
-        android:inputType="text"
+        app:endIconDrawable="@drawable/eye"
+        app:endIconMode="password_toggle"
+        app:endIconScaleType="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintHorizontal_bias="0.386"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pt_EmailOrUsername" />
+        app:layout_constraintTop_toBottomOf="@+id/pt_EmailOrUsername"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/tie_SIP_PasswordField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:password="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btn_Login"
@@ -72,6 +83,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_SignInWithGoogle" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_SignInWithGoogle"
+        app:layout_constraintVertical_bias="0.313" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

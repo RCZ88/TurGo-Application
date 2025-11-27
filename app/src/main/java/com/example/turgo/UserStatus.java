@@ -2,14 +2,18 @@ package com.example.turgo;
 
 import androidx.annotation.NonNull;
 
-import java.time.LocalDateTime;
+import java.io.Serializable;
 
-public class UserStatus implements RequireUpdate<UserStatus, UserStatus>, FirebaseClass<UserStatus>{
+public class UserStatus implements Serializable {
     private String userID;
     private boolean online;
-    private LocalDateTime lastSeen;
+    private String lastSeen;
 
-    public UserStatus(String userID, boolean online, LocalDateTime lastSeen) {
+    // Default constructor required for Firebase
+    public UserStatus() {
+    }
+
+    public UserStatus(String userID, boolean online, String lastSeen) {
         this.userID = userID;
         this.online = online;
         this.lastSeen = lastSeen;
@@ -18,10 +22,8 @@ public class UserStatus implements RequireUpdate<UserStatus, UserStatus>, Fireba
     public UserStatus(String userID) {
         this.userID = userID;
     }
-    public UserStatus(){
 
-    }
-
+    // Getters and Setters
     public String getUserID() {
         return userID;
     }
@@ -38,39 +40,19 @@ public class UserStatus implements RequireUpdate<UserStatus, UserStatus>, Fireba
         this.online = online;
     }
 
-    public LocalDateTime getLastSeen() {
+    public String getLastSeen() {
         return lastSeen;
     }
 
-    public void setLastSeen(LocalDateTime lastSeen) {
+    public void setLastSeen(String lastSeen) {
         this.lastSeen = lastSeen;
     }
 
-
-    @Override
-    public void importObjectData(UserStatus from) {
-
-    }
-
-    @Override
-    public FirebaseNode getFirebaseNode() {
-        return FirebaseNode.USER_STATUS;
-    }
-
-    @Override
-    public Class<UserStatus> getFirebaseClass() {
-        return UserStatus.class;
-    }
-
-    @Override
-    public String getID() {
-        return this.userID;
-    }
     @NonNull
     public String toString(){
-        if( online){
+        if(online){
             return "Online";
-        }else{
+        } else {
             return "Offline - Last seen: " + lastSeen;
         }
     }

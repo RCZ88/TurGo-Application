@@ -1,9 +1,12 @@
 package com.example.turgo;
 
+import android.app.TimePickerDialog;
 import android.os.Bundle;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -17,10 +20,12 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,9 +39,9 @@ public class cc_AddScheduleDTA extends Fragment {
 
     Button btn_selectEarliest, btn_selectLatest, btn_addDTA;
     Spinner sp_selectDay;
-    TimePicker tp_pickTime;
     CheckBox cb_limit;
     Boolean earlyOrLatest;
+    RecyclerView rv_DTASelected;
     LocalTime earliest = null;
     LocalTime latest = null;
     DayOfWeek day = null;
@@ -94,7 +99,10 @@ public class cc_AddScheduleDTA extends Fragment {
         btn_selectEarliest = view.findViewById(R.id.btn_CC_EarlyTimeDTA);
         btn_selectLatest = view.findViewById(R.id.btn_CC_LatestTimeDTA);
         sp_selectDay = view.findViewById(R.id.sp_CC_DayOfWeek);
-        tp_pickTime = view.findViewById(R.id.tp_CC_PickTime);
+        cb_limit = view.findViewById(R.id.cb_CC_MeetingLimit);
+        et_meetingLimit = view.findViewById(R.id.etn_CC_maxMeetingOfDay);
+        rv_DTASelected = view.findViewById(R.id.rv_CC_DTASelected);
+
 
         btn_selectEarliest.setOnClickListener(view1 -> {
             earlyOrLatest = true;
@@ -117,25 +125,20 @@ public class cc_AddScheduleDTA extends Fragment {
 
             }
         });
-        btn_addDTA.setOnClickListener(view3 -> {
-            if(earliest != null && latest != null && day != null){
-                DayTimeArrangement dta = new DayTimeArrangement(cc.teacher, cc.course, day, earliest, latest, meetingLimit);
-                cc.dtas.add(dta);
-            }
-        });
         cb_limit.setOnCheckedChangeListener((compoundButton, b) -> {
             limitMeetingBool = b;
             if(b){
+                et_meetingLimit.setEnabled(true);
+                et_meetingLimit.setHint("Max students per meeting");
+                et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.black));
+            }else{
                 et_meetingLimit.setEnabled(false);
                 et_meetingLimit.setText("");
                 et_meetingLimit.setHint("Unlimited");
                 et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray));
-            }else{
-                et_meetingLimit.setEnabled(true);
-                et_meetingLimit.setHint("Max students per meeting");
-                et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.black));
             }
         });
+
         et_meetingLimit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -149,25 +152,83 @@ public class cc_AddScheduleDTA extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                meetingLimit = Integer.parseInt(String.valueOf(editable));
+                String input = editable.toString().trim();
+                if (!input.isEmpty()) {
+                    try {
+                        meetingLimit = Integer.parseInt(input);
+                    } catch (NumberFormatException e) {
+                        meetingLimit = 0; // or a default/fallback value
+                    }
+                } else {
+                    meetingLimit = 0; // or some default when empty
+                }
             }
         });
+        DTAAdapter adapter = new DTAAdapter(new ArrayList<>());
+        adapter.setListener(new OnItemClickListener<>() {
+            @Override
+            public void onItemClick(Integer item) {
+                adapter.removeItem(item);
+                cc.dtas.remove((int) item);
+            }
+
+            @Override
+            public void onItemLongClick(Integer item) {
+
+            }
+        });
+        rv_DTASelected.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_DTASelected.setAdapter(adapter);
+        btn_addDTA.setOnClickListener(v -> {
+            if(checkCompletion()){
+                DayTimeArrangement dta = new DayTimeArrangement(cc.teacher, new Course(), day, earliest, latest, meetingLimit);
+                adapter.addItem(dta);
+                cc.dtas.add(dta);
+            }
+            //TODO: set the course to the dta
+        });
+
         return view;
     }
+    private boolean checkCompletion(){
 
-    public void showTimePicker(){
-        tp_pickTime.setVisibility(View.VISIBLE);
-        AtomicReference<String> time = new AtomicReference<>("");
-        tp_pickTime.setOnTimeChangedListener((timePicker, i, i1) -> {
-            time.set(String.format(Locale.getDefault(), "%02d:%02d", i, i1));
-            if(earlyOrLatest){
-                btn_selectEarliest.setText(time.get());
-                earliest = LocalTime.of(i, i1);
-            }else{
-                btn_selectLatest.setText(time.get());
-                latest = LocalTime.of(i, i1);
-            }
-        });
-
+        if(earliest == null){
+            Toast.makeText(requireContext(), "Start of Course is not selected!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(latest == null){
+            Toast.makeText(requireContext(), "End of Course is not selected!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(latest.isBefore(earliest)){
+            Toast.makeText(requireContext(), "Time Constraint is not Valid!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(limitMeetingBool && meetingLimit <= 0){
+            Toast.makeText(requireContext(), "Please enter a valid meeting limit!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
+
+    public void showTimePicker() {
+        // Get current hour and minute for initial time
+        Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), (timePicker, selectedHour, selectedMinute) -> {
+            String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
+            if (earlyOrLatest) {
+                btn_selectEarliest.setText(time);
+                earliest = LocalTime.of(selectedHour, selectedMinute);
+            } else {
+                btn_selectLatest.setText(time);
+                latest = LocalTime.of(selectedHour, selectedMinute);
+            }
+        }, hour, minute, true);
+
+        timePickerDialog.show();
+    }
+
 }

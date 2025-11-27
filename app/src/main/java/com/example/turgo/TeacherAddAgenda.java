@@ -24,11 +24,13 @@ import android.widget.ToggleButton;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.google.firebase.database.DatabaseError;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -212,8 +214,19 @@ public class TeacherAddAgenda extends Fragment {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                String secureUrl = Tool.uploadToCloudinary(file);
-                file fileObj = new file(Tool.getFileName(requireActivity(), selectedFileUri.get()), secureUrl, teacher, LocalDateTime.now());
+                final String[] secureUrl = {""};
+                Tool.uploadToCloudinary(file, new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(String object) {
+                        secureUrl[0] = object;
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                });
+                file fileObj = new file(Tool.getFileName(requireActivity(), selectedFileUri.get()), secureUrl[0], teacher, LocalDateTime.now());
                 if(presetStudentCourse){
 
                     for(Student student : finalPresetStudents){

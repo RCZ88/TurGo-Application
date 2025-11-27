@@ -16,10 +16,10 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherViewHolder> {
     ArrayList<TeacherMini> teacherFullList;
     ArrayList<TeacherMini> teacherSearchResult;
     Context context;
-    OnItemClickListener<TeacherMini>listener;
-    public TeacherAdapter(ArrayList<TeacherMini>teachers, Context context, OnItemClickListener<TeacherMini>listener){
+    OnItemClickListener<Pair<Integer, TeacherMini>>listener;
+    public TeacherAdapter(ArrayList<TeacherMini>teachers, Context context, OnItemClickListener<Pair<Integer, TeacherMini>>listener){
         this.teacherFullList = teachers;
-        teacherSearchResult = new ArrayList<>();
+        teacherSearchResult = new ArrayList<>(teachers);
         this.context = context;
         this.listener = listener;
     }
@@ -37,16 +37,18 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TeacherViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull TeacherViewHolder holder, @SuppressLint("RecyclerView") int position) {
         Tool.setImageCloudinary(context, teacherSearchResult.get(position).getTeacherPfp(), holder.teacherPFP);
         holder.subjectTeaching.setText(teacherSearchResult.get(position).getSubjectTeaching());
         holder.teacherName.setText(teacherSearchResult.get(position).getTeacherName());
         holder.tm = teacherSearchResult.get(position);
+        holder.position = position;
+        holder.pair =  new Pair<>(position, holder.tm);
     }
 
     @Override
     public int getItemCount() {
-        return teacherFullList.size();
+        return teacherSearchResult.size();
     }
     @SuppressLint("NotifyDataSetChanged")
     public void filter(String text){
@@ -56,11 +58,17 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherViewHolder> {
         }else{
             text = text.toLowerCase();
             for(TeacherMini teacherMini : teacherFullList){
-                if(teacherMini.getTeacherName().contains(text)){
+                if(teacherMini.getTeacherName().toLowerCase().contains(text)){
                     teacherSearchResult.add(teacherMini);
                 }
             }
         }
+        notifyDataSetChanged();
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    public void changeTeacherSelected(TeacherMini tm){
+        teacherSearchResult.clear();
+        teacherSearchResult.add(tm);
         notifyDataSetChanged();
     }
 }

@@ -43,6 +43,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+
 
 public class SignInPage extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -61,7 +64,7 @@ public class SignInPage extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         et_emailOrUsername = findViewById(R.id.pt_EmailOrUsername);
-        et_password = findViewById(R.id.pt_Password);
+        et_password = findViewById(R.id.tie_SIP_PasswordField);
         GoogleSignIn.getClient(this, GoogleSignInOptions.DEFAULT_SIGN_IN).signOut();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -148,7 +151,9 @@ public class SignInPage extends AppCompatActivity {
                                 if (documentSnapshot.exists()) {
                                     // User already exists
                                     FirebaseUser user = mAuth.getCurrentUser();
+                                    assert user != null;
                                     String uid = user.getUid();
+                                    Log.d("Firestore", "User UID from checkIfUserExist: "+uid);
                                     selectUserFromDB(uid, user);
                                 } else {
                                     // User does not exist
@@ -176,25 +181,29 @@ public class SignInPage extends AppCompatActivity {
         if (user != null) {
             // User signed in successfully
             Log.d("Firebase User", "User: " + user.getDisplayName() + ", Email: " + user.getEmail());
-            Intent i = null;
-            if (userData.getUserType().equals(STUDENT.type())) {
-                i = new Intent(SignInPage.this, StudentScreen.class);
-                i.putExtra(Student.SERIALIZE_KEY_CODE, user);
-                i.putExtra("ShowFragment", PageNames.STUDENT_DASHBOARD);
-                startActivity(i);
-                finish();
-            }else if(userData.getUserType().equals(TEACHER.type())){
-                i = new Intent(SignInPage.this, TeacherScreen.class);
-                i.putExtra(Teacher.SERIALIZE_KEY_CODE, user);
-                i.putExtra("ShowFragment", PageNames.TEACHER_DASHBOARD);
-                startActivity(i);
-                finish();
-
-            }
-
-            assert i != null;
-            i.putExtra("User Object", userData);
+            Intent i = new Intent(this, ActivityLauncher.class);
+            i.putExtra("FirebaseObject", userData);
             startActivity(i);
+            finish();
+//            if (userData.getUserType().equals(STUDENT.type())) {
+//                i = new Intent(SignInPage.this, StudentScreen.class);
+//                i.putExtra(Student.SERIALIZE_KEY_CODE, user);
+//                i.putExtra("ShowFragment", PageNames.STUDENT_DASHBOARD);
+//                startActivity(i);
+//                finish();
+//                //TODO: change so it transfers student id instead of its object.
+//            }else if(userData.getUserType().equals(TEACHER.type())){
+//                i = new Intent(SignInPage.this, TeacherScreen.class);
+//                i.putExtra(Teacher.SERIALIZE_KEY_CODE, userData);
+//                i.putExtra("ShowFragment", PageNames.TEACHER_DASHBOARD);
+//                startActivity(i);
+//                finish();
+//
+//            }
+//
+//            assert i != null;
+//            i.putExtra("User Object", userData);
+//            startActivity(i);
         } else {
             // User sign-in failed
             Log.d("Firebase User", "Sign-in failed.");
@@ -215,10 +224,11 @@ public class SignInPage extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithEmail:success");
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        Log.d(TAG, "signInWithEmail& password:success");
+                        FirebaseUser user = task.getResult().getUser();
                         if(user != null){
                             String uid = user.getUid();
+                            Log.d("Firestore", "User UID from signIn with Password & Email: "+uid);
                             selectUserFromDB(uid, user);
                         }
 
@@ -239,9 +249,22 @@ public class SignInPage extends AppCompatActivity {
     }
 
     private void selectUserFromDB(String uid, FirebaseUser FireUser) {
+        Log.d("SignInPage(SelectUserFromDB)", "Selecting User: " + uid + " from database.");
         final UserFirebase[] u = {null};
-        RequireUpdate.retrieveUser(uid, u);
-        updateUI(FireUser, u[0]);
+        RequireUpdate.retrieveUser(uid, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Object object) {
+                Log.d("SingInPage(SelectUserFromDB)", "User Found: " + object);
+                u[0] = (UserFirebase) object;
+                updateUI(FireUser, u[0]);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                Log.d("SingInPage(SelectUserFromDB)", "Error: " + error);
+
+            }
+        });
 
     }
 

@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,12 +18,12 @@ public class CourseFirebase implements FirebaseClass<Course>{
 
     private boolean [] paymentPer; //accept per month or and per meeting
     private boolean [] privateGroup; //accept private and or group?
-    private ArrayList<String> pricesIds;
-    private ArrayList<String> dayTimeArrangementIds; //the days available for this course
-    private ArrayList<String> studentsIds;
-    private ArrayList<String> schedulesIds;
-    private ArrayList<String>agendasIds;
-    private ArrayList<String>studentsCourseIds;
+    private ArrayList<String> prices;
+    private ArrayList<String> dayTimeArrangement; //the days available for this course
+    private ArrayList<String> students;
+    private ArrayList<String> schedules;
+    private ArrayList<String>agendas;
+    private ArrayList<String>studentsCourse;
 
     public CourseFirebase(){
 
@@ -33,23 +35,38 @@ public class CourseFirebase implements FirebaseClass<Course>{
         courseName = from.getCourseName();
         courseTypeID = from.getCourseType().getID();
         courseDescription = from.getCourseDescription();
-        teacherID = from.getTeacher().getUID();
+        teacherID = from.getTeacher().getUid();
         baseCost = from.getBaseCost();
         hourlyCost = from.getHourlyCost();
         monthlyDiscountPercentage = from.getMonthlyDiscountPercentage();
         paymentPer = from.getPaymentPer();
         privateGroup = from.getPrivateGroup();
-        pricesIds = convertToIdList(from.getPrices());
-        dayTimeArrangementIds = convertToIdList(from.getDayTimeArrangement());
-        studentsIds = convertToIdList(from.getStudents());
-        schedulesIds = convertToIdList(from.getSchedules());
-        agendasIds = convertToIdList(from.getAgenda());
-        studentsCourseIds = convertToIdList(from.getStudentsCourse());
+        prices = convertToIdList(from.getPrices());
+        dayTimeArrangement = convertToIdList(from.getDayTimeArrangement());
+        students = convertToIdList(from.getStudents());
+        schedules = convertToIdList(from.getSchedules());
+        agendas = convertToIdList(from.getAgenda());
+        studentsCourse = convertToIdList(from.getStudentsCourse());
     }
 
     @Override
     public String getID() {
         return courseID;
+    }
+
+    @Override
+    public void convertToNormal(ObjectCallBack<Course> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Course.class, courseID, new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Course) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
 
@@ -129,60 +146,57 @@ public class CourseFirebase implements FirebaseClass<Course>{
         this.privateGroup = privateGroup;
     }
 
-    public ArrayList<String> getPricesIds() {
-        return pricesIds;
+    public ArrayList<String> getPrices() {
+        return prices;
     }
 
-    public void setPricesIds(ArrayList<String> pricesIds) {
-        this.pricesIds = pricesIds;
+    public void setPrices(ArrayList<String> prices) {
+        this.prices = prices;
     }
 
-    public ArrayList<String> getDayTimeArrangementIds() {
-        return dayTimeArrangementIds;
+    public ArrayList<String> getDayTimeArrangement() {
+        return dayTimeArrangement;
     }
 
-    public void setDayTimeArrangementIds(ArrayList<String> dayTimeArrangementIds) {
-        this.dayTimeArrangementIds = dayTimeArrangementIds;
+    public void setDayTimeArrangement(ArrayList<String> dayTimeArrangement) {
+        this.dayTimeArrangement = dayTimeArrangement;
     }
 
-    public ArrayList<String> getStudentsIds() {
-        return studentsIds;
+    public ArrayList<String> getStudents() {
+        return students;
     }
 
-    public void setStudentsIds(ArrayList<String> studentsIds) {
-        this.studentsIds = studentsIds;
+    public void setStudents(ArrayList<String> students) {
+        this.students = students;
     }
 
-    public ArrayList<String> getSchedulesIds() {
-        return schedulesIds;
+    public ArrayList<String> getSchedules() {
+        return schedules;
     }
 
-    public void setSchedulesIds(ArrayList<String> schedulesIds) {
-        this.schedulesIds = schedulesIds;
+    public void setSchedules(ArrayList<String> schedules) {
+        this.schedules = schedules;
     }
 
-    public ArrayList<String> getAgendasIds() {
-        return agendasIds;
+    public ArrayList<String> getAgendas() {
+        return agendas;
     }
 
-    public void setAgendasIds(ArrayList<String> agendasIds) {
-        this.agendasIds = agendasIds;
+    public void setAgendas(ArrayList<String> agendas) {
+        this.agendas = agendas;
     }
 
-    public ArrayList<String> getStudentsCourseIds() {
-        return studentsCourseIds;
+    public ArrayList<String> getStudentsCourse() {
+        return studentsCourse;
     }
 
-    public void setStudentsCourseIds(ArrayList<String> studentsCourseIds) {
-        this.studentsCourseIds = studentsCourseIds;
+    public void setStudentsCourse(ArrayList<String> studentsCourse) {
+        this.studentsCourse = studentsCourse;
     }
 
     public void setMonthlyDiscountPercentage(double monthlyDiscountPercentage) {
         this.monthlyDiscountPercentage = monthlyDiscountPercentage;
     }
 
-    public Course convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (Course) constructClass(Course.class, courseID);
-    }
 
 }

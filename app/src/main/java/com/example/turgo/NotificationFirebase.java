@@ -1,12 +1,18 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+
 public class NotificationFirebase implements FirebaseClass<Notification<?>> {
     private String notif_ID;
     private String title;
     private String content;
     private String timeSent;
-    private String from_ID;
-    private String to_ID;
+    private String from;
+    private String to;
 
     @Override
     public void importObjectData(Notification<?> from) {
@@ -14,13 +20,58 @@ public class NotificationFirebase implements FirebaseClass<Notification<?>> {
         title = from.getTitle();
         content = from.getContent();
         timeSent = from.getTimeSent().toString();
-        from_ID = ((RequireUpdate<?, ?>) from.getFrom()).getID();
-        to_ID = from.getTo().getUID();
+        this.from = ((RequireUpdate<?, ?>) from.getFrom()).getID();
+        to = from.getTo().getUid();
     }
 
     @Override
     public String getID() {
         return notif_ID;
+    }
+
+
+
+    @Override
+    public void convertToNormal(ObjectCallBack<Notification<?>> callBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+
+        if(Tool.getNodeOfID(from).getClazz().newInstance() instanceof User){
+            Notification<User>notif = new Notification<>(title, content, LocalDateTime.parse(timeSent), null, null);
+
+            User fromUser = Tool.getUserOfId(from);
+            User toUser = Tool.getUserOfId(to);
+            notif.setTo(toUser);
+            notif.setFrom(fromUser);
+            callBack.onObjectRetrieved(notif);
+        }else if(Tool.getNodeOfID(from).getClazz().newInstance() instanceof Course){
+            Notification<Course>notif = new Notification<>(title, content, LocalDateTime.parse(timeSent), null, null);
+            RTDBManager<Course> manager = new RTDBManager<>();
+            Course course = new Course();
+            course.retrieveOnce(new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(CourseFirebase object) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException, ParseException {
+                    final Course[] from = new Course[1];
+                    object.convertToNormal(new ObjectCallBack<Course>() {
+                        @Override
+                        public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                            from[0] = object;
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+
+                        }
+                    });
+                    notif.setFrom(from[0]);
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            }, from);
+            notif.setTo(Tool.getUserOfId(to));
+            callBack.onObjectRetrieved(notif);
+        }
     }
 
     public String getNotif_ID() {
@@ -55,19 +106,19 @@ public class NotificationFirebase implements FirebaseClass<Notification<?>> {
         this.timeSent = timeSent;
     }
 
-    public String getFrom_ID() {
-        return from_ID;
+    public String getFrom() {
+        return from;
     }
 
-    public void setFrom_ID(String from_ID) {
-        this.from_ID = from_ID;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public String getTo_ID() {
-        return to_ID;
+    public String getTo() {
+        return to;
     }
 
-    public void setTo_ID(String to_ID) {
-        this.to_ID = to_ID;
+    public void setTo(String to) {
+        this.to = to;
     }
 }

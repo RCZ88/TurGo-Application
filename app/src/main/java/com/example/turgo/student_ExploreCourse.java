@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.lang.reflect.InvocationTargetException;
@@ -72,15 +73,33 @@ public class student_ExploreCourse extends Fragment {
         StudentScreen sc = (StudentScreen) requireActivity();
         StudentFirebase sf = sc.getStudent();
         try {
-            student = sf.convertToNormal();
+            sf.convertToNormal(new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (NoSuchMethodException | java.lang.InstantiationException | IllegalAccessException |
                  InvocationTargetException | ParseException e) {
             throw new RuntimeException(e);
         }
         ArrayList<Course> coursesInterested = student.getExploreCourse();
-        CourseAdapter courseAdapter = new CourseAdapter(coursesInterested, student, item -> {
-            CourseExploreFullPage fragment = new CourseExploreFullPage();
-            requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.nhf_ss_FragContainer, fragment).addToBackStack(null).commit();
+        CourseAdapter courseAdapter = new CourseAdapter(coursesInterested, student, new OnItemClickListener<Course>() {
+            @Override
+            public void onItemClick(Course item) {
+                CourseExploreFullPage fragment = new CourseExploreFullPage();
+                requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.nhf_ss_FragContainer, fragment).addToBackStack(null).commit();
+            }
+
+            @Override
+            public void onItemLongClick(Course item) {
+
+            }
         }, requireContext());
         RecyclerView rv_courses = view.findViewById(R.id.rv_exploreCourses);
         rv_courses.setAdapter(courseAdapter);

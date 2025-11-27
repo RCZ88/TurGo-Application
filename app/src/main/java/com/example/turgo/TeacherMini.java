@@ -43,4 +43,14 @@ public class TeacherMini {
     public void setRealTeacherID(String realTeacherID) {
         this.realTeacherID = realTeacherID;
     }
+
+    @Override
+    public String toString() {
+        return "TeacherMini{" +
+                "teacherName='" + teacherName + '\'' +
+                ", subjectTeaching='" + subjectTeaching + '\'' +
+                ", teacherPfp='" + teacherPfp + '\'' +
+                ", realTeacherID='" + realTeacherID + '\'' +
+                '}';
+    }
 }

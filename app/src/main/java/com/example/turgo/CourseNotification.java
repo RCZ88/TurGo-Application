@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -31,7 +32,12 @@ public class CourseNotification extends BroadcastReceiver {
 
 
         createNotificationChannel(context);
-        sendNotification(context);
+        try {
+            sendNotification(context);
+        } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
+                 InstantiationException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -46,7 +52,7 @@ public class CourseNotification extends BroadcastReceiver {
         notificationManager.createNotificationChannel(channel);
     }
 
-    private void sendNotification(Context context) {
+    private void sendNotification(Context context) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         Intent intent = new Intent(context, StudentScreen.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

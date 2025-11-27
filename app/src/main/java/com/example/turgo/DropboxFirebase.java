@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -30,7 +32,18 @@ public class DropboxFirebase implements FirebaseClass<Dropbox>{
     }
 
     @Override
-    public Dropbox convertToNormal() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        return (Dropbox) constructClass(Dropbox.class, dropboxID);
+    public void convertToNormal(ObjectCallBack<Dropbox> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Dropbox.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Dropbox) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
+
 }

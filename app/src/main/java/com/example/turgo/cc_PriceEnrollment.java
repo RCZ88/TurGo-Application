@@ -1,21 +1,19 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
-
-import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
-
-import java.util.List;
+import android.widget.Switch;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -24,8 +22,9 @@ import java.util.List;
  */
 public class cc_PriceEnrollment extends Fragment {
     EditText et_hourlyCost, et_baseCost, et_monthlyDiscount;
-    ChipGroup cg_groupOrPrivate, cg_paymentMethods;
-    Chip c_autoAcceptStudent;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    Switch sw_group, sw_private, sw_month, sw_meeting;
+    CheckBox cb_autoAcceptStudent;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -76,9 +75,25 @@ public class cc_PriceEnrollment extends Fragment {
         et_baseCost = view.findViewById(R.id.etn_CC_BaseCost);
         et_hourlyCost = view.findViewById(R.id.etn_CC_HourlyCost);
         et_monthlyDiscount = view.findViewById(R.id.etn_MonthlyDiscount);
-        cg_groupOrPrivate = view.findViewById(R.id.cg_CC_GroupPrivate);
-        cg_paymentMethods = view.findViewById(R.id.cg_CC_PaymentMethods);
+        sw_group = view.findViewById(R.id.sw_CC_GroupType);
+        sw_meeting = view.findViewById(R.id.sw_CC_PerMeeting);
+        sw_private = view.findViewById(R.id.sw_CC_PrivateType);
+        sw_month = view.findViewById(R.id.sw_CC_PerMonth);
+        cb_autoAcceptStudent = view.findViewById(R.id.cb_CC_AutoAccept);
+
         CreateCourse cc = (CreateCourse) requireActivity();
+        if(cc.groupPrivate != null && cc.acceptedPaymentMethods != null){
+            Log.d("cc_PriceEnrollment", "Array not Null");
+        }else{
+            Log.d("cc_PriceEnrollment", "Array is Null!");
+            cc.groupPrivate = new boolean[2];
+            cc.acceptedPaymentMethods = new boolean[2];
+        }
+        sw_group.setOnCheckedChangeListener((buttonView, isChecked) -> cc.groupPrivate[Course.GROUP_INDEX] = isChecked);
+        sw_private.setOnCheckedChangeListener((buttonView, isChecked) -> cc.groupPrivate[Course.PRIVATE_INDEX] = isChecked);
+        sw_month.setOnCheckedChangeListener((buttonView, isChecked) -> cc.acceptedPaymentMethods[Course.PER_MONTH_INDEX] = isChecked);
+        sw_meeting.setOnCheckedChangeListener((buttonView, isChecked) -> cc.acceptedPaymentMethods[Course.PER_MEETING_INDEX] = isChecked);
+        cb_autoAcceptStudent.setOnCheckedChangeListener((buttonView, isChecked) -> cc.autoAcceptStudent = isChecked);
 
         et_baseCost.addTextChangedListener(new TextWatcher() {
             @Override
@@ -93,7 +108,13 @@ public class cc_PriceEnrollment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                cc.baseCost = Integer.parseInt(editable.toString());
+                if(editable != null){
+                    try{
+                        cc.baseCost = Integer.parseInt(editable.toString());
+                    }catch (Exception e){
+                        Log.d("cc_PriceEnrollment", "String is empty, Cannot convert to int");
+                    }
+                }
             }
         });
         et_hourlyCost.addTextChangedListener(new TextWatcher() {
@@ -109,7 +130,14 @@ public class cc_PriceEnrollment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                cc.hourlyCost = Integer.parseInt(editable.toString());
+                if(editable != null){
+                    try{
+                        cc.hourlyCost = Integer.parseInt(editable.toString());
+                    }catch (Exception e){
+                        Log.d("cc_PriceEnrollment", "String is empty, Cannot convert to int");
+                    }
+                }
+
             }
         });
         et_monthlyDiscount.addTextChangedListener(new TextWatcher() {
@@ -125,21 +153,16 @@ public class cc_PriceEnrollment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                cc.monthlyDiscount = Integer.parseInt(editable.toString());
+                if(editable != null){
+                    try{
+                        cc.monthlyDiscount = Integer.parseInt(editable.toString());
+                    }catch (Exception e){
+                        Log.d("cc_PriceEnrollment", "String is empty, Cannot convert to int");
+                    }
+                }
             }
         });
-        cg_paymentMethods.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            for(int i = 0; i<cg_paymentMethods.getChildCount(); i++){
-                Chip chip = (Chip) cg_paymentMethods.getChildAt(i);
-                cc.acceptedPaymentMethods[i] = chip.isChecked();
-            }
-        });
-        cg_groupOrPrivate.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            for(int i = 0; i<cg_groupOrPrivate.getChildCount(); i++){
-                Chip chip = (Chip) cg_paymentMethods.getChildAt(i);
-                cc.acceptedPaymentMethods[i] = chip.isChecked();
-            }
-        });
+
 
         return view;
 

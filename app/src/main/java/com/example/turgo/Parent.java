@@ -25,7 +25,7 @@ public class Parent extends User implements Serializable, RequireUpdate<Parent, 
 
     @Override
     public String getID() {
-        return super.getUID();
+        return super.getUid();
     }
 
     @Override
@@ -34,6 +34,11 @@ public class Parent extends User implements Serializable, RequireUpdate<Parent, 
     }
 
     public Parent(){}
+
+    @Override
+    public String getSerializeCode() {
+        return SERIALIZE_KEY_CODE;
+    }
 
     @Override
     public String toString() {

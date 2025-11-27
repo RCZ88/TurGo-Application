@@ -13,7 +13,7 @@ import android.view.ViewGroup;
  * Use the {@link signup_admin_empty#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class signup_admin_empty extends Fragment {
+public class signup_admin_empty extends Fragment implements checkFragmentCompletion{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,5 +60,10 @@ public class signup_admin_empty extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_signup_admin_empty, container, false);
+    }
+
+    @Override
+    public boolean checkIfCompleted() {
+        return true;
     }
 }

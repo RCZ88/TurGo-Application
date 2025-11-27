@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 /**
@@ -37,6 +40,7 @@ public class cc_CourseInformation extends Fragment {
     private EditText et_CourseName, etml_CourseDescription;
     private Spinner sp_CourseTypes;
 
+    private static final String tag = "cc_CourseInformation";
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -81,27 +85,34 @@ public class cc_CourseInformation extends Fragment {
         et_CourseName = view.findViewById(R.id.et_CC_courseName);
         etml_CourseDescription = view.findViewById(R.id.etml_CC_CourseDescription);
         sp_CourseTypes = view.findViewById(R.id.sp_CC_CourseType);
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSETYPE.getPath());
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<CourseTypeFirebase> courseTypes = new ArrayList<>();
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    courseTypes.add(dataSnapshot.getValue(CourseTypeFirebase.class));
-                }
-                sp_CourseTypes.setAdapter(new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, courseTypes));
+
+//        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSETYPE.getPath());
+
+        ArrayList<CourseType>courses = new ArrayList<>();
+        String[] items = getResources().getStringArray(R.array.course_options);
+        for(String item : items){
+            try {
+                CourseType courseType = new CourseType(item);
+                courses.add(courseType);
+                Log.d(tag, "Course Type Item Added: " + courseType);
+            } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
+                     InstantiationException | java.lang.InstantiationException e) {
+                throw new RuntimeException(e);
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        if(!cc.courseName.isEmpty()){
-            et_CourseName.setText(cc.courseName);
         }
-        if(!cc.courseDescription.isEmpty()){
-            etml_CourseDescription.setText(cc.courseDescription);
+        ArrayAdapter<CourseType> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, courses);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_CourseTypes.setAdapter(adapter);
+        if(cc.courseName != null){
+            if(cc.courseName.isEmpty()){
+                et_CourseName.setText(cc.courseName);
+            }
+        }
+        if(cc.courseDescription != null){
+            if(cc.courseDescription.isEmpty()){
+                etml_CourseDescription.setText(cc.courseDescription);
+            }
         }
 //        if(!cc.courseType.isEmpty()){
 //
@@ -141,7 +152,10 @@ public class cc_CourseInformation extends Fragment {
         sp_CourseTypes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                Log.d(tag, adapterView.getItemAtPosition(i).toString());
                 cc.courseType = (CourseType) adapterView.getItemAtPosition(i);
+                Log.d(tag, "CourseTypeSelected: " + cc.courseType);
             }
 
             @Override

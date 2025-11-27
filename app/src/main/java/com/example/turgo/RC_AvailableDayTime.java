@@ -131,15 +131,31 @@ public class RC_AvailableDayTime extends Fragment {
         }
 
         MutableLiveData<DayOfWeek> currentSelectedDay = new MutableLiveData<>();
-        DayAdapter dayAdapter = new DayAdapter(days, item -> {
-            currentSelectedDay.setValue(item);
-            ArrayList<TimeSlot>ts = rc.getCourse().getDTAOfDay(currentSelectedDay.getValue()).splitSlots(rc.getDuration(), rc.getCourse().findFreeSpotOfDay(currentSelectedDay.getValue(), rc.isPrivate(), rc.getCourse().getMaxStudentPerMeeting(), rc.getDuration()));
-            TimeSlotAdapter tsa = new TimeSlotAdapter(ts, item1 -> {
-                currentSelectedTS[0] = item1;
-                currentAmtPpl[0] = course.getScheduleFromTimeSlot(item1).getNumberOfStudents();
-                selected[0] = true;
-            }, currentSelectedDay.getValue());
-            rv_listOfTS.setAdapter(tsa);
+        DayAdapter dayAdapter = new DayAdapter(days, new OnItemClickListener<DayOfWeek>() {
+            @Override
+            public void onItemClick(DayOfWeek item) {
+                currentSelectedDay.setValue(item);
+                ArrayList<TimeSlot>ts = rc.getCourse().getDTAOfDay(currentSelectedDay.getValue()).splitSlots(rc.getDuration(), rc.getCourse().findFreeSpotOfDay(currentSelectedDay.getValue(), rc.isPrivate(), rc.getCourse().getMaxStudentPerMeeting(), rc.getDuration()));
+                TimeSlotAdapter tsa = new TimeSlotAdapter(ts, new OnItemClickListener<TimeSlot>() {
+                    @Override
+                    public void onItemClick(TimeSlot item) {
+                        currentSelectedTS[0] = item;
+                        currentAmtPpl[0] = course.getScheduleFromTimeSlot(item).getNumberOfStudents();
+                        selected[0] = true;
+                    }
+
+                    @Override
+                    public void onItemLongClick(TimeSlot item) {
+
+                    }
+                }, currentSelectedDay.getValue());
+                rv_listOfTS.setAdapter(tsa);
+            }
+
+            @Override
+            public void onItemLongClick(DayOfWeek item) {
+
+            }
         });
         rv_listOfDays.setAdapter(dayAdapter);
     }

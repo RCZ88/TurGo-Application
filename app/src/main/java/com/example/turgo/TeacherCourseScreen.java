@@ -85,16 +85,24 @@ public class TeacherCourseScreen extends Fragment {
         assert course != null;
         ArrayList<Student>students = course.getStudents();
         ArrayList<Student>studentSelectedInList = new ArrayList<>();
-        STCAdapter adapter = new STCAdapter(students, getContext(), item -> {
-            if(studentSelectedInList.contains(item)){
-                studentSelectedInList.remove(item);
-            }else{
-                studentSelectedInList.add(item);
+        STCAdapter adapter = new STCAdapter(students, getContext(), new OnItemClickListener<Student>() {
+            @Override
+            public void onItemClick(Student item) {
+                if(studentSelectedInList.contains(item)){
+                    studentSelectedInList.remove(item);
+                }else{
+                    studentSelectedInList.add(item);
+                }
+                if(studentSelectedInList.size() > 1){
+                    btn_ViewSchedule.setEnabled(false);
+                }else{
+                    btn_ViewSchedule.setEnabled(true);
+                }
             }
-            if(studentSelectedInList.size() > 1){
-                btn_ViewSchedule.setEnabled(false);
-            }else{
-                btn_ViewSchedule.setEnabled(true);
+
+            @Override
+            public void onItemLongClick(Student item) {
+
             }
         });
         btn_AssignTask.setOnClickListener(v -> {

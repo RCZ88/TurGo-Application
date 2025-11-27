@@ -26,6 +26,7 @@ public class signup_ConfirmData extends Fragment implements checkFragmentComplet
     private static final String ARG_PARAM2 = "param2";
     Button btn_SignUp;
     TextView tv_userData;
+    User cachedUser;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -69,7 +70,8 @@ public class signup_ConfirmData extends Fragment implements checkFragmentComplet
         SignUpPage sup = (SignUpPage) getActivity();
         tv_userData = view.findViewById(R.id.tv_userInfoSummary);
         assert sup != null;
-        tv_userData.setText(sup.createUser().toString());
+        cachedUser = sup.createUser();
+        tv_userData.setText(cachedUser.toString());
         btn_SignUp = view.findViewById(R.id.btn_SignUp);
         btn_SignUp.setOnClickListener(v ->{
             try {

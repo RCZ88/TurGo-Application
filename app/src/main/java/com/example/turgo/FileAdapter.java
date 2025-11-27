@@ -24,7 +24,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        holder.tv_fileName.setText(submissions.get(position).getFile().toString());
+        holder.tv_fileName.setText(submissions.get(position).getFileName());
         holder.tv_timeDateUpload.setText(submissions.get(position).getFileCreateDate().toString());
     }
 

@@ -6,163 +6,180 @@
     android:layout_height="match_parent"
     tools:context=".cc_AddScheduleDTA">
 
-    <TextView
-        android:id="@+id/textView26"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:text="Add DTA Schedule"
-        android:textSize="28sp"
-        android:textStyle="bold"
+    <ScrollView
+        android:layout_width="408dp"
+        android:layout_height="0dp"
+        android:fadeScrollbars="false"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarStyle="insideOverlay"
+        android:scrollbars="vertical"
+        android:verticalScrollbarPosition="defaultPosition"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout27"
-        android:layout_width="327dp"
-        android:layout_height="391dp"
-        android:layout_marginTop="44dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView26">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24sp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView67"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Day of Week"
-                android:textSize="20sp" />
-
-            <Spinner
-                android:id="@+id/sp_CC_DayOfWeek"
-                android:layout_width="150sp"
-                android:layout_height="38sp"
-                android:layout_marginTop="24dp"
-                android:entries="@array/day_of_week" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="38sp"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView68"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Earliest Time"
-                    android:textSize="18sp" />
-
-                <Button
-                    android:id="@+id/btn_CC_EarlyTimeDTA"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="Select Time" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="10sp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView69"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Latest Time"
-                    android:textSize="18sp" />
-
-                <Button
-                    android:id="@+id/btn_CC_LatestTimeDTA"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="Select Time" />
-            </LinearLayout>
-        </LinearLayout>
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
 
-            <CheckBox
-                android:id="@+id/checkBox6"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="10sp"
-                android:text="Meeting Limit?" />
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/textView26"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="64dp"
+                android:text="Add DTA Schedule"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout27"
+                android:layout_width="327dp"
+                android:layout_height="391dp"
+                android:layout_marginTop="44dp"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/textView83"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Max Meeting of Day" />
+                    android:layout_marginBottom="24sp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/etn_CC_maxMeetingOfDay"
+                    <TextView
+                        android:id="@+id/textView67"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Select Day of Week"
+                        android:textSize="20sp" />
+
+                    <Spinner
+                        android:id="@+id/sp_CC_DayOfWeek"
+                        android:layout_width="150sp"
+                        android:layout_height="38sp"
+                        android:layout_marginTop="24dp"
+                        android:entries="@array/day_of_week" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="38sp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10sp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView68"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Earliest Time"
+                            android:textSize="18sp" />
+
+                        <Button
+                            android:id="@+id/btn_CC_EarlyTimeDTA"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="24dp"
+                            android:text="Select Time" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10sp"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView69"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Latest Time"
+                            android:textSize="18sp" />
+
+                        <Button
+                            android:id="@+id/btn_CC_LatestTimeDTA"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="Select Time" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="number" />
+                    android:orientation="horizontal">
+
+                    <CheckBox
+                        android:id="@+id/cb_CC_MeetingLimit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="10sp"
+                        android:text="Meeting Limit?" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView83"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Max Meeting of Day" />
+
+                        <EditText
+                            android:id="@+id/etn_CC_maxMeetingOfDay"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:inputType="number" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_CC_AddDTA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20sp"
+                    android:text="Add DTA" />
+
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/textView86"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DTA Configured:"
+                android:textSize="20sp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_CC_DTASelected"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="@drawable/edittext_border" />
+
+            <TextView
+                android:id="@+id/textView70"
+                android:layout_width="343dp"
+                android:layout_height="92dp"
+                android:layout_marginTop="44dp"
+                android:text="The Time Constraint on Whether a course is available at which days, and what are the earlist time that a student can apply and the latest time that the student can attend the course. It will create the Arrangement for that day. Fill all the fields before adding the DTA."
+                android:textAlignment="center" />
+
         </LinearLayout>
-
-        <Button
-            android:id="@+id/btn_CC_AddDTA"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:text="Add DTA" />
-    </LinearLayout>
-
-    <TimePicker
-
-        android:id="@+id/tp_CC_PickTime"
-        android:layout_width="307dp"
-        android:layout_height="400dp"
-        android:layout_marginTop="192dp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/textView70"
-        android:layout_width="343dp"
-        android:layout_height="92dp"
-        android:layout_marginTop="44dp"
-        android:text="The Time Constraint on Whether a course is available at which days, and what are the earlist time that a student can apply and the latest time that the student can attend the course. It will create the Arrangement for that day. Fill all the fields before adding the DTA."
-        android:textAlignment="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout27" />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

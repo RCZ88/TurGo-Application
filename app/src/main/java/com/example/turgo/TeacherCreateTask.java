@@ -97,8 +97,15 @@ public class TeacherCreateTask extends Fragment {
 
         final Course[] courseSelected = {(Course) sp_taskOfCourse.getSelectedItem()};
         final Student[] studentSelected = {(Student) sp_studentSelect.getSelectedItem()};
+
+
+        ArrayList<Course> coursesTeach = new ArrayList<>();
+        if(teacher.getCoursesTeach() != null){
+            coursesTeach = teacher.getCoursesTeach();
+        }
+
         assert getActivity() != null;
-        ArrayAdapter<Course> courseAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, teacher.getCoursesTeach());
+        ArrayAdapter<Course> courseAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, coursesTeach);
 
         final ArrayList<Student>studentSelectedList = new ArrayList<>();
         Course coursePreset = null;
@@ -138,19 +145,28 @@ public class TeacherCreateTask extends Fragment {
 
             }
         });
-        sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, courseSelected[0].getStudents()));
-        sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                studentSelected[0] = (Student)parent.getSelectedItem();
+        if(courseSelected[0] != null){
+            ArrayList<Student>studentsOfCourse = new ArrayList<>();
+            if(courseSelected[0].getStudents() != null){
+                studentsOfCourse = courseSelected[0].getStudents();
             }
+            sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, studentsOfCourse));
+            sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    studentSelected[0] = (Student)parent.getSelectedItem();
+                }
 
-            }
-        });
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+        }else{
+            sp_studentSelect.setEnabled(false);
+        }
+
 
         btn_selectSubmissionDate.setOnClickListener(v -> openDatePicker());
 

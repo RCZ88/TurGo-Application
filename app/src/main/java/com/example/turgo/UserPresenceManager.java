@@ -16,44 +16,50 @@ public class UserPresenceManager {
 
     public static void startTracking(String userId) {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
-
-        // Reference that tells us if this client is connected to Firebase
         connectedRef = db.getReference(".info/connected");
-
-        // Reference to this user’s online status node
-        userStatusRef = db.getReference("userStatus").child(userId);
+        userStatusRef = db.getReference("user-status").child(userId);
 
         connectedRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Boolean connected = snapshot.getValue(Boolean.class);
                 if (connected != null && connected) {
-                    // User came online
+                    // Create UserStatus with String timestamp
+                    UserStatus onlineStatus = new UserStatus(
+                            userId,
+                            true,
+                            java.time.LocalDateTime.now().toString()
+                    );
 
-                    userStatusRef.setValue(new UserStatus(userId, true, LocalDateTime.now()));
+                    userStatusRef.setValue(onlineStatus);  // ✅ Works now!
 
-                    // Set up onDisconnect — automatically runs when user leaves or loses connection
-                    userStatusRef.onDisconnect()
-                            .setValue(new UserStatus(userId, false, LocalDateTime.now()));
+                    // Set up onDisconnect
+                    UserStatus offlineStatus = new UserStatus(
+                            userId,
+                            false,
+                            java.time.LocalDateTime.now().toString()
+                    );
+
+                    userStatusRef.onDisconnect().setValue(offlineStatus);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                android.util.Log.e("UserPresenceManager", "Error: " + error.getMessage());
             }
-
         });
     }
 
     public static void stopTracking(String userId) {
         if (userStatusRef != null) {
-            userStatusRef.setValue(new UserStatus(userId, false, LocalDateTime.now()));
+            UserStatus us=new UserStatus(userId, false, LocalDateTime.now().toString());
+            userStatusRef.setValue(us);
         }
     }
 
     public static UserStatus getUserStatus(User user){
-        DatabaseReference dbrf = FirebaseDatabase.getInstance().getReference(FirebaseNode.USER_STATUS.getPath()).child(user.getUID());
+        DatabaseReference dbrf = FirebaseDatabase.getInstance().getReference(FirebaseNode.USER_STATUS.getPath()).child(user.getUid());
         final UserStatus[] us = new UserStatus[1];
         dbrf.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

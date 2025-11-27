@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -8,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class ImageViewHolder extends RecyclerView.ViewHolder {
     ImageView iv_image;
-    private OnItemClickListener<String> onItemClickListener;
-    private String currentImageUrl;
+    private OnItemClickListener<Integer> onItemClickListener;
+    private int currentImageId;
 
     public ImageViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -17,27 +18,30 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
 
         // Set click listener on the entire item view
         itemView.setOnClickListener(v -> {
-            if (onItemClickListener != null && currentImageUrl != null) {
-                onItemClickListener.onItemClick(currentImageUrl);
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(currentImageId);
             }
         });
     }
 
     // Method to set the click listener
-    public void setOnItemClickListener(OnItemClickListener<String> listener) {
+    public void setOnItemClickListener(OnItemClickListener<Integer> listener) {
         this.onItemClickListener = listener;
     }
 
     // Method to bind the current image URL
-    public void bind(String imageUrl, boolean isSelected) {
-        this.currentImageUrl = imageUrl;
+    public void bind(int imageId, boolean isSelected) {
+        this.currentImageId = imageId;
         updateSelectedState(isSelected);
+    }
+    public void bind(int imageIndex){
+        this.currentImageId = imageIndex;
     }
     private void updateSelectedState(boolean isSelected){
         if (isSelected){
-            iv_image.setBackgroundColor(0xFFE0E0E0);
+            iv_image.setBackgroundResource(R.drawable.edittext_border);
         }else{
-            iv_image.setBackgroundColor(0xFFFFFFFF);
+            iv_image.setBackgroundResource(R.drawable.image_item_background);
         }
     }
 }

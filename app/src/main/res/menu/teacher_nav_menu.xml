@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
+        android:id="@+id/dest_teacherDashboard"
         android:icon="@drawable/dashboard"
         android:title="Dashboard" />
     <item
+        android:id="@+id/dest_teacherAllCourse"
         android:icon="@drawable/graduation"
         android:title="View Courses" />
     <item
+        android:id="@+id/dest_teacherCreateTask"
         android:icon="@drawable/plus"
         android:title="Create Task" />
     <item
+        android:id="@+id/dest_teacherViewSchedules"
         android:icon="@drawable/calendar_week"
         android:title="View Schedules" />
     <item
+        android:id="@+id/dest_teacherProfile"
         android:icon="@drawable/user"
         android:title="Profile" />
 </menu>

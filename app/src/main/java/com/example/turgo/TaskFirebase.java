@@ -1,5 +1,9 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,6 +58,21 @@ public class TaskFirebase implements FirebaseClass<Task> {
         // Assuming TaskFirebase gets its ID from somewhere
         // You might want to add an ID field if needed
         return taskID;
+    }
+
+    @Override
+    public void convertToNormal(ObjectCallBack<Task> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        constructClass(Task.class, getID(), new ConstructClassCallback() {
+            @Override
+            public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                objectCallBack.onObjectRetrieved((Task) object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
 

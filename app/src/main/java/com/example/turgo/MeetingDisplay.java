@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -79,19 +80,29 @@ public class MeetingDisplay extends Fragment {
         tv_courseTitle = view.findViewById(R.id.tv_mdf_CourseTitle);
 
         assert activity != null;
-        Student student = null;
+        final Student[] student = {null};
         try {
-            student = activity.getStudent().convertToNormal();
+            activity.getStudent().convertToNormal(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                    student[0] = object;
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                  IllegalAccessException | java.lang.InstantiationException e) {
             throw new RuntimeException(e);
         }
-        Course scheduleOfCourse = student.getNextMeeting().getMeetingOfSchedule().getScheduleOfCourse();
+        Course scheduleOfCourse = student[0].getNextMeeting().getMeetingOfSchedule().getScheduleOfCourse();
 //        iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
         Glide.with(requireContext()).load(scheduleOfCourse.getLogo()).into(iv_courseLogo);
         tv_courseTitle.setText(scheduleOfCourse.getCourseName());
-        tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
-        tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
+        tv_courseTime.setText(student[0].getNextMeeting().getStartTimeChange().toString());
+        tv_courseDateDay.setText(student[0].getNextMeeting().getDateOfMeeting().toString());
 
         return view;
     }

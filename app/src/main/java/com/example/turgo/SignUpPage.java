@@ -144,6 +144,7 @@ public class SignUpPage extends AppCompatActivity {
             String email = fci.et_email.getText().toString();
             String phoneNumber = fci.et_phoneNumber.getText().toString();
             String gender = fud.gender;
+            Log.d("SignUpPage", "Creating user with: " + fullName + ", " + dateOfBirth + ", " + nickname + ", " + email + ", " + phoneNumber + ", " + gender);
             switch (userType) {
                 case STUDENT:
                     newUser = new Student(
@@ -159,7 +160,6 @@ public class SignUpPage extends AppCompatActivity {
                     for (String courseType : fssc.selectedCourses) {
                         ((Student) newUser).addCourseInterest(courseType);
                     }
-                    ((Student)newUser).updateDB();
                     break;
 
                 case TEACHER:
@@ -169,15 +169,17 @@ public class SignUpPage extends AppCompatActivity {
                             dateOfBirth,
                             nickname,
                             email,
-                            phoneNumber,
-                            this
+                            phoneNumber
                     );
+                    Log.d("SignUpPage", "Teacher object" + newUser);
 
                     signup_UserDetails_Teacher fudf = (signup_UserDetails_Teacher) signUpSegments[2];
                     for (String subjectType : fudf.selectedSubjects) {
                         ((Teacher) newUser).addCourseTeach(subjectType);
                     }
-                    ((Teacher)newUser).updateDB();
+                    Log.d("SignUpPage", "Subject Selected: " + fudf.selectedSubjects.toString());
+
+
                     break;
 
                 case PARENT:
@@ -224,15 +226,16 @@ public class SignUpPage extends AppCompatActivity {
 // Firebase Authentication and Firestore setup
         FirebaseAuth auth = FirebaseAuth.getInstance();
 // Create the user in Firebase Authentication
-        User newUser = createUser();
-        ObjectManager.ADD_USER(newUser);
+
+        signup_ConfirmData confirmFragment = (signup_ConfirmData) signUpSegments[5];
+        User newUser = confirmFragment.cachedUser;
         auth.createUserWithEmailAndPassword(newUser.getEmail(), Objects.requireNonNull(((signup_PasswordSetup) frag_passwordSetup).pi_password.getText()).toString())
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = auth.getCurrentUser();
                         if (user != null) {
                             String uid = user.getUid();
-                            newUser.setUID(uid);
+                            newUser.setUid(uid);
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                     .setDisplayName(newUser.getNickname()) // Set the username
                                     .build();
@@ -245,7 +248,12 @@ public class SignUpPage extends AppCompatActivity {
 
 
                             try {
-                                ObjectManager.ADD_USER(newUser);
+                                if(newUser.getUid() != null){
+                                    ObjectManager.ADD_USER(newUser);
+                                    Log.d("SignUpPage", "ID User: " + newUser.getUid());
+                                }else{
+                                    Log.e("SignUpPage", "Error: " + "User ID is null");
+                                }
                             } catch (InvocationTargetException | InstantiationException |
                                      IllegalAccessException | NoSuchMethodException e) {
                                 throw new RuntimeException(e);

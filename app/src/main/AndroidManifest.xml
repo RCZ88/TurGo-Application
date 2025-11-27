@@ -26,6 +26,21 @@
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".AdminCreateCourse"
+            android:exported="false" />
+        <activity
+            android:name=".AdminScreen"
+            android:exported="false" />
+        <activity
+            android:name=".ActivityLauncher"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".ComposeMail"
             android:exported="false" />
         <activity
@@ -58,13 +73,7 @@
             android:theme="@style/Theme.TurGo" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity> <!-- Firebase and Google Play Services Integration -->
+            android:exported="true" /> <!-- Firebase and Google Play Services Integration -->
         <activity
             android:name=".CaptureAct"
             android:screenOrientation="portrait"

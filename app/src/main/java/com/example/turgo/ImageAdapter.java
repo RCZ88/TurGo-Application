@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,18 +9,20 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
-    private final Context context;
-    private final List<String> imageUrls;
-    private OnItemClickListener<String> onItemClickListener; // Added listener field
+    private ArrayList<Uri>uris;
+    private ArrayList<Integer> imageIds;
+    private OnItemClickListener<Integer> onItemClickListener; // Added listener field
     private int selectedPosition = -1;
 
-    public ImageAdapter(@NonNull Context context, @NonNull List<String> imageUrls) {
-        this.context = context;
-        this.imageUrls = imageUrls;
+    public ImageAdapter(ArrayList<Integer> imageUrls, int dummy) {
+        this.imageIds = imageUrls;
+    }
+    public ImageAdapter(ArrayList<Uri>imageUris){
+        this.uris = imageUris;
     }
 
     public void setSelectedPosition(int position){
@@ -34,7 +37,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
         }
     }
     // Method to set the click listener
-    public void setOnItemClickListener(OnItemClickListener<String> listener) {
+    public void setOnItemClickListener(OnItemClickListener<Integer> listener) {
         this.onItemClickListener = listener;
     }
 
@@ -51,14 +54,44 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        String url = imageUrls.get(position);
-        Tool.setImageCloudinary(context, url, holder.iv_image);
+        if(imageIds != null){
+            holder.iv_image.setImageResource(imageIds.get(position));
+            holder.bind(imageIds.get(position), position == selectedPosition);
+        }else{
+            holder.iv_image.setImageURI(uris.get(position));
+            holder.bind(position);
+        }
         // Bind the current item URL to the holder
-        holder.bind(url, position == selectedPosition);
+
     }
 
     @Override
     public int getItemCount() {
-        return imageUrls.size();
+        if(imageIds != null){
+            return imageIds.size();
+        }else{
+            return uris.size();
+        }
+
+    }
+
+    public ArrayList<Integer> getImageIds() {
+        return imageIds;
+    }
+
+    public void setImageIds(ArrayList<Integer> imageIds) {
+        this.imageIds = imageIds;
+    }
+
+    public ArrayList<Uri> getUris() {
+        return uris;
+    }
+
+    public void setUris(ArrayList<Uri> uris) {
+        this.uris = uris;
+    }
+
+    public int getSelectedPosition() {
+        return selectedPosition;
     }
 }

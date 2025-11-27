@@ -11,7 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 
 /**
@@ -94,19 +97,24 @@ public class TaskDisplay extends Fragment {
             String submissionTime = submissionDate.getHour() + " : " + submissionDate.getMinute();
             tv_submissionTime.setText(submissionTime);
             StudentFirebase sf = activity.getStudent();
-            Student s;
+            final Student[] s = new Student[1];
             try {
-                s = (Student) sf.constructClass(Student.class, sf.getID());
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException(e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } catch (java.lang.InstantiationException e) {
+                sf.convertToNormal(new ObjectCallBack<Student>() {
+                    @Override
+                    public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                        s[0] = object;
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                });
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
+                     java.lang.InstantiationException | ParseException e) {
                 throw new RuntimeException(e);
             }
-            iv_submissionStatus.setImageResource(task.isComplete(s) ? R.drawable.checkbox : R.drawable.pending);
+            iv_submissionStatus.setImageResource(task.isComplete(s[0]) ? R.drawable.checkbox : R.drawable.pending);
         }
         return view;
     }
