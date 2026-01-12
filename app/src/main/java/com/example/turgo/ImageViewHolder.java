@@ -1,6 +1,5 @@
 package com.example.turgo;
 
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -21,6 +20,13 @@ public class ImageViewHolder extends RecyclerView.ViewHolder {
             if (onItemClickListener != null) {
                 onItemClickListener.onItemClick(currentImageId);
             }
+        });
+        itemView.setOnLongClickListener(v -> {
+            if(currentImageId!= RecyclerView.NO_POSITION && onItemClickListener != null){
+                onItemClickListener.onItemLongClick(currentImageId);
+                return true;
+            }
+            return false;
         });
     }
 

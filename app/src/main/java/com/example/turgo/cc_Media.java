@@ -2,10 +2,12 @@ package com.example.turgo;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
@@ -20,30 +22,21 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
-import com.google.firebase.database.DatabaseError;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link cc_Media#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class cc_Media extends Fragment {
+public class cc_Media extends Fragment implements checkFragmentCompletion{
     RecyclerView rv_courseLogo, rv_courseBanner, rv_uploadedCourseImages;
     Button btn_uploadCourseLogo, btn_uploadCourseBanner, btn_uploadImages, btn_removeAllCourseImageUploaded;
     TextView tv_emptyCourseImageUpload;
     private static final int PICK_FILE_REQUEST = 100;
     private Uri selectedFileUri;
-    private CloudinaryUploadCallback currentUploadCallback;
+    private OnFileSelectedListener currentUploadCallback;
     private ActivityResultLauncher<Intent> filePickerLauncher;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -104,44 +97,14 @@ public class cc_Media extends Fragment {
 
         tv_emptyCourseImageUpload = view.findViewById(R.id.tv_CC_MediaUploadEmpty);
 
-        ArrayList<Integer>imageIds = Tool.getListIdFromXmlArray(requireContext(), R.array.logo_list);
-        ImageAdapter iaCL = new ImageAdapter(imageIds, 0);
-        ArrayList<Integer> finalImageIds = imageIds;
-        iaCL.setOnItemClickListener(new OnItemClickListener<>() {
-            @Override
-            public void onItemClick(Integer item) {
-                cc.courseIconCloudinary = getCloudinaryOfImageId(item);
-                int index = finalImageIds.indexOf(item);
-                iaCL.setSelectedPosition(index);
-            }
-
-            @Override
-            public void onItemLongClick(Integer item) {
-
-            }
-        });
-        rv_courseLogo.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv_courseLogo.setAdapter(iaCL);
+        setDefaultCourseIconOptions(cc);
+        setDefaultCourseBannerOptions(cc);
+        ViewGroup.LayoutParams params = rv_uploadedCourseImages.getLayoutParams();
+        params.height = dpToPx(80);
+        rv_uploadedCourseImages.setLayoutParams(params);
+        Tool.handleEmpty(true, rv_uploadedCourseImages, tv_emptyCourseImageUpload);
 
 
-        imageIds = Tool.getListIdFromXmlArray(requireContext(), R.array.banner_list);
-        ImageAdapter iaCB = new ImageAdapter(imageIds, 0);
-        ArrayList<Integer> finalImageIds1 = imageIds;
-        iaCB.setOnItemClickListener(new OnItemClickListener<>() {
-            @Override
-            public void onItemClick(Integer item) {
-                cc.courseBannerCloudinary = getCloudinaryOfImageId(item);
-                int index = finalImageIds1.indexOf(item);
-                iaCB.setSelectedPosition(index);
-            }
-
-            @Override
-            public void onItemLongClick(Integer item) {
-
-            }
-        });
-        rv_courseBanner.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv_courseBanner.setAdapter(iaCB);
 
 //        DatabaseReference dbr = FirebaseDatabase.getInstance().getReference(FirebaseNode.BUILT_IN_COURSE_BANNER.getPath());
 //        dbr.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -205,7 +168,7 @@ public class cc_Media extends Fragment {
 //
 //            }
 //        });
-        RTDBManager<fileFirebase> rtdbManager = new RTDBManager<>();
+//        RTDBManager<fileFirebase> rtdbManager = new RTDBManager<>();
         filePickerLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -215,121 +178,149 @@ public class cc_Media extends Fragment {
                             Log.d("cc_Media", "File Selected: " + selectedFileUri.getPath());
 
                             // Capture final variables for thread use
-                            Uri pickedUri = selectedFileUri;
-                            CloudinaryUploadCallback callback = currentUploadCallback;
+//                            Uri pickedUri = selectedFileUri;
+//                            CloudinaryUploadCallback callback = currentUploadCallback;
+                            String fileName = Tool.getFileName(requireContext(), selectedFileUri);
+                            Log.d("cc_Media", "File '" + fileName + "' Successfully Selected!");
+                            currentUploadCallback.onFileSelected(fileName,selectedFileUri);
 
-                            new Thread(() -> {
-                                String fileName = Tool.getFileName(requireContext(), pickedUri);
-                                Log.d("cc_Media", "File '" + fileName + "' Successfully Selected!");
-
-
-                                try {
-                                    Tool.uploadToCloudinary(Tool.uriToFile(pickedUri, requireContext()), new ObjectCallBack<>() {
-                                        @Override
-                                        public void onObjectRetrieved(String object) {
-                                            if(callback != null) {
-                                                callback.onUploadComplete(object, fileName, pickedUri);
-
-                                                requireActivity().runOnUiThread(() -> {
-                                                    Toast.makeText(requireContext(),
-                                                            "Upload successful: " + object,
-                                                            Toast.LENGTH_LONG).show();
-                                                });
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onError(DatabaseError error) {
-                                            Log.d("cc_Media", "Error Database: " + error);
-                                        }
-                                    });
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }).start();
+//                            new Thread(() -> {
+//
+//
+//
+//                                try {
+//                                    Tool.uploadToCloudinary(Tool.uriToFile(pickedUri, requireContext()), new ObjectCallBack<>() {
+//                                        @Override
+//                                        public void onObjectRetrieved(String object) {
+//                                            if(callback != null) {
+//                                                callback.onUploadComplete(object, fileName, pickedUri);
+//
+//                                                requireActivity().runOnUiThread(() -> {
+//                                                    Toast.makeText(requireContext(),
+//                                                            "Upload successful: " + object,
+//                                                            Toast.LENGTH_LONG).show();
+//                                                });
+//                                            }
+//                                        }
+//
+//                                        @Override
+//                                        public void onError(DatabaseError error) {
+//                                            Log.d("cc_Media", "Error Database: " + error);
+//                                        }
+//                                    });
+//                                } catch (IOException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                            }).start();
 
                         } else {
                             Log.d("cc_Media", "File Selected is Null");
                         }
                     }
                 });
-        btn_uploadCourseLogo.setOnClickListener(v -> openFilePicker(new CloudinaryUploadCallback() {
-            @Override
-            public void onUploadComplete(String cloudinaryUrl, String fileName, Uri uri) {
-                file file = new file(fileName, cloudinaryUrl, cc.admin, LocalDateTime.now());
-                cc.courseIcon = file;
-                iaCL.getUris().add(uri);
-                iaCL.notifyDataSetChanged();
-                iaCL.setSelectedPosition(iaCL.getUris().size()-1);
-//                rtdbManager.storeData(FirebaseNode.UPLOADED_COURSE_LOGO.getPath(), file.getID(), file, "Uploaded course logo", "Uploaded course logo");
-            }
 
-            @Override
-            public void onUploadFailed(Exception error) {
+        btn_uploadCourseLogo.setOnClickListener(v -> openFilePicker((fileName, uri) -> {
+            cc.courseIcon = uri;
+            ArrayList<Uri>files = new ArrayList<>();
+            files.add(uri);
+            ImageAdapter iaCLU = new ImageAdapter(files);
+//                iaCL.getUris().add(uri);
+            iaCLU.setSelectedPosition(0);
+            iaCLU.setOnItemClickListener(new OnItemClickListener<>() {
+                @Override
+                public void onItemClick(Integer item) {
 
-            }
+                }
+
+                @Override
+                public void onItemLongClick(Integer item) {
+                    requireActivity().runOnUiThread(() -> {
+                        cc.courseIcon = null;
+                        iaCLU.getUris().clear();
+
+                        setDefaultCourseIconOptions(cc);
+                        Toast.makeText(requireContext(), "Icon removed", Toast.LENGTH_SHORT).show();
+
+                    });
+
+                }
+            });
+            requireActivity().runOnUiThread(()->{
+                rv_courseLogo.setAdapter(iaCLU);
+            });
         }));
-        btn_uploadCourseBanner.setOnClickListener(v -> openFilePicker(new CloudinaryUploadCallback() {
-            @Override
-            public void onUploadComplete(String cloudinaryUrl, String fileName, Uri uri) {
-                file file = new file(fileName, cloudinaryUrl, cc.admin, LocalDateTime.now());
-                cc.courseBanner = file;
-                iaCB.getUris().add(uri);
-                iaCB.notifyDataSetChanged();
-                iaCB.setSelectedPosition(iaCB.getUris().size()-1);
-//                rtdbManager.storeData(FirebaseNode.UPLOADED_COURSE_BANNER.getPath(), file.getID(), file, "Uploaded course banner", "Uploaded course banner");
-            }
+        btn_uploadCourseBanner.setOnClickListener(v -> openFilePicker((fileName, uri) -> {
+            cc.courseBanner = uri;
+            ArrayList<Uri>files = new ArrayList<>();
+            files.add(uri);
+            ImageAdapter iaCBU = new ImageAdapter(files);
+            iaCBU.setSelectedPosition(0);
+            iaCBU.setOnItemClickListener(new OnItemClickListener<>() {
+                @Override
+                public void onItemClick(Integer item) {
 
-            @Override
-            public void onUploadFailed(Exception error) {
+                }
 
-            }
+                @Override
+                public void onItemLongClick(Integer item) {
+                    requireActivity().runOnUiThread(() ->{
+                        cc.courseIcon = null;
+                        iaCBU.getUris().clear();
+
+                        // Reset to default adapter
+                        setDefaultCourseBannerOptions(cc);
+
+                        Toast.makeText(requireContext(), "Banner removed", Toast.LENGTH_SHORT).show();
+
+                    });
+
+                }
+            });
+            requireActivity().runOnUiThread(() ->{
+                rv_courseBanner.setAdapter(iaCBU);
+            });
         }));
         ImageAdapter iaCIM = new ImageAdapter(new ArrayList<>());
         iaCIM.setOnItemClickListener(new OnItemClickListener<>() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onItemClick(Integer item) {
-                iaCIM.getUris().remove((int)item);
-                iaCIM.notifyDataSetChanged();
-                Tool.handleEmpty(iaCIM.getUris().isEmpty(), rv_uploadedCourseImages, tv_emptyCourseImageUpload);
+
             }
 
             @Override
             public void onItemLongClick(Integer item) {
-
+                iaCIM.getUris().remove((int)item);
+                iaCIM.notifyDataSetChanged();
+                cc.courseImages.remove((int)item);
+                Tool.handleEmpty(iaCIM.getUris().isEmpty(), rv_uploadedCourseImages, tv_emptyCourseImageUpload);
             }
         });
-        rv_uploadedCourseImages.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_uploadedCourseImages.setLayoutManager(new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
         rv_uploadedCourseImages.setAdapter(iaCIM);
         btn_uploadImages.setOnClickListener(v -> {
-            openFilePicker(new CloudinaryUploadCallback() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onUploadComplete(String cloudinaryUrl, String fileName, Uri uriImage) {
-                    Log.d("cc_Media", "File Received from openFilePicker: " + fileName);
-                    file file = new file(fileName, cloudinaryUrl, cc.admin, LocalDateTime.now());
-                    iaCIM.getUris().add(uriImage);
-                    iaCIM.notifyDataSetChanged();
-                    try {
-                        file.updateDB();
-                    } catch (NoSuchMethodException | InvocationTargetException |
-                             IllegalAccessException | java.lang.InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    fileFirebase ff = new fileFirebase();
-                    ff.importObjectData(file);
-                    rtdbManager.storeData(FirebaseNode.COURSE_IMAGES.getPath(), ff.getFileID(), ff, "Uploaded course image", "Uploaded course image");
-                }
-
-                @Override
-                public void onUploadFailed(Exception error) {
-
-                }
+            openFilePicker((fileName, uri) -> {
+                Log.d("cc_Media", "File Received from openFilePicker: " + fileName);
+                cc.courseImages.add(uri);
+                iaCIM.getUris().add(uri);
+                iaCIM.notifyDataSetChanged();
+                Tool.handleEmpty(false, rv_uploadedCourseImages, tv_emptyCourseImageUpload);
+                params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                rv_uploadedCourseImages.setLayoutParams(params);
+//                    try {
+//                        file.updateDB();
+//                    } catch (NoSuchMethodException | InvocationTargetException |
+//                             IllegalAccessException | java.lang.InstantiationException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                    fileFirebase ff = new fileFirebase();
+//                    ff.importObjectData(file);
+//                    rtdbManager.storeData(FirebaseNode.COURSE_IMAGES.getPath(), ff.getFileID(), ff, "Uploaded course image", "Uploaded course image");
             });
 
         });
         btn_removeAllCourseImageUploaded.setOnClickListener(view1 -> {
+            cc.courseImages.clear();
             iaCIM.getUris().clear();
             iaCIM.notifyDataSetChanged();
             Tool.handleEmpty(true, rv_uploadedCourseImages, tv_emptyCourseImageUpload);
@@ -337,9 +328,55 @@ public class cc_Media extends Fragment {
         return view;
     }
 
-    private void openFilePicker(CloudinaryUploadCallback cuc) {
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    private void setDefaultCourseIconOptions(CreateCourse cc) {
+        ArrayList<Integer>imageIds = Tool.getListIdFromXmlArray(requireContext(), R.array.logo_list);
+        ImageAdapter iaCL = new ImageAdapter(imageIds, 0);
+        ArrayList<Integer> finalImageIds = imageIds;
+        iaCL.setOnItemClickListener(new OnItemClickListener<>() {
+            @Override
+            public void onItemClick(Integer item) {
+                cc.courseIconCloudinary = getCloudinaryOfImageId(item);
+                int index = finalImageIds.indexOf(item);
+                iaCL.setSelectedPosition(index);
+            }
+
+            @Override
+            public void onItemLongClick(Integer item) {
+
+            }
+        });
+        rv_courseLogo.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_courseLogo.setAdapter(iaCL);
+    }
+    private void setDefaultCourseBannerOptions(CreateCourse cc){
+        ArrayList<Integer> imageIds;
+        imageIds = Tool.getListIdFromXmlArray(requireContext(), R.array.banner_list);
+        ImageAdapter iaCB = new ImageAdapter(imageIds, 0);
+        ArrayList<Integer> finalImageIds1 = imageIds;
+        iaCB.setOnItemClickListener(new OnItemClickListener<>() {
+            @Override
+            public void onItemClick(Integer item) {
+                cc.courseBannerCloudinary = getCloudinaryOfImageId(item);
+                int index = finalImageIds1.indexOf(item);
+                iaCB.setSelectedPosition(index);
+            }
+
+            @Override
+            public void onItemLongClick(Integer item) {
+
+            }
+        });
+        rv_courseBanner.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_courseBanner.setAdapter(iaCB);
+    }
+
+    private void openFilePicker(OnFileSelectedListener cuc) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*"); // You can limit it to "image/*" or "application/pdf"
+        intent.setType("image/*"); // You can limit it to "image/*" or "application/pdf"
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         currentUploadCallback = cuc;
         filePickerLauncher.launch(Intent.createChooser(intent, "Select File"));
@@ -365,4 +402,22 @@ public class cc_Media extends Fragment {
     }
 
 
+    @Override
+    public boolean checkIfCompleted() {
+        CreateCourse cc = (CreateCourse) requireActivity();
+        if(cc.courseBanner == null && cc.courseBannerCloudinary == null){
+            Toast.makeText(requireContext(), "Please Select a Course Banner!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(cc.courseIcon == null && cc.courseIconCloudinary == null){
+            Toast.makeText(requireContext(), "Please Select a Course Icon!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if(cc.courseImages == null){
+            Toast.makeText(requireContext(), "Please add at least one Course Image", Toast.LENGTH_SHORT).show();
+            return  false;
+        }
+        return true;
+
+    }
 }

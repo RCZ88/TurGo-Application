@@ -20,7 +20,6 @@ public class TurgoApp extends Application {
         config.put("cloud_name", BuildConfig.CLOUDINARY_CLOUD_NAME);
         config.put("api_key", BuildConfig.CLOUDINARY_API_KEY);
         config.put("api_secret", "qHMUfR5ZZQjqJIldJqtViW7YDWw");
-        Log.d("TurgoApp", "Api Secret: " +  config.get("api_secret"));
 
         MediaManager.init(this, config);
 

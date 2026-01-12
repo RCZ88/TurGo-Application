@@ -1,6 +1,9 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -33,21 +36,21 @@ public class Room implements RequireUpdate<Room, RoomFirebase>{
     }
 
 
-    public static Room getEmptyRoom(LocalTime timeStart, LocalTime timeEnd, DayOfWeek day){
+    public static void getEmptyRoom(LocalTime timeStart, LocalTime timeEnd, DayOfWeek day, ObjectCallBack<Room>callback) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
 
         for(Room room : ObjectManager.ROOMS){
             if(!room.getSchedules().isEmpty()){
                 for(Schedule schedule : room.getSchedules()){
                     if(!Tool.isTimeOccupied(timeStart, timeEnd, day, schedule)){
-                        if(room.suitableCourseType.contains(schedule.getScheduleOfCourse().getCourseType())){
-                            return room;
+                        Course course = Await.get(schedule::getScheduleOfCourse);
+                        if(room.suitableCourseType.contains(course.getCourseType())){
+                            callback.onObjectRetrieved(room);
                         }
                     }
                 }
             }
-            return room;
+
         }
-        return null;
     }
 
     public Meeting getCurrentlyOccupiedBy() {

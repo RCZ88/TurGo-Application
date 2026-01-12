@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -21,7 +22,7 @@ import java.text.ParseException;
  * Use the {@link Student_TaskList#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Student_TaskList extends Fragment {
+public class Student_TaskList extends Fragment  {
     RecyclerView rv_tasks;
     Button btn_viewPastTasks;
     // TODO: Rename parameter arguments, choose names that match
@@ -68,26 +69,12 @@ public class Student_TaskList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_student__task_list, container, false);
-        final Student[] student = {null};
+
         assert getActivity() != null;
-        StudentFirebase sf = ((StudentScreen)getActivity()).getStudent();
-        try {
-            sf.convertToNormal(new ObjectCallBack<>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student[0] = object;
-                }
+        StudentScreen ss = (StudentScreen)requireActivity();
+        Student student = ss.getStudent();
 
-                @Override
-                public void onError(DatabaseError error) {
-
-                }
-            });
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
-                 java.lang.InstantiationException | ParseException e) {
-            throw new RuntimeException(e);
-        }
-        TaskAdapter taskAdapter = new TaskAdapter(student[0].getAllTask(), student[0], new OnItemClickListener<Task>() {
+        TaskAdapter taskAdapter = new TaskAdapter(student.getAllTask(), student, new OnItemClickListener<Task>() {
             @Override
             public void onItemClick(Task item) {
                 Bundle bundle = new Bundle();
@@ -95,12 +82,8 @@ public class Student_TaskList extends Fragment {
 
                 TaskFullPage tfp = new TaskFullPage();
                 tfp.setArguments(bundle);
+                Tool.loadFragment(requireActivity(), R.id.nhf_ss_FragContainer, tfp);
 
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.nhf_ss_FragContainer, tfp)
-                        .addToBackStack(null)
-                        .commit();
             }
 
             @Override
@@ -123,4 +106,5 @@ public class Student_TaskList extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
+
 }

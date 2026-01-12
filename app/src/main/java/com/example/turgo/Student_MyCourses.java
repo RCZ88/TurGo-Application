@@ -7,9 +7,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,16 +20,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link Student_MyCourses#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Student_MyCourses extends Fragment {
+public class Student_MyCourses extends Fragment implements RequiresDataLoading{
 
     RecyclerView rv_myCourses;
     Student user;
+    ArrayList<Teacher> teachersOfCourse;
     Course courseClicked = null;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -67,6 +71,7 @@ public class Student_MyCourses extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -75,29 +80,17 @@ public class Student_MyCourses extends Fragment {
         View view = inflater.inflate(R.layout.fragment_student_my_courses, container, false);
         StudentScreen activity = (StudentScreen) getActivity();
         assert activity != null;
-        StudentFirebase studentFirebase = activity.getStudent();
+        user = activity.getStudent();
+        Log.d("Student_MyCourse(OnCreate)", "User Retrieved: "+ user);
 
-        try {
-             studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    user = object;
-                }
 
-                @Override
-                public void onError(DatabaseError error) {
-
-                }
-            });
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
-                 java.lang.InstantiationException | ParseException e) {
-            throw new RuntimeException(e);
-        }
         RecyclerView rv_myCourses = view.findViewById(R.id.rv_ListOfMyCourses);
         rv_myCourses.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ArrayList<Course> courses =  user.getCourseTaken();// Your method to get courses
-        CourseAdapter adapter = new CourseAdapter(courses, user, new OnItemClickListener<Course>() {
+
+
+        CourseAdapter adapter = new CourseAdapter(courses, user, new OnItemClickListener<>() {
             @Override
             public void onItemClick(Course item) {
                 selectCourse(item);
@@ -107,7 +100,7 @@ public class Student_MyCourses extends Fragment {
             public void onItemLongClick(Course item) {
 
             }
-        }, requireContext());
+        }, teachersOfCourse, requireContext());
         rv_myCourses.setAdapter(adapter);
 
         return view;
@@ -118,7 +111,18 @@ public class Student_MyCourses extends Fragment {
 //        intent.putExtra("SelectedCourse", course);
         Bundle bundle = new Bundle();
         bundle.putSerializable("Course", course);
-        bundle.putSerializable("StudentCourse", user.getStudentCourseFromCourse(course));
+        user.getStudentCourseFromCourse(course, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(StudentCourse object) {
+                bundle.putSerializable("StudentCourse", object);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+
 
         CourseJoinedFullPage fragment = new CourseJoinedFullPage();
         fragment.setArguments(bundle);
@@ -127,6 +131,34 @@ public class Student_MyCourses extends Fragment {
         transaction.replace(R.id.nhf_ss_FragContainer, fragment);
         transaction.addToBackStack(null);
         transaction.commit();
+
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView processLog) {
+        Bundle bundle = new Bundle();
+        Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
+        assert student != null;
+        processLog.setText("Fetching Student's Explore Course...");
+        ArrayList<Course> exploreCourse = Await.get(student::getExploreCourse);
+        processLog.setText("Retrieving Teachers of Explore Courses...");
+        ArrayList<Teacher>teachersOfCourse = exploreCourse
+                .stream().map(course ->  Await.get(course::getTeacher))
+                .collect(Collectors.toCollection(ArrayList::new));
+        processLog.setText("Done, preparing to Load " + this.getClass().getSimpleName() + "...");
+        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, exploreCourse);
+        bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teachersOfCourse);
+        return bundle;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        this.teachersOfCourse = (ArrayList<Teacher>)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
 
     }
 }

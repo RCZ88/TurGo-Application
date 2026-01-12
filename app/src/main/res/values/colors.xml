@@ -4,4 +4,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="onlineGreen">#76B041</color>
     <color name="offlineRed">#D64550</color>
+    <color name="purple_500">#3D215E</color>
 </resources>

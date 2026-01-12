@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 public class CourseType implements RequireUpdate<CourseType, CourseTypeFirebase>{
-    private FirebaseNode fbn = FirebaseNode.COURSETYPE;
+    public static final FirebaseNode fbn = FirebaseNode.COURSETYPE;
     private Class<CourseTypeFirebase> fbc = CourseTypeFirebase.class;
     private String courseType_ID;
     private String courseType;

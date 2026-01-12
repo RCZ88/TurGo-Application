@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -193,15 +194,28 @@ public class TeacherCreateTask extends Fragment {
                 }
                 LocalDateTime submissionDate = LocalDateTime.parse(tv_selectedDate.getText().toString());
                 studentSelectedList.add(student);
-                Task task = new Task(taskTitle, studentSelectedList , taskDescription, submissionDate, course, null, teacher, cb_openDropbox.isChecked());
-                for(Student s : studentSelectedList){
-                    try {
-                        s.assignTask(task);
-                    } catch (InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | java.lang.InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
+                //async - completed
+                AtomicReference<Task> task = new AtomicReference<>();
+                Course finalCourse = course;
+                Tool.run(requireActivity(), "Loading Tasks",
+                        ()->{
+                            task.set(new Task(taskTitle, taskDescription, submissionDate, finalCourse, null, teacher, cb_openDropbox.isChecked()));
+                        },
+                        ()->{
+                            for(Student s : studentSelectedList){
+                                try {
+                                    s.assignTask(task.get());
+                                } catch (InvocationTargetException | NoSuchMethodException |
+                                         IllegalAccessException | java.lang.InstantiationException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        },
+                        e->{
+
+                        });
+
+
             }else{
                 Toast.makeText(getActivity(), "Please fill all the fields", Toast.LENGTH_SHORT).show();
             }

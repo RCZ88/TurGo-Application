@@ -141,7 +141,7 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_uploadedPreviewImage"
                     android:layout_width="match_parent"
-                    android:layout_height="97dp"
+                    android:layout_height="80dp"
                     android:background="@drawable/recycler_view_border"
                     android:scrollbars="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"

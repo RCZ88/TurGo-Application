@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Use the {@link cc_AddScheduleDTA#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class cc_AddScheduleDTA extends Fragment {
+public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompletion {
 
 
     Button btn_selectEarliest, btn_selectLatest, btn_addDTA;
@@ -47,6 +47,7 @@ public class cc_AddScheduleDTA extends Fragment {
     DayOfWeek day = null;
     boolean limitMeetingBool = false;
     EditText et_meetingLimit;
+    CreateCourse cc;
     int meetingLimit = 0;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -94,7 +95,7 @@ public class cc_AddScheduleDTA extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_cc_add_schedule_dta, container, false);
-        CreateCourse cc = (CreateCourse) requireActivity();
+        cc = (CreateCourse) requireActivity();
         btn_addDTA = view.findViewById(R.id.btn_CC_AddDTA);
         btn_selectEarliest = view.findViewById(R.id.btn_CC_EarlyTimeDTA);
         btn_selectLatest = view.findViewById(R.id.btn_CC_LatestTimeDTA);
@@ -103,6 +104,7 @@ public class cc_AddScheduleDTA extends Fragment {
         et_meetingLimit = view.findViewById(R.id.etn_CC_maxMeetingOfDay);
         rv_DTASelected = view.findViewById(R.id.rv_CC_DTASelected);
 
+        maxMeetingStatus(false);
 
         btn_selectEarliest.setOnClickListener(view1 -> {
             earlyOrLatest = true;
@@ -127,16 +129,7 @@ public class cc_AddScheduleDTA extends Fragment {
         });
         cb_limit.setOnCheckedChangeListener((compoundButton, b) -> {
             limitMeetingBool = b;
-            if(b){
-                et_meetingLimit.setEnabled(true);
-                et_meetingLimit.setHint("Max students per meeting");
-                et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.black));
-            }else{
-                et_meetingLimit.setEnabled(false);
-                et_meetingLimit.setText("");
-                et_meetingLimit.setHint("Unlimited");
-                et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray));
-            }
+            maxMeetingStatus(b);
         });
 
         et_meetingLimit.addTextChangedListener(new TextWatcher() {
@@ -181,7 +174,7 @@ public class cc_AddScheduleDTA extends Fragment {
         rv_DTASelected.setAdapter(adapter);
         btn_addDTA.setOnClickListener(v -> {
             if(checkCompletion()){
-                DayTimeArrangement dta = new DayTimeArrangement(cc.teacher, new Course(), day, earliest, latest, meetingLimit);
+                DayTimeArrangement dta = new DayTimeArrangement(new Course(), day, earliest, latest, meetingLimit);
                 adapter.addItem(dta);
                 cc.dtas.add(dta);
             }
@@ -190,6 +183,20 @@ public class cc_AddScheduleDTA extends Fragment {
 
         return view;
     }
+
+    private void maxMeetingStatus(boolean b) {
+        if(b){
+            et_meetingLimit.setEnabled(true);
+            et_meetingLimit.setHint("Max students per meeting");
+            et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.black));
+        }else{
+            et_meetingLimit.setEnabled(false);
+            et_meetingLimit.setText("");
+            et_meetingLimit.setHint("Unlimited");
+            et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray));
+        }
+    }
+
     private boolean checkCompletion(){
 
         if(earliest == null){
@@ -231,4 +238,12 @@ public class cc_AddScheduleDTA extends Fragment {
         timePickerDialog.show();
     }
 
+    @Override
+    public boolean checkIfCompleted() {
+        if(rv_DTASelected.getChildCount() == 0){
+            Toast.makeText(requireContext(), "Please Select at least One DTA!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
 }

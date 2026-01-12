@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,16 +8,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.lang.reflect.Array;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class TeacherScheduleAdapter extends RecyclerView.Adapter<TeacherScheduleViewHolder>{
 
      ArrayList<Schedule> scheduleList;
+     ArrayList<ArrayList<Student>> listOfStudents;
+     ArrayList<Course> courses;
 
-    public TeacherScheduleAdapter(ArrayList<Schedule> scheduleList) {
+    public TeacherScheduleAdapter(ArrayList<Schedule> scheduleList, ArrayList<ArrayList<Student>>students, ArrayList<Course>courses) {
         this.scheduleList = scheduleList != null ? scheduleList : new ArrayList<>();
+        this.listOfStudents = students;
+        this.courses = courses;
     }
 
     @NonNull
@@ -27,6 +31,7 @@ public class TeacherScheduleAdapter extends RecyclerView.Adapter<TeacherSchedule
         return new TeacherScheduleViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull TeacherScheduleViewHolder holder, int position) {
         Schedule schedule = scheduleList.get(position);
@@ -42,19 +47,22 @@ public class TeacherScheduleAdapter extends RecyclerView.Adapter<TeacherSchedule
 
         // Duration
         holder.tvDuration.setText(schedule.getDuration() + " minutes");
-
+        ArrayList<Student>students = listOfStudents.get(position);
+//        ArrayList<Student>students = Await.get(schedule::getStudents);
         // Private or Group
         if (schedule.isPrivate()) {
             holder.tvGroupPrivate.setText("Private");
-            String studentName = (schedule.getStudents() != null && !schedule.getStudents().isEmpty())
-                    ? schedule.getStudents().get(0).getFullName()
+            String studentName = (students != null && !students.isEmpty())
+                    ? students.get(0).getFullName()
                     : "—";
             holder.tvStudentNumberORName.setText(studentName);
         } else {
             holder.tvGroupPrivate.setText("Group");
-            int enrolled = schedule.getStudents() != null ? schedule.getStudents().size() : 0;
-            int max = schedule.getScheduleOfCourse().getMaxStudentPerMeeting();
+            int enrolled = students != null ? students.size() : 0;
+            Course course = courses.get(position);
+            int max = course.getMaxStudentPerMeeting();
             holder.tvStudentNumberORName.setText(enrolled + "/" + max + " Students");
+
         }
 
         // Status

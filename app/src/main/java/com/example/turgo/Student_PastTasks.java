@@ -68,26 +68,10 @@ public class Student_PastTasks extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_student__past_tasks, container, false);
         StudentScreen ss = (StudentScreen) requireActivity();
-        final Student[] student = new Student[1];
-        try {
-            ss.getStudent().convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student[0] = object;
-                }
-
-                @Override
-                public void onError(DatabaseError error) {
-
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
-        }
+        Student student = ss.getStudent();
         rv_pastTasks = view.findViewById(R.id.rv_SPT_PastTasks);
 
-        TaskAdapter taskAdapter = new TaskAdapter(student[0].getCompletedTask(), student[0], new OnItemClickListener<Task>() {
+        TaskAdapter taskAdapter = new TaskAdapter(student.getCompletedTask(), student, new OnItemClickListener<Task>() {
             @Override
             public void onItemClick(Task item) {
                 TaskFullPage taskFullPage = new TaskFullPage();

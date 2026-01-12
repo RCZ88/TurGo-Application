@@ -22,10 +22,12 @@ import java.text.ParseException;
  * Use the {@link MeetingDisplay#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MeetingDisplay extends Fragment {
+public class MeetingDisplay extends Fragment implements RequiresDataLoading{
 
     ImageView iv_courseLogo;
     TextView tv_courseTitle, tv_courseTime, tv_courseDateDay;
+    Schedule schedule;
+    Course course;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -64,6 +66,7 @@ public class MeetingDisplay extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @SuppressLint("MissingInflatedId")
@@ -80,30 +83,40 @@ public class MeetingDisplay extends Fragment {
         tv_courseTitle = view.findViewById(R.id.tv_mdf_CourseTitle);
 
         assert activity != null;
-        final Student[] student = {null};
-        try {
-            activity.getStudent().convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student[0] = object;
-                }
+        Student student = activity.getStudent();
+        if(student.getNextMeeting() != null){
+            //async - completed
 
-                @Override
-                public void onError(DatabaseError error) {
+            Glide.with(requireContext()).load(course.getLogo()).into(iv_courseLogo);
+            tv_courseTitle.setText(course.getCourseName());
+            tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
+            tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
 
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
         }
-        Course scheduleOfCourse = student[0].getNextMeeting().getMeetingOfSchedule().getScheduleOfCourse();
-//        iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
-        Glide.with(requireContext()).load(scheduleOfCourse.getLogo()).into(iv_courseLogo);
-        tv_courseTitle.setText(scheduleOfCourse.getCourseName());
-        tv_courseTime.setText(student[0].getNextMeeting().getStartTimeChange().toString());
-        tv_courseDateDay.setText(student[0].getNextMeeting().getDateOfMeeting().toString());
 
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Bundle output = new Bundle();
+        Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
+        Schedule schedule = Await.get(student.getNextMeeting()::getMeetingOfSchedule);
+        Course course = Await.get(schedule::getScheduleOfCourse);
+
+        output.putSerializable(Schedule.SERIALIZE_KEY_CODE, schedule);
+        output.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        course = (Course) preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
+        schedule = (Schedule)preloadedData.getSerializable(Schedule.SERIALIZE_KEY_CODE);
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

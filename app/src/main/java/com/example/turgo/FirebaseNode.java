@@ -13,7 +13,6 @@ public enum FirebaseNode implements FirebasePathEnum{
     COURSE("courses", Course.class),
     STUDENTCOURSE("student-course", StudentCourse.class),
     COURSETYPE("course-types", CourseType.class),
-    PRICING("prices", Pricing.class),
     FILE("files", file.class),
     SCHEDULE("schedules", Schedule.class),
     MEETING("meetings", Meeting.class),

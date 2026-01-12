@@ -6,24 +6,30 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TeacherScheduleOfCourse#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherScheduleOfCourse extends Fragment {
+public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoading{
     RecyclerView rv_schedules;
     Spinner sp_dayOptions;
+    ArrayList<ArrayList<Student>>students;
+    ArrayList<Schedule>schedules;
+    ArrayList<Course>courses;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +68,7 @@ public class TeacherScheduleOfCourse extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -73,7 +80,7 @@ public class TeacherScheduleOfCourse extends Fragment {
         sp_dayOptions = view.findViewById(R.id.sp_TSOC_FilterDay);
         Teacher teacher =((TeacherScreen) getActivity()).getTeacher();
 
-        TeacherScheduleAdapter adapter = new TeacherScheduleAdapter(teacher.getAllSchedule());
+        TeacherScheduleAdapter adapter = new TeacherScheduleAdapter(schedules, students, courses);
         rv_schedules.setAdapter(adapter);
 
         ArrayList<DayOfWeek>days = new ArrayList<>();
@@ -91,10 +98,39 @@ public class TeacherScheduleOfCourse extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                adapter.scheduleList = teacher.getAllSchedule();
+                adapter.scheduleList = schedules;
             }
         });
 
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+        Bundle output = new Bundle();
+        ArrayList<Schedule>schedules = teacher.getAllSchedule();
+        ArrayList<ArrayList<Student>>students = schedules.stream().map((schedule -> Await.get(schedule::getStudents))).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Course> courses = schedules.stream().map((schedule ->Await.get(schedule::getScheduleOfCourse))).collect(Collectors.toCollection(ArrayList::new));
+        output.putSerializable("students", students);
+        output.putSerializable("schedules", schedules);
+        output.putSerializable("courses", courses);
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        try{
+            students = (ArrayList<ArrayList<Student>>)preloadedData.getSerializable("students");
+            schedules = (ArrayList<Schedule>)preloadedData.getSerializable("schedules");
+            courses = (ArrayList<Course>) preloadedData.getSerializable("courses");
+        }catch(ClassCastException e){
+            Log.e("TeacherScheduleOfCourse", "Failed to Cast!");
+        }
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

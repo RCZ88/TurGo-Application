@@ -14,13 +14,14 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Switch;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link cc_PriceEnrollment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class cc_PriceEnrollment extends Fragment {
+public class cc_PriceEnrollment extends Fragment implements checkFragmentCompletion{
     EditText et_hourlyCost, et_baseCost, et_monthlyDiscount;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch sw_group, sw_private, sw_month, sw_meeting;
@@ -167,4 +168,59 @@ public class cc_PriceEnrollment extends Fragment {
         return view;
 
     }
+
+    @Override
+    public boolean checkIfCompleted() {
+        CreateCourse cc = (CreateCourse) requireActivity();
+
+        // Check base cost
+        String baseCostStr = et_baseCost.getText().toString().trim();
+        if (baseCostStr.isEmpty()) {
+            et_baseCost.requestFocus();
+            et_baseCost.setError("Base cost is required");
+            Toast.makeText(requireContext(), "Please enter base cost", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check hourly cost
+        String hourlyCostStr = et_hourlyCost.getText().toString().trim();
+        if (hourlyCostStr.isEmpty()) {
+            et_hourlyCost.requestFocus();
+            et_hourlyCost.setError("Hourly cost is required");
+            Toast.makeText(requireContext(), "Please enter hourly cost", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Update values before validation
+        try {
+            cc.baseCost = Integer.parseInt(baseCostStr);
+            cc.hourlyCost = Integer.parseInt(hourlyCostStr);
+
+            String monthlyDiscountStr = et_monthlyDiscount.getText().toString().trim();
+            if (!monthlyDiscountStr.isEmpty()) {
+                cc.monthlyDiscount = Integer.parseInt(monthlyDiscountStr);
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(requireContext(), "Please enter valid numbers", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check at least one group/private option selected
+        boolean hasGroupOption = cc.groupPrivate[Course.GROUP_INDEX] || cc.groupPrivate[Course.PRIVATE_INDEX];
+        if (!hasGroupOption) {
+            Toast.makeText(requireContext(), "Please select group or private", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check at least one payment method selected
+        boolean hasPaymentMethod = cc.acceptedPaymentMethods[Course.PER_MONTH_INDEX] ||
+                cc.acceptedPaymentMethods[Course.PER_MEETING_INDEX];
+        if (!hasPaymentMethod) {
+            Toast.makeText(requireContext(), "Please select payment method", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
 }

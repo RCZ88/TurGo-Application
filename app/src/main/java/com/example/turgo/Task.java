@@ -13,7 +13,6 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
     private String taskID;
     public static String SERIALIZE_KEY_CODE = "taskObj";
     private static RTDBManager<Task> rtdbManager;
-    private ArrayList<Student>studentsAssigned;
     private String title;
     private String description;
     private LocalDateTime dueDate;
@@ -23,14 +22,13 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
     private final Dropbox dropbox;
     private Teacher publisher;
 
-    public Task(String title, ArrayList<Student>studentsAssigned, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher, boolean dropbox){
+    public Task(String title, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher, boolean dropbox){
         this.taskID = UUID.randomUUID().toString();
         this.title = title;
         this.description = description;
         this.dueDate = submissionDate;
         this.taskOfCourse = taskOfCourse;
         this.fromSchedule = fromSchedule;
-        this.studentsAssigned = studentsAssigned;
         this.dateAssigned = LocalDate.now();
         this.publisher = publisher;
         if(dropbox){
@@ -144,13 +142,14 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
         return false;
     }
 
-    public ArrayList<Student> getStudentsAssigned() {
-        return studentsAssigned;
+    public void getStudentsAssigned(ObjectCallBack<ArrayList<Student>>callBack) {
+        try{
+            findAllAggregatedObjects(Student.class, "allTask", callBack);
+        }catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setStudentsAssigned(ArrayList<Student> studentsAssigned) {
-        this.studentsAssigned = studentsAssigned;
-    }
 
     public Dropbox getDropbox() {
         return dropbox;

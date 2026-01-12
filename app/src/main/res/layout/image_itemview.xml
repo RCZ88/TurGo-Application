@@ -12,6 +12,8 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:background="@drawable/image_item_background"
+        android:contextClickable="false"
+        android:longClickable="false"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/clock_three" />
 

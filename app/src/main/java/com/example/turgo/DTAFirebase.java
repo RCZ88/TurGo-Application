@@ -30,13 +30,32 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
         DTA_ID = from.getID();
 
         // Convert object references to IDs
-        if (from.getOfTeacher() != null) {
-            ofTeacher = from.getOfTeacher().getID();
-        }
+        from.getOfTeacher(new ObjectCallBack<Teacher>() {
+            @Override
+            public void onObjectRetrieved(Teacher object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                if(object != null){
+                    ofTeacher = object.getID();
+                }
+            }
 
-        if (from.getAtCourse() != null) {
-            atCourse = from.getAtCourse().getID();
-        }
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+        from.getAtCourse(new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Course object) {
+                if (object != null) {
+                    atCourse = object.getID();
+                }
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
 
         // Convert DayOfWeek to String
         if (from.getDay() != null) {

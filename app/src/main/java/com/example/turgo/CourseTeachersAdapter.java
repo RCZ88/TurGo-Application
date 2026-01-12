@@ -12,10 +12,12 @@ import java.util.ArrayList;
 
 public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersViewHolder>{
     ArrayList<Course>courses;
+    ArrayList<Meeting>meetings;
     OnItemClickListener<Course>listener;
 
-    public CourseTeachersAdapter(ArrayList<Course> courses, OnItemClickListener<Course>listener) {
+    public CourseTeachersAdapter(ArrayList<Course> courses, ArrayList<Meeting>meetings, OnItemClickListener<Course>listener) {
         this.courses = courses;
+        this.meetings = meetings;
         this.listener = listener;
     }
 
@@ -30,9 +32,16 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull CourseTeachersViewHolder holder, int position) {
-        holder.tv_nextSchedule.setText(courses.get(position).getNextMeetingOfNextSchedule().getDateOfMeeting().toString());
-        holder.tv_courseName.setText(courses.get(position).getCourseName());
-        holder.tv_numberOfStudents.setText(courses.get(position).getStudents().size() + "Student(s)");
+        //async - completed
+        Meeting nextMeetingOfNextSchedule = meetings.get(position);
+        String nextMeeting = "-";
+        if(nextMeetingOfNextSchedule != null){
+            nextMeeting = nextMeetingOfNextSchedule.getDateOfMeeting().toString();
+        }
+        holder.tv_nextSchedule.setText(nextMeeting);
+        Course course = courses.get(position);
+        holder.tv_courseName.setText(course.getCourseName());
+        holder.tv_numberOfStudents.setText(course.getStudents().size() + " Student(s)");
     }
 
     @Override

@@ -10,18 +10,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
     private final ArrayList<Course>courses;
     protected OnItemClickListener<Course> listener;
+    private ArrayList<Teacher> teachers;
     private Context context;
     Student student;
-    public CourseAdapter(ArrayList<Course> courses, Student student, OnItemClickListener<Course> listener, Context context){
+    public CourseAdapter(ArrayList<Course> courses, Student student, OnItemClickListener<Course> listener, ArrayList<Teacher> teacher, Context context){
         this.courses = courses;
         this.student = student;
         this.listener = listener;
         this.context = context;
+        this.teachers = teacher;
 
     }
     @NonNull
@@ -34,12 +37,20 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
-        holder.tv_nextMeeting.setText(student.getClosestMeetingOfCourse(courses.get(position)).toString());
-        holder.tv_courseTeacher.setText(courses.get(position).getTeacher().getFullName());
+        LocalDate closestMeeting = student.getClosestMeetingOfCourse(courses.get(position));
+        if(closestMeeting != null){
+            holder.tv_nextMeeting.setText(closestMeeting.toString());
+        }else{
+            holder.tv_nextMeeting.setText("No Meeting Found!");
+        }
+
+        holder.tv_courseTeacher.setText(teachers.get(position).getFullName());
         holder.tv_CourseName.setText(courses.get(position).getCourseName());
         Glide.with(context).load(courses.get(position).getLogo()).into(holder.iv_courseIcon);
 //        holder.iv_courseIcon.setImageBitmap(courses.get(position).getLogo());
         holder.courseAdapter = this;
+
+
     }
 
     @Override

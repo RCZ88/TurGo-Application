@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
  * Use the {@link cc_CourseInformation#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class cc_CourseInformation extends Fragment {
+public class cc_CourseInformation extends Fragment implements checkFragmentCompletion{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -166,5 +167,32 @@ public class cc_CourseInformation extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public boolean checkIfCompleted() {
+        CreateCourse cc = (CreateCourse) requireActivity();
+
+        // Check course name
+        String courseName = et_CourseName.getText().toString().trim();
+        if (courseName.isEmpty()) {
+            Toast.makeText(requireContext(), "Please enter course name", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check course description
+        String courseDescription = etml_CourseDescription.getText().toString().trim();
+        if (courseDescription.isEmpty()) {
+            Toast.makeText(requireContext(), "Please enter course description", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        // Check course type
+        if (cc.courseType == null) {
+            Toast.makeText(requireContext(), "Please select course type", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 }

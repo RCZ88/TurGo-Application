@@ -7,9 +7,7 @@ import java.util.ArrayList;
 
 public class ScheduleFirebase implements FirebaseClass<Schedule>{
     private String scheduleID;
-    private String scheduleOfCourse;
     private int numberOfStudents;
-    private ArrayList<String> students;
     private boolean isPrivate;
     private boolean hasScheduled;
     private String scheduler;
@@ -17,13 +15,10 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
     private String meetingEnd;   // Format: "HH:mm"
     private int duration;
     private String day; // e.g., "MONDAY"
-    private String room;
 
     public ScheduleFirebase(String scheduleID, String scheduleOfCourse, int numberOfStudents, ArrayList<String> students, boolean isPrivate, boolean hasScheduled, String scheduler, String meetingStart, String meetingEnd, int duration, String day, String room) {
         this.scheduleID = scheduleID;
-        this.scheduleOfCourse = scheduleOfCourse;
         this.numberOfStudents = numberOfStudents;
-        this.students = students;
         this.isPrivate = isPrivate;
         this.hasScheduled = hasScheduled;
         this.scheduler = scheduler;
@@ -31,7 +26,6 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
         this.meetingEnd = meetingEnd;
         this.duration = duration;
         this.day = day;
-        this.room = room;
     }
 
 
@@ -39,9 +33,9 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
     @Override
     public void importObjectData(Schedule from) {
         scheduleID = from.getScheduleID();
-        scheduleOfCourse = from.getScheduleOfCourse().getCourseID();
+        // Use callback for getScheduleOfCourse
+
         numberOfStudents = from.getNumberOfStudents();
-        students = convertToIdList(from.getStudents());
         isPrivate = from.isPrivate();
         hasScheduled = from.isHasScheduled();
         scheduler = from.getScheduler().getUid();
@@ -49,7 +43,6 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
         meetingEnd = from.getMeetingEnd().toString();
         duration = from.getDuration();
         day = from.getDay().toString();
-        room = from.getRoom().getID();
     }
 
     @Override

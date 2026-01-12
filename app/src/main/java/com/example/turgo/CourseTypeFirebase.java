@@ -50,6 +50,8 @@ public class CourseTypeFirebase implements FirebaseClass<CourseType>{
         return courseType;
     }
 
+
+
     public void setCourseType(String courseType) {
         this.courseType = courseType;
     }

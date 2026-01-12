@@ -6,39 +6,65 @@
     android:layout_height="match_parent"
     tools:context=".student_ExploreCourse">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_exploreCourses"
-        android:layout_width="417dp"
-        android:layout_height="607dp"
-        android:layout_marginTop="20dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout15" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout15"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/imageView12"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/compass" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_Explore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Explore"
-            android:textSize="48sp"
-            android:textStyle="bold" />
+            <LinearLayout
+                android:id="@+id/linearLayout15"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/imageView12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/compass" />
+
+                <TextView
+                    android:id="@+id/tv_Explore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Explore"
+                    android:textSize="48sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_exploreCourses"
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/recycler_view_border"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout15" />
+
+            <TextView
+                android:id="@+id/tv_exploreCourseEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="600dp"
+                android:background="@drawable/recycler_view_border"
+                android:text="No Course to Explore. Please Select Course Interested to Update!"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

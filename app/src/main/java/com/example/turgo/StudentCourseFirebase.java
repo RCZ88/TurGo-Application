@@ -23,8 +23,31 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
         if (from == null) return;
 
         this.sc_ID = from.getSc_ID();
-        this.student = from.getStudent().getID();
-        this.ofCourse = from.getOfCourse().getID();
+        // Use callbacks for getStudent and getOfCourse
+        from.getStudent(new ObjectCallBack<Student>() {
+            @Override
+            public void onObjectRetrieved(Student studentObj) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                student = studentObj.getID();
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                student = null;
+            }
+        });
+        
+        from.getOfCourse(new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Course courseObj) {
+                ofCourse = courseObj.getID();
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                ofCourse = null;
+            }
+        });
+        
         this.schedulesOfCourse = convertToIdList(from.getSchedulesOfCourse());
         this.paymentPreferences = from.isPaymentPreferences();
         this.privateOrGroup = from.isPrivateOrGroup();

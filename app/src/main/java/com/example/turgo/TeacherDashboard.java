@@ -14,13 +14,14 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TeacherDashboard#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherDashboard extends Fragment {
+public class TeacherDashboard extends Fragment implements RequiresDataLoading{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,6 +33,8 @@ public class TeacherDashboard extends Fragment {
             ,tv_noActiveCourses, tv_noRecentStudentSubmit;
     RecyclerView rv_activeCourses, rv_recentStudentSubmit;
 
+    ArrayList<Course> teacherCoursesTeach;
+    ArrayList<Meeting>nextMeetingOfCourses;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -143,43 +146,30 @@ public class TeacherDashboard extends Fragment {
             bundle.putBoolean("isMeetingMode", false);
             bundle.putBoolean("isDaily", true);
             tesl.setArguments(bundle);
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.nhf_ts_FragmentContainer, tesl)
-                    .addToBackStack(null)
-                    .commit();
+            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tesl);
         });
 
         btn_CreateTask.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Create Task clicked");
             TeacherCreateTask tct = new TeacherCreateTask();
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.nhf_ts_FragmentContainer, tct)
-                    .addToBackStack(null)
-                    .commit();
+            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tct);
         });
 
         btn_addAgenda.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add Agenda clicked");
             TeacherAddAgenda taa = new TeacherAddAgenda();
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.nhf_ts_FragmentContainer, taa)
-                    .addToBackStack(null)
-                    .commit();
+            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
         });
 
         btn_addDTA.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add DTA clicked");
             TeacherAddDTA tad = new TeacherAddDTA();
-            getParentFragmentManager().beginTransaction()
-                    .replace(R.id.nhf_ts_FragmentContainer, tad)
-                    .addToBackStack(null)
-                    .commit();
+            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tad);
         });
         
 
         Log.d("TeacherDashboard", "Processing courses...");
         ArrayList<Course> coursesTeach = new ArrayList<>();
-        ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
 
         if(teacherCoursesTeach != null){
             coursesTeach = teacherCoursesTeach;
@@ -195,7 +185,8 @@ public class TeacherDashboard extends Fragment {
         Log.d("TeacherDashboard", "After handleEmpty - tv_noActiveCourses visibility: " + tv_noActiveCourses.getVisibility());
 
         Log.d("TeacherDashboard", "Creating CourseTeachersAdapter...");
-        CourseTeachersAdapter cta = new CourseTeachersAdapter(coursesTeach, new OnItemClickListener<>() {
+        //async - completed
+        CourseTeachersAdapter cta = new CourseTeachersAdapter(coursesTeach, nextMeetingOfCourses, new OnItemClickListener<>() {
             @Override
             public void onItemClick(Course item) {
                 Log.d("TeacherDashboard", "Course clicked: " + item);
@@ -266,5 +257,28 @@ public class TeacherDashboard extends Fragment {
     public void onResume() {
         super.onResume();
         Log.d("TeacherDashboard", "========== onResume ==========");
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+        ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
+        ArrayList<Meeting>nextMeetingOfCourses = teacherCoursesTeach.stream().map(course-> course.getNextMeetingOfNextSchedule()).collect(Collectors.toCollection(ArrayList::new));
+
+        Bundle output = new Bundle();
+        output.putSerializable("teacherCoursesTeach", teacherCoursesTeach);
+        output.putSerializable("nextMeetingOfCourses", nextMeetingOfCourses);
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        teacherCoursesTeach = (ArrayList<Course>) preloadedData.getSerializable("teacherCoursesTeacher");
+        nextMeetingOfCourses = (ArrayList<Meeting>) preloadedData.getSerializable("nextMeetingOfCourses");
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

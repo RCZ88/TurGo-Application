@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MeetingSimpleAdapter extends RecyclerView.Adapter<ScheduleSimpleViewHolder>{
@@ -28,7 +32,10 @@ public class MeetingSimpleAdapter extends RecyclerView.Adapter<ScheduleSimpleVie
     public void onBindViewHolder(@NonNull ScheduleSimpleViewHolder holder, int position) {
         Meeting meeting = meetings.get(position);
         holder.tv_timeRange.setText(meeting.getStartTimeChange().toString() + " - "  + meeting.getEndTimeChange());
-        holder.tv_CourseName.setText(meeting.getMeetingOfSchedule().getScheduleOfCourse().getCourseName());
+        //asynnc
+        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+        Course course = Await.get(schedule::getScheduleOfCourse);
+        holder.tv_CourseName.setText(course.getCourseName());
     }
 
     @Override

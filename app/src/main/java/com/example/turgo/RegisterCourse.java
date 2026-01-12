@@ -16,10 +16,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 public class RegisterCourse extends AppCompatActivity {
     int amtOfRegisFrag = 3;
@@ -180,26 +184,67 @@ public class RegisterCourse extends AppCompatActivity {
 
     public void apply() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         ArrayList<Schedule> schedules = new ArrayList<>();
-        ArrayList<TimeSlot> timeSlotSelected = new ArrayList<>();
-        timeSlotSelected.addAll(timeSlotPeopleAmountSelected.keySet());
+        ArrayList<TimeSlot> timeSlotSelected = new ArrayList<>(timeSlotPeopleAmountSelected.keySet());
         for(int i = 0; i<dowSelected.size(); i++){
             TimeSlot timeSlot = timeSlotSelected.get(i);
-            Schedule schedule = new Schedule(course, timeSlot.getStart(), (int)(timeSlot.getTime().getSeconds()/60), dowSelected.get(i), Room.getEmptyRoom(timeSlot.getStart(), timeSlot.getEnd(), dowSelected.get(i)), isPrivate);
-            schedules.add(schedule);
+            int finalI = i;
+            try {
+                Room.getEmptyRoom(timeSlot.getStart(), timeSlot.getEnd(), dowSelected.get(i), new ObjectCallBack<Room>() {
+                    @Override
+                    public void onObjectRetrieved(Room object) {
+                        Schedule schedule = new Schedule(timeSlot.getStart(), (int)(timeSlot.getTime().getSeconds()/60), dowSelected.get(finalI), isPrivate);
+                        schedules.add(schedule);
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                });
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+
+
         }
         if(course.isAutoAcceptStudent()){
+            Tool.run(this, "Applying to Course",
+                    () -> {
+                        student.joinCourse(course, paymentPreferences, isPrivate, selectedPrice, schedules);
+            }, () -> {
+                Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, StudentScreen.class);
+                intent.putExtra("ShowFragment", "CourseJoinedFullPage");
+                intent.putExtra("CourseJoined", course);
+                startActivity(intent);
+                finish();
+            }, e -> {
+                Toast.makeText(this, "System Fail when Applying to Course.", Toast.LENGTH_SHORT).show();
+            });
 
-            student.joinCourse(course, paymentPreferences, isPrivate, selectedPrice, schedules);
-            Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(this, StudentScreen.class);
-            intent.putExtra("ShowFragment", "CourseJoinedFullPage");
-            intent.putExtra("CourseJoined", course);
-            startActivity(intent);
-            finish();
+
+
         }else{
-            MailApplyCourse acm = new MailApplyCourse(student, course.getTeacher(), schedules, course, reasonForJoining, school, educationGrade);
-            User.sendMail(acm);
-            Toast.makeText(this, "Apply Course Mail Request Sent!", Toast.LENGTH_SHORT).show();
+            final Teacher[] teacher = new Teacher[1];
+            Tool.run(this, "Loading Teacher...",
+                    ()->{
+                        teacher[0] = Await.get(course::getTeacher);
+                    },
+                    ()->{
+
+                        //async - completed
+                        MailApplyCourse acm = new MailApplyCourse(student, teacher[0], schedules, course, reasonForJoining, school, educationGrade);
+                        try {
+                            User.sendMail(acm);
+                        } catch (InvocationTargetException | NoSuchMethodException |
+                                 IllegalAccessException | InstantiationException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Toast.makeText(this, "Apply Course Mail Request Sent!", Toast.LENGTH_SHORT).show();
+                    },
+                    e->{
+
+                    });
         }
     }
 

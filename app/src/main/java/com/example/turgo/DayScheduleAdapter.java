@@ -55,7 +55,7 @@ public class DayScheduleAdapter extends RecyclerView.Adapter<DayScheduleViewHold
     public void getSchedulesOfMode(Teacher teacher, boolean timeFrame){
         Calendar calendar = Calendar.getInstance();
         DayOfWeek today = DayOfWeek.of(calendar.get(Calendar.DAY_OF_WEEK));
-        daySchedules.clear();
+
         if(timeFrame){
             for(DayTimeArrangement dta: teacher.getTimeArrangements()){
                 if(dta.getDay() == today){

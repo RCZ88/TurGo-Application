@@ -15,7 +15,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/iv_cdnf_CourseIcon"
+            android:id="@+id/iv_cn_CourseIcon"
             android:layout_width="78dp"
             android:layout_height="65dp"
             android:layout_marginStart="10dp"

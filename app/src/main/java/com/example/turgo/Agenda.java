@@ -17,7 +17,6 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
     private Meeting ofMeeting;
     private Teacher teacher;
     private Student student;
-    private Course ofCourse;
 
     public Agenda(String contents, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, Course ofCourse){
         this.contents = contents;
@@ -25,7 +24,6 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
         this.ofMeeting = ofMeeting;
         this.teacher = teacher;
         this.student = student;
-        this.ofCourse = ofCourse;
         agenda_ID = UUID.randomUUID().toString();
     }
     public Agenda(){
@@ -38,7 +36,6 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
         this.ofMeeting = ofMeeting;
         this.teacher = teacher;
         this.student = student;
-        this.ofCourse = ofCourse;
         agenda_ID = UUID.randomUUID().toString();
     }
 
@@ -76,12 +73,12 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
         this.student = student;
     }
 
-    public Course getOfCourse() {
-        return ofCourse;
-    }
-
-    public void setOfCourse(Course ofCourse) {
-        this.ofCourse = ofCourse;
+    public void getOfCourse(ObjectCallBack<Course> callBack) {
+        try {
+            findAggregatedObject(Course.class, "agendas", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public LocalDate getDate() {

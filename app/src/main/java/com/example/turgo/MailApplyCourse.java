@@ -1,8 +1,10 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 
 import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFirebase>{
@@ -19,7 +21,8 @@ public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFir
         this.school = school;
         this.grade = grade;
         super.setHeader("Course Application Request - " + from);
-        String body = "Dear " + course.getTeacher().getNickname() +", \nI hope this message finds you well.\nMy name is" + from.getNickname() + " and I am currently a student at" + school + ", in " + grade + ". I am interested in joining your course and would like to express my enthusiasm for the opportunity.";
+        Teacher teacher = Await.get(cb -> course.getTeacher(cb));
+        String body = "Dear " +teacher.getNickname() +", \nI hope this message finds you well.\nMy name is" + from.getNickname() + " and I am currently a student at" + school + ", in " + grade + ". I am interested in joining your course and would like to express my enthusiasm for the opportunity.";
         super.setBody(body);
     }
 

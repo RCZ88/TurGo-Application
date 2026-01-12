@@ -2,6 +2,8 @@ package com.example.turgo;
 
 import android.util.Log;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -98,7 +100,15 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         return fbn;
     }
 
-    public Teacher(){}
+    public Teacher(){
+        scheduledMeetings = new ArrayList<>();
+        coursesTeach = new ArrayList<>();
+        profileImageCloudinary = "https://res.cloudinary.com/daccry0jr/image/upload/v1761196379/islooktidmooszzfrga3.png";
+        courseTypeTeach = new ArrayList<>();
+        agendas = new ArrayList<>();
+        completedMeetings = new ArrayList<>();
+        latestSubmission = new ArrayList<>();
+    }
 
     @Override
     public String getSerializeCode() {
@@ -110,12 +120,33 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         this.agendas.add(agenda);
         updateUserDB();
         student.addAgenda(agenda);
-        student.getStudentCourseFromCourse(ofCourse);
+        student.getStudentCourseFromCourse(ofCourse, new ObjectCallBack<StudentCourse>() {
+            @Override
+            public void onObjectRetrieved(StudentCourse object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                object.assignAgenda(agenda);
+                object.updateDB();
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
         student.updateUserDB();
     }
     public void addTask(Task task, Course course) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        for(Student student : task.getStudentsAssigned()){
-            student.getStudentCourseFromCourse(course).getTasks().add(task);
+        for(Student student : Await.get(task::getStudentsAssigned)){
+            student.getStudentCourseFromCourse(course, new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(StudentCourse object) {
+                    object.assignTask(task);
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
             student.updateUserDB();
         }
 

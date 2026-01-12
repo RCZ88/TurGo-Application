@@ -13,17 +13,22 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link CourseExploreFullPage#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CourseExploreFullPage extends Fragment {
+public class CourseExploreFullPage extends Fragment implements RequiresDataLoading{
 
     Button btn_joinCourse;
     TextView tv_courseTitle, tv_courseDays, tv_courseDescription, tv_teacherName, tv_teacherDescription;
     Course course;
+    Teacher teacher;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -63,6 +68,7 @@ public class CourseExploreFullPage extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @SuppressLint("MissingInflatedId")
@@ -84,8 +90,23 @@ public class CourseExploreFullPage extends Fragment {
         tv_courseTitle.setText(course.getCourseName());
         tv_courseDescription.setText(course.getCourseDescription());
         tv_courseDays.setText(course.getDaysAvailable());
-        tv_teacherName.setText(course.getTeacher().getFullName());
-        tv_teacherDescription.setText(course.getTeacher().getTeacherResume());
+//        course.getTeacher(new ObjectCallBack<>() {
+//            @Override
+//            public void onObjectRetrieved(Teacher object) {
+//
+//
+//            }
+//
+//            @Override
+//            public void onError(DatabaseError error) {
+//
+//            }
+//        });
+
+
+
+        tv_teacherName.setText(teacher.getFullName());
+        tv_teacherDescription.setText(teacher.getTeacherResume());
 
         btn_joinCourse.setOnClickListener(view1 -> {
             Intent intent1 = new Intent(getContext(), RegisterCourse.class);
@@ -94,5 +115,26 @@ public class CourseExploreFullPage extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Bundle output = new Bundle();
+        Course course =  (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
+        if(course != null){
+            Teacher teacher = Await.get(course::getTeacher);
+            output.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
+        }
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

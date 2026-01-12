@@ -1,6 +1,10 @@
 package com.example.turgo;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -8,8 +12,6 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
     private final FirebaseNode fbn = FirebaseNode.STUDENTCOURSE;
     private final Class<StudentCourseFirebase>fbc = StudentCourseFirebase.class;
     private final String sc_ID;
-    private Student student;
-    private Course ofCourse;
     private ArrayList<Schedule> schedulesOfCourse;
     private boolean paymentPreferences; //false: week | true: month
     private boolean privateOrGroup;
@@ -17,8 +19,6 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
     private ArrayList<Agenda> agendas;
     private int pricePer;
     public StudentCourse(Student student, Course ofCourse, boolean paymentPreferences, boolean privateOrGroup, int pricePer){
-        this.student = student;
-        this.ofCourse = ofCourse;
         schedulesOfCourse = new ArrayList<>();
         this.paymentPreferences = paymentPreferences;
         this.privateOrGroup = privateOrGroup;
@@ -26,6 +26,34 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         agendas = new ArrayList<>();
         this.pricePer = pricePer;
         sc_ID = UUID.randomUUID().toString();
+    }
+    public void assignTask(Task task){
+        getStudent(new ObjectCallBack<Student>() {
+            @Override
+            public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                object.assignTask(task);
+                tasks.add(task);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+    }
+    public void assignAgenda(Agenda agenda){
+        agendas.add(agenda);
+        getStudent(new ObjectCallBack<Student>() {
+            @Override
+            public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                object.addAgenda(agenda);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
     public StudentCourse(){
         sc_ID = "";
@@ -38,20 +66,20 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         schedulesOfCourse.add(schedule);
     }
 
-    public Student getStudent() {
-        return student;
+    public void getStudent(ObjectCallBack<Student> callBack) {
+        try {
+            findAggregatedObject( Student.class, "studentCourseTaken", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    public Course getOfCourse() {
-        return ofCourse;
-    }
-
-    public void setOfCourse(Course ofCourse) {
-        this.ofCourse = ofCourse;
+    public void getOfCourse(ObjectCallBack<Course> callBack) {
+        try {
+            findAggregatedObject(Course.class, "studentsCourse", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ArrayList<Schedule> getSchedulesOfCourse() {

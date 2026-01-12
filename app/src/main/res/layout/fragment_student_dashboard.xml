@@ -6,201 +6,254 @@
     android:layout_height="match_parent"
     tools:context=".Student_Dashboard">
 
-    <LinearLayout
-        android:id="@+id/linearLayout9"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:orientation="vertical"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LinearLayout15">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.5">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView19"
+            <LinearLayout
+                android:id="@+id/LinearLayout15"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Upcoming Class:"
-                android:textAlignment="center"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                tools:layout_editor_absoluteX="26dp"
-                tools:layout_editor_absoluteY="136dp" />
-
-        </LinearLayout>
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fcv_UpcomingClass"
-            android:name="com.example.turgo.MeetingDisplay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            tools:layout="@layout/fragment_meeting_display" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout10"
-        android:layout_width="181dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toStartOf="@+id/linearLayout12"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
-
-        <TextView
-            android:id="@+id/textView23"
-            android:layout_width="match_parent"
-            android:layout_height="49dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_horizontal"
-            android:text="Meeting Completed this Week"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_CourseCompleted"
-            android:layout_width="match_parent"
-            android:layout_height="120dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout12"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout9">
-
-        <TextView
-            android:id="@+id/textView24"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Attendance"
-            android:textSize="28dp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/textView25"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Scan QR " />
-
-        <ImageButton
-            android:id="@+id/btn_ScanQRAttendance"
-            android:layout_width="125dp"
-            android:layout_height="125dp"
-            android:layout_marginTop="16dp"
-            android:contentDescription="Scan an Attendance QR Code"
-            android:onClick="attendMeetingScan"
-            android:src="@drawable/qr_scan" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/LinearLayout13"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout10"
-        tools:layout_editor_absoluteX="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView28"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:gravity="center_horizontal"
-                android:text="Task To Do:"
-                android:textSize="24dp"
-                android:textStyle="bold" />
-        </LinearLayout>
+                android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/textView29"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="This Week's Progress!"
+                    android:textSize="20dp"
+                    android:textStyle="bold" />
 
-            <ImageButton
-                android:id="@+id/ib_PrevTask"
-                android:layout_width="57dp"
-                android:layout_height="80dp"
-                android:layout_weight="0"
-                android:contentDescription="Previous Task"
-                android:src="@drawable/caret_left" />
+                <ProgressBar
+                    android:id="@+id/pb_WeeksProgress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:max="100"
+                    android:progress="0" />
+            </LinearLayout>
 
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vp2_TasksContainer"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/linearLayout9"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="12dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView19"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming Class:"
+                        android:textAlignment="center"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:layout_editor_absoluteX="26dp"
+                        tools:layout_editor_absoluteY="136dp" />
+
+                </LinearLayout>
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fcv_UpcomingClass"
+                    android:name="com.example.turgo.MeetingDisplay"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:visibility="gone"
+                    tools:layout="@layout/fragment_meeting_display" />
+
+                <TextView
+                    android:id="@+id/tv_SD_ScheduleEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:background="@drawable/recycler_view_border"
+                    android:gravity="center"
+                    android:text="No Upcoming Schedule!"
+                    android:textSize="22dp" />
+
+                <ImageButton
+                    android:id="@+id/ib_SD_ShowDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:background="@color/zxing_transparent"
+                    android:scaleType="center"
+                    android:src="@drawable/caret_down" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/linearLayout10"
+                    android:layout_width="181dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView23"
+                        android:layout_width="match_parent"
+                        android:layout_height="49dp"
+                        android:layout_marginBottom="8dp"
+                        android:gravity="center_horizontal"
+                        android:text="Meeting Completed this Week"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_CourseCompleted"
+                        android:layout_width="match_parent"
+                        android:layout_height="156dp"
+                        android:background="@drawable/recycler_view_border" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout12"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView24"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Attendance"
+                        android:textSize="28dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/textView25"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scan QR " />
+
+                    <ImageButton
+                        android:id="@+id/btn_ScanQRAttendance"
+                        android:layout_width="125dp"
+                        android:layout_height="125dp"
+                        android:layout_marginTop="16dp"
+                        android:background="@color/zxing_transparent"
+                        android:contentDescription="Scan an Attendance QR Code"
+                        android:onClick="attendMeetingScan"
+                        android:src="@drawable/qr_scan" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/LinearLayout13"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0" />
+                android:layout_marginTop="24dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fcv_TaskDisplay"
-                android:name="com.example.turgo.TaskDisplay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:layout="@layout/fragment_task_display" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:orientation="horizontal">
 
-            <ImageButton
-                android:id="@+id/ib_NextTask"
-                android:layout_width="57dp"
-                android:layout_height="80dp"
-                android:contentDescription="Next Task"
-                android:src="@drawable/caret_right" />
+                    <TextView
+                        android:id="@+id/textView28"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="Task To Do:"
+                        android:textSize="24dp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_SD_NoTask"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_border"
+                    android:gravity="center"
+                    android:text="All Clear, No Task!"
+                    android:textSize="20sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/ll_SD_TaskToDo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/edittext_border"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/ib_PrevTask"
+                        android:layout_width="57dp"
+                        android:layout_height="80dp"
+                        android:layout_weight="0"
+                        android:background="@color/zxing_transparent"
+                        android:contentDescription="Previous Task"
+                        android:src="@drawable/caret_left" />
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/vp2_TasksContainer"
+                        android:layout_width="285dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0" />
+
+<!--                    <androidx.fragment.app.FragmentContainerView-->
+<!--                        android:id="@+id/fcv_TaskDisplay"-->
+<!--                        android:name="com.example.turgo.TaskDisplay"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:background="@drawable/edittext_border"-->
+<!--                        tools:layout="@layout/fragment_task_display" />-->
+
+                    <ImageButton
+                        android:id="@+id/ib_NextTask"
+                        android:layout_width="57dp"
+                        android:layout_height="80dp"
+                        android:background="@color/zxing_transparent"
+                        android:contentDescription="Next Task"
+                        android:src="@drawable/caret_right" />
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/LinearLayout15"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <TextView
-            android:id="@+id/textView29"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="This Week's Progress!"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-
-        <ProgressBar
-            android:id="@+id/pb_WeeksProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:max="100"
-            android:progress="0" />
-    </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

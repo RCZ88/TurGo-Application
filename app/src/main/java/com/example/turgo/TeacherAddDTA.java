@@ -150,7 +150,7 @@ public class TeacherAddDTA extends Fragment {
                 Toast.makeText(getContext(), "Please fill all the fields", Toast.LENGTH_SHORT).show();
             }else{
                 //add DTA
-                DayTimeArrangement dta = new DayTimeArrangement(teacher, courseSelected[0], DayOfWeek.valueOf(tv_day.getText().toString()), LocalTime.parse(tv_start.getText().toString()), LocalTime.parse(tv_end.getText().toString()), Integer.parseInt(et_maxMeeting.getText().toString()));
+                DayTimeArrangement dta = new DayTimeArrangement(courseSelected[0], DayOfWeek.valueOf(tv_day.getText().toString()), LocalTime.parse(tv_start.getText().toString()), LocalTime.parse(tv_end.getText().toString()), Integer.parseInt(et_maxMeeting.getText().toString()));
                 courseSelected[0].addNewDayTimeArr(dta);
                 try {
                     teacher.addDTA(dta);

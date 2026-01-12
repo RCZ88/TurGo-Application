@@ -31,9 +31,7 @@
         app:layout_constraintTop_toBottomOf="@id/tb_ts_topAppBar"
         app:layout_constraintBottom_toTopOf="@id/nv_ts_BottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:navGraph="@navigation/teacher_mobile_navigation"
-        tools:layout="@layout/fragment_teacher_dashboard" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <!-- Bottom nav -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

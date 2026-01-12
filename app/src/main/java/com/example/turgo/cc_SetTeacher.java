@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,7 +32,7 @@ import java.util.Arrays;
  * Use the {@link cc_SetTeacher#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class cc_SetTeacher extends Fragment {
+public class cc_SetTeacher extends Fragment implements checkFragmentCompletion{
     SearchView sv_searchTeacher;
     RecyclerView rv_teachersFound, rv_teacherSelected;
     TextView tv_teachersNotAvailable, tv_teacherNotSelected;
@@ -192,5 +193,14 @@ public class cc_SetTeacher extends Fragment {
 
     private void showRV() {
         Tool.handleEmpty(teacherSelectedAdapter.teacherSearchResult.isEmpty(), rv_teacherSelected, tv_teacherNotSelected);
+    }
+
+    @Override
+    public boolean checkIfCompleted() {
+        if(rv_teacherSelected.getChildCount() == 0){
+            Toast.makeText(requireContext(), "Please Select a Teacher!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 }

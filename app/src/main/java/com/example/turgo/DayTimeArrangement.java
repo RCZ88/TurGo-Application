@@ -12,17 +12,15 @@ public class DayTimeArrangement implements RequireUpdate<DayTimeArrangement,DTAF
     private final FirebaseNode fbn = FirebaseNode.DTA;
     private final Class<DTAFirebase>fbc = DTAFirebase.class;
     private final String DTA_ID;
-    private Teacher ofTeacher;
-    private Course atCourse;
     private DayOfWeek day;
     private LocalTime start;//start teaching
     private LocalTime end;//end teaching for the day
     private ArrayList<Schedule> occupied;
     private int maxMeeting;
 
-    public DayTimeArrangement(Teacher ofTeacher, Course atCourse, DayOfWeek day, LocalTime start, LocalTime end, int maxMeeting) {
-        this.ofTeacher = ofTeacher;
-        this.atCourse = atCourse;
+    public DayTimeArrangement(){DTA_ID = UUID.randomUUID().toString();}
+
+    public DayTimeArrangement(Course atCourse, DayOfWeek day, LocalTime start, LocalTime end, int maxMeeting) {
         this.day = day;
         this.start = start;
         this.end = end;
@@ -133,21 +131,22 @@ public class DayTimeArrangement implements RequireUpdate<DayTimeArrangement,DTAF
         return occupied;
     }
 
-    public Teacher getOfTeacher() {
-        return ofTeacher;
+    public void getOfTeacher(ObjectCallBack<Teacher>callBack) {
+        try {
+            findAggregatedObject(Teacher.class, "timeArrangements", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setOfTeacher(Teacher ofTeacher) {
-        this.ofTeacher = ofTeacher;
+    public void getAtCourse(ObjectCallBack<Course>callBack) {
+        try {
+            findAggregatedObject( Course.class, "dayTimeArrangements", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Course getAtCourse() {
-        return atCourse;
-    }
-
-    public void setAtCourse(Course atCourse) {
-        this.atCourse = atCourse;
-    }
 
     public DayOfWeek getDay() {
         return day;

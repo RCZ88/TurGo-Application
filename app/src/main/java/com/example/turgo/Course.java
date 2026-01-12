@@ -7,6 +7,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
+import com.google.firebase.database.DatabaseError;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -34,11 +36,9 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private String courseName;
     private String courseDescription;
     private int maxStudentPerMeeting; //how much can one meeting hold
-    private boolean [] paymentPer; //accept per month or and per meeting
-    private boolean [] privateGroup; //accept private and or group?
-    private ArrayList<Pricing>prices;
+    private ArrayList<Boolean> paymentPer; //accept per month or and per meeting
+    private ArrayList<Boolean> privateGroup; //accept private and or group?
     private ArrayList<DayTimeArrangement> dayTimeArrangement; //the days available for this course
-    private Teacher teacher;
     private ArrayList<Student> students;
     private ArrayList<Schedule> schedules;
     private ArrayList<Agenda>agendas;
@@ -47,12 +47,11 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private double hourlyCost;
     private double monthlyDiscountPercentage;
     private boolean autoAcceptStudent;
-    public Course(Context context, CourseType courseType, String courseName, String courseDescription, Teacher teacher, ArrayList<Schedule>schedules, int maxStudentPerMeeting, double baseCost, double hourlyCost, boolean[]paymentPer, boolean[]privateGroup, double monthlyDiscountPercentage, boolean autoAcceptStudent){
+    public Course(Context context, CourseType courseType, String courseName, String courseDescription, Teacher teacher, ArrayList<Schedule>schedules, int maxStudentPerMeeting, double baseCost, double hourlyCost, ArrayList<Boolean>paymentPer, ArrayList<Boolean>privateGroup, double monthlyDiscountPercentage, boolean autoAcceptStudent){
         courseID = UUID.randomUUID().toString();
         this.context = context;
         this.courseType = courseType;
         this.courseName = courseName;
-        this.teacher = teacher;
         this.courseDescription = courseDescription;
         this.schedules = schedules;
         this.baseCost = baseCost;
@@ -66,7 +65,6 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.privateGroup = privateGroup;
         this.monthlyDiscountPercentage = monthlyDiscountPercentage;
         this.autoAcceptStudent = autoAcceptStudent;
-        prices = new ArrayList<>();
         setCourseLogo();
         setCourseBanner(1);
     }
@@ -150,13 +148,23 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         return monthlyDiscountPercentage;
     }
 
-    public StudentCourse getSCOfStudent(Student student){
+    public void getSCofStudent(Student student, ObjectCallBack<StudentCourse>callBack) {
         for(StudentCourse sc : studentsCourse){
-            if(sc.getStudent() == student){
-                return sc;
-            }
+            sc.getStudent(new ObjectCallBack<Student>() {
+                @Override
+                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                    if(object == student){
+                        callBack.onObjectRetrieved(sc);
+                    }
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
+
         }
-        return null;
     }
 //    public void applySchedule(DayOfWeek day, LocalTime start, int duration, boolean isPrivate, int maxPeople, Student student, boolean payment, int cost){
 //        if(getDTAOfDay(day).getMaxMeeting() < getDTAOfDay(day).getOccupied().size()){
@@ -301,33 +309,22 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.maxStudentPerMeeting = maxStudentPerMeeting;
     }
 
-    public boolean[] getPaymentPer() {
+    public ArrayList<Boolean> getPaymentPer() {
         return paymentPer;
     }
 
-    public void setPaymentPer(boolean[] paymentPer) {
+    public void setPaymentPer(ArrayList<Boolean> paymentPer) {
         this.paymentPer = paymentPer;
     }
 
-    public boolean[] getPrivateGroup() {
+    public ArrayList<Boolean> getPrivateGroup() {
         return privateGroup;
     }
 
-    public void setPrivateGroup(boolean[] privateGroup) {
+    public void setPrivateGroup(ArrayList<Boolean> privateGroup) {
         this.privateGroup = privateGroup;
     }
 
-    public ArrayList<Pricing> getPrices() {
-        return prices;
-    }
-
-    public void setPrices(ArrayList<Pricing> prices) {
-        this.prices = prices;
-    }
-
-    public void addPricing(Pricing pricing){
-        this.prices.add(pricing);
-    }
     public String getCourseDescription() {
         return courseDescription;
     }
@@ -370,10 +367,7 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
                 getDTAOfDay(schedule.getDay()).getOccupied().add(schedule);
             }else{
                 for(Schedule s : getDTAOfDay(schedule.getDay()).getOccupied()){
-                    if(s == schedule){
-                        s.addStudent(student);
-                        break;
-                    }
+                    student.getAllSchedules().add(s);
                 }
             }
         }
@@ -398,9 +392,13 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
                 }
             }
         }else{
-            assert nextSchedule != null;
-            LocalDate nextDate = LocalDate.now().with(TemporalAdjusters.next(nextSchedule.getDay()));
-            return new Meeting(nextSchedule, nextDate, null, context);
+            if(nextSchedule!= null){
+                LocalDate nextDate = LocalDate.now().with(TemporalAdjusters.next(nextSchedule.getDay()));
+                return new Meeting(nextSchedule, nextDate, null, context);
+            }else{
+                return null;
+            }
+
         }
         return null;
     }
@@ -414,12 +412,12 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.courseName = courseName;
     }
 
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
+    public void getTeacher(ObjectCallBack<Teacher>callBack) {
+        try {
+            findAggregatedObject(Teacher.class, "coursesTeach",callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ArrayList<Student> getStudents() {
@@ -448,7 +446,8 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     public ArrayList<Schedule> getScheduleOfStudent(Student student){
         ArrayList<Schedule>sos = new ArrayList<>();
         for(Schedule schedule : schedules){
-            if(schedule.getStudents().contains(student)){
+            ArrayList<Student>students = Await.get(schedule::getStudents);
+            if(students.contains(student)){
                 sos.add(schedule);
             }
         }
@@ -504,12 +503,32 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.agendas = agenda;
     }
 
-    public StudentCourse getSCofStudent(Student student){
-        for(StudentCourse sc : studentsCourse){
-            if(sc.getStudent() == student){
-                return sc;
-            }
-        }
-        return null;
+
+    @Override
+    public String toString() {
+        return "Course{" +
+                "courseID='" + courseID + '\'' +
+                ", fbc=" + fbc +
+                ", fbn=" + fbn +
+                ", context=" + context +
+                ", imagesCloudinary=" + imagesCloudinary +
+                ", logoCloudinary='" + logoCloudinary + '\'' +
+                ", backgroundCloudinary='" + backgroundCloudinary + '\'' +
+                ", courseType=" + courseType +
+                ", courseName='" + courseName + '\'' +
+                ", courseDescription='" + courseDescription + '\'' +
+                ", maxStudentPerMeeting=" + maxStudentPerMeeting +
+                ", paymentPer=" + paymentPer +
+                ", privateGroup=" + privateGroup +
+                ", dayTimeArrangement=" + dayTimeArrangement +
+                ", students=" + students +
+                ", schedules=" + schedules +
+                ", agendas=" + agendas +
+                ", studentsCourse=" + studentsCourse +
+                ", baseCost=" + baseCost +
+                ", hourlyCost=" + hourlyCost +
+                ", monthlyDiscountPercentage=" + monthlyDiscountPercentage +
+                ", autoAcceptStudent=" + autoAcceptStudent +
+                '}';
     }
 }

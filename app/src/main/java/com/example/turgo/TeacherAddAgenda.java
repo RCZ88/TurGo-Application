@@ -19,22 +19,17 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.google.firebase.database.DatabaseError;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -52,7 +47,7 @@ public class TeacherAddAgenda extends Fragment {
     TextView tv_presetStudents, tv_presetCourses;
     Teacher teacher;
 
-    private CloudinaryUploadCallback currentUploadCallback;
+    private OnFileSelectedListener currentUploadCallback;
     private static final int FILE_PICKER_REQUEST_CODE = 100;
     private ActivityResultLauncher<Intent> filePickerLauncher;
 
@@ -184,8 +179,18 @@ public class TeacherAddAgenda extends Fragment {
 
             }
         });
+        courseSelected[0].getSCofStudent(studentSelected[0], new ObjectCallBack<StudentCourse>() {
+            @Override
+            public void onObjectRetrieved(StudentCourse object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                sp_SelectMeeting.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, object.getAgendas()));
+            }
 
-        sp_SelectMeeting.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, courseSelected[0].getSCofStudent(studentSelected[0]).getAgendas()));
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+
         final Meeting[] selectedMeeting = new Meeting[1];
         sp_SelectMeeting.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

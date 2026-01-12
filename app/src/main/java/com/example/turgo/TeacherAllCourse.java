@@ -3,19 +3,26 @@ package com.example.turgo;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TeacherAllCourse#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherAllCourse extends Fragment {
+public class TeacherAllCourse extends Fragment implements  RequiresDataLoading{
     RecyclerView rv_allCourse;
+    ArrayList<Course> teacherCoursesTeach;
+    ArrayList<Meeting>nextMeetingOfCourses;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -64,14 +71,15 @@ public class TeacherAllCourse extends Fragment {
         View view = inflater.inflate(R.layout.fragment_teacher_all_course, container, false);
         rv_allCourse = view.findViewById(R.id.rv_TAC_AllCourse);
         TeacherScreen ts = (TeacherScreen) getActivity();
-        Teacher teacher = ts.getTeacher();
-        CourseTeachersAdapter adapter = new CourseTeachersAdapter(teacher.getCoursesTeach(), new OnItemClickListener<Course>() {
+        assert ts != null;
+        CourseTeachersAdapter adapter = new CourseTeachersAdapter(teacherCoursesTeach, nextMeetingOfCourses,  new OnItemClickListener<>() {
             @Override
             public void onItemClick(Course item) {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
                 TeacherCourseScreen teacherCourseScreen = new TeacherCourseScreen();
                 teacherCourseScreen.setArguments(bundle);
+                Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, teacherCourseScreen);
             }
 
             @Override
@@ -79,7 +87,31 @@ public class TeacherAllCourse extends Fragment {
 
             }
         });
+        rv_allCourse.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv_allCourse.setAdapter(adapter);
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+        ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
+        ArrayList<Meeting>nextMeetingOfCourses = teacherCoursesTeach.stream().map(course-> course.getNextMeetingOfNextSchedule()).collect(Collectors.toCollection(ArrayList::new));
+
+        Bundle output = new Bundle();
+        output.putSerializable("teacherCoursesTeach", teacherCoursesTeach);
+        output.putSerializable("nextMeetingOfCourses", nextMeetingOfCourses);
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        teacherCoursesTeach = (ArrayList<Course>) preloadedData.getSerializable("teacherCoursesTeacher");
+        nextMeetingOfCourses = (ArrayList<Meeting>) preloadedData.getSerializable("nextMeetingOfCourses");
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

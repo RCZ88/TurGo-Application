@@ -26,8 +26,9 @@ public class TaskFirebase implements FirebaseClass<Task> {
         if (from == null) return;
 
         // Convert list of Student objects to list of IDs
-        if (from.getStudentsAssigned() != null) {
-            this.studentsAssigned = convertToIdList(from.getStudentsAssigned());
+        ArrayList<Student> studentsAssigned = Await.get(from::getStudentsAssigned);
+        if (studentsAssigned != null) {
+            this.studentsAssigned = convertToIdList(studentsAssigned);
         }
 
         // Simple String fields

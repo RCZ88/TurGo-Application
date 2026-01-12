@@ -4,18 +4,18 @@ import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class StudentFirebase extends UserFirebase implements FirebaseClass<Student>{
 
     private double percentageCompleted;
-    private String nextMeetingID;
-    private LocalDate lastScheduled;
+    private String nextMeeting;
+    private String lastScheduled;
     private int autoSchedule;
     private int notificationEarlyDuration;
     private int lateAttendance;
     private int lateSubmissions;
+    private boolean hasScheduled;
 
     private ArrayList<String> courseTaken;
     private ArrayList<String> studentCourseTaken;
@@ -48,31 +48,33 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         setOutbox(convertToIdList(from.getOutbox()));
         setNotifications(convertToIdList(from.getNotifications()));
 
-        // Progress / scheduling
         percentageCompleted = from.getPercentageCompleted();
-        nextMeetingID = (from.getNextMeeting() != null) ? from.getNextMeeting().getID() : null;
-        lastScheduled = from.getLastScheduled();
+        nextMeeting = (from.getNextMeeting() != null && from.getNextMeeting().getID() != null) ? from.getNextMeeting().getID() : null;
+        hasScheduled = from.isHasScheduled();
+        lastScheduled = from.getLastScheduled() != null ? from.getLastScheduled().toString() : "";
         autoSchedule = from.getAutoSchedule();
-        notificationEarlyDuration = (from.getNotificationEarlyDuration() != null)
-                ? (int) from.getNotificationEarlyDuration().toMinutes()
-                : 0;
+
+        notificationEarlyDuration = 0;
+        if (from.getNotificationEarlyDuration() != null) {
+            notificationEarlyDuration = (int) from.getNotificationEarlyDuration().toMinutes();
+        }
 
         // Penalties / counts
         lateAttendance = from.getLateAttendance();
         lateSubmissions = from.getLateSubmissions();
 
         // Lists -> ID lists (use convertToIdList helper for object lists)
-        courseTaken = convertToIdList(from.getCourseTaken());
-        studentCourseTaken = convertToIdList(from.getStudentCourseTaken());
-        courseInterested = from.getCourseInterested(); // already a list of strings
-        courseRelated = convertToIdList(from.getCourseRelated());
-        preScheduledMeetings = convertToIdList(from.getPreScheduledMeetings());
-        meetingHistory = convertToIdList(from.getMeetingHistory());
-        scheduleCompletedThisWeek = convertToIdList(from.getScheduleCompletedThisWeek());
-        allSchedules = convertToIdList(from.getAllSchedules());
-        allTask = convertToIdList(from.getAllTask());
-        uncompletedTask = convertToIdList(from.getUncompletedTask());
-        allAgendas = convertToIdList(from.getAllAgendas());
+        courseTaken = from.getCourseTaken() != null ? convertToIdList(from.getCourseTaken()) : new ArrayList<>();
+        studentCourseTaken = from.getStudentCourseTaken() != null ? convertToIdList(from.getStudentCourseTaken()) : new ArrayList<>();
+        courseInterested = from.getCourseInterested() != null ? from.getCourseInterested() : new ArrayList<>();
+        courseRelated = from.getCourseRelated() != null ? convertToIdList(from.getCourseRelated()) : new ArrayList<>();
+        preScheduledMeetings = from.getPreScheduledMeetings() != null ? convertToIdList(from.getPreScheduledMeetings()) : new ArrayList<>();
+        meetingHistory = from.getMeetingHistory() != null ? convertToIdList(from.getMeetingHistory()) : new ArrayList<>();
+        scheduleCompletedThisWeek = from.getScheduleCompletedThisWeek() != null ? convertToIdList(from.getScheduleCompletedThisWeek()) : new ArrayList<>();
+        allSchedules = from.getAllSchedules() != null ? convertToIdList(from.getAllSchedules()) : new ArrayList<>();
+        allTask = from.getAllTask() != null ? convertToIdList(from.getAllTask()) : new ArrayList<>();
+        uncompletedTask = from.getUncompletedTask() != null ? convertToIdList(from.getUncompletedTask()) : new ArrayList<>();
+        allAgendas = from.getAllAgendas() != null ? convertToIdList(from.getAllAgendas()) : new ArrayList<>();
     }
 
     @Override
@@ -94,6 +96,13 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         });
     }
 
+    public boolean isHasScheduled() {
+        return hasScheduled;
+    }
+
+    public void setHasScheduled(boolean hasScheduled) {
+        this.hasScheduled = hasScheduled;
+    }
 
     public double getPercentageCompleted() {
         return percentageCompleted;
@@ -103,19 +112,19 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         this.percentageCompleted = percentageCompleted;
     }
 
-    public String getNextMeetingID() {
-        return nextMeetingID;
+    public String getNextMeeting() {
+        return nextMeeting;
     }
 
-    public void setNextMeetingID(String nextMeetingID) {
-        this.nextMeetingID = nextMeetingID;
+    public void setNextMeeting(String nextMeeting) {
+        this.nextMeeting = nextMeeting;
     }
 
-    public LocalDate getLastScheduled() {
+    public String getLastScheduled() {
         return lastScheduled;
     }
 
-    public void setLastScheduled(LocalDate lastScheduled) {
+    public void setLastScheduled(String lastScheduled) {
         this.lastScheduled = lastScheduled;
     }
 

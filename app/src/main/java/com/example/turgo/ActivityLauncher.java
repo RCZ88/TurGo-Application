@@ -47,6 +47,7 @@ public class ActivityLauncher extends AppCompatActivity {
         tv_loadingText = findViewById(R.id.tv_AL_LoadingText);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
+//        auth.signOut();
 
         if (currentUser == null) {
             // Not signed in → go to MainActivity (Sign In/Sign Up)

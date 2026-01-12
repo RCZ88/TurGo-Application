@@ -22,13 +22,14 @@ import com.google.firebase.database.DatabaseError;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link CourseJoinedFullPage#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CourseJoinedFullPage extends Fragment {
+public class CourseJoinedFullPage extends Fragment implements RequiresDataLoading{
     Course course;
     Student student;
     TextView tv_courseTeacher, tv_courseDays, tv_nextMeetingDate, tv_noTaskMessage, tv_courseTitle;
@@ -37,6 +38,7 @@ public class CourseJoinedFullPage extends Fragment {
     Button btn_viewAllAgenda, btn_viewAllMeeting;
     TaskAdapter taskAdapter;
     ArrayList<Task> tasks;
+    Teacher teacher;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -76,6 +78,7 @@ public class CourseJoinedFullPage extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -88,26 +91,11 @@ public class CourseJoinedFullPage extends Fragment {
         assert getActivity() != null;
 //        Intent intent = getActivity().getIntent();
 //        course = (Course) intent.getSerializableExtra("Selected Course");
-        if(getArguments() != null){
-            course = (Course) getArguments().getSerializable("Course");
-        }
-        StudentFirebase studentFirebase = ((StudentScreen) getActivity()).getStudent();
-        try {
-            studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student = object;
-                }
 
-                @Override
-                public void onError(DatabaseError error) {
+        StudentScreen ss = (StudentScreen)getActivity();
 
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
-        }
+        student = ss.getStudent();
+
         tasks = student.getAllTaskOfCourse(course);
 
         tv_courseTeacher = view.findViewById(R.id.tv_cfp_TeacherName);
@@ -121,7 +109,8 @@ public class CourseJoinedFullPage extends Fragment {
         rv_latestAgenda = view.findViewById(R.id.rv_cfp_ListOFAgenda);
         btn_viewAllAgenda = view.findViewById(R.id.btn_ViewAllAgendaOfCourse);
         tv_courseTitle.setText(course.getCourseName());
-        tv_courseTeacher.setText(course.getTeacher().getFullName());
+        //async - completed
+        tv_courseTeacher.setText(teacher.getFullName());
         tv_courseDays.setText(course.getDaysOfSchedule(student));
         tv_noTaskMessage.setText("Yay you're Free! No Task Found!");
 
@@ -129,33 +118,66 @@ public class CourseJoinedFullPage extends Fragment {
         Glide.with(requireContext()).load(course.getBackground()).into(iv_courseBackgroundImage);
 
         loadTasks();
-        setLatestAgenda();
+        //async - completed
+        Tool.run(requireActivity(), "Retrieving the Latest Agenda..",
+                ()->{
+                    Await.get(this::setLatestAgenda);
+                },
+                ()->{
+                    btn_viewAllAgenda.setOnClickListener(view1 -> {
+                        FragmentManager fm = getActivity().getSupportFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        AtomicReference<ArrayList<Agenda>> agendas = new AtomicReference<>();
+                        //async - completed
+                        Tool.run(requireActivity(), "Loading Agendas...",
+                                ()->{
+                                    agendas.set(Await.get(cb -> student.getAgendaOfCourse(course, cb)));
+                                },
+                                ()->{
+                                    ft.replace(R.id.nhf_ss_FragContainer, new AllAgendaPage(agendas.get()));
+                                    ft.addToBackStack(null);
+                                    ft.commit();
+                                },
+                                e->{
 
-        btn_viewAllAgenda.setOnClickListener(view1 -> {
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            FragmentTransaction ft = fm.beginTransaction();
-            ft.replace(R.id.nhf_ss_FragContainer, new AllAgendaPage(student.getAgendaOfCourse(course)));
-            ft.addToBackStack(null);
-            ft.commit();
-        });
-        btn_viewAllMeeting.setOnClickListener(view12 -> {
-            StudentMeetings studentMeetings = new StudentMeetings();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-            studentMeetings.setArguments(bundle);
+                                });
+                    });
+                    btn_viewAllMeeting.setOnClickListener(view12 -> {
+                        StudentMeetings studentMeetings = new StudentMeetings();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+                        bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
+                        studentMeetings.setArguments(bundle);
 
-            requireActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.nhf_ss_FragContainer, studentMeetings)
-                    .addToBackStack(null)
-                    .commit();
-        });
+                        requireActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.nhf_ss_FragContainer, studentMeetings)
+                                .addToBackStack(null)
+                                .commit();
+                    });
+                },
+                e->{
+
+                });
+
         return view;
     }
-    private void setLatestAgenda(){
+    private void setLatestAgenda(ObjectCallBack<Void>cb){
         ArrayList<Agenda>theAgenda = new ArrayList<>();
-        theAgenda.add(student.getLatestAgendaOfCourse(course));
-        AgendaAdapter agendaAdapter = new AgendaAdapter(theAgenda);
-        rv_latestAgenda.setAdapter(agendaAdapter);
+        student.getLatestAgendaOfCourse(course, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(Agenda object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                theAgenda.add(object);
+                AgendaAdapter agendaAdapter = new AgendaAdapter(theAgenda);
+                rv_latestAgenda.setAdapter(agendaAdapter);
+                cb.onObjectRetrieved(null);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+
     }
     private void loadTasks() {
         tasks = student.getAllTaskOfCourse(course); // Assume this method fetches tasks
@@ -189,5 +211,28 @@ public class CourseJoinedFullPage extends Fragment {
             });
             rv_listOfTasks.setAdapter(taskAdapter);
         }
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Bundle output = new Bundle();
+        Course course = (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
+        Teacher teacher = Await.get(course::getTeacher);
+
+        output.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
+        output.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        course = (Course)preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
+        teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

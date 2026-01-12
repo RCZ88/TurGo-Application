@@ -10,12 +10,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
     FirebaseNode getFirebaseNode();
@@ -43,7 +48,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
                 type[0] = snapshot.getValue(String.class);
                 Log.d("User Type Retrieved: ", type[0]);
 
-                String studentType = UserType.STUDENT.type();
+                String studentType = STUDENT.type();
                 String teacherType = UserType.TEACHER.type();
                 String parentType = UserType.PARENT.type();
                 String adminType = UserType.ADMIN.type();
@@ -109,6 +114,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
 
 
     }
+
     default void retrieveOnce(ObjectCallBack<FBC> ocb, String ID){
 
         DatabaseReference databaseRef = getDBRef(ID);
@@ -204,6 +210,217 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
             }
         });
     }
+    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>> void findAggregatedObject( Class<CO> containerClass, String varName, ObjectCallBack<CO> callBack) throws IllegalAccessException, InstantiationException {
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                .getReference(containerClass.newInstance().getFirebaseNode().getPath());
+
+        // 🔥 Apply indexed query, then cast back to DatabaseReference
+        Query indexedQuery = dbRef.orderByChild(varName + "/id").equalTo(getID());
+        indexedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists() || !snapshot.hasChildren()) {
+                    try {
+                        callBack.onObjectRetrieved(null);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
+
+                // ✅ ONLY 1 RESULT due to indexed query
+                DataSnapshot container = snapshot.getChildren().iterator().next();
+                DataSnapshot part = container.child(varName);
+
+                if (!part.exists()) {
+                    try {
+                        callBack.onObjectRetrieved(null);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
+
+                Object raw = part.getValue();
+                COFB fbc = null;
+
+                // Handle both List and single object (your original logic)
+                if (raw instanceof List) {
+                    for (Object obj : (List<?>) raw) {
+                        if (obj instanceof FirebaseClass && ((COFB) obj).getID().equals(getID())) {
+                            fbc = (COFB) obj;
+                            break;
+                        }
+                    }
+                } else {
+                    fbc = (COFB) raw;  // Single object case
+                }
+
+                if (fbc == null) {
+                    try {
+                        callBack.onObjectRetrieved(null);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
+
+                // ✅ Convert FirebaseClass → RequireUpdate (your original logic)
+                try {
+                    fbc.convertToNormal(new ObjectCallBack<CO>() {
+                        @Override
+                        public void onObjectRetrieved(CO object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                            callBack.onObjectRetrieved(object);
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+                            callBack.onError(error);
+                        }
+                    });
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    Log.e("findAggregatedObject", "Conversion failed", e);
+                    try {
+                        callBack.onObjectRetrieved(null);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("findAggregatedObject", "Query cancelled: " + error.getMessage());
+                callBack.onError(error);
+            }
+        });
+    }
+
+
+    // In RequireUpdate or a utils class
+    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>>
+    void findAllAggregatedObjects(
+            Class<CO> containerClass,
+            String varName,                    // e.g. "schedules"
+            ObjectCallBack<ArrayList<CO>> callBack
+    ) throws IllegalAccessException, InstantiationException {
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                .getReference(containerClass.newInstance().getFirebaseNode().getPath());
+
+        // Optional: index on varName + "/id" if each element under varName has its own id
+        // Otherwise this will be a scan, but only once per containerClass.
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<CO> result = new ArrayList<>();
+
+                for (DataSnapshot container : snapshot.getChildren()) {
+                    DataSnapshot part = container.child(varName);
+                    if (!part.exists()) continue;
+
+                    Object raw = part.getValue();
+                    if (raw == null) continue;
+
+                    // Case 1: list of FirebaseClass elements
+                    if (raw instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<Object> list = (List<Object>) raw;
+
+                        boolean found = false;
+                        for (Object obj : list) {
+                            if (obj instanceof FirebaseClass) {
+                                FirebaseClass<?> fbc = (FirebaseClass<?>) obj;
+                                if (getID().equals(fbc.getID())) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (found) {
+                            COFB fbcContainer = null;
+                            try {
+                                fbcContainer = container.getValue((Class<COFB>) containerClass.newInstance().getFirebaseClass());
+                            } catch (IllegalAccessException | InstantiationException e) {
+                                throw new RuntimeException(e);
+                            }
+                            if (fbcContainer != null) {
+                                try {
+                                    fbcContainer.convertToNormal(new ObjectCallBack<CO>() {
+                                        @Override
+                                        public void onObjectRetrieved(CO object) {
+                                            result.add(object);
+                                        }
+
+                                        @Override
+                                        public void onError(DatabaseError error) {
+                                            // ignore single errors, we’re aggregating
+                                        }
+                                    });
+                                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                                         IllegalAccessException | InstantiationException e) {
+                                    // ignore this container, continue
+                                }
+                            }
+                        }
+
+                        // Case 2: map of id → FirebaseClass
+                    } else if (raw instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> map = (Map<String, Object>) raw;
+                        if (map.containsKey(getID())) {
+                            COFB fbcContainer = null;
+                            try {
+                                fbcContainer = container.getValue((Class<COFB>) containerClass.newInstance().getFirebaseClass());
+                            } catch (IllegalAccessException | InstantiationException e) {
+                                throw new RuntimeException(e);
+                            }
+                            if (fbcContainer != null) {
+                                try {
+                                    fbcContainer.convertToNormal(new ObjectCallBack<CO>() {
+                                        @Override
+                                        public void onObjectRetrieved(CO object) {
+                                            result.add(object);
+                                        }
+
+                                        @Override
+                                        public void onError(DatabaseError error) {
+                                            // ignore
+                                        }
+                                    });
+                                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                                         IllegalAccessException | InstantiationException e) {
+                                    // ignore
+                                }
+                            }
+                        }
+                    }
+                }
+
+                try {
+                    callBack.onObjectRetrieved(result);
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                callBack.onError(error);
+            }
+        });
+    }
+
+
+
     default void updateDB() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
         Log.d("RequireUpdate(UpdateDB)", "Updating User to DB...");
         FBC firebaseObj = getFirebaseClass().getDeclaredConstructor().newInstance();
@@ -216,6 +433,28 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
         RTDBManager<FBC> rtdb = new RTDBManager<>();
         // Now we know FBC implements RequireUpdate<FBC>, so no cast needed
         rtdb.storeData(path, this.getID(), firebaseObj, firebaseObj.getClass().toString(), "Successfull");
+
+//        ArrayList<Field>objectVariables = new ArrayList<>(Arrays.asList(this.getClass().getDeclaredFields()));
+//        for(Field field : objectVariables){
+//            if(!Tool.isPrimitive(field)){
+//                if(field.getType() == RequireUpdate.class){
+//                    RequireUpdate<? , ?> obj = (RequireUpdate<?, ?>) field.get(this);
+//                    if (obj != null) {
+//                        obj.updateDB();
+//                    }
+//                }else if(field.getType() == ArrayList.class && Tool.getArrayListElementType(field) == RequireUpdate.class){
+//                    ArrayList<Object> objects = (ArrayList<Object>) field.get(this);
+//                    for(Object object : objects){
+//                        RequireUpdate<? , ?> obj = (RequireUpdate<?, ?>) object;
+//                        if (obj != null) {
+//                            obj.updateDB();
+//                        }
+//                    }
+//
+//                }
+//            }
+//        }
+
 
         if(this instanceof User){
             rtdb.storeUserType((User)this);

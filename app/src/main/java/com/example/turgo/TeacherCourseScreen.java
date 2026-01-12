@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -24,6 +25,7 @@ public class TeacherCourseScreen extends Fragment {
     SearchView sv_StudentSearch;
     Button btn_ViewSchedule, btn_AddAgenda, btn_AssignTask;
     RecyclerView rv_listOfStudent;
+    TextView tv_courseName;
     Course course;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -76,26 +78,29 @@ public class TeacherCourseScreen extends Fragment {
         btn_AddAgenda = view.findViewById(R.id.btn_TCS_AddAgenda);
         btn_AssignTask = view.findViewById(R.id.btn_TCS_AssignTask);
         btn_ViewSchedule = view.findViewById(R.id.btn_TCS_ViewSchedule);
+        tv_courseName = view.findViewById(R.id.tv_TCS_CourseName);
         btn_ViewSchedule.setEnabled(true);
         Bundle args = getArguments();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             assert args != null;
-            course = args.getSerializable("course", Course.class);
+            course = args.getSerializable(Course.SERIALIZE_KEY_CODE, Course.class);
         }
-        assert course != null;
+
+        tv_courseName.setText(course.getCourseName());
+
         ArrayList<Student>students = course.getStudents();
         ArrayList<Student>studentSelectedInList = new ArrayList<>();
-        STCAdapter adapter = new STCAdapter(students, getContext(), new OnItemClickListener<Student>() {
+        STCAdapter adapter = new STCAdapter(students, getContext(), new OnItemClickListener<>() {
             @Override
             public void onItemClick(Student item) {
-                if(studentSelectedInList.contains(item)){
+                if (studentSelectedInList.contains(item)) {
                     studentSelectedInList.remove(item);
-                }else{
+                } else {
                     studentSelectedInList.add(item);
                 }
-                if(studentSelectedInList.size() > 1){
+                if (studentSelectedInList.size() > 1) {
                     btn_ViewSchedule.setEnabled(false);
-                }else{
+                } else {
                     btn_ViewSchedule.setEnabled(true);
                 }
             }
@@ -122,7 +127,10 @@ public class TeacherCourseScreen extends Fragment {
 
         });
         btn_ViewSchedule.setOnClickListener(v -> {
-            
+            Teacher teacher = ((TeacherScreen) requireActivity()).getTeacher();
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
+            DataLoading.loadAndNavigate(requireContext(), TeacherScheduleOfCourse.class, bundle, true, "TeacherScreen");
         });
         rv_listOfStudent.setAdapter(adapter);
         return view;

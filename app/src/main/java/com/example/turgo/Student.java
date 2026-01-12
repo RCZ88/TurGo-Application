@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -20,14 +21,14 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Student extends User implements Serializable, RequireUpdate<Student, StudentFirebase>{
-    private final FirebaseNode fbn = FirebaseNode.STUDENT;
-    private final Class<StudentFirebase> fbc = StudentFirebase.class;
+    private static final FirebaseNode fbn = FirebaseNode.STUDENT;
+    private static final Class<StudentFirebase> fbc = StudentFirebase.class;
     private ArrayList<Course> courseTaken;
     private ArrayList<StudentCourse>studentCourseTaken;
     public static final String SERIALIZE_KEY_CODE = "students";
-    protected static final String FIREBASE_DB_REFERENCE = User.FIREBASE_DB_REFERENCE + "/" + SERIALIZE_KEY_CODE;
     private ArrayList<String> courseInterested; //coursetype
     private ArrayList<Course> courseRelated; //courses related to the coursetype
     private ArrayList<Meeting> preScheduledMeetings;
@@ -37,6 +38,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     private Meeting nextMeeting;
     private ArrayList<Schedule> allSchedules;
     private LocalDate lastScheduled;
+    private boolean hasScheduled;
     private int autoSchedule;
     private Duration notificationEarlyDuration; //how many minute before the meeting (notification)
     private ArrayList<Task> allTask;
@@ -58,19 +60,30 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         allAgendas = new ArrayList<>();
         percentageCompleted = 0;
         notificationEarlyDuration = Duration.ofMinutes(30);
+        hasScheduled = false;
         autoSchedule = 1;
         nextMeeting = null;
         lateAttendance = 0;
         lateSubmissions = 0;
         findCourseRelated();
     }
-    public StudentCourse getStudentCourseFromCourse(Course course){
+    public void getStudentCourseFromCourse(Course course, ObjectCallBack<StudentCourse>callback){
         for(StudentCourse sc:studentCourseTaken){
-            if(sc.getOfCourse() == course){
-                return sc;
-            }
+            sc.getOfCourse(new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                    if (object == course) {
+                        callback.onObjectRetrieved(sc);
+                    }
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
+
         }
-        return null;
     }
 
 
@@ -96,7 +109,16 @@ public class Student extends User implements Serializable, RequireUpdate<Student
 
     }
 
-    public Student(){}
+    public Student(){
+        courseTaken = new ArrayList<>();
+        courseInterested = new ArrayList<>();
+        courseRelated = new ArrayList<>();
+        preScheduledMeetings = new ArrayList<>();
+        allSchedules = new ArrayList<>();
+        meetingHistory = new ArrayList<>();
+        scheduleCompletedThisWeek = new ArrayList<>();
+        allAgendas = new ArrayList<>();
+    }
 
     @Override
     public String getSerializeCode() {
@@ -116,13 +138,20 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     public ArrayList<Meeting> getAllMeetingOfCourse(Course course){
         ArrayList<Meeting>meetings = new ArrayList<>();
         for(Meeting meeting : this.meetingHistory){
-            if(meeting.getMeetingOfSchedule().getScheduleOfCourse() == course){
+            Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+            Course c = Await.get(schedule::getScheduleOfCourse);
+            if(c==course){
                 meetings.add(meeting);
             }
+
+
         }
         return meetings;
     }
     public void calculatePercentageCompleted(){
+        if(allSchedules!= null){
+            this.percentageCompleted = -1;
+        }
         int amountOfSchedules = allSchedules.size();
         int completed = scheduleCompletedThisWeek.size();
         this.percentageCompleted = (double) completed /amountOfSchedules * 100;
@@ -147,17 +176,18 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                     Meeting meeting = new Meeting(allSchedules.get(j), meetingDate, this, context);
                     Meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(), meeting.getEndTimeChange(), this, meeting);
                     preScheduledMeetings.add(meeting);
-                    meeting.getMeetingOfSchedule()
-                            .getScheduleOfCourse()
-                            .getTeacher()
-                            .addScheduledMeeting(meeting);
+                    Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+                    Course course = Await.get(schedule::getScheduleOfCourse);
+                    Teacher teacher = Await.get(course::getTeacher);
+                    teacher.addScheduledMeeting(meeting);
                     meeting.updateDB();
 
-                    for(Student student: allSchedules.get(j).getStudents()){
+                    for(Student student: Await.get(allSchedules.get(j)::getStudents)){
                         student.preScheduledMeetings.add(meeting);
                         student.updateUserDB();
                     }
                     allSchedules.get(i).setScheduler(this);
+
                 }
             }
         }
@@ -186,20 +216,25 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         int minDistance = Integer.MAX_VALUE;
         //Schedule closestMeeting;
         int today = LocalDate.now().getDayOfWeek().getValue();
-        for(Schedule schedule : course.getSchedules()){
-            int day = schedule.getDay().getValue();
-            int distance = (day - today + 7) % 7;
-            if(distance < minDistance){
-                minDistance = distance;
-                //closestMeeting = schedule;
+        if(course.getSchedules()!=null){
+            for(Schedule schedule : course.getSchedules()){
+                int day = schedule.getDay().getValue();
+                int distance = (day - today + 7) % 7;
+                if(distance < minDistance){
+                    minDistance = distance;
+                    //closestMeeting = schedule;
+                }
             }
+            return LocalDate.now().plusDays(minDistance);
         }
-        return LocalDate.now().plusDays(minDistance);
+        return null;
+
     }
 
     public void completeMeeting(Meeting meeting){
         preScheduledMeetings.remove(meeting);
-        scheduleCompletedThisWeek.add(meeting.getMeetingOfSchedule());
+        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+        scheduleCompletedThisWeek.add(schedule);
     }
 
     private boolean checkAllComplete(){
@@ -286,6 +321,14 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         this.courseRelated = courseRelated;
     }
 
+    public boolean isHasScheduled() {
+        return hasScheduled;
+    }
+
+    public void setHasScheduled(boolean hasScheduled) {
+        this.hasScheduled = hasScheduled;
+    }
+
     public ArrayList<Meeting> getPreScheduledMeetings() {
         return preScheduledMeetings;
     }
@@ -327,7 +370,8 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public void addMeetingCompleted(Meeting meeting){
-        scheduleCompletedThisWeek.add(meeting.getMeetingOfSchedule());
+        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+        scheduleCompletedThisWeek.add(schedule);
         meeting.setCompleted(true);
     }
 
@@ -349,7 +393,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
 
     public double getPercentageCompleted() {
         calculatePercentageCompleted();
-        return percentageCompleted;
+        return Tool.safeDouble(percentageCompleted);
     }
 
     public void setPercentageCompleted(double percentageCompleted) {
@@ -380,14 +424,29 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         }
         return tasks;
     }
-    public ArrayList<Agenda> getAgendaOfCourse(Course course){
+    public void getAgendaOfCourse(Course course, ObjectCallBack<ArrayList<Agenda>>callBack){
         ArrayList<Agenda>a = new ArrayList<>();
+        AtomicInteger completed = new AtomicInteger(0);
         for(Agenda agenda : allAgendas){
-            if(agenda.getOfCourse() == course){
-                a.add(agenda);
-            }
+            agenda.getOfCourse(new ObjectCallBack<>() {
+                @Override
+                public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                    if (object == course) {
+                        a.add(agenda);
+                    }
+                    int current = completed.get();
+                    current++;
+                    if(current == allAgendas.size()){
+                        callBack.onObjectRetrieved(a);
+                    }
+                }
+
+                @Override
+                public void onError(DatabaseError error) {
+
+                }
+            });
         }
-        return a;
     }
     public void addAgenda(Agenda agenda){
         allAgendas.add(agenda);
@@ -406,9 +465,19 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         updateUserDB();
     }
 
-    public Agenda getLatestAgendaOfCourse(Course course){
-        int size = getAgendaOfCourse(course).size();
-        return getAgendaOfCourse(course).get(size-1);
+    public void getLatestAgendaOfCourse(Course course, ObjectCallBack<Agenda>callBack){
+        getAgendaOfCourse(course, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(ArrayList<Agenda> object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                int size = object.size();
+                callBack.onObjectRetrieved(object.get(size - 1));
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
     }
 
     public int getLateAttendance() {
@@ -426,9 +495,8 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     public void setLateSubmissions(int lateSubmissions) {
         this.lateSubmissions = lateSubmissions;
     }
-    public ArrayList<Course>getExploreCourse(){
+    public void getExploreCourse(ObjectCallBack<ArrayList<Course>>callback){
         DatabaseReference coursesRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSE.getPath());
-        ArrayList<Course>ci = new ArrayList<>();
 
         coursesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -440,42 +508,45 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                         allCourses.add(course);
                     }
                 }
-                for(CourseFirebase cf: allCourses){
-                    CourseType c = new CourseType();
-                    c.retrieveOnce(new ObjectCallBack<CourseTypeFirebase>() {
-                        @Override
-                        public void onObjectRetrieved(CourseTypeFirebase object) {
-                            if(courseInterested.contains(object.getCourseType())){
-                                //course type is interested by the student
+                DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(CourseType.fbn.getPath());
+                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ArrayList<CourseFirebase> courseInterested = new ArrayList<>();
+                        for(DataSnapshot ds : snapshot.getChildren()){
+                            CourseTypeFirebase ctf = ds.getValue(CourseTypeFirebase.class);
+                            for(CourseFirebase cf : allCourses){
+                                if(cf.getCourseType().equals(ctf.getID())){
+                                    courseInterested.add(cf);
+                                    Log.d("Student", "Course Interest Added: " + cf);
+                                }
+                            }
+                        }
+
+                        Tool.<CourseFirebase, Course>convertFirebaseListToNormal(courseInterested, new Tool.ConvertToNormalCallback<>() {
+                            @Override
+                            public void onAllConverted(ArrayList<Course> normalList) {
                                 try {
-                                    final Course[] courseInterested = new Course[1];
-                                    cf.convertToNormal(new ObjectCallBack<Course>() {
-                                        @Override
-                                        public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                                            courseInterested[0] = object;
-                                        }
-
-                                        @Override
-                                        public void onError(DatabaseError error) {
-
-                                        }
-                                    });
-                                    ci.add(courseInterested[0]);
+                                    callback.onObjectRetrieved(normalList);
                                 } catch (ParseException | InvocationTargetException |
                                          NoSuchMethodException | IllegalAccessException |
                                          InstantiationException e) {
                                     throw new RuntimeException(e);
                                 }
                             }
-                        }
 
-                        @Override
-                        public void onError(DatabaseError error) {
+                            @Override
+                            public void onError(DatabaseError error) {
 
-                        }
-                    }, cf.getCourseTypeID());
+                            }
+                        });
+                    }
 
-                }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
 
             }
@@ -484,13 +555,12 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                 // handle error
             }
         });
-        return ci;
     }
 
     public void submitTask(ArrayList<file>filesSelected, Task task) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         for(file file: filesSelected){
             file.setSubmitTime(LocalDateTime.now());
-            task.getDropbox().getSubmissionSlot(this).addFile(file);
+            task.submit(file, this);
 
             if(task.getDropbox().getSubmissionSlot(this).isLate(file.getSubmitTime())){
                 this.lateSubmissions ++;
@@ -503,9 +573,11 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             fileNames.add(file.getFileName());
         }
         SubmissionDisplay sd = new SubmissionDisplay(getFullName(), task.getTitle(), task.getTaskOfCourse().getCourseName(), task.getDueDate().toString(), fileNames);
-        task.getTaskOfCourse().getTeacher().addLatestSubmission(sd);
-
+        Teacher teacher = Await.get(task.getTaskOfCourse()::getTeacher);
+        teacher.addLatestSubmission(sd);
         uncompletedTask.remove(task);
+
+
     }
 
     @Override

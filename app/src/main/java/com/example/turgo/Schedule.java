@@ -14,10 +14,9 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     private final FirebaseNode fbn = FirebaseNode.SCHEDULE;
     private final Class<ScheduleFirebase>fbc = ScheduleFirebase.class;
     public final String scheduleID;
-    public static String SERIALIZE_KEY_CODE = "scheduleObj";
-    private Course scheduleOfCourse;
+    public static final String SERIALIZE_KEY_CODE = "scheduleObj";
+    public static final LocalDate NEVER_SCHEDULED = LocalDate.of(1000, 1, 1);
     private int numberOfStudents;
-    private ArrayList<Student> students;
     private boolean isPrivate;
     private boolean hasScheduled;
     private User scheduler;
@@ -25,18 +24,14 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     private LocalTime meetingEnd;
     private int duration;
     private DayOfWeek day;
-    private Room room;
 
-    public Schedule(Course scheduleOfCourse, LocalTime meetingStart, int duration, DayOfWeek day, Room room, boolean isPrivate){
+    public Schedule(LocalTime meetingStart, int duration, DayOfWeek day,  boolean isPrivate){
         this.scheduleID = UUID.randomUUID().toString();
-        this.scheduleOfCourse = scheduleOfCourse;
         this.meetingStart = meetingStart;
         this.duration = duration;
         this.day = day;
         this.meetingEnd = meetingStart.plus(Duration.ofMinutes(duration));
-        this.room = room;
         this.isPrivate = isPrivate;
-        this.students = new ArrayList<>();
         this.hasScheduled = false;
         scheduler = null;
     }
@@ -89,20 +84,20 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         this.day = day;
     }
 
-    public Room getRoom() {
-        return room;
+    public void getRoom(ObjectCallBack<Room>callBack) {
+        try {
+            findAggregatedObject( Room.class, "schedules", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
-    }
-
-    public Course getScheduleOfCourse() {
-        return scheduleOfCourse;
-    }
-
-    public void setScheduleOfCourse(Course scheduleOfCourse) {
-        this.scheduleOfCourse = scheduleOfCourse;
+    public void getScheduleOfCourse(ObjectCallBack<Course> callBack) {
+        try {
+            findAggregatedObject( Course.class, "schedules", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public int getNumberOfStudents() {
@@ -117,17 +112,15 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         return scheduleID;
     }
 
-    public ArrayList<Student> getStudents() {
-        return students;
+    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
+        try {
+            findAllAggregatedObjects(Student.class, "allSchedules", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void addStudent(Student student) {
-        students.add(student);
-    }
 
-    public void setStudents(ArrayList<Student> students) {
-        this.students = students;
-    }
 
     public boolean isHasScheduled() {
         return hasScheduled;

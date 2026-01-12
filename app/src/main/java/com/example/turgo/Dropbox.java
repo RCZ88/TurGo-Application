@@ -13,7 +13,7 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase>{
     public Dropbox(Task ofTask){
         submissions = new ArrayList<>();
         this.ofTask = ofTask;
-        setupSubmissions(ofTask.getStudentsAssigned());
+        setupSubmissions(Await.get(ofTask::getStudentsAssigned));
         UID = UUID.randomUUID().toString();
     }
     public Submission getSubmissionSlot(Student student){
@@ -26,7 +26,7 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase>{
     }
     public void setupSubmissions(ArrayList<Student> students){
         for(Student student : students){
-            submissions.add(new Submission(this, student));
+            submissions.add(new Submission(student));
         }
     }
 

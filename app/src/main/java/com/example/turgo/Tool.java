@@ -1,6 +1,7 @@
 package com.example.turgo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -13,20 +14,31 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,18 +53,71 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Tool {
+
+    public static boolean hasField(Class<?> clazz, String fieldName) {
+        try {
+            clazz.getDeclaredField(fieldName);
+            return true;  // Field "fieldName" exists on this class
+        } catch (NoSuchFieldException e) {
+            return false;  // Field "fieldName" does NOT exist
+        }
+    }
+    public static void loadFragment(FragmentActivity activity, int containerId, Fragment fragment){
+        activity.getSupportFragmentManager()
+                .beginTransaction().replace(containerId, fragment)
+                .commit();
+        activity.finish();
+    }
+    public static void run(FragmentActivity activity, String loadingMessage, ThrowingRunnable action, Runnable success, Consumer<Exception> onError){
+        LoadingBottomSheet loadingBottomSheet = LoadingBottomSheet.newInstance(loadingMessage);
+        loadingBottomSheet.show(activity.getSupportFragmentManager(), "loading");
+        new Thread(()->{
+           try{
+                action.run();
+                activity.runOnUiThread(()->{
+                    loadingBottomSheet.dismiss();
+                    if(success != null){
+                        success.run();
+                    }
+                });
+           }catch(Exception e){
+               activity.runOnUiThread(() -> {
+                   loadingBottomSheet.dismiss();
+                   if (onError != null) onError.accept(e);
+               });
+           }
+        }).start();
+
+    }
+    @FunctionalInterface
+    public interface ThrowingRunnable {
+        void run() throws Exception;
+    }
     public static ArrayList<Integer> getListIdFromXmlArray(Context context, int arrId){
         TypedArray objects = context.getResources().obtainTypedArray(arrId);
         ArrayList<Integer> objectIds = new ArrayList<>();
@@ -89,14 +154,19 @@ public class Tool {
         activity.startActivity(intent);
         activity.finish();
     }
-    public static void prepareUserObjectForScreen(Activity activity, User user, ObjectCallBack<User>callBack){
+    public static double safeDouble(double value) {
+        if (Double.isNaN(value) || Double.isInfinite(value)) {
+            return 0.0;  // Or whatever default makes sense
+        }
+        return value;
+    }
+    public static void prepareUserObjectForScreen(Activity activity, User userInstance, ObjectCallBack<User>callBack){
         UserFirebase fbUser;
-        Log.d("PrepareUserObject", "User Object: " +user.toString());
-        String userType = user.getUserType().toString();
+        String userType = userInstance.getUserType().toString();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            fbUser = activity.getIntent().getSerializableExtra(user.getSerializeCode(), UserFirebase.class);
+            fbUser = activity.getIntent().getSerializableExtra(userInstance.getSerializeCode(), UserFirebase.class);
         } else {
-            fbUser = (TeacherFirebase) activity.getIntent().getSerializableExtra(user.getSerializeCode());
+            fbUser = (TeacherFirebase) activity.getIntent().getSerializableExtra(userInstance.getSerializeCode());
         }
         if(fbUser == null){
             Log.e(activity.toString(), "Retrieved " + userType + " is null");
@@ -105,6 +175,7 @@ public class Tool {
         }else{
             Log.d(activity.toString(), "Retrieved " + userType + ": " + fbUser);
         }
+
         try{
             assert fbUser != null;
             ((FirebaseClass<User>)fbUser).convertToNormal(new ObjectCallBack<>() {
@@ -269,6 +340,70 @@ public class Tool {
         }
         return null;
     }
+
+    public static <F, N> void convertFirebaseListToNormal(
+            ArrayList<F> firebaseList,
+            ConvertToNormalCallback<N> finalCallback) {
+
+        if (firebaseList == null || firebaseList.isEmpty()) {
+            finalCallback.onAllConverted(new ArrayList<>());
+            return;
+        }
+
+        ArrayList<N> normalList = new ArrayList<>();
+        AtomicInteger completed = new AtomicInteger(0);
+        AtomicBoolean hasError = new AtomicBoolean(false);
+        int total = firebaseList.size();
+
+        Log.d("ConvertList", "Starting conversion of " + total + " objects");
+
+        for (int i = 0; i < firebaseList.size(); i++) {
+            F firebaseObj = firebaseList.get(i);
+            final int index = i;
+
+            try {
+                // Assuming all Firebase classes have convertToNormal method
+                if (firebaseObj instanceof FirebaseClass) {
+                    ((FirebaseClass<N>) firebaseObj).convertToNormal(new ObjectCallBack<N>() {
+                        @Override
+                        public void onObjectRetrieved(N normalObj) {
+                            synchronized (normalList) {
+                                normalList.add(normalObj);
+                            }
+
+                            int count = completed.incrementAndGet();
+                            Log.d("ConvertList", "Converted " + count + "/" + total);
+
+                            // Check if all done
+                            if (count == total && !hasError.get()) {
+                                Log.d("ConvertList", "✓ All conversions complete!");
+                                finalCallback.onAllConverted(normalList);
+                            }
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+                            Log.e("ConvertList", "✗ Error converting object " + index + ": " + error.getMessage());
+                            if (!hasError.getAndSet(true)) {
+                                finalCallback.onError(error);
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                Log.e("ConvertList", "✗ Exception converting object " + index, e);
+                if (!hasError.getAndSet(true)) {
+                    finalCallback.onError(DatabaseError.fromException(e));
+                }
+            }
+        }
+    }
+
+    // Callback interface
+    public interface ConvertToNormalCallback<N> {
+        void onAllConverted(ArrayList<N> normalList);
+        void onError(DatabaseError error);
+    }
     public static void checkIfReferenceExists(DatabaseReference ref, ObjectCallBack<Boolean> callBack){
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -287,17 +422,42 @@ public class Tool {
             }
         });
     }
-    public static void handleEmpty(boolean empty, RecyclerView recyclerView, TextView emptyText){
+
+
+    public static void handleEmpty(boolean empty, ViewGroup view, TextView emptyText){
         if(empty){
-            recyclerView.setVisibility(View.GONE);
+            view.setVisibility(View.GONE);
             emptyText.setVisibility(View.VISIBLE);
         }else{
             emptyText.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
         }
+    }
+    public static boolean isPrimitive(Field field){
+        return field.getType().isPrimitive() ||
+                field.getType() == String.class ||
+                field.getType() == Integer.class ||
+                field.getType() == Long.class ||
+                field.getType() == Boolean.class ||
+                field.getType() == Double.class ||
+                field.getType() == Float.class;
+    }
+
+    public static Class<?> getArrayListElementType(Field field) {
+        Type genericType = field.getGenericType();
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType paramType = (ParameterizedType) genericType;
+            Type[] typeArgs = paramType.getActualTypeArguments();
+            if (typeArgs.length > 0) {
+                return (Class<?>) typeArgs[0];  // Returns Schedule, Student, etc. [web:201]
+            }
+        }
+        return Object.class;  // Fallback
     }
     public static void uploadToCloudinary(File file, ObjectCallBack<String>secureUrl){
         Log.d("Tool(UploadToCloudinary)", "File Path being Uploaded: " + file.getAbsolutePath());
+
+//        AlertDialog builder = new AlertDialog.Builder(activity);
 
         MediaManager.get().upload(file.getAbsolutePath()).callback((new UploadCallback() {
             @Override

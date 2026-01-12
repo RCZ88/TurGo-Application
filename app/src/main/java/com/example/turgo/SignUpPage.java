@@ -249,7 +249,7 @@ public class SignUpPage extends AppCompatActivity {
 
                             try {
                                 if(newUser.getUid() != null){
-                                    ObjectManager.ADD_USER(newUser);
+                                    newUser.updateUserDB();
                                     Log.d("SignUpPage", "ID User: " + newUser.getUid());
                                 }else{
                                     Log.e("SignUpPage", "Error: " + "User ID is null");

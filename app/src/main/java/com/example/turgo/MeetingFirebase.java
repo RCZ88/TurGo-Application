@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class MeetingFirebase implements FirebaseClass<Meeting> {
     private String meetingID;
-    private String meetingOfSchedule;
     private String preScheduledBy;
     private String dateOfMeeting; // Format: "yyyy-MM-dd"
     private String startTimeChange; // Optional
@@ -21,7 +20,6 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
 
     public MeetingFirebase(String meetingID, String meetingOfSchedule, String preScheduledBy, String dateOfMeeting, String startTimeChange, String endTimeChange, String roomChange, boolean completed, Map<String, String> studentsAttended) {
         this.meetingID = meetingID;
-        this.meetingOfSchedule = meetingOfSchedule;
         this.preScheduledBy = preScheduledBy;
         this.dateOfMeeting = dateOfMeeting;
         this.startTimeChange = startTimeChange;
@@ -35,7 +33,8 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
     @Override
     public void importObjectData(Meeting from) {
         this.meetingID = from.getMeetingID();
-        this.meetingOfSchedule = from.getMeetingOfSchedule().getID();
+        // Use callback for getMeetingOfSchedule
+        
         this.preScheduledBy = from.getPreScheduledBy().getUid();
         this.dateOfMeeting = from.getDateOfMeeting().toString(); // "yyyy-MM-dd"
 

@@ -9,21 +9,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link StudentMeetings#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StudentMeetings extends Fragment {
+public class StudentMeetings extends Fragment implements RequiresDataLoading {
     RecyclerView rv_futureMeeting, rv_pastMeetings;
     Course course;
     Student student;
+    ArrayList<Course>courses;
+    ArrayList<Meeting>meetings;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -62,6 +67,7 @@ public class StudentMeetings extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -73,27 +79,38 @@ public class StudentMeetings extends Fragment {
         this.course = (Course) getArguments().getSerializable(Course.SERIALIZE_KEY_CODE);
         StudentScreen studentScreen = (StudentScreen) getActivity();
         assert studentScreen != null;
-        try {
-            studentScreen.getStudent().convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student = object;
-                }
-
-                @Override
-                public void onError(DatabaseError error) {
-
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-        MeetingAdapter pastMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));
+        this.student = studentScreen.getStudent();
+        MeetingAdapter pastMeeting = new MeetingAdapter(meetings, courses);
         rv_pastMeetings.setAdapter(pastMeeting);
-        MeetingAdapter futureMeeting = new MeetingAdapter(student.getAllMeetingOfCourse(course));
+        MeetingAdapter futureMeeting = new MeetingAdapter(meetings, courses);
         rv_futureMeeting.setAdapter(futureMeeting);
 
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+        Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
+        Course course = (Course) input.getSerializable(Course.SERIALIZE_KEY_CODE);
+
+        ArrayList<Meeting> meetings=student.getAllMeetingOfCourse(course);
+        ArrayList<Schedule>schedules = meetings.stream().map(meeting->Await.get(meeting::getMeetingOfSchedule)).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Course>courses = schedules.stream().map(schedule->Await.get(schedule::getScheduleOfCourse)).collect(Collectors.toCollection(ArrayList::new));
+        Bundle output = new Bundle();
+        output.putSerializable("Meetings", meetings);
+        output.putSerializable("courses", courses);
+        return output;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        this.courses = (ArrayList<Course>)preloadedData.getSerializable("courses");
+        this.meetings = (ArrayList<Meeting>) preloadedData.getSerializable("Meetings");
+    }
+
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

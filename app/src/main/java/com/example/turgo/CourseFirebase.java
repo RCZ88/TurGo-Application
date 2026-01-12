@@ -10,20 +10,24 @@ public class CourseFirebase implements FirebaseClass<Course>{
     private String courseID;
     private String courseName;
     private String courseDescription;
-    private String teacherID;
-    private String courseTypeID;
+    private String logoCloudinary;
+    private String backgroundCloudinary;
+    private String courseType;
     private double baseCost;
     private double hourlyCost;
     private double monthlyDiscountPercentage;
+    private boolean autoAcceptStudent;
+    private int maxStudentPerMeeting;
 
-    private boolean [] paymentPer; //accept per month or and per meeting
-    private boolean [] privateGroup; //accept private and or group?
-    private ArrayList<String> prices;
+
+    private ArrayList<Integer> paymentPer; //accept per month or and per meeting
+    private ArrayList<Integer> privateGroup; //accept private and or group?
     private ArrayList<String> dayTimeArrangement; //the days available for this course
     private ArrayList<String> students;
     private ArrayList<String> schedules;
     private ArrayList<String>agendas;
     private ArrayList<String>studentsCourse;
+    private ArrayList<String> imagesCloudinary;
 
     public CourseFirebase(){
 
@@ -33,20 +37,22 @@ public class CourseFirebase implements FirebaseClass<Course>{
     public void importObjectData(Course from) {
         courseID = from.getCourseID();
         courseName = from.getCourseName();
-        courseTypeID = from.getCourseType().getID();
-        courseDescription = from.getCourseDescription();
-        teacherID = from.getTeacher().getUid();
+        courseType = from.getCourseType().getID();
         baseCost = from.getBaseCost();
         hourlyCost = from.getHourlyCost();
         monthlyDiscountPercentage = from.getMonthlyDiscountPercentage();
-        paymentPer = from.getPaymentPer();
-        privateGroup = from.getPrivateGroup();
-        prices = convertToIdList(from.getPrices());
+        paymentPer = convertBooleanToInt(from.getPaymentPer());
+        privateGroup = convertBooleanToInt(from.getPrivateGroup());
         dayTimeArrangement = convertToIdList(from.getDayTimeArrangement());
         students = convertToIdList(from.getStudents());
         schedules = convertToIdList(from.getSchedules());
         agendas = convertToIdList(from.getAgenda());
         studentsCourse = convertToIdList(from.getStudentsCourse());
+        backgroundCloudinary = from.getBackgroundCloudinary();
+        logoCloudinary = from.getLogoCloudinary();
+        maxStudentPerMeeting = from.getMaxStudentPerMeeting();
+        autoAcceptStudent = from.isAutoAcceptStudent();
+        imagesCloudinary = from.getImagesCloudinary();
     }
 
     @Override
@@ -69,6 +75,61 @@ public class CourseFirebase implements FirebaseClass<Course>{
         });
     }
 
+    public ArrayList<String> getImagesCloudinary() {
+        return imagesCloudinary;
+    }
+
+    public void setImagesCloudinary(ArrayList<String> imagesCloudinary) {
+        this.imagesCloudinary = imagesCloudinary;
+    }
+
+    public int getMaxStudentPerMeeting() {
+        return maxStudentPerMeeting;
+    }
+
+    public void setMaxStudentPerMeeting(int maxStudentPerMeeting) {
+        this.maxStudentPerMeeting = maxStudentPerMeeting;
+    }
+
+    public boolean isAutoAcceptStudent() {
+        return autoAcceptStudent;
+    }
+
+    public void setAutoAcceptStudent(boolean autoAcceptStudent) {
+        this.autoAcceptStudent = autoAcceptStudent;
+    }
+
+    public String getLogoCloudinary() {
+        return logoCloudinary;
+    }
+
+    public void setLogoCloudinary(String logoCloudinary) {
+        this.logoCloudinary = logoCloudinary;
+    }
+
+    public String getBackgroundCloudinary() {
+        return backgroundCloudinary;
+    }
+
+    public void setBackgroundCloudinary(String backgroundCloudinary) {
+        this.backgroundCloudinary = backgroundCloudinary;
+    }
+
+    public ArrayList<Integer> getPaymentPer() {
+        return paymentPer;
+    }
+
+    public void setPaymentPer(ArrayList<Integer> paymentPer) {
+        this.paymentPer = paymentPer;
+    }
+
+    public ArrayList<Integer> getPrivateGroup() {
+        return privateGroup;
+    }
+
+    public void setPrivateGroup(ArrayList<Integer> privateGroup) {
+        this.privateGroup = privateGroup;
+    }
 
     public String getCourseID() {
         return courseID;
@@ -94,13 +155,6 @@ public class CourseFirebase implements FirebaseClass<Course>{
         this.courseDescription = courseDescription;
     }
 
-    public String getTeacherID() {
-        return teacherID;
-    }
-
-    public void setTeacherID(String teacherID) {
-        this.teacherID = teacherID;
-    }
 
     public double getBaseCost() {
         return baseCost;
@@ -122,37 +176,30 @@ public class CourseFirebase implements FirebaseClass<Course>{
         return monthlyDiscountPercentage;
     }
 
-    public String getCourseTypeID() {
-        return courseTypeID;
+    public String getCourseType() {
+        return courseType;
     }
 
-    public void setCourseTypeID(String courseTypeID) {
-        this.courseTypeID = courseTypeID;
+    public void setCourseType(String courseType) {
+        this.courseType = courseType;
     }
 
-    public boolean[] getPaymentPer() {
-        return paymentPer;
-    }
+//    public boolean[] getPaymentPer() {
+//        return paymentPer;
+//    }
+//
+//    public void setPaymentPer(boolean[] paymentPer) {
+//        this.paymentPer = paymentPer;
+//    }
+//
+//    public boolean[] getPrivateGroup() {
+//        return privateGroup;
+//    }
+//
+//    public void setPrivateGroup(boolean[] privateGroup) {
+//        this.privateGroup = privateGroup;
+//    }
 
-    public void setPaymentPer(boolean[] paymentPer) {
-        this.paymentPer = paymentPer;
-    }
-
-    public boolean[] getPrivateGroup() {
-        return privateGroup;
-    }
-
-    public void setPrivateGroup(boolean[] privateGroup) {
-        this.privateGroup = privateGroup;
-    }
-
-    public ArrayList<String> getPrices() {
-        return prices;
-    }
-
-    public void setPrices(ArrayList<String> prices) {
-        this.prices = prices;
-    }
 
     public ArrayList<String> getDayTimeArrangement() {
         return dayTimeArrangement;

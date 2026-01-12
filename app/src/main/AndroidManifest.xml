@@ -26,6 +26,9 @@
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".DataLoading"
+            android:exported="false" />
+        <activity
             android:name=".AdminCreateCourse"
             android:exported="false" />
         <activity

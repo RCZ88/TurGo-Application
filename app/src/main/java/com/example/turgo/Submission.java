@@ -12,13 +12,11 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
     private final Class<SubmissionFirebase> fbc = SubmissionFirebase.class;
     private String submission_ID;
     private HashMap<file, Boolean>files; //include lateness (true if late false if on time)
-    private Dropbox dropbox;
     private Student of;
     private boolean completed;
 
-    public Submission(Dropbox dropbox, Student of){
+    public Submission(Student of){
         files = new HashMap<>();
-        this.dropbox = dropbox;
         this.completed = false;
         this.of = of;
         this.submission_ID = UUID.randomUUID().toString();
@@ -40,6 +38,7 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
     }
 
     public boolean isLate(LocalDateTime time){
+        Dropbox dropbox = Await.get(this::getDropbox);
         if(time.isAfter(dropbox.getOfTask().getDueDate())){
             return true;
         }
@@ -54,13 +53,14 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
         this.files = files;
     }
 
-    public Dropbox getDropbox() {
-        return dropbox;
+    public void  getDropbox(ObjectCallBack<Dropbox>callBack) {
+        try {
+            findAggregatedObject(Dropbox.class, "submissions", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setDropbox(Dropbox dropbox) {
-        this.dropbox = dropbox;
-    }
 
     public void setOf(Student of) {
         this.of = of;

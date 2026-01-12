@@ -96,25 +96,9 @@ public class TaskDisplay extends Fragment {
             tv_taskTitle.setText(task.getTitle());
             String submissionTime = submissionDate.getHour() + " : " + submissionDate.getMinute();
             tv_submissionTime.setText(submissionTime);
-            StudentFirebase sf = activity.getStudent();
-            final Student[] s = new Student[1];
-            try {
-                sf.convertToNormal(new ObjectCallBack<Student>() {
-                    @Override
-                    public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                        s[0] = object;
-                    }
+            Student s = activity.getStudent();
 
-                    @Override
-                    public void onError(DatabaseError error) {
-
-                    }
-                });
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException |
-                     java.lang.InstantiationException | ParseException e) {
-                throw new RuntimeException(e);
-            }
-            iv_submissionStatus.setImageResource(task.isComplete(s[0]) ? R.drawable.checkbox : R.drawable.pending);
+            iv_submissionStatus.setImageResource(task.isComplete(s) ? R.drawable.checkbox : R.drawable.pending);
         }
         return view;
     }

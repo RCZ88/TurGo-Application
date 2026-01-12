@@ -7,13 +7,19 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder>{
     private ArrayList<Schedule> schedules;
+    private ArrayList<Course>courses;
 
-    public ScheduleAdapter(ArrayList<Schedule> schedules){
+    public ScheduleAdapter(ArrayList<Schedule> schedules, ArrayList<Course>courses){
         this.schedules = schedules;
+        this.courses = courses;
     }
 
     @NonNull
@@ -28,8 +34,11 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull ScheduleViewHolder holder, int position) {
         Schedule schedule = schedules.get(position);
+        //Course course = Await.get(schedule::getScheduleOfCourse);
+        Course course = courses.get(position);
+        //async - completed
         holder.tv_duration.setText(schedule.getDuration());
-        holder.tv_subject.setText(schedule.getScheduleOfCourse().getCourseName());
+        holder.tv_subject.setText(course.getCourseName());
         holder.tv_day.setText(schedule.getDay().toString());
     }
 

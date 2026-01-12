@@ -32,7 +32,6 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     private final Class<MeetingFirebase> fbc = MeetingFirebase.class;
     private final String meetingID;
     private static final String FIREBASE_DB_REFERENCE = "Meetings";
-    private Schedule meetingOfSchedule;
     private HashMap<Student, LocalTime> studentsAttended;
     private User preScheduledBy;
     private LocalDate dateOfMeeting;
@@ -45,7 +44,6 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
 
     public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
         meetingID = UUID.randomUUID().toString();
-        this.meetingOfSchedule = meetingOfSchedule;
         studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
@@ -54,11 +52,10 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         roomChange = null;
         completed = false;
         this.context = context;
-        assignAlarmNotification(this.meetingOfSchedule.getStudents());
+        assignAlarmNotification(Await.get(meetingOfSchedule::getStudents));
     }
     public Meeting(String meetingID, Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
         this.meetingID = meetingID;
-        this.meetingOfSchedule = meetingOfSchedule;
         studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
@@ -67,7 +64,7 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         roomChange = null;
         completed = false;
         this.context = context;
-        assignAlarmNotification(this.meetingOfSchedule.getStudents());
+        assignAlarmNotification(Await.get(meetingOfSchedule::getStudents));
     }
     public Meeting(){
         meetingID = "";
@@ -77,7 +74,9 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     public void assignAlarmNotification(ArrayList<Student>students){
         LocalDateTime ldt = LocalDateTime.of(this.dateOfMeeting, startTimeChange);
         for(Student student : students){
-            MeetingAlarm.setMeetingAlarm(this.context, ldt, this.getMeetingOfSchedule().getScheduleOfCourse(), student, meetingOfSchedule);
+            Schedule schedule = Await.get(this::getMeetingOfSchedule);
+            Course course = Await.get(schedule::getScheduleOfCourse);
+            MeetingAlarm.setMeetingAlarm(context, ldt, course, student, schedule);
         }
     }
 
@@ -139,12 +138,83 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         this.dateOfMeeting = date;
     }
 
-    public Schedule getMeetingOfSchedule() {
-        return meetingOfSchedule;
-    }
+    public void getMeetingOfSchedule(ObjectCallBack<Schedule> callBack) {
+        // Try finding in Student's preScheduledMeetings or meetingHistory
+        // Since meetings can be in either Student or Teacher lists, we search both
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath());
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                boolean found = false;
+                for(DataSnapshot studentSnapshot : snapshot.getChildren()){
+                    // Check preScheduledMeetings
+                    DataSnapshot prescheduled = studentSnapshot.child("preScheduledMeetings");
+                    if(searchMeetingInList(prescheduled, callBack)){
+                        found = true;
+                        break;
+                    }
+                    // Check meetingHistory
+                    DataSnapshot history = studentSnapshot.child("meetingHistory");
+                    if(searchMeetingInList(history, callBack)){
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found){
+                    // Search in Teacher if not found in Student
+                    searchInTeacher(callBack);
+                }
+            }
 
-    public void setMeetingOfSchedule(Schedule meetingOfSchedule) {
-        this.meetingOfSchedule = meetingOfSchedule;
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Meeting(getMeetingOfSchedule)", "Error finding Schedule: " + error);
+            }
+        });
+    }
+    
+    private boolean searchMeetingInList(DataSnapshot listSnapshot, ObjectCallBack<Schedule> callBack){
+        for(DataSnapshot meetingSnapshot : listSnapshot.getChildren()){
+            String meetingId = meetingSnapshot.child("meetingID").getValue(String.class);
+            if(meetingId != null && meetingId.equals(this.meetingID)){
+                DataSnapshot scheduleSnapshot = meetingSnapshot.child("meetingOfSchedule");
+                Schedule schedule = scheduleSnapshot.getValue(Schedule.class);
+                if(schedule != null){
+                    try {
+                        callBack.onObjectRetrieved(schedule);
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private void searchInTeacher(ObjectCallBack<Schedule> callBack){
+        DatabaseReference teacherRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.TEACHER.getPath());
+        teacherRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot teacherSnapshot : snapshot.getChildren()){
+                    DataSnapshot scheduled = teacherSnapshot.child("scheduledMeetings");
+                    if(searchMeetingInList(scheduled, callBack)){
+                        return;
+                    }
+                    DataSnapshot completed = teacherSnapshot.child("completedMeetings");
+                    if(searchMeetingInList(completed, callBack)){
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Meeting(searchInTeacher)", "Error finding Schedule: " + error);
+            }
+        });
     }
 
     public HashMap<Student, LocalTime> getStudentsAttended() {

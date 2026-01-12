@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseError;
 
@@ -27,6 +28,7 @@ import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -109,23 +111,9 @@ public class TaskFullPage extends Fragment {
 
         rv_filesUploaded = view.findViewById(R.id.rv_FilesUploaded);
         rv_filesSubmitted = view.findViewById(R.id.rv_FilesSubmitted);
-        StudentFirebase studentFirebase = ((StudentScreen)getActivity()).getStudent();
-        try {
-            studentFirebase.convertToNormal(new ObjectCallBack<Student>() {
-                @Override
-                public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
-                    student = object;
-                }
 
-                @Override
-                public void onError(DatabaseError error) {
-
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | java.lang.InstantiationException e) {
-            throw new RuntimeException(e);
-        }
+        StudentScreen ss = (StudentScreen)requireActivity();
+        student = ss.getStudent();
         ArrayList<file> studentFiles = task.getDropbox().getSubmissionSlot(student).getFilesOnly();
         if(!studentFiles.isEmpty()){
             FileAdapter fileAdapter = new FileAdapter(studentFiles);
@@ -138,7 +126,6 @@ public class TaskFullPage extends Fragment {
             rv_filesUploaded.setVisibility(View.GONE);
             rv_filesSubmitted.setVisibility(View.GONE);
         }
-
 
         btn_uploadFile = view.findViewById(R.id.btn_tfp_SelectFile);
         ArrayList<file>filesUploaded = new ArrayList<>();
@@ -181,7 +168,7 @@ public class TaskFullPage extends Fragment {
                         throw new RuntimeException(e);
                     }
                     final String[] secure_url = {""};
-                    Tool.uploadToCloudinary( tempFile, new ObjectCallBack<String>() {
+                    Tool.uploadToCloudinary( tempFile, new ObjectCallBack<>() {
                         @Override
                         public void onObjectRetrieved(String object) {
                             secure_url[0] = object;
@@ -208,27 +195,20 @@ public class TaskFullPage extends Fragment {
 
         ArrayList<file>filesSubmitted = new ArrayList<>();
         btn_submitFile = view.findViewById(R.id.btn_tfp_SubmitFile);
-        btn_submitFile.setOnClickListener(view2 -> {
-            try {
-                student.submitTask(filesUploaded, task);
-            } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
-                     java.lang.InstantiationException e) {
-                throw new RuntimeException(e);
-            }
-            filesSubmitted.addAll(filesUploaded);
-            FileAdapter fileAdapter = new FileAdapter(filesSubmitted);
-            rv_filesSubmitted.setAdapter(fileAdapter);
-        });
+        btn_submitFile.setOnClickListener(view2 -> Tool.run(requireActivity(), "Submitting File...",
+                ()->{
+                    student.submitTask(filesUploaded, task);
+                },
+                ()->{
+                    Toast.makeText(requireContext(), "Task Submitted Successfully!", Toast.LENGTH_SHORT).show();
+                    filesSubmitted.addAll(filesUploaded);
+                    FileAdapter fileAdapter = new FileAdapter(filesSubmitted);
+                    rv_filesSubmitted.setAdapter(fileAdapter);
+                },
+                e -> {
+                    Toast.makeText(requireContext(), "Failed to Submit Task, Error: ", Toast.LENGTH_SHORT).show();
+                }));
 
-
-
-
-//        btn_uploadFile.setOnClickListener(view1 -> {
-//            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//            intent.setType("*/*");
-//            intent.addCategory(Intent.CATEGORY_OPENABLE);
-//            startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_FILE_REQUEST_CODE);
-//        });
         return view;
     }
 }
