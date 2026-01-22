@@ -16,26 +16,26 @@ public class TimeSlotViewHolder extends RecyclerView.ViewHolder {
     static int exist =  Color.parseColor("#4F4789");
     static int nonExist = Color.parseColor("#FFB17A");
     boolean scheduleExist;
-    public TimeSlotViewHolder(@NonNull View itemView, OnItemClickListener<TimeSlot>listener){
+    public TimeSlotViewHolder(@NonNull View itemView, OnItemClickListener<SelectedIndicatorHelper<TimeSlot>>listener){
         super(itemView);
         tv_timeSlot = itemView.findViewById(R.id.tv_SingleText);
-        itemView.setOnClickListener(view -> listener.onItemClick(ts));
-        if(ts.getExistingSchedule() != null){
+        tv_timeSlot.setOnClickListener(view -> listener.onItemClick(new SelectedIndicatorHelper<>(this, ts)));
+    }
+    public void updateBackground(){
+        if(scheduleExist){
+            tv_timeSlot.setBackgroundColor(exist);
+        }else{
+
+            tv_timeSlot.setBackgroundColor(nonExist);
+        }
+    }
+    public void setTS(TimeSlot ts){
+        this.ts = ts;
+        if(!ts.getSchedules().isEmpty()){
             scheduleExist = true;
         }else{
             scheduleExist = false;
         }
         updateBackground();
-    }
-    public void updateBackground(){
-        if(scheduleExist){
-            itemView.setBackgroundColor(exist);
-        }else{
-
-            itemView.setBackgroundColor(nonExist);
-        }
-    }
-    public void setTS(TimeSlot ts){
-        this.ts = ts;
     }
 }

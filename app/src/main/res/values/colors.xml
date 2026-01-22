@@ -5,4 +5,44 @@
     <color name="onlineGreen">#76B041</color>
     <color name="offlineRed">#D64550</color>
     <color name="purple_500">#3D215E</color>
+
+
+    <color name="primary">#4F7EF5</color>
+    <color name="primary_variant">#3B5FCF</color>
+    <color name="primary_container">#DDE3FF</color>
+    <color name="on_primary">#FFFFFF</color>
+
+    <!-- Background Colors -->
+    <color name="background">#F8FAFF</color>
+    <color name="surface">#FBFDFF</color>
+    <color name="surface_variant">#F1F5FF</color>
+    <color name="form_bg">#FBFDFF</color>
+    <color name="form_border">#4F7EF5</color>
+
+    <!-- Text Colors -->
+    <color name="primary_text">#1A1A1A</color>
+    <color name="secondary_text">#666666</color>
+    <color name="tertiary_text">#999999</color>
+
+    <!-- Status Colors -->
+    <color name="success">#4CAF50</color>
+    <color name="error">#F44336</color>
+    <color name="warning">#FF9800</color>
+    <color name="online_green">#4CAF50</color>
+    <color name="offline_red">#F44336</color>
+
+    <!-- Gradients -->
+    <color name="gradient_start">#E3EEFF</color>
+    <color name="gradient_end">#F1F8FF</color>
+
+    <!-- Elevation Shadows -->
+    <color name="elevation_1">#20000000</color>
+    <color name="elevation_2">#1F000000</color>
+
+    <!-- TurGo Primary Colors -->
+    <color name="turgo_teal">#40C4FF</color>        <!-- Selected BG -->
+    <color name="turgo_teal_dark">#00ACC1</color>   <!-- Selected Text -->
+    <color name="turgo_gray_light">#F5F5F5</color>  <!-- Unselected BG -->
+    <color name="turgo_gray">#757575</color>        <!-- Unselected Text -->
+    <color name="turgo_white">#FFFFFF</color>
 </resources>

@@ -6,26 +6,67 @@
     android:layout_height="match_parent"
     tools:context=".Student_MyCourses">
 
-    <TextView
-        android:id="@+id/textView30"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
-        android:text="My Courses"
-        android:textSize="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_ListOfMyCourses"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView30"
-        app:layout_constraintVertical_bias="0.119" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView30"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="My Courses"
+                android:textSize="30dp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_ListOfMyCourses"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginBottom="36dp"
+                android:background="@drawable/recycler_view_border"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="450dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="36dp"
+                android:background="@drawable/recycler_view_border"
+                android:gravity="center_horizontal|center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_smc_NoCoursesJoined"
+                    android:layout_width="300dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center_horizontal"
+                    android:text="No courses joined yet!"
+                    android:textSize="20sp" />
+
+                <Button
+                    android:id="@+id/btn_smc_NavigateExploreCourse"
+                    android:layout_width="191dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="clip_vertical|center_horizontal"
+                    android:paddingTop="8dp"
+                    android:text="Explore Courses" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

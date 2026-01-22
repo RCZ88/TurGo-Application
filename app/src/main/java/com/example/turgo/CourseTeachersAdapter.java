@@ -14,10 +14,12 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
     ArrayList<Course>courses;
     ArrayList<Meeting>meetings;
     OnItemClickListener<Course>listener;
+    ArrayList<Integer>studentCountOfCourse;
 
-    public CourseTeachersAdapter(ArrayList<Course> courses, ArrayList<Meeting>meetings, OnItemClickListener<Course>listener) {
+    public CourseTeachersAdapter(ArrayList<Course> courses, ArrayList<Meeting>meetings, ArrayList<Integer>studentCountOfCourse, OnItemClickListener<Course>listener) {
         this.courses = courses;
         this.meetings = meetings;
+        this.studentCountOfCourse = studentCountOfCourse;
         this.listener = listener;
     }
 
@@ -41,7 +43,7 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
         holder.tv_nextSchedule.setText(nextMeeting);
         Course course = courses.get(position);
         holder.tv_courseName.setText(course.getCourseName());
-        holder.tv_numberOfStudents.setText(course.getStudents().size() + " Student(s)");
+        holder.tv_numberOfStudents.setText(studentCountOfCourse.get(position) + " Student(s)");
     }
 
     @Override

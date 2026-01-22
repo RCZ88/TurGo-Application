@@ -5,18 +5,22 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.firebase.database.DatabaseError;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,7 +30,11 @@ import java.text.ParseException;
 public class CourseExploreFullPage extends Fragment implements RequiresDataLoading{
 
     Button btn_joinCourse;
-    TextView tv_courseTitle, tv_courseDays, tv_courseDescription, tv_teacherName, tv_teacherDescription;
+    TextView tv_courseTitle, tv_courseDescription, tv_teacherName, tv_teacherDescription;
+    ViewPager2 vp_courseImages;
+    ImageView iv_courseWallpaper;
+    LinearLayout ll_ImageIndicators;
+    RecyclerView rv_courseDayTimes;
     Course course;
     Teacher teacher;
 
@@ -65,10 +73,9 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
+
     }
 
     @SuppressLint("MissingInflatedId")
@@ -79,51 +86,92 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
         View view = inflater.inflate(R.layout.fragment_explore_course_full_page, container, false);
         tv_courseTitle = view.findViewById(R.id.tv_ecfp_CourseTitle);
         btn_joinCourse = view.findViewById(R.id.btn_JoinCourse);
-        tv_courseDays = view.findViewById(R.id.tv_CourseAvailableDays);
         tv_courseDescription = view.findViewById(R.id.tv_CourseDescription);
         tv_teacherDescription = view.findViewById(R.id.tv_TeacherDescription);
         tv_teacherName = view.findViewById(R.id.tv_TeacherName);
-        assert getActivity() != null;
-        Intent intent = getActivity().getIntent();
-        course = (Course) intent.getSerializableExtra("Selected Course");
-        assert course != null;
+        vp_courseImages = view.findViewById(R.id.vp_ecfp_courseImages);
+        ll_ImageIndicators = view.findViewById(R.id.ll_ecfp_imageIndicators);
+        iv_courseWallpaper = view.findViewById(R.id.iv_ecfp_courseWallpaper);
+        rv_courseDayTimes = view.findViewById(R.id.rv_ecfp_availTimes);
+        rv_courseDayTimes.setLayoutManager(new LinearLayoutManager(requireContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+
+        ArrayList<DayTimeArrangement>dtas = course.getDayTimeArrangement();
+        ArrayList<String> daysOfDtas = DayTimeArrangement.getDaysOfDtas(dtas);
+        ArrayList<String> timesOfDtas = DayTimeArrangement.getTimesOfDtas(dtas);
+        Log.d("CEFP", daysOfDtas.toString());
+        Log.d("CEFP", timesOfDtas.toString());
+
+        DayTimeAdapter adapter = new DayTimeAdapter(daysOfDtas, timesOfDtas);
+        rv_courseDayTimes.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
+        rv_courseDayTimes.setAdapter(adapter);
+
+        Tool.setImageCloudinary(getContext(), course.getBackgroundCloudinary(), iv_courseWallpaper);
+
         tv_courseTitle.setText(course.getCourseName());
         tv_courseDescription.setText(course.getCourseDescription());
-        tv_courseDays.setText(course.getDaysAvailable());
-//        course.getTeacher(new ObjectCallBack<>() {
-//            @Override
-//            public void onObjectRetrieved(Teacher object) {
-//
-//
-//            }
-//
-//            @Override
-//            public void onError(DatabaseError error) {
-//
-//            }
-//        });
-
-
 
         tv_teacherName.setText(teacher.getFullName());
-        tv_teacherDescription.setText(teacher.getTeacherResume());
+        String teacherResume = "Teacher Description not Found";
+        if(Tool.boolOf(teacher.getTeacherResume())){
+            teacherResume = teacher.getTeacherResume();
+        }
+        tv_teacherDescription.setText(teacherResume);
 
         btn_joinCourse.setOnClickListener(view1 -> {
-            Intent intent1 = new Intent(getContext(), RegisterCourse.class);
-            intent1.putExtra("Student", ((StudentScreen)getContext()).getStudent());
-            intent1.putExtra(Course.SERIALIZE_KEY_CODE, course);
+            Intent intent = new Intent(getContext(), RegisterCourse.class);
+            intent.putExtra("Student", ((StudentScreen)getContext()).getStudent());
+            intent.putExtra(Course.SERIALIZE_KEY_CODE, course);
+            startActivity(intent);
         });
+        CourseImageAdapter cia = new CourseImageAdapter(course.getImagesCloudinary());
+        setupCarousel(cia);
 
         return view;
     }
 
+    private void setupCarousel(CourseImageAdapter adapter){
+        vp_courseImages.setAdapter(adapter);
+
+        setupIndicators(adapter.getItemCount());
+        vp_courseImages.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                updateIndicators(position);
+            }
+        });
+
+    }
+
+    private void setupIndicators(int imageAmount) {
+        ll_ImageIndicators.removeAllViews();
+        for (int i = 0; i < imageAmount; i++) {
+            ImageView dot = new ImageView(getContext());
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(20, 20);
+            params.setMargins(4, 0, 4, 0);
+            dot.setLayoutParams(params);
+            dot.setImageResource(R.drawable.indicator_dot);
+            ll_ImageIndicators.addView(dot);
+        }
+        updateIndicators(0);
+    }
+
+    private void updateIndicators(int currentPosition) {
+        for (int i = 0; i < ll_ImageIndicators.getChildCount(); i++) {
+            ImageView dot = (ImageView) ll_ImageIndicators.getChildAt(i);
+            dot.setSelected(i == currentPosition);
+        }
+    }
+
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
         Bundle output = new Bundle();
         Course course =  (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
         if(course != null){
             Teacher teacher = Await.get(course::getTeacher);
             output.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
+            output.putSerializable(Course.SERIALIZE_KEY_CODE, course);
         }
         return output;
     }
@@ -131,6 +179,7 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
     @Override
     public void onDataLoaded(Bundle preloadedData) {
         teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+        course = (Course) preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
     }
 
     @Override

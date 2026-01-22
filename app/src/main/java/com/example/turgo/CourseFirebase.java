@@ -23,7 +23,6 @@ public class CourseFirebase implements FirebaseClass<Course>{
     private ArrayList<Integer> paymentPer; //accept per month or and per meeting
     private ArrayList<Integer> privateGroup; //accept private and or group?
     private ArrayList<String> dayTimeArrangement; //the days available for this course
-    private ArrayList<String> students;
     private ArrayList<String> schedules;
     private ArrayList<String>agendas;
     private ArrayList<String>studentsCourse;
@@ -44,7 +43,6 @@ public class CourseFirebase implements FirebaseClass<Course>{
         paymentPer = convertBooleanToInt(from.getPaymentPer());
         privateGroup = convertBooleanToInt(from.getPrivateGroup());
         dayTimeArrangement = convertToIdList(from.getDayTimeArrangement());
-        students = convertToIdList(from.getStudents());
         schedules = convertToIdList(from.getSchedules());
         agendas = convertToIdList(from.getAgenda());
         studentsCourse = convertToIdList(from.getStudentsCourse());
@@ -209,13 +207,6 @@ public class CourseFirebase implements FirebaseClass<Course>{
         this.dayTimeArrangement = dayTimeArrangement;
     }
 
-    public ArrayList<String> getStudents() {
-        return students;
-    }
-
-    public void setStudents(ArrayList<String> students) {
-        this.students = students;
-    }
 
     public ArrayList<String> getSchedules() {
         return schedules;

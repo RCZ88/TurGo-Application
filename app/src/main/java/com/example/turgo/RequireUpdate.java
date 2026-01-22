@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
     FirebaseNode getFirebaseNode();
@@ -210,210 +211,272 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
             }
         });
     }
-    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>> void findAggregatedObject( Class<CO> containerClass, String varName, ObjectCallBack<CO> callBack) throws IllegalAccessException, InstantiationException {
-
-        DatabaseReference dbRef = FirebaseDatabase.getInstance()
-                .getReference(containerClass.newInstance().getFirebaseNode().getPath());
-
-        // 🔥 Apply indexed query, then cast back to DatabaseReference
-        Query indexedQuery = dbRef.orderByChild(varName + "/id").equalTo(getID());
-        indexedQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!snapshot.exists() || !snapshot.hasChildren()) {
-                    try {
-                        callBack.onObjectRetrieved(null);
-                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return;
-                }
-
-                // ✅ ONLY 1 RESULT due to indexed query
-                DataSnapshot container = snapshot.getChildren().iterator().next();
-                DataSnapshot part = container.child(varName);
-
-                if (!part.exists()) {
-                    try {
-                        callBack.onObjectRetrieved(null);
-                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return;
-                }
-
-                Object raw = part.getValue();
-                COFB fbc = null;
-
-                // Handle both List and single object (your original logic)
-                if (raw instanceof List) {
-                    for (Object obj : (List<?>) raw) {
-                        if (obj instanceof FirebaseClass && ((COFB) obj).getID().equals(getID())) {
-                            fbc = (COFB) obj;
-                            break;
-                        }
-                    }
-                } else {
-                    fbc = (COFB) raw;  // Single object case
-                }
-
-                if (fbc == null) {
-                    try {
-                        callBack.onObjectRetrieved(null);
-                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-                    return;
-                }
-
-                // ✅ Convert FirebaseClass → RequireUpdate (your original logic)
-                try {
-                    fbc.convertToNormal(new ObjectCallBack<CO>() {
-                        @Override
-                        public void onObjectRetrieved(CO object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                            callBack.onObjectRetrieved(object);
-                        }
-
-                        @Override
-                        public void onError(DatabaseError error) {
-                            callBack.onError(error);
-                        }
-                    });
-                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                         IllegalAccessException | InstantiationException e) {
-                    Log.e("findAggregatedObject", "Conversion failed", e);
-                    try {
-                        callBack.onObjectRetrieved(null);
-                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | InstantiationException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("findAggregatedObject", "Query cancelled: " + error.getMessage());
-                callBack.onError(error);
-            }
-        });
-    }
-
-
-    // In RequireUpdate or a utils class
     default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>>
-    void findAllAggregatedObjects(
-            Class<CO> containerClass,
-            String varName,                    // e.g. "schedules"
-            ObjectCallBack<ArrayList<CO>> callBack
-    ) throws IllegalAccessException, InstantiationException {
+    void findAggregatedObject(Class<CO> containerClass, String varName, ObjectCallBack<CO> callBack)
+            throws IllegalAccessException, InstantiationException {
 
-        DatabaseReference dbRef = FirebaseDatabase.getInstance()
-                .getReference(containerClass.newInstance().getFirebaseNode().getPath());
+        CO tempInstance = containerClass.newInstance();
+        String path = tempInstance.getFirebaseNode().getPath();
+        String searchId = getID();
 
-        // Optional: index on varName + "/id" if each element under varName has its own id
-        // Otherwise this will be a scan, but only once per containerClass.
+        Log.d("findAggregatedObject", "🔍 Scanning: " + path + " | varName: " + varName + " | searching ID: " + searchId);
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(path);
+
+        // ⚠️ NO QUERY - Must scan ALL containers
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<CO> result = new ArrayList<>();
+                Log.d("findAggregatedObject", "📊 Scanning " + snapshot.getChildrenCount() + " containers...");
 
-                for (DataSnapshot container : snapshot.getChildren()) {
-                    DataSnapshot part = container.child(varName);
-                    if (!part.exists()) continue;
+                if (!snapshot.exists() || !snapshot.hasChildren()) {
+                    Log.w("findAggregatedObject", "❌ No containers found at path: " + path);
+                    try {
+                        callBack.onObjectRetrieved(null);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
 
-                    Object raw = part.getValue();
-                    if (raw == null) continue;
+                // 🔍 Scan through all containers (teachers, courses, etc.)
+                for (DataSnapshot containerSnapshot : snapshot.getChildren()) {
+                    DataSnapshot arraySnapshot = containerSnapshot.child(varName);
 
-                    // Case 1: list of FirebaseClass elements
-                    if (raw instanceof List) {
-                        @SuppressWarnings("unchecked")
-                        List<Object> list = (List<Object>) raw;
+                    if (!arraySnapshot.exists()) {
+                        continue; // This container doesn't have the field
+                    }
 
-                        boolean found = false;
-                        for (Object obj : list) {
-                            if (obj instanceof FirebaseClass) {
-                                FirebaseClass<?> fbc = (FirebaseClass<?>) obj;
-                                if (getID().equals(fbc.getID())) {
-                                    found = true;
-                                    break;
-                                }
-                            }
+                    // Check if array contains our ID
+                    boolean found = false;
+                    for (DataSnapshot itemSnapshot : arraySnapshot.getChildren()) {
+                        String itemId = itemSnapshot.getValue(String.class);
+                        if (searchId.equals(itemId)) {
+                            found = true;
+                            Log.d("findAggregatedObject", "✅ FOUND in container: " + containerSnapshot.getKey());
+                            break;
                         }
+                    }
 
-                        if (found) {
-                            COFB fbcContainer = null;
-                            try {
-                                fbcContainer = container.getValue((Class<COFB>) containerClass.newInstance().getFirebaseClass());
-                            } catch (IllegalAccessException | InstantiationException e) {
-                                throw new RuntimeException(e);
+                    if (found) {
+                        // Convert this container to object
+                        try {
+                            Class<COFB> fbClass = (Class<COFB>) Class.forName(
+                                    containerClass.getName() + "Firebase"
+                            );
+
+                            COFB fbc = containerSnapshot.getValue(fbClass);
+
+                            if (fbc == null) {
+                                Log.e("findAggregatedObject", "❌ Failed to parse container");
+                                callBack.onObjectRetrieved(null);
+                                return;
                             }
-                            if (fbcContainer != null) {
-                                try {
-                                    fbcContainer.convertToNormal(new ObjectCallBack<CO>() {
-                                        @Override
-                                        public void onObjectRetrieved(CO object) {
-                                            result.add(object);
-                                        }
 
-                                        @Override
-                                        public void onError(DatabaseError error) {
-                                            // ignore single errors, we’re aggregating
-                                        }
-                                    });
-                                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                                         IllegalAccessException | InstantiationException e) {
-                                    // ignore this container, continue
+                            Log.d("findAggregatedObject", "📦 Converting: " + fbc.getClass().getSimpleName());
+
+                            // Convert Firebase → Normal
+                            ((FirebaseClass<CO>) fbc).convertToNormal(new ObjectCallBack<CO>() {
+                                @Override
+                                public void onObjectRetrieved(CO object) {
+                                    Log.d("findAggregatedObject", "🎉 SUCCESS: " + object.getClass().getSimpleName());
+                                    try {
+                                        callBack.onObjectRetrieved(object);
+                                    } catch (ParseException | InvocationTargetException |
+                                             NoSuchMethodException | IllegalAccessException |
+                                             InstantiationException e) {
+                                        throw new RuntimeException(e);
+                                    }
                                 }
-                            }
-                        }
 
-                        // Case 2: map of id → FirebaseClass
-                    } else if (raw instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> map = (Map<String, Object>) raw;
-                        if (map.containsKey(getID())) {
-                            COFB fbcContainer = null;
-                            try {
-                                fbcContainer = container.getValue((Class<COFB>) containerClass.newInstance().getFirebaseClass());
-                            } catch (IllegalAccessException | InstantiationException e) {
-                                throw new RuntimeException(e);
-                            }
-                            if (fbcContainer != null) {
-                                try {
-                                    fbcContainer.convertToNormal(new ObjectCallBack<CO>() {
-                                        @Override
-                                        public void onObjectRetrieved(CO object) {
-                                            result.add(object);
-                                        }
-
-                                        @Override
-                                        public void onError(DatabaseError error) {
-                                            // ignore
-                                        }
-                                    });
-                                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                                         IllegalAccessException | InstantiationException e) {
-                                    // ignore
+                                @Override
+                                public void onError(DatabaseError error) {
+                                    Log.e("findAggregatedObject", "💥 Conversion error: " + error.getMessage());
+                                    callBack.onError(error);
                                 }
+                            });
+
+                            return; // Found and processing
+
+                        } catch (Exception e) {
+                            Log.e("findAggregatedObject", "💥 Error processing container", e);
+                            try {
+                                callBack.onObjectRetrieved(null);
+                            } catch (ParseException | InvocationTargetException |
+                                     NoSuchMethodException | IllegalAccessException |
+                                     InstantiationException ex) {
+                                throw new RuntimeException(ex);
                             }
+                            return;
                         }
                     }
                 }
 
+                // Not found in any container
+                Log.w("findAggregatedObject", "❌ ID not found in any container's " + varName);
                 try {
-                    callBack.onObjectRetrieved(result);
-                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                         IllegalAccessException | InstantiationException e) {
+                    callBack.onObjectRetrieved(null);
+                } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("findAggregatedObject", "🚫 Query cancelled: " + error.getMessage());
+                callBack.onError(error);
+            }
+        });
+    }
+
+
+
+
+    // In RequireUpdate or a utils class
+    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>>
+    void findAllAggregatedObjects(
+            Class<CO> containerClass,
+            String varName,
+            ObjectCallBack<ArrayList<CO>> callBack
+    ) throws IllegalAccessException, InstantiationException {
+
+        CO tempInstance = containerClass.newInstance();
+        String path = tempInstance.getFirebaseNode().getPath();
+        String searchId = getID();
+
+        Log.d("findAllAggregatedObjects", "🔍 Scanning: " + path + " | varName: " + varName + " | searching ID: " + searchId);
+
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(path);
+
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("findAllAggregatedObjects", "📊 Scanning " + snapshot.getChildrenCount() + " containers...");
+
+                ArrayList<CO> result = new ArrayList<>();
+
+                if (!snapshot.exists() || !snapshot.hasChildren()) {
+                    Log.w("findAllAggregatedObjects", "❌ No containers found");
+                    try {
+                        callBack.onObjectRetrieved(result); // Return empty list
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
+
+                // Track async conversions
+                AtomicInteger pendingConversions = new AtomicInteger(0);
+                List<DataSnapshot> matchingContainers = new ArrayList<>();
+
+                // PHASE 1: Find all matching containers (synchronous scan)
+                for (DataSnapshot containerSnapshot : snapshot.getChildren()) {
+                    DataSnapshot arraySnapshot = containerSnapshot.child(varName);
+
+                    if (!arraySnapshot.exists()) {
+                        continue;
+                    }
+
+                    // Check if this container's array contains our ID
+                    boolean found = false;
+                    for (DataSnapshot itemSnapshot : arraySnapshot.getChildren()) {
+                        String itemId = itemSnapshot.getValue(String.class);
+                        if (itemId != null && itemId.equals(searchId)) {
+                            found = true;
+                            Log.d("findAllAggregatedObjects", "✅ Match in container: " + containerSnapshot.getKey());
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        matchingContainers.add(containerSnapshot);
+                    }
+                }
+
+                Log.d("findAllAggregatedObjects", "📦 Found " + matchingContainers.size() + " matching containers");
+
+                if (matchingContainers.isEmpty()) {
+                    try {
+                        callBack.onObjectRetrieved(result); // Return empty list
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return;
+                }
+
+                // PHASE 2: Convert all matching containers (async)
+                pendingConversions.set(matchingContainers.size());
+
+                for (DataSnapshot containerSnapshot : matchingContainers) {
+                    try {
+                        // Get the FirebaseClass type
+                        Class<COFB> fbClass = (Class<COFB>) Class.forName(
+                                containerClass.getName() + "Firebase"
+                        );
+
+                        COFB fbcContainer = containerSnapshot.getValue(fbClass);
+
+                        if (fbcContainer == null) {
+                            Log.e("findAllAggregatedObjects", "❌ Failed to parse container: " + containerSnapshot.getKey());
+                            if (pendingConversions.decrementAndGet() == 0) {
+                                callBack.onObjectRetrieved(result);
+                            }
+                            continue;
+                        }
+
+                        Log.d("findAllAggregatedObjects", "🔄 Converting: " + containerSnapshot.getKey());
+
+                        // Convert Firebase → Normal (async!)
+                        ((FirebaseClass<CO>) fbcContainer).convertToNormal(new ObjectCallBack<CO>() {
+                            @Override
+                            public void onObjectRetrieved(CO object) {
+                                synchronized (result) {
+                                    result.add(object);
+                                    Log.d("findAllAggregatedObjects", "✅ Converted: " + object.getClass().getSimpleName());
+                                }
+
+                                // Check if all conversions done
+                                if (pendingConversions.decrementAndGet() == 0) {
+                                    Log.d("findAllAggregatedObjects", "🎉 All conversions complete: " + result.size() + " objects");
+                                    try {
+                                        callBack.onObjectRetrieved(result);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onError(DatabaseError error) {
+                                Log.e("findAllAggregatedObjects", "💥 Conversion error: " + error.getMessage());
+
+                                // Still decrement and check completion
+                                if (pendingConversions.decrementAndGet() == 0) {
+                                    try {
+                                        callBack.onObjectRetrieved(result);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                            }
+                        });
+
+                    } catch (Exception e) {
+                        Log.e("findAllAggregatedObjects", "💥 Error processing container", e);
+                        if (pendingConversions.decrementAndGet() == 0) {
+                            try {
+                                callBack.onObjectRetrieved(result);
+                            } catch (Exception ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("findAllAggregatedObjects", "🚫 Query cancelled: " + error.getMessage());
                 callBack.onError(error);
             }
         });

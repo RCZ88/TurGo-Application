@@ -63,10 +63,8 @@ public class MeetingDisplay extends Fragment implements RequiresDataLoading{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
     }
 
     @SuppressLint("MissingInflatedId")
@@ -98,7 +96,7 @@ public class MeetingDisplay extends Fragment implements RequiresDataLoading{
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
         Bundle output = new Bundle();
         Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
         Schedule schedule = Await.get(student.getNextMeeting()::getMeetingOfSchedule);

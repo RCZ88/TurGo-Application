@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import static com.example.turgo.Tool.boolOf;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +46,6 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder>{
 
     @Override
     public int getItemCount() {
-        return schedules.size();
+        return boolOf(schedules.size()) ? schedules.size() : 0;
     }
 }

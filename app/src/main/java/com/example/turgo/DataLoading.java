@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -31,73 +32,102 @@ public class DataLoading extends AppCompatActivity {
         pb_loading = findViewById(R.id.pb_ADL_LoadingCircle);
         startLoading();
     }
+
+    public interface ProgressCallback {
+        void onProgress(String status);
+    }
+
     private void startLoading(){
         tv_statusText.setText("Loading Data...");
 
         boolean isFragment = getIntent().getBooleanExtra(DLIntentMessage.EXTRA_IS_FRAGMENT.getIntentMessage(), false);
-        String targetClassName = isFragment?
-                getIntent().getStringExtra(DLIntentMessage.EXTRA_TARGET_FRAGMENT.getIntentMessage())
-                : getIntent().getStringExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage());
+        Class<? extends RequiresDataLoading>targetClass = (Class<? extends RequiresDataLoading>) (isFragment?
+                getIntent().getSerializableExtra(DLIntentMessage.EXTRA_TARGET_FRAGMENT.getIntentMessage())
+                : getIntent().getSerializableExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage()));
         Bundle input = getIntent().getBundleExtra(DLIntentMessage.EXTRA_LOADING_INPUT.getIntentMessage());
+        User user = (User) getIntent().getSerializableExtra(DLIntentMessage.EXTRA_TARGET_USER.getIntentMessage());
+        int selectedBottomNav = getIntent().getIntExtra(DLIntentMessage.EXTRA_TARGET_BOTTOM_NAV.getIntentMessage(), -1);
+        Log.d("selectedBottomNav", "on DataLoading - startLoading(): " + selectedBottomNav);
         new Thread(()->{
-            try{
-                Class<?> targetClass = Class.forName("com.example.turgo." + targetClassName);
-                if(RequiresDataLoading.class.isAssignableFrom(targetClass)){
-                    throw new IllegalArgumentException(
-                            targetClassName + " must implement RequiresDataLoading"
-                    );
-                }
-                RequiresDataLoading loader = (RequiresDataLoading) targetClass.newInstance();
-
-                Bundle preloadedData = loader.loadDataInBackground(input, tv_statusText);
-
-                runOnUiThread(()->{
-                    try{
-                        if(isFragment){
-                            loadFragment(preloadedData, targetClassName);
-                        }else{
-                            loadActivity(preloadedData, targetClassName);
-                        }
-                    }catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-            } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-                Log.e("DataLoadingActivity", "Loading failed", e);
-                runOnUiThread(() -> {
-                    Toast.makeText(this,
-                            "Failed to load: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
-                    finish();
-                });
+            if(!RequiresDataLoading.class.isAssignableFrom(targetClass)){
+                throw new IllegalArgumentException(
+                        targetClass + " must implement RequiresDataLoading"
+                );
             }
+            RequiresDataLoading loader = null;
+            try {
+                loader = targetClass.newInstance();
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            ProgressCallback callback = status -> runOnUiThread(() ->
+                    tv_statusText.setText(status));
+
+            Bundle preloadedData = loader.loadDataInBackground(input, callback);
+
+            runOnUiThread(()->{
+                try{
+                    if(isFragment){
+                        loadFragment(preloadedData, targetClass, user, selectedBottomNav);
+                    }else{
+                        loadActivity(preloadedData, targetClass, user);
+                    }
+                }catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }).start();
     }
 
-    private void loadActivity(Bundle bundle, String targetClass) throws ClassNotFoundException {
-        Intent intent = new Intent(this, Class.forName(targetClass));
+    private void loadActivity(Bundle bundle, Class<?> targetClass, User user) throws ClassNotFoundException {
+        Intent intent = new Intent(this, targetClass);
         intent.putExtras(bundle);
+        intent.putExtra("FullUserObject", user);
         startActivity(intent);
         finish();
     }
-    private void loadFragment(Bundle bundle, String targetFragment) throws ClassNotFoundException {
-        String containerActivity = getIntent().getStringExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage());
-        Intent intent = new Intent(this, Class.forName(containerActivity));
+    private void loadFragment(Bundle bundle, Class<? extends RequiresDataLoading> targetFragment, User user, int bottomNavMenuId) throws ClassNotFoundException {
+        Class<? extends AppCompatActivity> containerActivity = (Class<? extends AppCompatActivity>)getIntent().getSerializableExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage());
+        Intent intent = new Intent(this, containerActivity);
         intent.putExtras(bundle);
+        intent.putExtra("FullUserObject", user);
         intent.putExtra("FragmentToLoad", targetFragment);
+        if(bottomNavMenuId!= -1){
+            intent.putExtra("BottomNavToSelect", bottomNavMenuId);
+        }
         startActivity(intent);
         finish();
     }
-    public static void loadAndNavigate(Context context, Class<? extends RequiresDataLoading>view, Bundle input, boolean isFragment, String activityContainer){
+    public static void loadAndNavigate(Context context, Class<? extends RequiresDataLoading>view, Bundle input, boolean isFragment, Class<? extends AppCompatActivity> activityContainer, User user){
+        Toast.makeText(context, "Loading And Navigating (DATA LOADING)", Toast.LENGTH_SHORT).show();
+        Log.d("DataLoading", "Loading and Navigating to View: " + view.getSimpleName());
         Intent intent = new Intent(context, DataLoading.class);
 
         intent.putExtra(DLIntentMessage.EXTRA_LOADING_INPUT.getIntentMessage(), input);
         intent.putExtra(DLIntentMessage.EXTRA_IS_FRAGMENT.getIntentMessage(), isFragment);
         if(isFragment){
-            intent.putExtra(DLIntentMessage.EXTRA_TARGET_FRAGMENT.getIntentMessage(), view.getSimpleName());
+            intent.putExtra(DLIntentMessage.EXTRA_TARGET_FRAGMENT.getIntentMessage(), view);
         }
-        String activityName = isFragment?activityContainer : view.getSimpleName();
-        intent.putExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage(), activityName);
+        Class<?> activity = isFragment? activityContainer : view;
+        intent.putExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage(), activity);
+        intent.putExtra(DLIntentMessage.EXTRA_TARGET_USER.getIntentMessage(), user);
+        context.startActivity(intent);
+    }
+    public static void loadAndNavigate(Context context, Class<? extends RequiresDataLoading>view, Bundle input, boolean isFragment, Class<?> activityContainer, User user, int ofBottomNav){
+        Toast.makeText(context, "Loading And Navigating (DATA LOADING)", Toast.LENGTH_SHORT).show();
+        Log.d("DataLoading", "Loading and Navigating to View: " + view.getSimpleName());
+        Intent intent = new Intent(context, DataLoading.class);
+
+        intent.putExtra(DLIntentMessage.EXTRA_LOADING_INPUT.getIntentMessage(), input);
+        intent.putExtra(DLIntentMessage.EXTRA_IS_FRAGMENT.getIntentMessage(), isFragment);
+        if(isFragment){
+            intent.putExtra(DLIntentMessage.EXTRA_TARGET_FRAGMENT.getIntentMessage(), view);
+            Log.d("selectedBottomNav", "on DataLoading - loadAndNavigate(): " + ofBottomNav);
+            intent.putExtra(DLIntentMessage.EXTRA_TARGET_BOTTOM_NAV.getIntentMessage(), ofBottomNav);
+        }
+        Class<?> activity = isFragment?activityContainer : view;
+        intent.putExtra(DLIntentMessage.EXTRA_TARGET_ACTIVITY.getIntentMessage(), activity);
+        intent.putExtra(DLIntentMessage.EXTRA_TARGET_USER.getIntentMessage(), user);
 
         context.startActivity(intent);
     }

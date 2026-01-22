@@ -1,6 +1,5 @@
 package com.example.turgo;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -33,8 +32,9 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
             ,tv_noActiveCourses, tv_noRecentStudentSubmit;
     RecyclerView rv_activeCourses, rv_recentStudentSubmit;
 
-    ArrayList<Course> teacherCoursesTeach;
-    ArrayList<Meeting>nextMeetingOfCourses;
+    ArrayList<Course> teacherCoursesTeach = new ArrayList<>();
+    ArrayList<Integer> studentCountOfCourses = new ArrayList<>();
+    ArrayList<Meeting>nextMeetingOfCourses = new ArrayList<>();
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -155,11 +155,12 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tct);
         });
 
-        btn_addAgenda.setOnClickListener(view1 -> {
-            Log.d("TeacherDashboard", "Add Agenda clicked");
-            TeacherAddAgenda taa = new TeacherAddAgenda();
-            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
-        });
+//        btn_addAgenda.setOnClickListener(view1 -> {
+//            Log.d("TeacherDashboard", "Add Agenda clicked");
+//            TeacherAddAgenda taa = new TeacherAddAgenda();
+//
+//            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
+//        });
 
         btn_addDTA.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add DTA clicked");
@@ -186,7 +187,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
 
         Log.d("TeacherDashboard", "Creating CourseTeachersAdapter...");
         //async - completed
-        CourseTeachersAdapter cta = new CourseTeachersAdapter(coursesTeach, nextMeetingOfCourses, new OnItemClickListener<>() {
+        CourseTeachersAdapter cta = new CourseTeachersAdapter(coursesTeach, nextMeetingOfCourses, studentCountOfCourses, new OnItemClickListener<>() {
             @Override
             public void onItemClick(Course item) {
                 Log.d("TeacherDashboard", "Course clicked: " + item);
@@ -260,14 +261,17 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
         Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
         ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
         ArrayList<Meeting>nextMeetingOfCourses = teacherCoursesTeach.stream().map(course-> course.getNextMeetingOfNextSchedule()).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> studentCountOfCourses = Tool.streamToArray(teacherCoursesTeach.stream().map(course -> Await.get(course::getStudents).size()));
 
         Bundle output = new Bundle();
         output.putSerializable("teacherCoursesTeach", teacherCoursesTeach);
         output.putSerializable("nextMeetingOfCourses", nextMeetingOfCourses);
+        output.putSerializable("studentCountOfCourses", studentCountOfCourses);
+
         return output;
     }
 
@@ -275,6 +279,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
     public void onDataLoaded(Bundle preloadedData) {
         teacherCoursesTeach = (ArrayList<Course>) preloadedData.getSerializable("teacherCoursesTeacher");
         nextMeetingOfCourses = (ArrayList<Meeting>) preloadedData.getSerializable("nextMeetingOfCourses");
+        studentCountOfCourses = (ArrayList<Integer>) preloadedData.getSerializable("studentCountOfCourses");
     }
 
     @Override

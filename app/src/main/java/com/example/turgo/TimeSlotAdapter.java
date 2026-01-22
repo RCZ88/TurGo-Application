@@ -14,10 +14,11 @@ import java.util.ArrayList;
 
 public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotViewHolder> {
     private ArrayList<TimeSlot>timeSlots;
-    private OnItemClickListener<TimeSlot>listener;
+    private OnItemClickListener<SelectedIndicatorHelper<TimeSlot>>listener;
+    private TimeSlotViewHolder currentHolder;
     private DayOfWeek day;
     private int selectedPosition = RecyclerView.NO_POSITION;
-    public TimeSlotAdapter(ArrayList<TimeSlot>ts, OnItemClickListener<TimeSlot>listener, DayOfWeek day){
+    public TimeSlotAdapter(ArrayList<TimeSlot>ts, OnItemClickListener<SelectedIndicatorHelper<TimeSlot>>listener, DayOfWeek day){
         timeSlots = ts;
         this.listener = listener;
         this.day = day;
@@ -35,24 +36,36 @@ public class TimeSlotAdapter extends RecyclerView.Adapter<TimeSlotViewHolder> {
         holder.tv_timeSlot.setText(timeSlots.get(position).toStr());
         holder.setTS(timeSlots.get(position));
 
-        if (position == selectedPosition) {
-            holder.itemView.setAlpha(0.5f);
-        } else {
-            holder.itemView.setAlpha(1.0f);
-        }
+    }
 
-        holder.itemView.setOnClickListener(v ->{
-            int previousPosition = selectedPosition;
-            selectedPosition = position;
+    public ArrayList<TimeSlot> getTimeSlots() {
+        return timeSlots;
+    }
 
-            notifyItemChanged(previousPosition);
-            notifyItemChanged(selectedPosition);
-        });
+    public TimeSlotViewHolder getCurrentHolder() {
+        return currentHolder;
+    }
+
+    public void setCurrentHolder(TimeSlotViewHolder currentHolder) {
+        this.currentHolder = currentHolder;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setTimeSlots(ArrayList<TimeSlot> timeSlots) {
+        this.timeSlots = timeSlots;
+        notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
         return timeSlots.size();
+    }
+    public DayOfWeek getDay() {
+        return day;
+    }
+
+    public void setDay(DayOfWeek day) {
+        this.day = day;
     }
 
 

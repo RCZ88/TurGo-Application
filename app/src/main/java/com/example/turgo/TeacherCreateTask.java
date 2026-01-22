@@ -147,23 +147,31 @@ public class TeacherCreateTask extends Fragment {
             }
         });
         if(courseSelected[0] != null){
-            ArrayList<Student>studentsOfCourse = new ArrayList<>();
-            if(courseSelected[0].getStudents() != null){
-                studentsOfCourse = courseSelected[0].getStudents();
-            }
-            sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, studentsOfCourse));
-            sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            final ArrayList<Student>[] studentsOfCourse = new ArrayList[]{new ArrayList<>()};
+            Tool.run(requireActivity(), "Loading Student of Course Selected",
+                    ()->{
+                        studentsOfCourse[0] = Await.get(courseSelected[0]::getStudents);
+                    },
+                    ()->{
+                        if(studentsOfCourse[0] != null){
+                            sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, studentsOfCourse[0]));
+                            sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    studentSelected[0] = (Student)parent.getSelectedItem();
-                }
+                                @Override
+                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                                    studentSelected[0] = (Student)parent.getSelectedItem();
+                                }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
+                                @Override
+                                public void onNothingSelected(AdapterView<?> parent) {
 
-                }
-            });
+                                }
+                            });
+                        }
+                    },
+                    e ->{
+
+                    });
         }else{
             sp_studentSelect.setEnabled(false);
         }

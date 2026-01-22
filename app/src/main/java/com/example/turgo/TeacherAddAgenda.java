@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Use the {@link TeacherAddAgenda#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherAddAgenda extends Fragment {
+public class TeacherAddAgenda extends Fragment implements RequiresDataLoading{
 
     Spinner sp_AgendaOfCourse, sp_SelectStudent, sp_SelectMeeting;
     EditText etml_AgendaContents;
@@ -47,9 +47,13 @@ public class TeacherAddAgenda extends Fragment {
     TextView tv_presetStudents, tv_presetCourses;
     Teacher teacher;
 
+    ArrayList<Student> finalPresetStudents;
+
     private OnFileSelectedListener currentUploadCallback;
     private static final int FILE_PICKER_REQUEST_CODE = 100;
     private ActivityResultLauncher<Intent> filePickerLauncher;
+
+    Course presetCourse;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -112,19 +116,18 @@ public class TeacherAddAgenda extends Fragment {
         AtomicReference<Uri> selectedFileUri = new AtomicReference<>();
 
         ArrayList<Student>presetStudents = new ArrayList<>();
-        Course presetCourse;
+
 
         Bundle bundle = getArguments();
         boolean presetStudentCourse = bundle != null && bundle.containsKey("presetStudent") && bundle.containsKey("presentCourse");
         toggleView(presetStudentCourse);
         if(presetStudentCourse){
-            presetStudents = (ArrayList<Student>) bundle.getSerializable("presetUser");
             StringBuilder studentsString = new StringBuilder();
             for(Student student : presetStudents){
                 studentsString.append(student.getNickname()+", ");
             }
             tv_presetStudents.setText(studentsString.toString());
-            presetCourse = (Course) bundle.getSerializable("presentCourse");
+
             tv_presetCourses.setText(presetCourse.getCourseName());
         } else {
             presetCourse = null;
@@ -167,7 +170,7 @@ public class TeacherAddAgenda extends Fragment {
             }
         });
         final Student[] studentSelected = new Student[1];
-        sp_SelectStudent.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, courseSelected[0].getStudents()));
+        sp_SelectStudent.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, finalPresetStudents));
         sp_SelectStudent.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -208,7 +211,7 @@ public class TeacherAddAgenda extends Fragment {
         });
 
 
-        ArrayList<Student> finalPresetStudents = presetStudents;
+
         btn_SendAgenda.setOnClickListener(v -> {
             Agenda agenda = null;
             if(tb_AgendaFormat.isChecked()){
@@ -301,4 +304,24 @@ public class TeacherAddAgenda extends Fragment {
     }
 
 
+    @Override
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
+        Course course = (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
+        ArrayList<Student>students =  Await.get(course::getStudents);
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("studentOfCourse", students);
+        return bundle;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        presetCourse = (Course)preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
+        finalPresetStudents = (ArrayList<Student>)preloadedData.getSerializable(Student.SERIALIZE_KEY_CODE);
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
+    }
 }

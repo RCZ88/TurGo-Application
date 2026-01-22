@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleFirebase> {
     private final FirebaseNode fbn = FirebaseNode.SCHEDULE;
@@ -44,9 +45,22 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         }
         return nextMeeting;
     }
+
     public Schedule(){scheduleID = "";}
     public boolean isPrivate(){
         return this.isPrivate;
+    }
+    public static int maxStudentsOfSchedules(ArrayList<Schedule>schedules){
+        int maxStudents = 0;
+        if(schedules.isEmpty()){
+            return 1;
+        }
+        for(Schedule schedule : schedules){
+            if(schedule.numberOfStudents > maxStudents){
+                maxStudents = schedule.numberOfStudents;
+            }
+        }
+        return maxStudents;
     }
     public void setPrivate(boolean aPrivate) {
         isPrivate = aPrivate;

@@ -21,12 +21,14 @@ import java.util.ArrayList;
  * Use the {@link TeacherCourseScreen#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherCourseScreen extends Fragment {
+public class TeacherCourseScreen extends Fragment implements RequiresDataLoading {
     SearchView sv_StudentSearch;
     Button btn_ViewSchedule, btn_AddAgenda, btn_AssignTask;
     RecyclerView rv_listOfStudent;
     TextView tv_courseName;
     Course course;
+
+    ArrayList<Student>students;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -87,8 +89,7 @@ public class TeacherCourseScreen extends Fragment {
         }
 
         tv_courseName.setText(course.getCourseName());
-
-        ArrayList<Student>students = course.getStudents();
+        Teacher teacher = ((TeacherScreen) requireActivity()).getTeacher();
         ArrayList<Student>studentSelectedInList = new ArrayList<>();
         STCAdapter adapter = new STCAdapter(students, getContext(), new OnItemClickListener<>() {
             @Override
@@ -119,20 +120,38 @@ public class TeacherCourseScreen extends Fragment {
             getParentFragmentManager().beginTransaction().replace(R.id.nhf_ts_FragmentContainer , teacherCreateTask).addToBackStack(null).commit();
         });
         btn_AddAgenda.setOnClickListener(v -> {
-            TeacherAddAgenda teacherAddAgenda = new TeacherAddAgenda();
             Bundle bundle = new Bundle();
-            bundle.putSerializable("presetCourse", course);
-            bundle.putSerializable("presetStudents", students);
-            teacherAddAgenda.setArguments(bundle);
-
+            bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+            bundle.putSerializable(Student.SERIALIZE_KEY_CODE, students);
+            DataLoading.loadAndNavigate(requireContext(), TeacherAddAgenda.class, bundle, true, TeacherScreen.class, teacher);
         });
         btn_ViewSchedule.setOnClickListener(v -> {
-            Teacher teacher = ((TeacherScreen) requireActivity()).getTeacher();
+
             Bundle bundle = new Bundle();
             bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
-            DataLoading.loadAndNavigate(requireContext(), TeacherScheduleOfCourse.class, bundle, true, "TeacherScreen");
+            DataLoading.loadAndNavigate(requireContext(), TeacherScheduleOfCourse.class, bundle, true, TeacherScreen.class, teacher);
         });
         rv_listOfStudent.setAdapter(adapter);
         return view;
+    }
+
+    @Override
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
+        Course course = (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
+        assert course != null;
+        ArrayList<Student>students = Await.get(course::getStudents);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("students", students);
+        return bundle;
+    }
+
+    @Override
+    public void onDataLoaded(Bundle preloadedData) {
+        students = (ArrayList<Student>) preloadedData.getSerializable("students");
+    }
+
+    @Override
+    public void onLoadingError(Exception error) {
+
     }
 }

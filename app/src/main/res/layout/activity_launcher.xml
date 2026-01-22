@@ -17,7 +17,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/turgo_logo_black" />
+        app:srcCompat="@drawable/turgo_black_no_bg" />
 
     <ProgressBar
         android:id="@+id/pb_AL_LoadingApp"

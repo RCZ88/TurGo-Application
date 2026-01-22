@@ -27,16 +27,20 @@
         tools:targetApi="31">
         <activity
             android:name=".DataLoading"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".AdminCreateCourse"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AdminScreen"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ActivityLauncher"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -45,35 +49,44 @@
         </activity>
         <activity
             android:name=".ComposeMail"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".TeacherScreen"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".CreateCourse"
             android:exported="false"
-            android:theme="@style/Theme.TurGo" />
+            android:theme="@style/Theme.TurGo"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MailPageFull"
             android:exported="false"
-            android:label="@string/title_activity_mail_page_full" />
+            android:label="@string/title_activity_mail_page_full"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MailExpandFull"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".RegisterCourse"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".StudentScreen"
             android:exported="false"
-            android:label="@string/title_activity_student_screen" /> <!-- Your Activities -->
+            android:label="@string/title_activity_student_screen"
+            android:screenOrientation="portrait" /> <!-- Your Activities -->
         <activity
             android:name=".SignUpPage"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SignInPage"
             android:exported="false"
-            android:theme="@style/Theme.TurGo" />
+            android:theme="@style/Theme.TurGo"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
             android:exported="true" /> <!-- Firebase and Google Play Services Integration -->

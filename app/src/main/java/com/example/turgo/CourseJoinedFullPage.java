@@ -37,7 +37,7 @@ public class CourseJoinedFullPage extends Fragment implements RequiresDataLoadin
     RecyclerView rv_listOfTasks, rv_latestAgenda;
     Button btn_viewAllAgenda, btn_viewAllMeeting;
     TaskAdapter taskAdapter;
-    ArrayList<Task> tasks;
+    ArrayList<Task> tasks = new ArrayList<>();
     Teacher teacher;
 
     // TODO: Rename parameter arguments, choose names that match
@@ -75,10 +75,8 @@ public class CourseJoinedFullPage extends Fragment implements RequiresDataLoadin
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
     }
 
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -103,7 +101,7 @@ public class CourseJoinedFullPage extends Fragment implements RequiresDataLoadin
         tv_nextMeetingDate = view.findViewById(R.id.tv_cfp_NextMeeting);
         tv_noTaskMessage = view.findViewById(R.id.noTasksMessage);
         tv_courseTitle = view.findViewById(R.id.tv_cfp_CourseTitle);
-        iv_courseBackgroundImage = view.findViewById(R.id.courseImage);
+        iv_courseBackgroundImage = view.findViewById(R.id.iv_ecfp_courseWallpaper);
 
         rv_listOfTasks = view.findViewById(R.id.rv_cfp_ListOfTasks);
         rv_latestAgenda = view.findViewById(R.id.rv_cfp_ListOFAgenda);
@@ -214,7 +212,7 @@ public class CourseJoinedFullPage extends Fragment implements RequiresDataLoadin
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
         Bundle output = new Bundle();
         Course course = (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
         Teacher teacher = Await.get(course::getTeacher);

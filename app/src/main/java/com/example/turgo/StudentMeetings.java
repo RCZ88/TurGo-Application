@@ -27,8 +27,8 @@ public class StudentMeetings extends Fragment implements RequiresDataLoading {
     RecyclerView rv_futureMeeting, rv_pastMeetings;
     Course course;
     Student student;
-    ArrayList<Course>courses;
-    ArrayList<Meeting>meetings;
+    ArrayList<Course>courses = new ArrayList<>();
+    ArrayList<Meeting>meetings = new ArrayList<>();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -64,10 +64,8 @@ public class StudentMeetings extends Fragment implements RequiresDataLoading {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -89,7 +87,7 @@ public class StudentMeetings extends Fragment implements RequiresDataLoading {
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
         Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
         Course course = (Course) input.getSerializable(Course.SERIALIZE_KEY_CODE);
 

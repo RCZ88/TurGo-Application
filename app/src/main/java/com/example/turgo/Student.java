@@ -257,8 +257,8 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             }
         }
     }
-    public void joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        course.addStudent(this, paymentPreferences, privateOrGroup, payment, schedules);
+    public void joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        course.addStudent(this, paymentPreferences, privateOrGroup, payment, schedules, timeSlot);
         course.getSchedules().addAll(schedules);
         allSchedules = updateSchedule();
         addScheduledMeeting();
@@ -270,6 +270,9 @@ public class Student extends User implements Serializable, RequireUpdate<Student
 
 
     public ArrayList<StudentCourse> getStudentCourseTaken() {
+        if(studentCourseTaken == null){
+            studentCourseTaken = new ArrayList<>();
+        }
         return studentCourseTaken;
     }
 
@@ -516,30 +519,64 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                         for(DataSnapshot ds : snapshot.getChildren()){
                             CourseTypeFirebase ctf = ds.getValue(CourseTypeFirebase.class);
                             for(CourseFirebase cf : allCourses){
+
                                 if(cf.getCourseType().equals(ctf.getID())){
                                     courseInterested.add(cf);
                                     Log.d("Student", "Course Interest Added: " + cf);
                                 }
                             }
                         }
-
-                        Tool.<CourseFirebase, Course>convertFirebaseListToNormal(courseInterested, new Tool.ConvertToNormalCallback<>() {
-                            @Override
-                            public void onAllConverted(ArrayList<Course> normalList) {
-                                try {
-                                    callback.onObjectRetrieved(normalList);
-                                } catch (ParseException | InvocationTargetException |
-                                         NoSuchMethodException | IllegalAccessException |
-                                         InstantiationException e) {
-                                    throw new RuntimeException(e);
-                                }
+                        if(courseInterested.isEmpty()){
+                            try {
+                                callback.onObjectRetrieved(new ArrayList<>());
+                            } catch (ParseException | InvocationTargetException |
+                                     NoSuchMethodException | IllegalAccessException |
+                                     InstantiationException e) {
+                                throw new RuntimeException(e);
                             }
+                        }
+                        ArrayList<Course> courses = new ArrayList<>();
+                        for(int i = 0; i < courseInterested.size(); i++){
+                            int finalI = i;
+                            try {
+                                courseInterested.get(i).convertToNormal(new ObjectCallBack<>() {
+                                    @Override
+                                    public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                                        courses.add(object);
+                                        if (finalI == courseInterested.size() - 1) {
+                                            callback.onObjectRetrieved(courses);
+                                        }
+                                    }
 
-                            @Override
-                            public void onError(DatabaseError error) {
+                                    @Override
+                                    public void onError(DatabaseError error) {
 
+                                    }
+                                });
+                            } catch (ParseException | InvocationTargetException |
+                                     NoSuchMethodException | IllegalAccessException |
+                                     InstantiationException e) {
+                                throw new RuntimeException(e);
                             }
-                        });
+                        }
+
+//                        Tool.<CourseFirebase, Course>convertFirebaseListToNormal(courseInterested, new Tool.ConvertToNormalCallback<>() {
+//                            @Override
+//                            public void onAllConverted(ArrayList<Course> normalList) {
+//                                try {
+//                                    callback.onObjectRetrieved(normalList);
+//                                } catch (ParseException | InvocationTargetException |
+//                                         NoSuchMethodException | IllegalAccessException |
+//                                         InstantiationException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onError(DatabaseError error) {
+//
+//                            }
+//                        });
                     }
 
                     @Override

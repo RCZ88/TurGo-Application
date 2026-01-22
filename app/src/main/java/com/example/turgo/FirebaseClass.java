@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -143,6 +144,18 @@ public interface FirebaseClass<F>{
                             Object value = snapshot.child(fieldName).getValue(field.getType());
                             Log.d("constructClass", "  → Primitive/Basic field '" + fieldName + "' = " + value);
                             field.set(object, value);
+                        }
+                        else if(field.getType() == LocalTime.class){
+                            String timeString = snapshot.child(fieldName).getValue(String.class);
+                            LocalTime time = LocalTime.parse(timeString);
+                            Log.d("constructClass", "  → LocalTime field '" + fieldName + "' = " + time);
+                            field.set(object, time);
+                        }
+                        else if(field.getType() == LocalDateTime.class){
+                            String dateTimeString = snapshot.child(fieldName).getValue(String.class);
+                            LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+                            Log.d("constructClass", "  → LocalDateTime field '" + fieldName + "' = " + dateTime);
+                            field.set(object, dateTime);
                         }
                         // Handle ArrayList
                         else if(field.getType() == ArrayList.class){

@@ -26,6 +26,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -87,24 +88,20 @@ public class cc_CourseInformation extends Fragment implements checkFragmentCompl
         etml_CourseDescription = view.findViewById(R.id.etml_CC_CourseDescription);
         sp_CourseTypes = view.findViewById(R.id.sp_CC_CourseType);
 
-//        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSETYPE.getPath());
-
-        ArrayList<CourseType>courses = new ArrayList<>();
-        String[] items = getResources().getStringArray(R.array.course_options);
-        for(String item : items){
-            try {
-                CourseType courseType = new CourseType(item);
-                courses.add(courseType);
-                Log.d(tag, "Course Type Item Added: " + courseType);
-            } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
-                     InstantiationException | java.lang.InstantiationException e) {
-                throw new RuntimeException(e);
+        retrieveCourseTypes(new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(ArrayList<CourseType> object) {
+                ArrayAdapter<CourseType> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, object);
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                sp_CourseTypes.setAdapter(adapter);
             }
 
-        }
-        ArrayAdapter<CourseType> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, courses);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sp_CourseTypes.setAdapter(adapter);
+            @Override
+            public void onError(DatabaseError error) {
+
+            }
+        });
+
         if(cc.courseName != null){
             if(cc.courseName.isEmpty()){
                 et_CourseName.setText(cc.courseName);
@@ -168,7 +165,97 @@ public class cc_CourseInformation extends Fragment implements checkFragmentCompl
 
         return view;
     }
+    private void retrieveCourseTypes(ObjectCallBack<ArrayList<CourseType>>callback){
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSETYPE.getPath());
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<CourseTypeFirebase> firebaseTypes = new ArrayList<>();
+                int totalCount = 0;
 
+                // 🔥 Count + collect ALL first
+                for (DataSnapshot child : snapshot.getChildren()) {
+                    CourseTypeFirebase ctf = child.getValue(CourseTypeFirebase.class);
+                    if (ctf != null) {
+                        firebaseTypes.add(ctf);
+                        totalCount++;
+                    }
+                }
+
+                Log.d("CourseTypeLoop", "📊 Total to process: " + totalCount);
+
+                if (totalCount == 0) {
+                    try {
+                        callback.onObjectRetrieved(new ArrayList<>());
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | java.lang.InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+                AtomicInteger completedCount = new AtomicInteger(0);
+                ArrayList<CourseType> courseTypes = new ArrayList<>();
+
+                // 🔥 Process each with counter
+                for (CourseTypeFirebase ctf : firebaseTypes) {
+                    int finalTotalCount = totalCount;
+                    try {
+                        ctf.convertToNormal(new ObjectCallBack<CourseType>() {
+                            @Override
+                            public void onObjectRetrieved(CourseType object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                                if (object != null) {
+                                    courseTypes.add(object);
+                                }
+
+                                int done = completedCount.incrementAndGet();
+                                Log.d("CourseTypeLoop", "✅ " + done + "/" + finalTotalCount + " completed");
+
+                                // 🔥 FINAL CHECK!
+                                if (done == finalTotalCount) {
+                                    Log.d("CourseTypeLoop", "🎉 ALL DONE! Calling final callback");
+                                    try {
+                                        callback.onObjectRetrieved(courseTypes);
+                                    } catch (Exception e) {
+                                        Log.e("CourseTypeLoop", "💥 Final callback failed", e);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onError(DatabaseError error) {
+                                Log.w("CourseTypeLoop", "⚠️ Error on " + ctf.getID() + ", continuing...");
+
+                                int done = completedCount.incrementAndGet();
+                                Log.d("CourseTypeLoop", "⚠️ " + done + "/" + finalTotalCount + " (error) completed");
+
+                                if (done == finalTotalCount) {
+                                    Log.d("CourseTypeLoop", "🎉 ALL PROCESSED (with errors)! Final callback");
+                                    try {
+                                        callback.onObjectRetrieved(courseTypes);
+                                    } catch (Exception e) {
+                                        Log.e("CourseTypeLoop", "💥 Final callback failed", e);
+                                    }
+                                }
+                            }
+                        });
+                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                             IllegalAccessException | java.lang.InstantiationException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("CourseTypeLoop", "❌ Cancelled: " + error.getMessage());
+                try {
+                    callback.onError(error);
+                } catch (Exception e) {
+                    Log.e("CourseTypeLoop", "💥 Error callback failed", e);
+                }
+            }
+        });
+    }
     @Override
     public boolean checkIfCompleted() {
         CreateCourse cc = (CreateCourse) requireActivity();

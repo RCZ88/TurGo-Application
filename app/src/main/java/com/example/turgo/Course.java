@@ -6,6 +6,7 @@ import static com.example.turgo.Tool.getDrawableFromId;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.google.firebase.database.DatabaseError;
 
@@ -18,6 +19,7 @@ import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Course implements Serializable, RequireUpdate<Course, CourseFirebase>{
     private final String courseID;
@@ -39,7 +41,6 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private ArrayList<Boolean> paymentPer; //accept per month or and per meeting
     private ArrayList<Boolean> privateGroup; //accept private and or group?
     private ArrayList<DayTimeArrangement> dayTimeArrangement; //the days available for this course
-    private ArrayList<Student> students;
     private ArrayList<Schedule> schedules;
     private ArrayList<Agenda>agendas;
     private ArrayList<StudentCourse>studentsCourse;
@@ -57,7 +58,6 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.baseCost = baseCost;
         this.hourlyCost = hourlyCost;
         this.maxStudentPerMeeting = maxStudentPerMeeting;
-        students = new ArrayList<>();
         agendas = new ArrayList<>();
         studentsCourse = new ArrayList<>();
         dayTimeArrangement = new ArrayList<>();
@@ -186,6 +186,10 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         return sb.toString();
     }
     public Schedule getScheduleFromTimeSlot(TimeSlot ts){
+        if(schedules == null){
+            schedules = new ArrayList<>();
+            return null;
+        }
         for(Schedule schedule : schedules){
             if(ts.getStart() == schedule.getMeetingStart()){
                 return schedule;
@@ -206,6 +210,7 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         return schedules;
     }
     public boolean hasStudent(Student student){
+        ArrayList<Student>students = Await.get(this::getStudents);
         for(Student s : students){
             if(s == student){
                 return true;
@@ -221,18 +226,21 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         }
         return null;
     }
-    public ArrayList<DayOfWeek>filterFullDays(boolean isPrivate, int duration){//filter out full days.
+    public ArrayList<DayOfWeek>filterFullDays(ScheduleQuality sq, int duration){//filter out full days.
         ArrayList<DayOfWeek>daysAvail = new ArrayList<>();
         for(DayTimeArrangement dta : dayTimeArrangement){
-            if(!(dta.findFreeSlots(isPrivate, 5, duration).isEmpty())){
+            ArrayList<TimeSlot> freeSlots = dta.findFreeSlots(sq, 5, duration);
+            String str = String.join(", ", Tool.streamToArray(freeSlots.stream().map(TimeSlot::toString)));
+            Log.d("FilterFullDays", "Free Slots: " + str);
+            if(!(freeSlots.isEmpty())){
                 daysAvail.add(dta.getDay());
             }
         }
         return daysAvail;
     }
-    public ArrayList<TimeSlot> findFreeSpotOfDay(DayOfWeek day, boolean isPrivate, int maxPeople, int duration){ //find free spots of a certain day
-        if(isPrivate){maxPeople = 1;}
-        return getDTAOfDay(day).findFreeSlots(isPrivate, maxPeople, duration);
+    public ArrayList<TimeSlot> findFreeSpotOfDay(DayOfWeek day, ScheduleQuality sq, int maxPeople, int duration){ //find free spots of a certain day
+        if(sq == ScheduleQuality.PRIVATE_ONLY){maxPeople = 1;}
+        return getDTAOfDay(day).findFreeSlots(sq, maxPeople, duration);
     }
 
     @Override
@@ -354,9 +362,16 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
 
     public CourseType getCourseType(){ return courseType; }
 
-    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        StudentCourse sc = new StudentCourse(student, this, paymentPreferences, privateOrGroup, payment);
+    public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        StudentCourse sc = new StudentCourse(paymentPreferences, privateOrGroup, payment, timeSlot);
         sc.setSchedulesOfCourse(schedules);
+        if(studentsCourse == null){
+            studentsCourse = new ArrayList<>();
+        }
+        ArrayList<Student>students = Await.get(this::getStudents);
+        if(students == null){
+            students = new ArrayList<>();
+        }
         studentsCourse.add(sc);
         students.add(student);
         student.getCourseTaken().add(this);
@@ -419,14 +434,15 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
             throw new RuntimeException(e);
         }
     }
-
-    public ArrayList<Student> getStudents() {
-        return students;
+    //TODO:Handle the use cases for getStudents (circular reference).
+    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
+        try {
+            findAllAggregatedObjects(Student.class, "courseTaken", callBack);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void setStudents(ArrayList<Student> students) {
-        this.students = students;
-    }
 
     public ArrayList<Schedule> getSchedules() {
         return schedules;
@@ -506,6 +522,8 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
 
     @Override
     public String toString() {
+        ArrayList<String> dtasList = dayTimeArrangement.stream().map((dta) ->dta.toString()).collect(Collectors.toCollection(ArrayList::new));
+        String dtas = "[ "  + String.join( ", ", dtasList) + " ]";
         return "Course{" +
                 "courseID='" + courseID + '\'' +
                 ", fbc=" + fbc +
@@ -520,8 +538,7 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
                 ", maxStudentPerMeeting=" + maxStudentPerMeeting +
                 ", paymentPer=" + paymentPer +
                 ", privateGroup=" + privateGroup +
-                ", dayTimeArrangement=" + dayTimeArrangement +
-                ", students=" + students +
+                ", dayTimeArrangement=" + dtas +
                 ", schedules=" + schedules +
                 ", agendas=" + agendas +
                 ", studentsCourse=" + studentsCourse +

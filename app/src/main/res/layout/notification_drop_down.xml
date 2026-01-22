@@ -4,12 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:background="@drawable/rounded_border">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_NotifDropDown"
         android:layout_width="0dp"
         android:layout_height="172dp"
+        android:background="@drawable/rounded_border"
         android:contentDescription="list of mails"
         android:scrollbarSize="8dp"
         android:scrollbarStyle="insideInset"
@@ -24,7 +25,9 @@
         android:layout_width="250dp"
         android:layout_height="45dp"
         android:layout_marginTop="16dp"
+        android:layout_marginBottom="12dp"
         android:text="View All"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"

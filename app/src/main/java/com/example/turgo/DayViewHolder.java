@@ -10,11 +10,11 @@ import java.time.DayOfWeek;
 
 public class DayViewHolder extends RecyclerView.ViewHolder {
     TextView tv_Day;
-    public DayViewHolder(@NonNull View itemView, OnItemClickListener<DayOfWeek>listener) {
+    public DayViewHolder(@NonNull View itemView, OnItemClickListener<SelectedIndicatorHelper<DayOfWeek>>listener) {
         super(itemView);
         tv_Day = itemView.findViewById(R.id.tv_SingleText);
-        itemView.setOnClickListener(view -> {
-            listener.onItemClick(DayOfWeek.valueOf((String) tv_Day.getText()));
+        tv_Day.setOnClickListener(view -> {
+            listener.onItemClick(new SelectedIndicatorHelper<>(this, DayOfWeek.valueOf((String) tv_Day.getText())));
         });
     }
 }

@@ -1,9 +1,15 @@
 package com.example.turgo;
 
+import static com.example.turgo.ScheduleQuality.FLEXIBLE;
+import static com.example.turgo.ScheduleQuality.GROUP_ONLY;
+import static com.example.turgo.ScheduleQuality.PRIVATE_ONLY;
+
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +23,10 @@ import android.widget.TextView;
  * Use the {@link RC_PrivateDurationAmount#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RC_PrivateDurationAmount extends Fragment {
+public class RC_PrivateDurationAmount extends Fragment implements checkFragmentCompletion {
     RadioGroup rg_privateGroup;
     SeekBar sb_durationSlider, sb_amountSlider;
+    static final String viewName = "Select Schedule Quality";
     TextView tv_minutesDisplay, tv_amountDisplay;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -67,28 +74,37 @@ public class RC_PrivateDurationAmount extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register__private_duration, container, false);
         RegisterCourse rc = (RegisterCourse)getActivity();
+        assert rc != null;
+        rc.tv_title.setText(viewName);
         rg_privateGroup = view.findViewById(R.id.rg_PrivateGroup);
         sb_durationSlider = view.findViewById(R.id.sb_DurationSlider);
         sb_amountSlider = view.findViewById(R.id.sb_AmountPerWeek);
         tv_minutesDisplay = view.findViewById(R.id.tv_durationDisplay);
         tv_amountDisplay = view.findViewById(R.id.tv_AmtDisplay);
-        final String[] privateGroup = {""};
+        ScheduleQuality[]qualities = {PRIVATE_ONLY, GROUP_ONLY, FLEXIBLE};
         rg_privateGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             if(i != -1){
-                RadioButton selected = view.findViewById(i);
-                privateGroup[0] = selected.getText().toString();
+                assert rc != null;
+                RadioButton rb = view.findViewById(i);
+                int index = rg_privateGroup.indexOfChild(rb);
+                rc.setSq(qualities[index]);
             }
         });
-        rc.setPrivate(privateGroup[0].equals("Private"));
+
+
         int stepSize = 15;
         int maxMin = 120;
+        int maxSteps = maxMin / stepSize;
         final int[] minutes = {stepSize};
-        sb_durationSlider.setMax(maxMin / stepSize);
         sb_durationSlider.setMin(1);
+        sb_durationSlider.setMax(maxSteps);
+
+
         sb_durationSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 minutes[0] = i*stepSize;
+                Log.d("RC", "i = " + i);
                 String display = minutes[0] + " minutes";
                 tv_minutesDisplay.setText(display);
                 rc.setDuration(minutes[0]);
@@ -104,11 +120,16 @@ public class RC_PrivateDurationAmount extends Fragment {
 
             }
         });
+        sb_durationSlider.setProgress(rc.getDuration() / 15, true);
+        Log.d("PrivateDurationAmount", "Amount Slider Max: "+ rc.getCourse().amountDaysAvail());
         sb_amountSlider.setMax(rc.getCourse().amountDaysAvail());
+        sb_amountSlider.setMin(1);
+        rc.setAmountOfMeetingPerWeek(sb_amountSlider.getMin());
         sb_amountSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                tv_amountDisplay.setText(i);
+                tv_amountDisplay.setText(Integer.toString(i));
                 rc.setAmountOfMeetingPerWeek(i);
             }
 
@@ -124,5 +145,10 @@ public class RC_PrivateDurationAmount extends Fragment {
         });
         return view;
 
+    }
+
+    @Override
+    public boolean checkIfCompleted() {
+        return rg_privateGroup.getCheckedRadioButtonId() != -1;
     }
 }

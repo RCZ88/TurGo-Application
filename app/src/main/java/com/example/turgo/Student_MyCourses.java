@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,14 +12,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -30,9 +28,10 @@ import java.util.stream.Collectors;
 public class Student_MyCourses extends Fragment implements RequiresDataLoading{
 
     RecyclerView rv_myCourses;
+    TextView tv_noCourse;
+    Button btn_goToExplore;
     Student user;
-    ArrayList<Teacher> teachersOfCourse;
-    Course courseClicked = null;
+    ArrayList<Teacher> teachersOfCourse = new ArrayList<>();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -68,10 +67,8 @@ public class Student_MyCourses extends Fragment implements RequiresDataLoading{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -83,8 +80,10 @@ public class Student_MyCourses extends Fragment implements RequiresDataLoading{
         user = activity.getStudent();
         Log.d("Student_MyCourse(OnCreate)", "User Retrieved: "+ user);
 
+        tv_noCourse = view.findViewById(R.id.tv_smc_NoCoursesJoined);
+        btn_goToExplore = view.findViewById(R.id.btn_smc_NavigateExploreCourse);
 
-        RecyclerView rv_myCourses = view.findViewById(R.id.rv_ListOfMyCourses);
+        rv_myCourses = view.findViewById(R.id.rv_ListOfMyCourses);
         rv_myCourses.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         ArrayList<Course> courses =  user.getCourseTaken();// Your method to get courses
@@ -102,7 +101,17 @@ public class Student_MyCourses extends Fragment implements RequiresDataLoading{
             }
         }, teachersOfCourse, requireContext());
         rv_myCourses.setAdapter(adapter);
-
+        Tool.handleEmpty(courses.isEmpty(), rv_myCourses, tv_noCourse);
+        if(courses.isEmpty()){
+            btn_goToExplore.setVisibility(View.VISIBLE);
+        }else{
+            btn_goToExplore.setVisibility(View.GONE);
+        }
+        btn_goToExplore.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Student.SERIALIZE_KEY_CODE, user);
+            DataLoading.loadAndNavigate(requireContext(), Student_ExploreCourse.class, bundle, true, StudentScreen.class, user);
+        });
         return view;
     }
 
@@ -134,19 +143,19 @@ public class Student_MyCourses extends Fragment implements RequiresDataLoading{
 
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView processLog) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback processLog) {
         Bundle bundle = new Bundle();
         Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
         assert student != null;
-        processLog.setText("Fetching Student's Explore Course...");
-        ArrayList<Course> exploreCourse = Await.get(student::getExploreCourse);
-        processLog.setText("Retrieving Teachers of Explore Courses...");
-        ArrayList<Teacher>teachersOfCourse = exploreCourse
+        processLog.onProgress("Fetching Student's Courses Taken...");
+        ArrayList<Course> courseTaken = student.getCourseTaken();
+        processLog.onProgress("Retrieving Teachers of Courses Taken...");
+        ArrayList<Teacher>teachersOfCourse = courseTaken
                 .stream().map(course ->  Await.get(course::getTeacher))
                 .collect(Collectors.toCollection(ArrayList::new));
-        processLog.setText("Done, preparing to Load " + this.getClass().getSimpleName() + "...");
-        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, exploreCourse);
+        processLog.onProgress("Done, preparing to Load " + this.getClass().getSimpleName() + "...");
         bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teachersOfCourse);
         return bundle;
     }

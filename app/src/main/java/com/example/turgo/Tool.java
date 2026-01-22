@@ -53,6 +53,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -62,6 +63,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -76,8 +78,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Tool {
+    public static <T> ArrayList<T> streamToArray(Stream<T> stream){
+        return stream.collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public static boolean isOverlapping(LocalTime startA, LocalTime endA,
+                                        LocalTime startB, LocalTime endB) {
+        // Validate inputs
+        if (startA.isAfter(endA) || startB.isAfter(endB)) {
+            throw new IllegalArgumentException("Start time must be before end time.");
+        }
+
+        return startA.isBefore(endB) && startB.isBefore(endA);
+    }
 
     public static boolean hasField(Class<?> clazz, String fieldName) {
         try {
@@ -90,9 +106,43 @@ public class Tool {
     public static void loadFragment(FragmentActivity activity, int containerId, Fragment fragment){
         activity.getSupportFragmentManager()
                 .beginTransaction().replace(containerId, fragment)
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
                 .commit();
-        activity.finish();
     }
+    public static boolean boolOf(Object object) {
+        if (object == null) {
+            return false;
+        }
+        if (object instanceof String) {
+            return !((String) object).isEmpty();
+        }
+        if (object instanceof Integer) {
+            int val = (int) object;
+            return val != 0 && val != -1;
+        }
+        if (object instanceof Boolean) {
+            return (boolean) object;
+        }
+        if (object.getClass().isArray()) {
+            return java.lang.reflect.Array.getLength(object) > 0;
+        }
+        if (object instanceof java.util.Collection) {
+            return !((java.util.Collection<?>) object).isEmpty();
+        }
+        if (object instanceof java.util.Map) {
+            return !((java.util.Map<?, ?>) object).isEmpty();
+        }
+        if (object instanceof Number) {
+            return ((Number) object).doubleValue() != 0;
+        }
+        // Default to true for other non-empty, non-null objects
+        return true;
+    }
+    public static String formatTime24h(LocalTime time) {
+        return time.format(DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
     public static void run(FragmentActivity activity, String loadingMessage, ThrowingRunnable action, Runnable success, Consumer<Exception> onError){
         LoadingBottomSheet loadingBottomSheet = LoadingBottomSheet.newInstance(loadingMessage);
         loadingBottomSheet.show(activity.getSupportFragmentManager(), "loading");
@@ -341,63 +391,63 @@ public class Tool {
         return null;
     }
 
-    public static <F, N> void convertFirebaseListToNormal(
-            ArrayList<F> firebaseList,
-            ConvertToNormalCallback<N> finalCallback) {
-
-        if (firebaseList == null || firebaseList.isEmpty()) {
-            finalCallback.onAllConverted(new ArrayList<>());
-            return;
-        }
-
-        ArrayList<N> normalList = new ArrayList<>();
-        AtomicInteger completed = new AtomicInteger(0);
-        AtomicBoolean hasError = new AtomicBoolean(false);
-        int total = firebaseList.size();
-
-        Log.d("ConvertList", "Starting conversion of " + total + " objects");
-
-        for (int i = 0; i < firebaseList.size(); i++) {
-            F firebaseObj = firebaseList.get(i);
-            final int index = i;
-
-            try {
-                // Assuming all Firebase classes have convertToNormal method
-                if (firebaseObj instanceof FirebaseClass) {
-                    ((FirebaseClass<N>) firebaseObj).convertToNormal(new ObjectCallBack<N>() {
-                        @Override
-                        public void onObjectRetrieved(N normalObj) {
-                            synchronized (normalList) {
-                                normalList.add(normalObj);
-                            }
-
-                            int count = completed.incrementAndGet();
-                            Log.d("ConvertList", "Converted " + count + "/" + total);
-
-                            // Check if all done
-                            if (count == total && !hasError.get()) {
-                                Log.d("ConvertList", "✓ All conversions complete!");
-                                finalCallback.onAllConverted(normalList);
-                            }
-                        }
-
-                        @Override
-                        public void onError(DatabaseError error) {
-                            Log.e("ConvertList", "✗ Error converting object " + index + ": " + error.getMessage());
-                            if (!hasError.getAndSet(true)) {
-                                finalCallback.onError(error);
-                            }
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                Log.e("ConvertList", "✗ Exception converting object " + index, e);
-                if (!hasError.getAndSet(true)) {
-                    finalCallback.onError(DatabaseError.fromException(e));
-                }
-            }
-        }
-    }
+//    public static <F, N> void convertFirebaseListToNormal(
+//            ArrayList<F> firebaseList,
+//            ConvertToNormalCallback<N> finalCallback) {
+//
+//        if (firebaseList == null || firebaseList.isEmpty()) {
+//            finalCallback.onAllConverted(new ArrayList<>());
+//            return;
+//        }
+//
+//        ArrayList<N> normalList = new ArrayList<>();
+//        AtomicInteger completed = new AtomicInteger(0);
+//        AtomicBoolean hasError = new AtomicBoolean(false);
+//        int total = firebaseList.size();
+//
+//        Log.d("ConvertList", "Starting conversion of " + total + " objects");
+//
+//        for (int i = 0; i < firebaseList.size(); i++) {
+//            F firebaseObj = firebaseList.get(i);
+//            final int index = i;
+//
+//            try {
+//                // Assuming all Firebase classes have convertToNormal method
+//                if (firebaseObj instanceof FirebaseClass) {
+//                    ((FirebaseClass<N>) firebaseObj).convertToNormal(new ObjectCallBack<N>() {
+//                        @Override
+//                        public void onObjectRetrieved(N normalObj) {
+//                            synchronized (normalList) {
+//                                normalList.add(normalObj);
+//                            }
+//
+//                            int count = completed.incrementAndGet();
+//                            Log.d("ConvertList", "Converted " + count + "/" + total);
+//
+//                            // Check if all done
+//                            if (count == total && !hasError.get()) {
+//                                Log.d("ConvertList", "✓ All conversions complete!");
+//                                finalCallback.onAllConverted(normalList);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void onError(DatabaseError error) {
+//                            Log.e("ConvertList", "✗ Error converting object " + index + ": " + error.getMessage());
+//                            if (!hasError.getAndSet(true)) {
+//                                finalCallback.onError(error);
+//                            }
+//                        }
+//                    });
+//                }
+//            } catch (Exception e) {
+//                Log.e("ConvertList", "✗ Exception converting object " + index, e);
+//                if (!hasError.getAndSet(true)) {
+//                    finalCallback.onError(DatabaseError.fromException(e));
+//                }
+//            }
+//        }
+//    }
 
     // Callback interface
     public interface ConvertToNormalCallback<N> {

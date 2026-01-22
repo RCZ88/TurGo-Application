@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -21,8 +20,9 @@ import java.util.stream.Collectors;
  */
 public class TeacherAllCourse extends Fragment implements  RequiresDataLoading{
     RecyclerView rv_allCourse;
-    ArrayList<Course> teacherCoursesTeach;
-    ArrayList<Meeting>nextMeetingOfCourses;
+    ArrayList<Course> teacherCoursesTeach = new ArrayList<>();
+    ArrayList<Integer> studentCountOfCourses = new ArrayList<>();
+    ArrayList<Meeting>nextMeetingOfCourses = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -72,14 +72,12 @@ public class TeacherAllCourse extends Fragment implements  RequiresDataLoading{
         rv_allCourse = view.findViewById(R.id.rv_TAC_AllCourse);
         TeacherScreen ts = (TeacherScreen) getActivity();
         assert ts != null;
-        CourseTeachersAdapter adapter = new CourseTeachersAdapter(teacherCoursesTeach, nextMeetingOfCourses,  new OnItemClickListener<>() {
+        CourseTeachersAdapter adapter = new CourseTeachersAdapter(teacherCoursesTeach, nextMeetingOfCourses, studentCountOfCourses,  new OnItemClickListener<>() {
             @Override
             public void onItemClick(Course item) {
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
-                TeacherCourseScreen teacherCourseScreen = new TeacherCourseScreen();
-                teacherCourseScreen.setArguments(bundle);
-                Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, teacherCourseScreen);
+                DataLoading.loadAndNavigate(requireContext(), TeacherCourseScreen.class, bundle, true, TeacherScreen.class, ts.getTeacher());
             }
 
             @Override
@@ -93,14 +91,17 @@ public class TeacherAllCourse extends Fragment implements  RequiresDataLoading{
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
         Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
         ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
         ArrayList<Meeting>nextMeetingOfCourses = teacherCoursesTeach.stream().map(course-> course.getNextMeetingOfNextSchedule()).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<Integer> studentCountOfCourses = Tool.streamToArray(teacherCoursesTeach.stream().map(course -> Await.get(course::getStudents).size()));
+
 
         Bundle output = new Bundle();
         output.putSerializable("teacherCoursesTeach", teacherCoursesTeach);
         output.putSerializable("nextMeetingOfCourses", nextMeetingOfCourses);
+        output.putSerializable("studentCountOfCourses", studentCountOfCourses);
         return output;
     }
 
@@ -108,6 +109,7 @@ public class TeacherAllCourse extends Fragment implements  RequiresDataLoading{
     public void onDataLoaded(Bundle preloadedData) {
         teacherCoursesTeach = (ArrayList<Course>) preloadedData.getSerializable("teacherCoursesTeacher");
         nextMeetingOfCourses = (ArrayList<Meeting>) preloadedData.getSerializable("nextMeetingOfCourses");
+        studentCountOfCourses = (ArrayList<Integer>) preloadedData.getSerializable("studentCountOfCourses");
     }
 
     @Override

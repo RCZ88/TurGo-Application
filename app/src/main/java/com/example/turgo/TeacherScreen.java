@@ -1,9 +1,7 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,27 +11,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.turgo.databinding.ActivityTeacherScreenBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -41,8 +28,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firestore.bundle.BundleElement;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -58,10 +43,10 @@ public class TeacherScreen extends AppCompatActivity {
     private Toolbar topAppBar;
     private TextView tv_mailEmpty, tv_notifEmpty;
     private PopupWindow mailPopupWindow, notifPopupWindow;
+    private boolean inLoading = false;
     RecyclerView rv_MailDropDown, rv_NotifDropdown;
-    BottomNavigationView navView;
+    BottomNavigationView bottomNav;
     FirebaseUser fbUser;
-    boolean isReturningFromLoading;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -84,60 +69,75 @@ public class TeacherScreen extends AppCompatActivity {
                     Log.d("LAYOUT", "Container real size: " +
                             container.getWidth() + " × " + container.getHeight());
                 });
-        Teacher dummy = new Teacher();
-        dummy.setUserType(UserType.TEACHER);
-        Log.d("TeacherScreen", "Teacher Obj" + dummy);
 
-        AppCompatActivity activity = this;
-        Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(User object) {
-                teacher = (Teacher) object;
-                if (teacher != null) {
-                    Log.d("TeacherScreen", "Teacher: " + teacher);
-                    runOnUiThread(() -> {
-                        try {
-                            initializeUI();
-                            FirebaseAuth auth = FirebaseAuth.getInstance();
-                            fbUser = auth.getCurrentUser();
-                            Log.d("TeacherScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
+        Class<? extends RequiresDataLoading> fragmentToLoad = (Class<? extends RequiresDataLoading>)getIntent().getSerializableExtra("FragmentToLoad");
+        Bundle bundleExtra = getIntent().getExtras();
+        if(fragmentToLoad != null && bundleExtra != null){
+            teacher = (Teacher) getIntent().getSerializableExtra("FullUserObject");
+            prepareActivityUI();
+            navigateToFragment(fragmentToLoad, bundleExtra);
+        }else{
 
-                            prepareObjects();
+            if(!Tool.boolOf(teacher)){
+                Teacher dummy = new Teacher();
+                dummy.setUserType(UserType.TEACHER);
+                Log.d("TeacherScreen", "Teacher Obj" + dummy);
 
-                            if (teacher != null && fbUser != null) {
-                                UserPresenceManager.startTracking(fbUser.getUid());
-                                Log.d("TeacherScreen", "Started tracking user presence");
-                            }
 
-                            String fragmentToLoad = getIntent().getStringExtra("FragmentToLoad");
-                            Bundle bundleExtra = getIntent().getExtras();
-                            if(fragmentToLoad != null){
-                                navigateToFragment(fragmentToLoad, bundleExtra);
-                            }else{
-                                navigateToFragment("TeacherDashboard", null);
-                            }
-
-                            Log.d("TeacherScreen", "========== initializeUI END ==========");
-                        }catch(Exception e){
-
+                Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(User object) {
+                        teacher = (Teacher) object;
+                        if (teacher != null) {
+                            loadDashboard();
+                        } else {
+                            Log.e("TeacherScreen", "Error converting teacher");
                         }
-                    });
-                } else {
-                    Log.e("TeacherScreen", "Error converting teacher");
-                }
-            }
+                    }
 
-            @Override
-            public void onError(DatabaseError error) {
-                Log.e("TeacherScreen", "Error converting teacher: " + error.getMessage());
+
+                    @Override
+                    public void onError(DatabaseError error) {
+                        Log.e("TeacherScreen", "Error converting teacher: " + error.getMessage());
+                    }
+                });
             }
-        });
+        }
+
 
 
     }
+    private void prepareActivityUI(){
+        Log.d("TeacherScreen", "Teacher: " + teacher);
+        runOnUiThread(() -> {
+            try {
+                initializeUI();
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                fbUser = auth.getCurrentUser();
+                Log.d("TeacherScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
 
+                prepareObjects();
+
+                if (teacher != null && fbUser != null) {
+                    UserPresenceManager.startTracking(fbUser.getUid());
+                    Log.d("TeacherScreen", "Started tracking user presence");
+                }
+                
+                Log.d("TeacherScreen", "========== initializeUI END ==========");
+            }catch(Exception e){
+
+
+            }
+        });
+    }
+    private void loadDashboard(){
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
+        DataLoading.loadAndNavigate(this, TeacherDashboard.class, bundle, true, this.getClass(), teacher);
+    }
     private int getMenuIdForFragment(String fragmentClassName) {
-        switch (fragmentClassName) {
+        String className = fragmentClassName.substring(fragmentClassName.lastIndexOf(".") + 1);
+        switch (className) {
             case "Student_Dashboard": return R.id.dest_studentDashboard;
             case "student_ExploreCourse": return R.id.dest_studentExploreCourses;
             case "Student_MyCourses": return R.id.dest_studentMyCourses;
@@ -147,20 +147,21 @@ public class TeacherScreen extends AppCompatActivity {
         }
     }
 
-    private void navigateToFragment(String fragmentClass, Bundle bundle){
+    private void navigateToFragment(Class<? extends RequiresDataLoading>fragmentClass, Bundle bundle){
         try {
-            Fragment fragment = (Fragment) Class.forName("com.example.turgo." + fragmentClass).newInstance();
+            Fragment fragment = (Fragment) fragmentClass.newInstance();
             if(bundle != null){
                 fragment.setArguments(bundle);
             }
-            int menuId = getMenuIdForFragment(fragmentClass);
+            int menuId = getMenuIdForFragment(fragmentClass.getSimpleName());
             if(menuId != -1){
-                isReturningFromLoading = true;
-                navView.setSelectedItemId(menuId);
-                isReturningFromLoading = false;
+                inLoading = true;
+                bottomNav.setSelectedItemId(menuId);
+
             }
             Tool.loadFragment(this, R.id.nhf_ss_FragContainer, fragment);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            inLoading = false;
+        } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(e);
         }
 
@@ -194,24 +195,21 @@ public class TeacherScreen extends AppCompatActivity {
         }
 
         // Setup BOTTOM BAR NAVIGATION
-        navView = findViewById(R.id.nv_ts_BottomNavigation);
-        Log.d("TeacherScreen", "navView found: " + (navView != null));
+        bottomNav = findViewById(R.id.nv_ts_BottomNavigation);
+        Log.d("TeacherScreen", "navView found: " + (bottomNav != null));
 
-        setupBottomNavigation(navView);
-
+        setupBottomNavigation(bottomNav);
 
     }
 
     private void setupBottomNavigation(BottomNavigationView bnv){
         bnv.setOnItemSelectedListener(item ->{
-            if(isReturningFromLoading){
+            if(inLoading){
                 return true;
             }
             int itemId = item.getItemId();
             if(itemId == R.id.dest_teacherDashboard){
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
-                DataLoading.loadAndNavigate(this, TeacherDashboard.class, bundle, true, "TeacherScreen");
+                loadDashboard();
                 return true;
             }
             if(itemId == R.id.dest_teacherAllCourse){

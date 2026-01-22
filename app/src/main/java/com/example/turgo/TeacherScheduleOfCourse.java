@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
@@ -27,9 +26,9 @@ import java.util.stream.Collectors;
 public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoading{
     RecyclerView rv_schedules;
     Spinner sp_dayOptions;
-    ArrayList<ArrayList<Student>>students;
-    ArrayList<Schedule>schedules;
-    ArrayList<Course>courses;
+    ArrayList<ArrayList<Student>>students = new ArrayList<>();
+    ArrayList<Schedule>schedules = new ArrayList<>();
+    ArrayList<Course>courses = new ArrayList<>();
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -65,10 +64,8 @@ public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
     }
 
     @Override
@@ -106,7 +103,7 @@ public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoa
     }
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView logLoading) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
         Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
         Bundle output = new Bundle();
         ArrayList<Schedule>schedules = teacher.getAllSchedule();

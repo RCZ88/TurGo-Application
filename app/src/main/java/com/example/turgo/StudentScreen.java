@@ -1,6 +1,5 @@
 package com.example.turgo;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,15 +18,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.turgo.databinding.ActivityStudentScreenBinding;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -56,7 +50,7 @@ public class StudentScreen extends AppCompatActivity{
     private ArrayList<Mail> inbox = new ArrayList<>();
     private PopupWindow mailPopupWindow, notifPopupWindow;
     private TextView tv_mailEmpty, tv_notifEmpty;
-    private boolean isReturningFromLoading;
+    private boolean inLoading = false;
     RecyclerView rv_MailDropDown, rv_NotifDropdown;
 
     @Override
@@ -68,81 +62,111 @@ public class StudentScreen extends AppCompatActivity{
 
         tv_mailEmpty = findViewById(R.id.tv_MDD_MailEmpty);
         tv_notifEmpty = findViewById(R.id.tv_NDD_NotifEmpty);
+        bottomNav = findViewById(R.id.nv_ss_BottomNavigation);
 
+        Class<? extends RequiresDataLoading> fragmentToLoad = (Class<? extends RequiresDataLoading>)getIntent().getSerializableExtra("FragmentToLoad");
+        Bundle bundleExtra = getIntent().getExtras();
+        int bottomNavMenuId = getIntent().getIntExtra("BottomNavToSelect", -1);
+        Log.d("StudentScreen", "BottomNavMenuId Loaded: " + bottomNavMenuId);
+        if(fragmentToLoad != null && bundleExtra != null){
+            //After Data Loading.
+            Log.d("StudentScreen", "FragmentToLoad not Null!");
+            student =  (Student) getIntent().getSerializableExtra("FullUserObject");
+            prepareActivityUI();
+            navigateToFragment(fragmentToLoad, bundleExtra, bottomNavMenuId);
+        }else{
+            Log.d("StudentScreen", "FragmentToLoad is Null, Redirecting to Dashboard!");
 
-        Student dummy = new Student();
-        dummy.setUserType(UserType.STUDENT);
-        final StudentScreen thiss = this;
-        Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(User object) {
-                student = (Student) object;
-                Log.d("StudentScreen", "Student Normal Object retrieved: " + student);
-                if (student != null) {
-                    runOnUiThread(() -> {
-                        try {
-                            initializeUI();
-                            FirebaseAuth auth = FirebaseAuth.getInstance();
-                            fbUser = auth.getCurrentUser();
-                            Log.d("StudentScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
-
-                            prepareObjects();
-
-                            if (student != null && fbUser != null) {
-                                UserPresenceManager.startTracking(fbUser.getUid());
-                                Log.d("StudentScreen", "Started tracking user presence");
-                            }
-                            String fragmentToLoad = getIntent().getStringExtra("FragmentToLoad");
-                            Bundle bundleExtra = getIntent().getExtras();
-                            if(fragmentToLoad != null){
-                                navigateToFragment(fragmentToLoad, bundleExtra);
-                            }else{
-                                Bundle bundle = new Bundle();
-                                Meeting nextMeeting = student.getNextMeeting();
-                                bundle.putSerializable("nextMeeting", nextMeeting);
-                                navigateToFragment("Student_Dashboard", bundle);
-                            }
-                            Log.d("StudentScreen", "========== initializeUI END ==========");
-                        } catch (ParseException | InvocationTargetException |
-                                 NoSuchMethodException | IllegalAccessException |
-                                 InstantiationException e) {
-                            throw new RuntimeException(e);
+            //load the student once. ui can come on every new activity.
+            if(!Tool.boolOf(student)){
+                Student dummy = new Student();
+                dummy.setUserType(UserType.STUDENT);
+                Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(User object) {
+                        student = (Student) object;
+                        Log.d("StudentScreen", "Student Normal Object retrieved: " + student);
+                        if (student == null) {
+                            Log.d("StudentScreen", "Error Converting StudentFirebase");
+                        }else{
+                            loadDashboard();
                         }
-                    });
-                } else {
-                    Log.d("StudentScreen", "Error Converting StudentFirebase");
-                }
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+
+                    }
+                });
             }
 
-            @Override
-            public void onError(DatabaseError error) {
+        }
 
-            }
-        });
+
 
     }
-    private void navigateToFragment(String fragmentClass, Bundle bundle){
+    private void prepareActivityUI(){
+        runOnUiThread(() -> {
+            try {
+                initializeUI();
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                fbUser = auth.getCurrentUser();
+                Log.d("StudentScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
+
+                prepareObjects();
+
+                if (student != null && fbUser != null) {
+                    UserPresenceManager.startTracking(fbUser.getUid());
+                    Log.d("StudentScreen", "Started tracking user presence");
+                }
+
+                Log.d("StudentScreen", "========== initializeUI END ==========");
+            } catch (ParseException | InvocationTargetException |
+                     NoSuchMethodException | IllegalAccessException |
+                     InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+    private void loadDashboard(){
+        Bundle bundle = new Bundle();
+        Meeting nextMeeting = student.getNextMeeting();
+        bundle.putSerializable("nextMeeting", nextMeeting);
+        bundle.putSerializable("student", student);
+        DataLoading.loadAndNavigate(this, Student_Dashboard.class, bundle, true, this.getClass(), student);
+    }
+    private void navigateToFragment(Class<? extends RequiresDataLoading> fragmentClass, Bundle bundle, int bottomNavToSelect){
         try {
-            Fragment fragment = (Fragment) Class.forName("com.example.turgo." + fragmentClass).newInstance();
+            Fragment fragment = (Fragment) fragmentClass.newInstance();
+            Log.d("NavigateToFragment", "String converted to Fragment Successfully: " + fragment.getClass());
             if(bundle != null){
                 fragment.setArguments(bundle);
             }
-            int menuId = getMenuIdForFragment(fragmentClass);
+            int menuId = getMenuIdForFragment(fragmentClass.getName());
+            inLoading = true;
             if(menuId != -1){
-                isReturningFromLoading = true;
+                Log.d("NavigateToFragment", "View ("+ fragmentClass +") is part of Bottom Nav");
                 bottomNav.setSelectedItemId(menuId);
-                isReturningFromLoading = false;
+
+                Log.d("NavigateToFragment", "Menu Id Selected: " + menuId);
+            }else{
+                Log.d("NavigateToFragment", "View (" + fragmentClass + ") is Not part of Bottom Nav");
+                if(bottomNavToSelect != -1){
+                    bottomNav.setSelectedItemId(bottomNavToSelect);
+                }
             }
             Tool.loadFragment(this, R.id.nhf_ss_FragContainer, fragment);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            inLoading =false;
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
 
     }
-    private int getMenuIdForFragment(String fragmentClassName) {
-        switch (fragmentClassName) {
+    public static int getMenuIdForFragment(String fragmentClassName) {
+        String className = fragmentClassName.substring(fragmentClassName.lastIndexOf(".") + 1);
+        switch (className) {
             case "Student_Dashboard": return R.id.dest_studentDashboard;
-            case "student_ExploreCourse": return R.id.dest_studentExploreCourses;
+            case "Student_ExploreCourse": return R.id.dest_studentExploreCourses;
             case "Student_MyCourses": return R.id.dest_studentMyCourses;
             case "Student_TaskList": return R.id.dest_studentTaskList;
             case "Profile": return R.id.dest_studentProfile;
@@ -167,34 +191,29 @@ public class StudentScreen extends AppCompatActivity{
             Log.e(logTag, "getSupportActionBar() returned Null!");
         }
 
-        bottomNav = findViewById(R.id.nv_ss_BottomNavigation);
-
         setupBottomNavigation(bottomNav);
     }
     private void setupBottomNavigation(BottomNavigationView bnv){
         bnv.setOnItemSelectedListener(item ->{
-            if (isReturningFromLoading) {
-                return true; // Just update UI, don't trigger loading
+            if(inLoading){
+                return true;
             }
             int itemId = item.getItemId();
             if(itemId == R.id.dest_studentExploreCourses){
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
-                DataLoading.loadAndNavigate(this, student_ExploreCourse.class, bundle, true, this.getLocalClassName());
+                DataLoading.loadAndNavigate(this, Student_ExploreCourse.class, bundle, true, this.getClass(), student);
                 return true;
             }
             if(itemId == R.id.dest_studentDashboard){
-                Bundle bundle = new Bundle();
-                Meeting nextMeeting = student.getNextMeeting();
-                bundle.putSerializable("nextMeeting", nextMeeting);
-                bundle.putSerializable("student", student);
-                DataLoading.loadAndNavigate(this, Student_Dashboard.class, bundle, true, this.getLocalClassName());
+                Log.d("SetupBottomNav", "Student Dashboard Bot Nav Listener Triggered");
+                loadDashboard();
                 return true;
             }
             if(itemId == R.id.dest_studentMyCourses){
                 Bundle bundle = new Bundle();
                 bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
-                DataLoading.loadAndNavigate(this, Student_MyCourses.class, bundle, true, this.getLocalClassName());
+                DataLoading.loadAndNavigate(this, Student_MyCourses.class, bundle, true, this.getClass(), student);
                 return true;
             }
             if(itemId == R.id.dest_studentTaskList){

@@ -11,13 +11,12 @@
         android:id="@+id/nhf_ss_FragContainer"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
+        android:layout_height="0dp"
         app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@+id/nv_ss_BottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tb_ss_topAppBar"
-        />
+        app:layout_constraintTop_toBottomOf="@id/tb_ss_topAppBar" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nv_ss_BottomNavigation"
@@ -35,7 +34,7 @@
         android:id="@+id/tb_ss_topAppBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="#BFAFFF"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"

@@ -11,27 +11,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link student_ExploreCourse#newInstance} factory method to
+ * Use the {@link Student_ExploreCourse#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class student_ExploreCourse extends Fragment implements RequiresDataLoading {
+public class Student_ExploreCourse extends Fragment implements RequiresDataLoading {
 
     private Student student;
-    private ArrayList<Teacher> teachers;
-    private ArrayList<Course>exploreCourses;
+    private ArrayList<Teacher> teachers = new ArrayList<>();
+    private ArrayList<Course>exploreCourses = new ArrayList<>();
     RecyclerView rv_courses;
     TextView tv_emptyCourses;
     // TODO: Rename parameter arguments, choose names that match
@@ -43,7 +36,7 @@ public class student_ExploreCourse extends Fragment implements RequiresDataLoadi
     private String mParam1;
     private String mParam2;
 
-    public student_ExploreCourse() {
+    public Student_ExploreCourse() {
         // Required empty public constructor
     }
 
@@ -56,8 +49,8 @@ public class student_ExploreCourse extends Fragment implements RequiresDataLoadi
      * @return A new instance of fragment navigation_explore.
      */
     // TODO: Rename and change types and number of parameters
-    public static student_ExploreCourse newInstance(String param1, String param2) {
-        student_ExploreCourse fragment = new student_ExploreCourse();
+    public static Student_ExploreCourse newInstance(String param1, String param2) {
+        Student_ExploreCourse fragment = new Student_ExploreCourse();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -68,11 +61,7 @@ public class student_ExploreCourse extends Fragment implements RequiresDataLoadi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-        onDataLoaded(savedInstanceState);
+
     }
 
     @Override
@@ -86,23 +75,36 @@ public class student_ExploreCourse extends Fragment implements RequiresDataLoadi
 
         StudentScreen sc = (StudentScreen) requireActivity();
         student = sc.getStudent();
-
+        if (getArguments() != null) {
+            onDataLoaded(getArguments());
+        }
         return view;
     }
 
     @SuppressLint("SetTextI18n")
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView processLog) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback processLog) {
         Bundle bundle = new Bundle();
         Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
         assert student != null;
-        processLog.setText("Fetching Student's Explore Course...");
+        processLog.onProgress("Fetching Student's Explore Course...");
         ArrayList<Course> exploreCourse = Await.get(student::getExploreCourse);
-        processLog.setText("Retrieving Teachers of Explore Courses...");
-        ArrayList<Teacher>teachersOfCourse = exploreCourse
-                .stream().map(course ->  Await.get(course::getTeacher))
-                .collect(Collectors.toCollection(ArrayList::new));
-        processLog.setText("Done, preparing to Load " + this.getClass().getSimpleName() + "...");
+        Log.d("StudentExploreCourse", "Retrieved "+ exploreCourse.size()+ " Courses");
+        for(Course course : exploreCourse){
+            Log.d("StudentExploreCourse", "- "+ course.toString());
+        }
+        processLog.onProgress("Retrieving Teachers of Explore Courses...");
+        ArrayList<Teacher> teachersOfCourse = new ArrayList<>();
+        for (Course course : exploreCourse) {
+            Teacher teacher = Await.get(course::getTeacher);
+            Log.d("StudentExploreCourse", "Teacher Retrieved:" + teacher);
+            teachersOfCourse.add(teacher);
+        }
+        Log.d("StudentExploreCourse", "Teachers Mapping on Course: ");
+        for(Teacher teacher : teachersOfCourse){
+            Log.d("StudentExploreCourse", "- " + teacher);
+        }
+        processLog.onProgress("Done, preparing to Load " + this.getClass().getSimpleName() + "...");
         bundle.putSerializable(Course.SERIALIZE_KEY_CODE, exploreCourse);
         bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teachersOfCourse);
         return bundle;
@@ -119,7 +121,8 @@ public class student_ExploreCourse extends Fragment implements RequiresDataLoadi
                     public void onItemClick(Course item) {
                         Bundle bundle = new Bundle();
                         bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
-                        DataLoading.loadAndNavigate(requireContext(), CourseExploreFullPage.class, bundle, true, "StudentScreen");
+                        Log.d("selectedBottomNav", "on Student_ExploreCourse: "+ Student_ExploreCourse.class.getSimpleName());
+                        DataLoading.loadAndNavigate(requireContext(), CourseExploreFullPage.class, bundle, true, StudentScreen.class, student, StudentScreen.getMenuIdForFragment(Student_ExploreCourse.class.getSimpleName()));
                     }
 
                     @Override

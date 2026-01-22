@@ -16,14 +16,14 @@ import android.widget.EditText;
  * Use the {@link RC_UserInformation#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RC_UserInformation extends Fragment {
+public class RC_UserInformation extends Fragment implements checkFragmentCompletion {
 
     EditText et_school, et_grade, et_reasonForJoining;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    static final String viewTitle = "User Details & Information";
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -68,6 +68,8 @@ public class RC_UserInformation extends Fragment {
         et_school = view.findViewById(R.id.et_SchoolNameInput);
         et_reasonForJoining = view.findViewById(R.id.etml_ReasonForJoining);
         RegisterCourse rc = (RegisterCourse) getActivity();
+        assert rc != null;
+        rc.tv_title.setText(viewTitle);
         et_grade.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -117,5 +119,12 @@ public class RC_UserInformation extends Fragment {
             }
         });
         return view;
+    }
+
+    @Override
+    public boolean checkIfCompleted() {
+        return  !(et_grade.getText().toString().isEmpty() ||
+                et_school.getText().toString().isEmpty() ||
+                et_reasonForJoining.getText().toString().isEmpty());
     }
 }

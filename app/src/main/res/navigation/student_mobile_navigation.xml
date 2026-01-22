@@ -17,7 +17,7 @@
         tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/dest_studentExploreCourses"
-        android:name="com.example.turgo.student_ExploreCourse"
+        android:name="com.example.turgo.Student_ExploreCourse"
         android:label="fragment_navigation_explore"
         tools:layout="@layout/fragment_student_explore_courses" />
     <fragment

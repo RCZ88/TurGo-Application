@@ -17,12 +17,14 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
     private boolean privateOrGroup;
     private ArrayList<Task> tasks;
     private ArrayList<Agenda> agendas;
+    private ArrayList<TimeSlot>timeSlots;
     private int pricePer;
-    public StudentCourse(Student student, Course ofCourse, boolean paymentPreferences, boolean privateOrGroup, int pricePer){
+    public StudentCourse(boolean paymentPreferences, boolean privateOrGroup, int pricePer, ArrayList<TimeSlot>timeSlots){
         schedulesOfCourse = new ArrayList<>();
         this.paymentPreferences = paymentPreferences;
         this.privateOrGroup = privateOrGroup;
         tasks = new ArrayList<>();
+        this.timeSlots = timeSlots;
         agendas = new ArrayList<>();
         this.pricePer = pricePer;
         sc_ID = UUID.randomUUID().toString();
@@ -55,6 +57,15 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
             }
         });
     }
+
+    public ArrayList<TimeSlot> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(ArrayList<TimeSlot> timeSlots) {
+        this.timeSlots = timeSlots;
+    }
+
     public StudentCourse(){
         sc_ID = "";
     }

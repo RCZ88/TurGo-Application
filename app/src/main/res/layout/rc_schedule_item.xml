@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:background="@drawable/universal_container_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_rcsi_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Thursday"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_rcsi_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="13:20 -  14:20"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView18"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/user" />
+
+            <TextView
+                android:id="@+id/tv_rcsi_amtOfPerson"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="5 Person"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/ib_rcsi_removeSchedule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            app:srcCompat="@android:drawable/ic_delete" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.turgo;
 
-public enum FirebaseNode implements FirebasePathEnum{
+import java.io.Serializable;
+
+public enum FirebaseNode implements FirebasePathEnum, Serializable {
     USER("users", User.class),
     STUDENT("users/students", Student.class),
     TEACHER("users/teachers", Teacher.class),

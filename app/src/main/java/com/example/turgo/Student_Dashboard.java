@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
@@ -42,24 +42,23 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
     RecyclerView rv_coursesCompletedThisWeek;
     FragmentContainerView fcv_upcomingSchedule;
     Student user;
-    ArrayList<Task> studentTasks;
+    ArrayList<Task> studentTasks = new ArrayList<>();
     ViewPager2 vp2_listOfTasks;
 
     ProgressBar pb_progressThisWeek;
     ImageButton btn_details, ib_prevTask, ib_nextTask, btn_scanQR;
     TaskPagerAdapter adapter;
-    TextView tv_noScheduleFound, tv_noTaskFound;
+    TextView tv_noScheduleFound, tv_noTaskFound, tv_noMeetingCompleted;
     LinearLayout ll_Task;
     boolean expanded;
 
-    Schedule schedule;
+    Schedule scheduleOfNextMeeting;
     Course course;
     String roomId;
-    ArrayList<Course>coursesForScheduleAdapter;
-    ArrayList<Schedule>schedulesCompleted;
+    ArrayList<Course>coursesForScheduleAdapter = new ArrayList<>();
+    ArrayList<Schedule>schedulesCompleted = new ArrayList<>();
     Meeting nextMeeting;
     Teacher teacher;
-    Handler handler = new Handler();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -97,10 +96,9 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            onDataLoaded(getArguments());
         }
-        onDataLoaded(savedInstanceState);
+
     }
 
     @SuppressLint({"MissingInflatedId", "CommitTransaction", "SetTextI18n"})
@@ -112,6 +110,7 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
         View view = inflater.inflate(R.layout.fragment_student_dashboard, container, false);
         rv_coursesCompletedThisWeek = view.findViewById(R.id.rv_CourseCompleted);
         tv_noScheduleFound = view.findViewById(R.id.tv_SD_ScheduleEmpty);
+        tv_noMeetingCompleted = view.findViewById(R.id.tv_SD_NoMeetingsCompleted);
         tv_noTaskFound = view.findViewById(R.id.tv_SD_NoTask);
         ib_nextTask = view.findViewById(R.id.ib_NextTask);
         ib_prevTask = view.findViewById(R.id.ib_PrevTask);
@@ -128,13 +127,14 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
         user = activity.getStudent();
         Log.d("StudentDashboard(OnCreate)", "Student Retrieved:"+user);
 
-        Task t = new Task();
         studentTasks = user.getUncompletedTask();
 
         rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(this.getContext()));
         //Course course = Await.get(schedule::getScheduleOfCourse);
         ScheduleAdapter sa = new ScheduleAdapter(schedulesCompleted, coursesForScheduleAdapter);
         rv_coursesCompletedThisWeek.setAdapter(sa);
+        boolean empty = !Tool.boolOf(schedulesCompleted) || schedulesCompleted.isEmpty();
+        Tool.handleEmpty(empty , rv_coursesCompletedThisWeek, tv_noMeetingCompleted);
 
 
         double progress = user.getPercentageCompleted();
@@ -178,7 +178,7 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
             fragmentTransaction.commit();
             CourseDetails courseDetails = new CourseDetails();
             courseDetails.tv_room.setText(roomId);
-            courseDetails.tv_duration.setText(schedule.getDuration());
+            courseDetails.tv_duration.setText(scheduleOfNextMeeting.getDuration());
             courseDetails.tv_teacherName.setText(teacher.getFullName());
             courseDetails.tv_dayOfWeek.setText(course.getDaysOfSchedule(user));
             LocalDate closestMeeting = user.getClosestMeetingOfCourse(course);
@@ -188,6 +188,7 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
                 courseDetails.tv_nextMeetingDate.setText("No Meeting Found!");
             }
             Glide.with(requireContext()).load(course.getLogo()).into(courseDetails.iv_courseLogo);
+
             if(savedInstanceState != null){
                 Tool.loadFragment(requireActivity(),fcv_upcomingSchedule.getId(), meetingDisplay);
             }
@@ -243,7 +244,7 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
     });
 
     @Override
-    public Bundle loadDataInBackground(Bundle input, TextView loadingLog) {
+    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback loadingLog) {
         Bundle bundle = new Bundle();
         Meeting nextMeeting;
         Student user;
@@ -254,10 +255,19 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
             nextMeeting = (Meeting) input.getSerializable("nextMeeting");
             user = (Student) input.getSerializable("student");
         }
-        Schedule schedule = Await.get(nextMeeting::getMeetingOfSchedule);
-        Course course = Await.get(schedule::getScheduleOfCourse);
-        Teacher teacher = Await.get(course::getTeacher);
-        String roomId = Await.get(schedule::getRoom).getID();
+
+        Schedule schedule = null;
+        Course course = null;
+        Teacher teacher = null;
+        String roomId = "";
+        if(Tool.boolOf(nextMeeting)){
+            loadingLog.onProgress("Loading Meeting of Schedule...");
+            schedule = Await.get(nextMeeting::getMeetingOfSchedule);
+            course = Await.get(schedule::getScheduleOfCourse);
+            teacher = Await.get(course::getTeacher);
+            roomId = Await.get(schedule::getRoom).getID();
+        }
+
 
         ArrayList<Schedule> completedSchedules = user.getScheduleCompletedThisWeek();
         ArrayList<Course> coursesOfSchedule = completedSchedules.stream().map(s -> Await.get(s::getScheduleOfCourse)).collect(Collectors.toCollection(ArrayList::new));
@@ -274,7 +284,7 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
 
     @Override
     public void onDataLoaded(Bundle preloadedData) {
-        schedule = (Schedule)preloadedData.getSerializable(Schedule.SERIALIZE_KEY_CODE);
+        scheduleOfNextMeeting = (Schedule)preloadedData.getSerializable(Schedule.SERIALIZE_KEY_CODE);
         course = (Course)preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
         teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
         coursesForScheduleAdapter = (ArrayList<Course>) preloadedData.getSerializable("coursesOfSchedule");

@@ -36,8 +36,6 @@ public class CourseTypeFirebase implements FirebaseClass<CourseType>{
             }
         });
     }
-
-
     public String getCourseType_ID() {
         return courseType_ID;
     }
@@ -50,11 +48,10 @@ public class CourseTypeFirebase implements FirebaseClass<CourseType>{
         return courseType;
     }
 
-
-
     public void setCourseType(String courseType) {
         this.courseType = courseType;
     }
+
     @NonNull
     public String toString(){
         return courseType;
