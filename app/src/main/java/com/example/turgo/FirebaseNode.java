@@ -16,6 +16,7 @@ public enum FirebaseNode implements FirebasePathEnum, Serializable {
     STUDENTCOURSE("student-course", StudentCourse.class),
     COURSETYPE("course-types", CourseType.class),
     FILE("files", file.class),
+    TIME_SLOT("time-slot", TimeSlot.class),
     SCHEDULE("schedules", Schedule.class),
     MEETING("meetings", Meeting.class),
     SUBMISSION("submissions", Submission.class),

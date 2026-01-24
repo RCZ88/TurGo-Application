@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public interface FirebaseClass<F>{
     /// 1. Create an empty firebaseObject (ex. StudentFirebase sf = new StudentFirebase())
     /// 2. Then use the method to import all the normalObject to the firebaseObject (sf.importObjectDataToFirebase(this))
-    public abstract void importObjectData(F from);
+    void importObjectData(F from);
     default <O extends RequireUpdate<?, ?>>ArrayList<String> convertToIdList(ArrayList<O> objectList){
         ArrayList<String> idList = new ArrayList<>();
         if(objectList != null){

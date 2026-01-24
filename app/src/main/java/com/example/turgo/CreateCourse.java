@@ -310,9 +310,10 @@ public class CreateCourse extends AppCompatActivity {
                         course.setImagesCloudinary(this.courseImagesCloudinary);
 
                         teacher.addCourse(course);
-                        teacher.updateDB();
+                        TeacherRepository.getInstance(teacher.getID()).addCourseTeach(course);
                         Log.d("CreateCourse", "Course Created Object: " + course);
-                        course.updateDB();
+                        CourseRepository courseRepository = CourseRepository.getInstance(course.getID());
+                        courseRepository.save(course);
 
                         updateProgress.run();
                         progressDialog.setProgress(100);

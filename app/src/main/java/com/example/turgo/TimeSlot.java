@@ -9,12 +9,14 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class TimeSlot implements Serializable {
+public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotFirebase> {
+    private final String timeSlotId;
     private DayOfWeek day;
     private LocalTime start;
     private LocalTime end;
@@ -23,10 +25,12 @@ public class TimeSlot implements Serializable {
     private int minuteIncrement;
 
     public TimeSlot(LocalTime start, LocalTime end){
+        this.timeSlotId = UUID.randomUUID().toString();
         this.start = start;
         this.end = end;
     }
     public TimeSlot(DayOfWeek day, LocalTime start, LocalTime end,  int minuteIncrement){
+        this.timeSlotId = UUID.randomUUID().toString();
         this.day = day;
         this.start = start;
         this.end = end;
@@ -35,6 +39,7 @@ public class TimeSlot implements Serializable {
         this.minuteIncrement = minuteIncrement;
     }
     public TimeSlot(DayOfWeek day, LocalTime start, Duration time){
+        this.timeSlotId = UUID.randomUUID().toString();
         this.day = day;
         this.start = start;
         this.time = time;
@@ -130,4 +135,18 @@ public class TimeSlot implements Serializable {
     }
 
 
+    @Override
+    public FirebaseNode getFirebaseNode() {
+        return FirebaseNode.TIME_SLOT;
+    }
+
+    @Override
+    public Class<TimeSlotFirebase> getFirebaseClass() {
+        return TimeSlotFirebase.class;
+    }
+
+    @Override
+    public String getID() {
+        return timeSlotId;
+    }
 }

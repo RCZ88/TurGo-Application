@@ -2,6 +2,7 @@ package com.example.turgo;
 
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
@@ -9,7 +10,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -19,6 +22,7 @@ import android.widget.EditText;
 public class RC_UserInformation extends Fragment implements checkFragmentCompletion {
 
     EditText et_school, et_grade, et_reasonForJoining;
+    Button btn_saveToStudent, btn_autofill;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -67,6 +71,8 @@ public class RC_UserInformation extends Fragment implements checkFragmentComplet
         et_grade = view.findViewById(R.id.et_EducationStudent);
         et_school = view.findViewById(R.id.et_SchoolNameInput);
         et_reasonForJoining = view.findViewById(R.id.etml_ReasonForJoining);
+        btn_autofill = view.findViewById(R.id.btn_rui_autofill);
+        btn_saveToStudent = view.findViewById(R.id.btn_saveToProfile);
         RegisterCourse rc = (RegisterCourse) getActivity();
         assert rc != null;
         rc.tv_title.setText(viewTitle);
@@ -116,6 +122,34 @@ public class RC_UserInformation extends Fragment implements checkFragmentComplet
             @Override
             public void afterTextChanged(Editable editable) {
                 rc.setReasonForJoining(et_school.getText().toString());
+            }
+        });
+        Student student = rc.getStudent();
+        btn_saveToStudent.setOnClickListener(v -> {
+            if(et_school.getText().length() != 0 && et_grade.getText().length() != 0){
+                new AlertDialog.Builder(requireContext())
+                        .setTitle("Confirm")
+                        .setMessage("Replace/Set default School & Grade for your Account!")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            // ✅ YES ACTION
+                            StudentRepository studentRepository = StudentRepository.getInstance(student.getID());
+                            student.setSchool(et_school.getText().toString());
+                            studentRepository.updateSchool(et_school.getText().toString());
+                            student.setGradeLevel(et_grade.getText().toString());
+                            studentRepository.updateGradeLevel(et_grade.getText().toString());
+                            Toast.makeText(requireContext(), "School & Grade saved Successfully!", Toast.LENGTH_SHORT).show();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
+            }else{
+                Toast.makeText(requireContext(), "Please Fill in School & Grades before Saving.", Toast.LENGTH_SHORT).show();
+            }
+        });
+        btn_autofill.setOnClickListener(v->{
+            if(Tool.boolOf(student.getSchool()) && Tool.boolOf(student.getGradeLevel())){
+                et_school.setText(student.getSchool());
+                et_grade.setText(student.getGradeLevel());
             }
         });
         return view;

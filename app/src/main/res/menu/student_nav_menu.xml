@@ -1,23 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
 
     <item
         android:id="@+id/dest_studentDashboard"
         android:icon="@drawable/dashboard"
         android:title="@string/title_dashboard" />
+
     <item
         android:id="@+id/dest_studentMyCourses"
         android:icon="@drawable/book_open_cover"
         android:title="@string/my_courses" />
+
     <item
         android:id="@+id/dest_studentTaskList"
         android:icon="@drawable/task_checklist"
         android:title="@string/task_list" />
+
     <item
         android:id="@+id/dest_studentExploreCourses"
         android:icon="@drawable/compass"
         android:title="@string/explore_courses" />
+
     <item
         android:id="@+id/dest_studentProfile"
         android:icon="@drawable/user"

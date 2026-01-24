@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/brand_emerald_pale"
     tools:context=".Student_Dashboard">
 
     <ScrollView
@@ -11,215 +12,225 @@
         android:layout_height="match_parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="20dp">
 
+            <!-- ===================== HERO: WEEKLY PROGRESS ===================== -->
             <LinearLayout
-                android:id="@+id/LinearLayout15"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_hero_progress"
+                android:orientation="vertical"
+                android:padding="20dp">
 
                 <TextView
                     android:id="@+id/textView29"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="This Week's Progress!"
-                    android:textSize="20dp"
-                    android:textStyle="bold" />
+                    android:fontFamily="@font/bricolage_grotesque_heading"
+                    android:letterSpacing="0.02"
+                    android:text="This Week's Progress"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="36dp"
+                    android:textStyle="normal|bold" />
 
                 <ProgressBar
                     android:id="@+id/pb_WeeksProgress"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_height="26dp"
+                    android:layout_marginTop="16dp"
                     android:max="100"
-                    android:progress="0" />
+                    android:progress="0"
+                    android:progressTint="@color/brand_emerald_light"
+                    android:backgroundTint="@color/progress_background" />
             </LinearLayout>
 
+            <!-- ===================== UPCOMING CLASS ===================== -->
             <LinearLayout
-                android:id="@+id/linearLayout9"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/bg_card_surface"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/textView19"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView19"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Upcoming Class:"
-                        android:textAlignment="center"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        tools:layout_editor_absoluteX="26dp"
-                        tools:layout_editor_absoluteY="136dp" />
-
-                </LinearLayout>
+                    android:text="Upcoming Class"
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="26sp"
+                    android:fontFamily="@font/bricolage_subheading"
+                    android:letterSpacing="0.01" />
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/fcv_UpcomingClass"
                     android:name="com.example.turgo.MeetingDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
                     android:visibility="gone"
                     tools:layout="@layout/fragment_meeting_display" />
 
                 <TextView
                     android:id="@+id/tv_SD_ScheduleEmpty"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
-                    android:background="@drawable/recycler_view_border"
+                    android:layout_height="120dp"
+                    android:background="@drawable/bg_inner_panel"
                     android:gravity="center"
                     android:text="No Upcoming Schedule!"
-                    android:textSize="22dp" />
+                    android:textColor="@color/black_soft"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/space_mono_regular"
+                    android:letterSpacing="0.01" />
 
                 <ImageButton
                     android:id="@+id/ib_SD_ShowDetails"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:background="@color/zxing_transparent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@color/transparent"
                     android:scaleType="center"
+                    android:tint="@color/brand_emerald"
                     android:src="@drawable/caret_down" />
-
             </LinearLayout>
 
+            <!-- ===================== GRID: MEETINGS + ATTENDANCE ===================== -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
 
+                <!-- MEETINGS CARD -->
                 <LinearLayout
-                    android:id="@+id/linearLayout10"
-                    android:layout_width="181dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="12dp"
-                    android:layout_marginTop="8dp"
-                    android:orientation="vertical">
+                    android:layout_marginEnd="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_surface"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/textView23"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="8dp"
-                        android:gravity="center_horizontal"
-                        android:text="Meeting Completed this Week"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:layout_marginBottom="10dp"
+                        android:fontFamily="@font/bricolage_grotesque_heading"
+                        android:letterSpacing="0.01"
+                        android:text="Meetings Completed"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="20sp" />
 
                     <TextView
                         android:id="@+id/tv_SD_NoMeetingsCompleted"
                         android:layout_width="match_parent"
                         android:layout_height="180dp"
-                        android:background="@drawable/recycler_view_border"
-                        android:gravity="center_horizontal|center_vertical"
+                        android:background="@drawable/bg_inner_panel"
+                        android:gravity="center"
                         android:text="No Meeting Completed."
-                        android:textSize="18dp" />
+                        android:textColor="@color/black_soft"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:letterSpacing="0.01" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_CourseCompleted"
                         android:layout_width="match_parent"
-                        android:layout_height="156dp"
-                        android:background="@drawable/recycler_view_border"
+                        android:layout_height="180dp"
+                        android:background="@drawable/bg_inner_panel"
                         android:visibility="gone" />
-
                 </LinearLayout>
 
-                <View
+                <!-- ATTENDANCE CARD -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <LinearLayout
-                    android:id="@+id/linearLayout12"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="12dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_surface"
                     android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <TextView
                         android:id="@+id/textView24"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_heading"
+                        android:letterSpacing="0.01"
                         android:text="Attendance"
-                        android:textSize="28dp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="24sp" />
 
                     <TextView
                         android:id="@+id/textView25"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Scan QR " />
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:letterSpacing="0.01"
+                        android:text="Scan QR"
+                        android:textColor="@color/black_soft"
+                        android:textSize="14sp" />
 
                     <ImageButton
                         android:id="@+id/btn_ScanQRAttendance"
-                        android:layout_width="125dp"
-                        android:layout_height="125dp"
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
                         android:layout_marginTop="16dp"
-                        android:background="@color/zxing_transparent"
+                        android:background="@drawable/bg_qr_button"
                         android:contentDescription="Scan an Attendance QR Code"
                         android:onClick="attendMeetingScan"
+                        android:scaleType="centerInside"
+                        android:tint="@color/white_soft"
                         android:src="@drawable/qr_scan" />
-
                 </LinearLayout>
-
             </LinearLayout>
 
+            <!-- ===================== TASKS ===================== -->
             <LinearLayout
-                android:id="@+id/LinearLayout13"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:background="@drawable/bg_card_surface"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/textView28"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_horizontal"
-                        android:text="Task To Do:"
-                        android:textSize="24dp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
+                <TextView
+                    android:id="@+id/textView28"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bricolage_grotesque_heading"
+                    android:letterSpacing="0.01"
+                    android:text="Tasks To Do"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="24sp" />
 
                 <TextView
                     android:id="@+id/tv_SD_NoTask"
                     android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/edittext_border"
+                    android:layout_height="88dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_inner_panel"
                     android:gravity="center"
                     android:text="All Clear, No Task!"
-                    android:textSize="20sp"
+                    android:textColor="@color/black_soft"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/space_mono_regular"
+                    android:letterSpacing="0.01"
                     android:visibility="gone" />
 
                 <LinearLayout
@@ -227,40 +238,34 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:background="@drawable/edittext_border"
-                    android:orientation="horizontal">
+                    android:background="@drawable/bg_task_carousel"
+                    android:orientation="horizontal"
+                    android:padding="6dp">
 
                     <ImageButton
                         android:id="@+id/ib_PrevTask"
-                        android:layout_width="38dp"
-                        android:layout_height="80dp"
-                        android:layout_weight="0"
-                        android:background="@color/zxing_transparent"
+                        android:layout_width="48dp"
+                        android:layout_height="96dp"
+                        android:background="@color/transparent"
                         android:contentDescription="Previous Task"
-                        android:scaleType="centerCrop"
+                        android:scaleType="center"
+                        android:tint="@color/brand_emerald"
                         android:src="@drawable/caret_left" />
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vp2_TasksContainer"
-                        android:layout_width="285dp"
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1" />
 
-<!--                    <androidx.fragment.app.FragmentContainerView-->
-<!--                        android:id="@+id/fcv_TaskDisplay"-->
-<!--                        android:name="com.example.turgo.TaskDisplay"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:background="@drawable/edittext_border"-->
-<!--                        tools:layout="@layout/fragment_task_display" />-->
-
                     <ImageButton
                         android:id="@+id/ib_NextTask"
-                        android:layout_width="38dp"
-                        android:layout_height="80dp"
-                        android:background="@color/zxing_transparent"
+                        android:layout_width="48dp"
+                        android:layout_height="96dp"
+                        android:background="@color/transparent"
                         android:contentDescription="Next Task"
-                        android:scaleType="centerCrop"
+                        android:scaleType="center"
+                        android:tint="@color/brand_emerald"
                         android:src="@drawable/caret_right" />
                 </LinearLayout>
             </LinearLayout>

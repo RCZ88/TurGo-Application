@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/brand_emerald_pale"
     android:paddingTop="16dp"
     android:paddingBottom="80dp"
     tools:context=".Student_ExploreCourse">
 
-    <!-- Title -->
+    <!-- Title Container -->
     <LinearLayout
         android:id="@+id/titleContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:orientation="horizontal"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,9 +24,10 @@
 
         <ImageView
             android:id="@+id/imageView12"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:src="@drawable/compass"
+            android:tint="@color/brand_emerald_dark"
             android:layout_marginEnd="12dp" />
 
         <TextView
@@ -32,10 +35,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Explore"
-            android:textColor="@android:color/black"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="32sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="bold"
+            android:letterSpacing="0.02" />
     </LinearLayout>
 
     <!-- RecyclerView -->
@@ -45,14 +49,14 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/recycler_view_border"
         android:clipToPadding="false"
         android:padding="8dp"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toTopOf="@id/tv_exploreCourseEmpty"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/bg_card_surface"
         app:layout_constraintTop_toBottomOf="@id/titleContainer"
+        app:layout_constraintBottom_toTopOf="@id/tv_exploreCourseEmpty"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         tools:itemCount="5"
         tools:listitem="@layout/course_display" />
 
@@ -62,17 +66,19 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="32dp"
-        android:background="@drawable/recycler_view_border"
         android:gravity="center"
         android:padding="48dp"
         android:text="No courses to explore!\nPlease update your course interests."
         android:textAlignment="center"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/black_soft"
         android:textSize="16sp"
+        android:fontFamily="sans-serif"
+        android:letterSpacing="0.01"
+        android:background="@drawable/bg_inner_panel"
         android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/rv_exploreCourses"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

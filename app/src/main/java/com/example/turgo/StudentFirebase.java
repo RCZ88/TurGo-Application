@@ -16,7 +16,8 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
     private int lateAttendance;
     private int lateSubmissions;
     private boolean hasScheduled;
-
+    private String school;
+    private String gradeLevel;
     private ArrayList<String> courseTaken;
     private ArrayList<String> studentCourseTaken;
     private ArrayList<String> courseInterested; // already a list of types (Strings)
@@ -47,6 +48,8 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         setInbox(convertToIdList(from.getInbox()));
         setOutbox(convertToIdList(from.getOutbox()));
         setNotifications(convertToIdList(from.getNotifications()));
+        setSchool(from.getSchool());
+        setGradeLevel(from.getGradeLevel());
 
         percentageCompleted = from.getPercentageCompleted();
         nextMeeting = (from.getNextMeeting() != null && from.getNextMeeting().getID() != null) ? from.getNextMeeting().getID() : null;
@@ -94,6 +97,22 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
 
             }
         });
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getGradeLevel() {
+        return gradeLevel;
+    }
+
+    public void setGradeLevel(String gradeLevel) {
+        this.gradeLevel = gradeLevel;
     }
 
     public boolean isHasScheduled() {

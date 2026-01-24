@@ -76,7 +76,6 @@ public class StudentScreen extends AppCompatActivity{
             navigateToFragment(fragmentToLoad, bundleExtra, bottomNavMenuId);
         }else{
             Log.d("StudentScreen", "FragmentToLoad is Null, Redirecting to Dashboard!");
-
             //load the student once. ui can come on every new activity.
             if(!Tool.boolOf(student)){
                 Student dummy = new Student();

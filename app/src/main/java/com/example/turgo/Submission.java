@@ -25,8 +25,11 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
     public void addFile(file file){
         LocalDateTime timeOfSubmission = LocalDateTime.now();
         files.put(file, isLate(timeOfSubmission));
+        SubmissionRepository submissionRepository = SubmissionRepository.getInstance(getID());
+        submissionRepository.addFile(file, isLate(timeOfSubmission));
         if(!completed){
             completed = true;
+            submissionRepository.setCompleted(true);
         }
     }
     public ArrayList<file> getFilesOnly(){

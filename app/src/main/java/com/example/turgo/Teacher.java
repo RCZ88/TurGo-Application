@@ -124,7 +124,6 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
             @Override
             public void onObjectRetrieved(StudentCourse object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                 object.assignAgenda(agenda);
-                object.updateDB();
             }
 
             @Override

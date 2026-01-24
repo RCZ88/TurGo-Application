@@ -18,8 +18,6 @@ public class CourseFirebase implements FirebaseClass<Course>{
     private double monthlyDiscountPercentage;
     private boolean autoAcceptStudent;
     private int maxStudentPerMeeting;
-
-
     private ArrayList<Integer> paymentPer; //accept per month or and per meeting
     private ArrayList<Integer> privateGroup; //accept private and or group?
     private ArrayList<String> dayTimeArrangement; //the days available for this course

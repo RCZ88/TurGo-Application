@@ -97,6 +97,7 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
                 LinearLayoutManager.HORIZONTAL, false));
 
         ArrayList<DayTimeArrangement>dtas = course.getDayTimeArrangement();
+
         ArrayList<String> daysOfDtas = DayTimeArrangement.getDaysOfDtas(dtas);
         ArrayList<String> timesOfDtas = DayTimeArrangement.getTimesOfDtas(dtas);
         Log.d("CEFP", daysOfDtas.toString());

@@ -497,26 +497,6 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
         // Now we know FBC implements RequireUpdate<FBC>, so no cast needed
         rtdb.storeData(path, this.getID(), firebaseObj, firebaseObj.getClass().toString(), "Successfull");
 
-//        ArrayList<Field>objectVariables = new ArrayList<>(Arrays.asList(this.getClass().getDeclaredFields()));
-//        for(Field field : objectVariables){
-//            if(!Tool.isPrimitive(field)){
-//                if(field.getType() == RequireUpdate.class){
-//                    RequireUpdate<? , ?> obj = (RequireUpdate<?, ?>) field.get(this);
-//                    if (obj != null) {
-//                        obj.updateDB();
-//                    }
-//                }else if(field.getType() == ArrayList.class && Tool.getArrayListElementType(field) == RequireUpdate.class){
-//                    ArrayList<Object> objects = (ArrayList<Object>) field.get(this);
-//                    for(Object object : objects){
-//                        RequireUpdate<? , ?> obj = (RequireUpdate<?, ?>) object;
-//                        if (obj != null) {
-//                            obj.updateDB();
-//                        }
-//                    }
-//
-//                }
-//            }
-//        }
 
 
         if(this instanceof User){

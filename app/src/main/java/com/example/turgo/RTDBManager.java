@@ -8,7 +8,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RTDBManager<T> {
-    private static final String dbLinks = "https://turg0-4pp-default-rtdb.asia-southeast1.firebasedatabase.app";
+    private static final String dbLink = "https://turg0-4pp-default-rtdb.asia-southeast1.firebasedatabase.app";
     public void storeUserType(User user){
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         dbRef.child(FirebaseNode.USERIDROLES.getPath()).child(user.getUid()).child("role").setValue(user.getUserType().type());

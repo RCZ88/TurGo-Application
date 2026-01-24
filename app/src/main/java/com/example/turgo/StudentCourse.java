@@ -43,12 +43,17 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
             }
         });
     }
-    public void assignAgenda(Agenda agenda){
+    public void assignAgenda(Agenda agenda) throws IllegalAccessException, InstantiationException {
+        StudentCourseRepository studentCourseRepository = StudentCourseRepository.getInstance(getID());
+
         agendas.add(agenda);
-        getStudent(new ObjectCallBack<Student>() {
+        studentCourseRepository.addAgenda(agenda);
+        getStudent(new ObjectCallBack<>() {
             @Override
-            public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+            public void onObjectRetrieved(Student object) throws IllegalAccessException, InstantiationException {
                 object.addAgenda(agenda);
+                StudentRepository studentRepository = StudentRepository.getInstance(object.getID());
+                studentCourseRepository.addAgenda(agenda);
             }
 
             @Override

@@ -1,19 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/action_mail"
         android:icon="@drawable/envelope"
         android:title="Mail"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        app:iconTint="@color/white_soft"/>
+
     <item
         android:id="@+id/action_notifications"
         android:icon="@drawable/notif_empty"
         android:title="Notifications"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom"
+        app:iconTint="@color/white_soft"/>
+
     <item
         android:id="@+id/action_signOut"
         android:icon="@drawable/signout"
-        android:title="signOut"
-        app:showAsAction="ifRoom" />
+        android:title="Sign Out"
+        app:showAsAction="ifRoom"
+        app:iconTint="@color/white_soft"/>
 </menu>

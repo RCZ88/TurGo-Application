@@ -373,20 +373,28 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
             students = new ArrayList<>();
         }
         studentsCourse.add(sc);
+        CourseRepository courseRepo = CourseRepository.getInstance(courseID);
+        courseRepo.addStudentCourse(sc);
         students.add(student);
+        StudentRepository studentRepo = StudentRepository.getInstance(student.getID());
         student.getCourseTaken().add(this);
+        studentRepo.addCourseTaken(this);
         student.getStudentCourseTaken().add(sc);
+        studentRepo.addStudentCourseTaken(sc);
         student.updateUserDB();
         for(Schedule schedule : schedules){
-            if(!getDTAOfDay(schedule.getDay()).getOccupied().contains(schedule)){//if a new schedule, add the schedule
-                getDTAOfDay(schedule.getDay()).getOccupied().add(schedule);
+            DayTimeArrangement dtaOfDay = getDTAOfDay(schedule.getDay());
+            if(!dtaOfDay.getOccupied().contains(schedule)){//if a new schedule, add the schedule
+                dtaOfDay.getOccupied().add(schedule);
+                DTARepository dtaRepository = DTARepository.getInstance(dtaOfDay.getID());
+                dtaRepository.addOccupied(schedule);
             }else{
-                for(Schedule s : getDTAOfDay(schedule.getDay()).getOccupied()){
+                for(Schedule s : dtaOfDay.getOccupied()){
                     student.getAllSchedules().add(s);
+                    studentRepo.addAllSchedule(s);
                 }
             }
         }
-        updateDB();
     }
     public Meeting getNextMeetingOfNextSchedule(){
         ArrayList<Schedule>scheduleToday= new ArrayList<>();
@@ -453,8 +461,7 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     }
     public void addSchedule(Schedule schedule) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         schedules.add(schedule);
-        updateDB();
-
+        CourseRepository.getInstance(getID()).addSchedule(schedule);
     }
     public String getLogo() {
         return logoCloudinary;
@@ -522,8 +529,12 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
 
     @Override
     public String toString() {
-        ArrayList<String> dtasList = dayTimeArrangement.stream().map((dta) ->dta.toString()).collect(Collectors.toCollection(ArrayList::new));
-        String dtas = "[ "  + String.join( ", ", dtasList) + " ]";
+        String dtas = "empty";
+        if(dayTimeArrangement != null){
+            ArrayList<String> dtasList = dayTimeArrangement.stream().map((dta) ->dta.toString()).collect(Collectors.toCollection(ArrayList::new));
+            dtas = "[ "  + String.join( ", ", dtasList) + " ]";
+        }
+
         return "Course{" +
                 "courseID='" + courseID + '\'' +
                 ", fbc=" + fbc +

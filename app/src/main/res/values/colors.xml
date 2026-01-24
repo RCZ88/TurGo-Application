@@ -45,4 +45,24 @@
     <color name="turgo_gray_light">#F5F5F5</color>  <!-- Unselected BG -->
     <color name="turgo_gray">#757575</color>        <!-- Unselected Text -->
     <color name="turgo_white">#FFFFFF</color>
+
+
+    <color name="brand_emerald_dark">#013220</color>
+    <color name="brand_emerald">#0B6E4F</color>
+    <color name="brand_emerald_light">#50C878</color>
+    <color name="brand_emerald_pale">#D1F2EB</color>
+
+    <!-- Neutrals -->
+    <color name="white_soft">#F5F7F7</color>
+    <color name="black_soft">#0B1010</color>
+    <color name="surface_card">#EAF6F3</color>
+    <color name="surface_inner_panel">#F2FBF9</color>
+
+    <!-- UI Utility -->
+    <color name="transparent">#00000000</color>
+    <color name="progress_background">#013220</color>
+    <color name="qr_button_bg">#0B6E4F</color>
+    <color name="carousel_bg">#DFF3EF</color>
+
+
 </resources>

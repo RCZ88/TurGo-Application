@@ -164,12 +164,15 @@ public class RegisterCourse extends AppCompatActivity {
                     () -> {
                         student.joinCourse(course, paymentPreferences, sq == ScheduleQuality.PRIVATE_ONLY, selectedPrice, schedules, timeSlotSelected);
             }, () -> {
-                Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(this, StudentScreen.class);
-                intent.putExtra("ShowFragment", "CourseJoinedFullPage");
-                intent.putExtra("CourseJoined", course);
-                startActivity(intent);
-                finish();
+//                Toast.makeText(this, "Joined Course Successfully, Welcome!", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(this, StudentScreen.class);
+//                intent.putExtra("ShowFragment", "CourseJoinedFullPage");
+////                intent.putExtra(User.SERIALIZE_KEY_CODE, student);
+//                intent.putExtra("CourseJoined", course);
+//                startActivity(intent);
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+                        DataLoading.loadAndNavigate(this, CourseJoinedFullPage.class, bundle, true, StudentScreen.class, student,StudentScreen.getMenuIdForFragment(Student_MyCourses.class.getSimpleName()));
             }, e -> {
                 Log.d("apply", "Error Applying to Course: ", e);
                 Toast.makeText(this, "System Fail when Applying to Course.", Toast.LENGTH_SHORT).show();
@@ -194,6 +197,10 @@ public class RegisterCourse extends AppCompatActivity {
                             throw new RuntimeException(e);
                         }
                         Toast.makeText(this, "Apply Course Mail Request Sent!", Toast.LENGTH_SHORT).show();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("nextMeeting", student.getNextMeeting());
+                        bundle.putSerializable("student", student);
+                        DataLoading.loadAndNavigate(this, Student_Dashboard.class, bundle, true, StudentScreen.class, student);
                     },
                     e->{
 

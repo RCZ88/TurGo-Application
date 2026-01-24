@@ -36,6 +36,8 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     private ArrayList<Schedule> scheduleCompletedThisWeek;
     private double percentageCompleted;
     private Meeting nextMeeting;
+    private String school;
+    private String gradeLevel;
     private ArrayList<Schedule> allSchedules;
     private LocalDate lastScheduled;
     private boolean hasScheduled;
@@ -59,6 +61,8 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         scheduleCompletedThisWeek = new ArrayList<>();
         allAgendas = new ArrayList<>();
         percentageCompleted = 0;
+        school = "";
+        gradeLevel = "";
         notificationEarlyDuration = Duration.ofMinutes(30);
         hasScheduled = false;
         autoSchedule = 1;
@@ -169,29 +173,34 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
     public void addScheduledMeeting() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         LocalDate today = LocalDate.now();
+        ArrayList<Schedule>oldAllSchedule = allSchedules;
+        StudentRepository studentRepository = StudentRepository.getInstance(getID());
         for(int i = 0; i<autoSchedule; i++){
             for(int j = 0; j<allSchedules.size(); j++){
                 if(!allSchedules.get(j).isHasScheduled()){
                     LocalDate meetingDate= today.plusWeeks(i-1).with(TemporalAdjusters.nextOrSame(allSchedules.get(j).getDay()));
                     Meeting meeting = new Meeting(allSchedules.get(j), meetingDate, this, context);
                     Meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(), meeting.getEndTimeChange(), this, meeting);
+                    MeetingRepository.getInstance(meeting.getMeetingID()).save(meeting);
                     preScheduledMeetings.add(meeting);
                     Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
                     Course course = Await.get(schedule::getScheduleOfCourse);
                     Teacher teacher = Await.get(course::getTeacher);
+
                     teacher.addScheduledMeeting(meeting);
-                    meeting.updateDB();
+                    teacher.addScheduledMeeting(meeting);
 
                     for(Student student: Await.get(allSchedules.get(j)::getStudents)){
                         student.preScheduledMeetings.add(meeting);
-                        student.updateUserDB();
+                        studentRepository.addPreScheduledMeeting(meeting);
                     }
                     allSchedules.get(i).setScheduler(this);
-
                 }
             }
         }
+        studentRepository.replaceAllSchedule(oldAllSchedule, allSchedules);
         lastScheduled = today;
+        studentRepository.updateLastScheduled(today);
     }
 
     private ArrayList<Schedule> updateSchedule(){ //updates schedule based on course's schedule
@@ -232,9 +241,12 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public void completeMeeting(Meeting meeting){
+        StudentRepository studentRepository = StudentRepository.getInstance(getID());
         preScheduledMeetings.remove(meeting);
+        studentRepository.removePreScheduledMeetingCompletely(meeting);
         Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
         scheduleCompletedThisWeek.add(schedule);
+        studentRepository.addScheduleCompletedThisWeek(schedule);
     }
 
     private boolean checkAllComplete(){
@@ -258,9 +270,13 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         }
     }
     public void joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        CourseRepository courseRepository = CourseRepository.getInstance(getID());
         course.addStudent(this, paymentPreferences, privateOrGroup, payment, schedules, timeSlot);
         course.getSchedules().addAll(schedules);
-        allSchedules = updateSchedule();
+        schedules.forEach(courseRepository::addSchedule);
+        StudentRepository studentRepository = StudentRepository.getInstance(getID());
+        ArrayList<Schedule>newSchedules = updateSchedule();
+        studentRepository.replaceAllSchedule(allSchedules, newSchedules);
         addScheduledMeeting();
     }
     public void assignAgenda(Agenda agenda){
@@ -282,6 +298,22 @@ public class Student extends User implements Serializable, RequireUpdate<Student
 
     public Duration getNotificationEarlyDuration() {
         return notificationEarlyDuration;
+    }
+
+    public String getSchool() {
+        return school;
+    }
+
+    public void setSchool(String school) {
+        this.school = school;
+    }
+
+    public String getGradeLevel() {
+        return gradeLevel;
+    }
+
+    public void setGradeLevel(String gradeLevel) {
+        this.gradeLevel = gradeLevel;
     }
 
     public void setNotificationEarlyDuration(Duration notificationEarlyDuration) {
@@ -603,7 +635,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                 this.lateSubmissions ++;
             }
             String folderPath = "turgo/submissions/"+task.getTaskOfCourse().getCourseID()+"/"+task.getTaskID()+"/"+ getUid();
-            task.getDropbox().updateDB();
+//            task.getDropbox().updateDB();
         }
         ArrayList<String>fileNames = new ArrayList<>();
         for(file file: filesSelected){
