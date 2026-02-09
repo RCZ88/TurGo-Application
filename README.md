@@ -1,6 +1,6 @@
 # TurGo
 
-TurGo is a production Android education app focused on courses, scheduling, and student–teacher interactions. The app uses Firebase Realtime Database as its backend, follows a repository pattern with domain models and Firebase mappers, and leans heavily on async-safe flows built with Google Play Services `Task<T>`.
+TurGo is a production Android education app focused on courses, scheduling, and studentï¿½teacher interactions. The app uses Firebase Realtime Database as its backend, follows a repository pattern with domain models and Firebase mappers, and leans heavily on async-safe flows built with Google Play Services `Task<T>`.
 
 ## Highlights
 - **Course lifecycle**: explore courses, join/register, view agendas and tasks.
@@ -59,9 +59,9 @@ Schedules are displayed using a RecyclerView and a dedicated schedule display la
   - `students`, `teachers`, `courses`, `schedules`, `dayTimeArrangements`, `agendas`, `tasks`, `studentCourses`.
 
 ## UI/Design System
-The UI follows a modern “Emerald academic” aesthetic:
+The UI follows a modern ï¿½Emerald academicï¿½ aesthetic:
 - Emerald greens for primary actions and surfaces.
-- Rounded corners (16–20dp) with subtle strokes on cards.
+- Rounded corners (16ï¿½20dp) with subtle strokes on cards.
 - Bold, quirky headers (Bricolage Grotesque) + technical body text (Space Mono / Bricolage Body).
 - Parallax banners on course pages using `CollapsingToolbarLayout`.
 
