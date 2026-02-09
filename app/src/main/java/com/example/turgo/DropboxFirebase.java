@@ -10,6 +10,8 @@ public class DropboxFirebase implements FirebaseClass<Dropbox>{
     private ArrayList<String>submissions;
     private String dropboxID;
     private String ofTaskID;
+    public DropboxFirebase(){}
+
     @Override
     public void importObjectData(Dropbox from) {
         if (from == null) return;
@@ -46,4 +48,27 @@ public class DropboxFirebase implements FirebaseClass<Dropbox>{
         });
     }
 
+    public ArrayList<String> getSubmissions() {
+        return submissions;
+    }
+
+    public void setSubmissions(ArrayList<String> submissions) {
+        this.submissions = submissions;
+    }
+
+    public String getDropboxID() {
+        return dropboxID;
+    }
+
+    public void setDropboxID(String dropboxID) {
+        this.dropboxID = dropboxID;
+    }
+
+    public String getOfTaskID() {
+        return ofTaskID;
+    }
+
+    public void setOfTaskID(String ofTaskID) {
+        this.ofTaskID = ofTaskID;
+    }
 }

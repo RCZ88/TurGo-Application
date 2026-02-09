@@ -1,7 +1,12 @@
 package com.example.turgo;
 
-public enum MailType {
-    REQUEST("JoinCourseRequest");
+import java.io.Serializable;
+
+public enum MailType implements Serializable {
+    MAIL_TYPE("mailType"),
+    DRAFT("draft"),
+    INBOX("inbox"),
+    OUTBOX("outbox");
 
     public String mailType;
 

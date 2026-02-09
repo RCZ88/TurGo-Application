@@ -18,6 +18,8 @@ import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link RC_PrivateDurationAmount#newInstance} factory method to
@@ -26,8 +28,10 @@ import android.widget.TextView;
 public class RC_PrivateDurationAmount extends Fragment implements checkFragmentCompletion {
     RadioGroup rg_privateGroup;
     SeekBar sb_durationSlider, sb_amountSlider;
-    static final String viewName = "Select Schedule Quality";
-    TextView tv_minutesDisplay, tv_amountDisplay;
+    static final String viewName = "Course Details";
+    TextView tv_minutesDisplay, tv_amountDisplay, tv_durationSlotExplanation;
+    int currentSessionAvailableAmount;
+    int currentAmountSelected;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -81,6 +85,7 @@ public class RC_PrivateDurationAmount extends Fragment implements checkFragmentC
         sb_amountSlider = view.findViewById(R.id.sb_AmountPerWeek);
         tv_minutesDisplay = view.findViewById(R.id.tv_durationDisplay);
         tv_amountDisplay = view.findViewById(R.id.tv_AmtDisplay);
+        tv_durationSlotExplanation =  view.findViewById(R.id.tv_SessionLimitInfo);
         ScheduleQuality[]qualities = {PRIVATE_ONLY, GROUP_ONLY, FLEXIBLE};
         rg_privateGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             if(i != -1){
@@ -93,13 +98,17 @@ public class RC_PrivateDurationAmount extends Fragment implements checkFragmentC
 
 
         int stepSize = 15;
-        int maxMin = 120;
+        int maxMin = rc.getCourse().getMaxMeetingDuration();
+
         int maxSteps = maxMin / stepSize;
         final int[] minutes = {stepSize};
-        sb_durationSlider.setMin(1);
+        sb_durationSlider.setMin(0);
         sb_durationSlider.setMax(maxSteps);
+        Log.d("Duration Slider", "Min Max duration: " + 15  + "-" +maxMin );
 
-
+        sb_amountSlider.setMin(0);
+        currentAmountSelected = 1;
+        sb_amountSlider.setProgress(currentAmountSelected);
         sb_durationSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -108,6 +117,22 @@ public class RC_PrivateDurationAmount extends Fragment implements checkFragmentC
                 String display = minutes[0] + " minutes";
                 tv_minutesDisplay.setText(display);
                 rc.setDuration(minutes[0]);
+                ArrayList<DayTimeArrangement>dtaAvailForTime =  rc.getCourse().getDtasOfTime(minutes[0]);
+                Log.d("RC_PrivateDurationAmount", "DTA AVAILABLE AMOUNT: " + dtaAvailForTime.size());
+                for(DayTimeArrangement dta : dtaAvailForTime){
+                    Log.d("rc", "- " +dta.getDuration() + " minutes.");
+                }
+                int amt = dtaAvailForTime.size();
+                //check if theres a change in session avail amount;
+                if(amt != currentSessionAvailableAmount){
+                    sb_amountSlider.setMax(amt);
+                    int newProgress = currentAmountSelected > amt ? sb_amountSlider.getMax() : sb_amountSlider.getProgress();
+                    sb_amountSlider.setProgress(newProgress);
+                    tv_durationSlotExplanation.setText("Based on " +  amt + " available slots for " +  minutes[0] +" minute duration.");
+                    tv_amountDisplay.setText(newProgress + "/" + sb_amountSlider.getMax());
+                    rc.setDtaAvailable(dtaAvailForTime);
+                }
+
             }
 
             @Override
@@ -131,6 +156,8 @@ public class RC_PrivateDurationAmount extends Fragment implements checkFragmentC
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 tv_amountDisplay.setText(Integer.toString(i));
                 rc.setAmountOfMeetingPerWeek(i);
+                currentAmountSelected = i;
+                tv_amountDisplay.setText(currentAmountSelected + "/" + sb_amountSlider.getMax());
             }
 
             @Override
@@ -146,6 +173,7 @@ public class RC_PrivateDurationAmount extends Fragment implements checkFragmentC
         return view;
 
     }
+
 
     @Override
     public boolean checkIfCompleted() {

@@ -12,17 +12,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class RcScheduleAdapter extends RecyclerView.Adapter<rcScheduleViewHolder>{
-    ArrayList<TimeSlot>slots ;
+    ArrayList<TimeSlot>slots;
     OnItemClickListener<Integer>clickListener;
-    public RcScheduleAdapter(ArrayList<TimeSlot>slots){
+    boolean deleteButton;
+    public RcScheduleAdapter(ArrayList<TimeSlot>slots, boolean deleteButton){
         this.slots = slots;
+        this.deleteButton = deleteButton;
     }
     @NonNull
     @Override
     public rcScheduleViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.rc_schedule_item, parent, false);
-        return new rcScheduleViewHolder(view, clickListener);
+        return new rcScheduleViewHolder(view, clickListener, deleteButton);
     }
 
     public void setClickListener(OnItemClickListener<Integer> clickListener) {

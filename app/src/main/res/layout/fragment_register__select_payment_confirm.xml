@@ -5,146 +5,191 @@
     android:id="@+id/frameLayout6"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".RC_SelectPaymentConfirm">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="30dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginVertical="4dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="4dp"
                 android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="24dp">
 
                 <TextView
                     android:id="@+id/textView45"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:text="Confirm Selection"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/bricolage_condensed_extrabold"
+                    android:text="Your Schedule"
+                    android:textColor="@color/brand_emerald_dark"
                     android:textSize="24dp"
                     android:textStyle="bold" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_rspc_Selections"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_marginHorizontal="12dp"
-                    android:layout_marginVertical="16dp"
-                    android:background="@drawable/recycler_view_border" />
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_emerald_input"
+                    android:orientation="horizontal"
+                    android:padding="8dp"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/rc_schedule_item" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="20dp"
-                android:gravity="center_horizontal"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView48"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="20dp"
-                    android:text="Select Payment Method"
-                    android:textAlignment="center"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.496"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:layout_editor_absoluteY="277dp" />
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+                    android:text="Select Payment Plan"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="24dp"
+                    android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
                     android:orientation="horizontal">
 
                     <LinearLayout
                         android:id="@+id/vl_pwContainer"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="44dp"
-                        android:background="#FFC107"
+                        android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_emerald_card_selected"
+                        android:elevation="8dp"
                         android:gravity="center_horizontal"
+                        android:minHeight="190dp"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="16dp">
 
                         <TextView
                             android:id="@+id/textView44"
-                            android:layout_width="150dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="22dp"
-                            android:gravity="center_horizontal"
+                            android:layout_marginBottom="12dp"
+                            android:letterSpacing="0.05"
                             android:text="Per Week"
-                            android:textSize="25sp"
+                            android:textAllCaps="true"
+                            android:textColor="@color/brand_emerald"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_pricePerWeek"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="18dp"
-                            android:text="Rp. 140 000"
-                            android:textSize="18sp" />
+                            android:layout_marginBottom="24dp"
+                            android:fontFamily="@font/space_mono_regular"
+                            android:text="Rp. 140k"
+                            android:textColor="@color/black_soft"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
 
                         <Button
                             android:id="@+id/btn_SelectWeek"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Select" />
+                            android:background="@drawable/bg_emerald_btn_outlined"
+                            android:fontFamily="@font/bricolage_label"
+                            android:text="Selected"
+                            android:textColor="@color/brand_emerald"
+                            app:backgroundTint="@null" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:id="@+id/vl_pmContainer"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="44dp"
-                        android:background="#FFC107"
+                        android:layout_marginHorizontal="2dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_emerald_card"
+                        android:elevation="4dp"
                         android:gravity="center_horizontal"
+                        android:minHeight="190dp"
                         android:orientation="vertical"
-                        android:padding="8dp">
+                        android:padding="16dp">
 
                         <TextView
-                            android:layout_width="150dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="22dp"
-                            android:gravity="center_horizontal"
+                            android:layout_marginBottom="12dp"
+                            android:letterSpacing="0.05"
                             android:text="Per Month"
-                            android:textSize="25dp"
+                            android:textAllCaps="true"
+                            android:textColor="@color/brand_emerald"
+                            android:textSize="12sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/tv_PricePerMonth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="18dp"
-                            android:text="Rp. 1125000"
-                            android:textSize="18sp" />
+                            android:layout_marginBottom="4dp"
+                            android:fontFamily="@font/space_mono_regular"
+                            android:text="Rp. 1.1m"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tv_DiscountAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20dp"
+                            android:background="@drawable/bg_emerald_input"
+                            android:fontFamily="@font/spacemono_bold"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="2dp"
+                            android:text="Save 11%"
+                            android:textColor="@color/brand_emerald_light"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
 
                         <Button
                             android:id="@+id/btn_SelectMonth"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Select" />
+                            android:background="@drawable/bg_emerald_btn_primary"
+                            android:fontFamily="@font/bricolage_label"
+                            android:text="Select"
+                            android:textColor="@color/white_soft"
+                            app:backgroundTint="@null" />
 
-                        <TextView
-                            android:id="@+id/tv_DiscountAmount"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:text="Save 11%" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -153,11 +198,14 @@
                 android:id="@+id/tv_requestWarning"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="116dp"
-                android:paddingVertical="16dp"
-                android:text="This will send a request to the teacher to accept the meeting."
-                android:textAlignment="center" />
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="@font/spacemono_regular"
+                android:text="*This will send a request to the teacher to accept the meeting."
+                android:textAlignment="center"
+                android:textColor="@color/brand_emerald"
+                android:textSize="12sp"
+                android:textStyle="italic" />
 
         </LinearLayout>
     </ScrollView>

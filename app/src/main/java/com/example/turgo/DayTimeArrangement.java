@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeArrangement,DTAFirebase>{
+public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeArrangement,DTAFirebase, DTARepository>{
     //exclusively new schedule with 1 people ony
 
     private final FirebaseNode fbn = FirebaseNode.DTA;
@@ -40,6 +40,9 @@ public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeAr
 
         this.maxMeeting = maxMeeting;
         DTA_ID = UUID.randomUUID().toString();
+    }
+    public int getDuration(){
+        return Math.toIntExact(Duration.between(start, end).toMinutes());
     }
     public ArrayList<TimeSlot> findFreeSlots(ScheduleQuality sq, int maxPeople, int duration){
         String log = "findFreeSlots";
@@ -153,7 +156,7 @@ public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeAr
         Log.d(log, "Duration Available: " + durationAvail);
 
         ArrayList<TimeSlot>slots = new ArrayList<>();
-        if(durationAvail > duration){
+        if(durationAvail >= duration){
             int maxAmount =  (int)Math.floor((double) durationAvail/duration);
             Log.d(log, "Max Amount of Meeting: " + maxAmount);
             for(int i = 0; i <maxAmount; i++){
@@ -291,6 +294,11 @@ public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeAr
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<DTARepository> getRepositoryClass() {
+        return DTARepository.class;
     }
 
     @Override

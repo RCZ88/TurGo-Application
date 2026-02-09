@@ -8,8 +8,6 @@ import java.util.ArrayList;
 
 public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
     private String sc_ID;
-    private String student;
-    private String ofCourse;
     private ArrayList<String> schedulesOfCourse;
     private boolean paymentPreferences;
     private boolean privateOrGroup;
@@ -17,42 +15,18 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
     private ArrayList<String>agendas;
     private int pricePer;
 
+    public StudentCourseFirebase(){}
 
     @Override
     public void importObjectData(StudentCourse from) {
         if (from == null) return;
 
         this.sc_ID = from.getSc_ID();
-        // Use callbacks for getStudent and getOfCourse
-        from.getStudent(new ObjectCallBack<Student>() {
-            @Override
-            public void onObjectRetrieved(Student studentObj) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                student = studentObj.getID();
-            }
-
-            @Override
-            public void onError(DatabaseError error) {
-                student = null;
-            }
-        });
-        
-        from.getOfCourse(new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(Course courseObj) {
-                ofCourse = courseObj.getID();
-            }
-
-            @Override
-            public void onError(DatabaseError error) {
-                ofCourse = null;
-            }
-        });
-        
-        this.schedulesOfCourse = convertToIdList(from.getSchedulesOfCourse());
+        this.schedulesOfCourse = Tool.boolOf(from.getSchedulesOfCourse()) ? convertToIdList(from.getSchedulesOfCourse()) : new ArrayList<>();
         this.paymentPreferences = from.isPaymentPreferences();
         this.privateOrGroup = from.isPrivateOrGroup();
-        this.tasks = convertToIdList(from.getTasks());
-        this.agendas = convertToIdList(from.getAgendas());
+        this.tasks = Tool.boolOf(from.getTasks()) ? convertToIdList(from.getTasks()) : new ArrayList<>();
+        this.agendas = Tool.boolOf(from.getAgendas()) ? convertToIdList(from.getAgendas()) : new ArrayList<>();
         this.pricePer = from.getPricePer();
     }
 
@@ -84,21 +58,6 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
         this.sc_ID = sc_ID;
     }
 
-    public String getStudent() {
-        return student;
-    }
-
-    public void setStudent(String student) {
-        this.student = student;
-    }
-
-    public String getOfCourse() {
-        return ofCourse;
-    }
-
-    public void setOfCourse(String ofCourse) {
-        this.ofCourse = ofCourse;
-    }
 
     public ArrayList<String> getSchedulesOfCourse() {
         return schedulesOfCourse;
@@ -147,4 +106,6 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
     public void setPricePer(int pricePer) {
         this.pricePer = pricePer;
     }
+
+
 }

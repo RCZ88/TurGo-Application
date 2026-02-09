@@ -1,217 +1,314 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/brand_emerald_pale"
+    android:fitsSystemWindows="false"
     tools:context=".CourseJoinedFullPage">
 
-    <!-- Collapsing Toolbar Layout for Scroll Effect -->
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
+        android:layout_height="220dp"
+        android:background="@color/brand_emerald_pale"
+        android:theme="@style/ThemeOverlay.Material3.Dark.ActionBar"
+        android:fitsSystemWindows="false">
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/ct_cfp_CourseTitle"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:contentScrim="?attr/colorPrimary"
-            app:expandedTitleGravity="bottom"
-            app:expandedTitleMarginBottom="16dp"
-            app:expandedTitleMarginStart="20dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:titleEnabled="true">
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/brand_emerald_dark"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
 
-            <!-- Background Image -->
+            app:title="Advanced Calculus"
+            app:titleEnabled="true"
+
+            app:expandedTitleMarginStart="20dp"
+            app:expandedTitleMarginBottom="24dp"
+            app:collapsedTitleTextAppearance="@style/CourseTitleCollapsed"
+            app:expandedTitleTextAppearance="@style/CourseTitleExpanded">
             <ImageView
                 android:id="@+id/iv_cfp_courseWallpaper"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
-                app:srcCompat="@drawable/banner_green" />
-
-            <!-- Course Title -->
-            <TextView
-                android:id="@+id/tv_cfp_CourseTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:paddingStart="20dp"
-                android:paddingBottom="16dp"
-                android:text="Course Title"
-                android:textSize="34sp"
-                android:textStyle="bold"
-                app:layout_collapseMode="pin" />
+                app:layout_collapseParallaxMultiplier="0.7"
+                android:src="@drawable/banner_green" />
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/tb_cfp_backButton"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_collapseMode="pin"
+                app:navigationIcon="@android:drawable/ic_menu_revert"
+                app:contentInsetStartWithNavigation="56dp" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Scrollable Content -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_cfp_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:background="@color/brand_emerald_pale"
+        android:paddingBottom="40dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <!-- Course Teacher -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Teacher: "
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_cfp_TeacherName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="teacher name" />
-
-            </LinearLayout>
-
-            <!-- Course Days -->
-
-            <!-- Section: Tasks -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="Schedule:"
-                    android:textColor="@color/black"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_cfp_ScheduleDays"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Monday, Tuesday" />
-
-            </LinearLayout>
+            android:paddingHorizontal="20dp"
+            android:paddingTop="24dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="8dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView38"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="Next Meeting:"
-                    android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_cfp_NextMeeting"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Next Meeting Date" />
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="See All Meetings" />
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="20dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_my_calendar"
+                        app:tint="@color/brand_emerald"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Instructor"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tv_cfp_TeacherName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dr. Smith"
+                        android:fontFamily="@font/bricolage_body"
+                        android:textColor="@color/black_soft"/>
+                </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/imageView14"
-                    android:layout_width="40dp"
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A000000" android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_week"
+                        app:tint="@color/brand_emerald"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Schedule"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tv_cfp_ScheduleDays"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mon, Wed"
+                        android:fontFamily="@font/bricolage_body"
+                        android:textColor="@color/black_soft"/>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#1A000000" android:layout_marginBottom="12dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
+                        app:tint="@color/brand_emerald"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="Next Class"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp"/>
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/tv_cfp_NextMeeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Oct 24, 8:00 AM"
+                        android:fontFamily="@font/bricolage_body"
+                        android:textColor="@color/brand_emerald"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btn_cfp_fullScheduleView"
+                    android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:src="@drawable/task_checklist" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tasks"
-                    android:textColor="@color/black"
-                    android:textSize="24sp"
-                    android:textStyle="bold" />
+                    android:background="@drawable/bg_emerald_btn_primary"
+                    android:text="Full Schedule"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_soft"
+                    app:backgroundTint="@null"/>
             </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_cfp_ListOfTasks"
-                android:layout_width="match_parent"
-                android:layout_height="148dp"
-                android:layout_marginBottom="16dp"
-                android:nestedScrollingEnabled="false" />
-
-            <TextView
-                android:id="@+id/noTasksMessage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="No tasks available"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:visibility="gone" />
-
-            <!-- Section: Agenda -->
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp">
 
-                <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:src="@drawable/notebook" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pending Tasks"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_cfp_ListOfTasks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="4dp"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/tv_cfp_noTasksMessage"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Agenda"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:fontFamily="@font/space_mono_regular"
+                    android:gravity="center"
+                    android:paddingVertical="24dp"
+                    android:text="No pending tasks."
+                    android:textColor="@color/brand_emerald_dark"
+                    android:visibility="gone" />
             </LinearLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_cfp_ListOFAgenda"
-                android:layout_width="377dp"
-                android:layout_height="86dp" />
-
-            <Button
-                android:id="@+id/btn_ViewAllAgendaOfCourse"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="See All Agenda" />
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="2dp"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Agenda"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp"/>
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_cfp_ListOFAgenda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:layout_marginBottom="16dp"/>
+
+                <TextView
+                    android:id="@+id/tv_cfp_NoAgenda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/space_mono_regular"
+                    android:gravity="center"
+                    android:paddingVertical="24dp"
+                    android:text="No agenda yet."
+                    android:textColor="@color/brand_emerald_dark"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/btn_ViewAllAgendaOfCourse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:text="View Full Agenda"
+                    android:textColor="@color/brand_emerald"
+                    android:fontFamily="@font/bricolage_grotesque_bold"
+                    app:backgroundTint="@null" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_cfp_empty_state"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <ImageView
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/compass"
+            app:tint="@color/brand_emerald" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/bricolage_grotesque_bold"
+            android:text="Course data not ready"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_body"
+            android:gravity="center"
+            android:text="Please wait a moment and try again."
+            android:textColor="@color/black_soft" />
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

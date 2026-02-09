@@ -45,19 +45,9 @@ public class AgendaFirebase implements FirebaseClass<Agenda> {
         if (from.getStudent() != null) {
             student = from.getStudent().getID();
         }
-        from.getOfCourse(new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(Course object) {
-                if (object != null) {
-                    ofCourse = object.getID();
-                }
-            }
-
-            @Override
-            public void onError(DatabaseError error) {
-
-            }
-        });
+        if(from.getOfCourseId() != null){
+            ofCourse = from.getOfCourseId();
+        }
     }
 
     @Override

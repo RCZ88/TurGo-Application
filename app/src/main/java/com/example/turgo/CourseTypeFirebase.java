@@ -11,6 +11,7 @@ public class CourseTypeFirebase implements FirebaseClass<CourseType>{
     private String courseType_ID;
     private String courseType;
 
+    public CourseTypeFirebase(){}
     @Override
     public void importObjectData(CourseType from) {
         courseType_ID = from.getID();

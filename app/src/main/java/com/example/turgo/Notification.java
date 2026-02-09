@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Notification<FromType> implements Serializable, RequireUpdate<Notification<?>, NotificationFirebase> {
+public class Notification<FromType> implements Serializable, RequireUpdate<Notification<?>, NotificationFirebase, NotificationRepository> {
     private final FirebaseNode fbn = FirebaseNode.NOTIFICATION;
     private final Class<NotificationFirebase> fbc = NotificationFirebase.class;
     private static RTDBManager<Notification<?>>notifRTDB;
@@ -77,6 +77,11 @@ public class Notification<FromType> implements Serializable, RequireUpdate<Notif
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<NotificationRepository> getRepositoryClass() {
+        return NotificationRepository.class;
     }
 
     @Override

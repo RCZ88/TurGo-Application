@@ -1,72 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".Student_MyCourses">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textView30"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/delagothicone_regular"
+            android:text="My Courses"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="32sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Continue your learning journey"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_ListOfMyCourses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
+            tools:itemCount="2"
+            tools:listitem="@layout/course_display" />
+
+        <LinearLayout
+            android:id="@+id/ll_smc_EmptyState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            android:background="@drawable/bg_emerald_card"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="32dp">
 
             <TextView
-                android:id="@+id/textView30"
+                android:id="@+id/tv_smc_NoCoursesJoined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="My Courses"
-                android:textSize="30dp"
+                android:layout_marginBottom="24dp"
+                android:fontFamily="@font/bricolage_body"
+                android:text="No courses joined yet!"
+                android:textAlignment="center"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_ListOfMyCourses"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginBottom="36dp"
-                android:background="@drawable/recycler_view_border"
-                android:visibility="gone" />
-
-            <LinearLayout
+            <Button
+                android:id="@+id/btn_smc_NavigateExploreCourse"
                 android:layout_width="match_parent"
-                android:layout_height="450dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="36dp"
-                android:background="@drawable/recycler_view_border"
-                android:gravity="center_horizontal|center_vertical"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tv_smc_NoCoursesJoined"
-                    android:layout_width="300dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:gravity="center_horizontal"
-                    android:text="No courses joined yet!"
-                    android:textSize="20sp" />
-
-                <Button
-                    android:id="@+id/btn_smc_NavigateExploreCourse"
-                    android:layout_width="191dp"
-                    android:layout_height="wrap_content"
-                    android:gravity="clip_vertical|center_horizontal"
-                    android:paddingTop="8dp"
-                    android:text="Explore Courses" />
-            </LinearLayout>
+                android:layout_height="56dp"
+                android:background="@drawable/bg_emerald_btn_primary"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="Explore Courses"
+                android:textAllCaps="false"
+                android:textColor="@color/white_soft"
+                android:textSize="16sp"
+                app:backgroundTint="@null" />
 
         </LinearLayout>
-    </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

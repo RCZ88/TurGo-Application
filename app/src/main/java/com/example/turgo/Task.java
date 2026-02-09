@@ -1,13 +1,15 @@
 package com.example.turgo;
 
+import com.google.android.gms.tasks.Tasks;
+
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
-public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
+public class Task implements Serializable, RequireUpdate<Task,TaskFirebase, TaskRepository> {
     private final FirebaseNode fbn = FirebaseNode.TASK;
     private final Class<TaskFirebase> fbc = TaskFirebase.class;
     private String taskID;
@@ -19,10 +21,11 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
     private Course taskOfCourse;
     private Schedule fromSchedule;
     private LocalDate dateAssigned;
-    private final Dropbox dropbox;
+    private Dropbox dropbox;
     private Teacher publisher;
+    private ArrayList<String>studentsAssign;
 
-    public Task(String title, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher, boolean dropbox){
+    public Task(String title, String description, LocalDateTime submissionDate, Course taskOfCourse, Schedule fromSchedule, Teacher publisher){
         this.taskID = UUID.randomUUID().toString();
         this.title = title;
         this.description = description;
@@ -31,16 +34,19 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
         this.fromSchedule = fromSchedule;
         this.dateAssigned = LocalDate.now();
         this.publisher = publisher;
-        if(dropbox){
-            this.dropbox = new Dropbox(this);
-        }else{
-            this.dropbox = null;
-        }
+        this.studentsAssign = new ArrayList<>();
+
         rtdbManager = new RTDBManager<>();
     }
 
     public Task(){
         this.dropbox = null;
+        this.studentsAssign = new ArrayList<>();
+    }
+
+    public com.google.android.gms.tasks.Task<Void> enableDropbox(){
+        this.dropbox = new Dropbox(this);
+        return this.dropbox.setup();
     }
 
     public void submit(file file, Student student){
@@ -126,6 +132,11 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
     }
 
     @Override
+    public Class<TaskRepository> getRepositoryClass() {
+        return TaskRepository.class;
+    }
+
+    @Override
     public Class<TaskFirebase> getFirebaseClass() {
         return fbc;
     }
@@ -142,12 +153,20 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
         return false;
     }
 
-    public void getStudentsAssigned(ObjectCallBack<ArrayList<Student>>callBack) {
-        try{
-            findAllAggregatedObjects(Student.class, "allTask", callBack);
-        }catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
+//    public void getStudentsAssigned(ObjectCallBack<ArrayList<Student>>callBack) {
+//        try{
+//            findAllAggregatedObjects(Student.class, "allTask", callBack);
+//        }catch (IllegalAccessException | InstantiationException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+    public com.google.android.gms.tasks.Task<List<Student>> getStudentAssigned(){
+        List<com.google.android.gms.tasks.Task<Student>> taskList = new ArrayList<>();
+        for(String studentId : studentsAssign){
+            StudentRepository studentRepository = new StudentRepository(studentId);
+            taskList.add(studentRepository.loadAsNormal());
         }
+        return Tasks.whenAllSuccess(taskList);
     }
 
 
@@ -155,6 +174,17 @@ public class Task implements Serializable, RequireUpdate<Task,TaskFirebase> {
         return dropbox;
     }
 
+    public void setDropbox(Dropbox dropbox) {
+        this.dropbox = dropbox;
+    }
+
+    public ArrayList<String> getStudentsAssign() {
+        return studentsAssign;
+    }
+
+    public void setStudentsAssign(ArrayList<String> studentsAssign) {
+        this.studentsAssign = studentsAssign;
+    }
 
     @Override
     public String getID() {

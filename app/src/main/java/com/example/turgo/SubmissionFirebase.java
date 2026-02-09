@@ -14,6 +14,7 @@ public class SubmissionFirebase implements FirebaseClass<Submission>{
     private String of;                      // Stores Student ID
     private boolean completed;
 
+    public SubmissionFirebase(){}
     @Override
     public void importObjectData(Submission from) {
         if (from == null) return;
@@ -56,5 +57,45 @@ public class SubmissionFirebase implements FirebaseClass<Submission>{
 
             }
         });
+    }
+
+    public String getSubmission_ID() {
+        return submission_ID;
+    }
+
+    public void setSubmission_ID(String submission_ID) {
+        this.submission_ID = submission_ID;
+    }
+
+    public HashMap<String, Boolean> getFiles() {
+        return files;
+    }
+
+    public void setFiles(HashMap<String, Boolean> files) {
+        this.files = files;
+    }
+
+    public String getDropbox() {
+        return dropbox;
+    }
+
+    public void setDropbox(String dropbox) {
+        this.dropbox = dropbox;
+    }
+
+    public String getOf() {
+        return of;
+    }
+
+    public void setOf(String of) {
+        this.of = of;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

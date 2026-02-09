@@ -5,41 +5,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="@color/surface_inner_panel"
     tools:context=".TeacherScreen">
 
-    <!-- Top bar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/tb_ts_topAppBar"
         android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        app:title="Teacher Name"
-        app:titleTextColor="@android:color/white"
-        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/brand_emerald_dark"
+        android:elevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/topbar_user_menu"
+        app:title="Professor Name"
+        app:titleTextColor="@color/white_soft" />
 
-    <!-- Fragment host -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nhf_ts_FragmentContainer"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:defaultNavHost="true"
+        app:layout_constraintBottom_toTopOf="@id/nav_wrapper"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tb_ts_topAppBar"
-        app:layout_constraintBottom_toTopOf="@id/nv_ts_BottomNavigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        tools:ignore="NotSibling" />
 
-    <!-- Bottom nav -->
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/nv_ts_BottomNavigation"
-        android:layout_width="0dp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/nav_wrapper"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:menu="@menu/teacher_nav_menu"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nv_ts_BottomNavigation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white_soft"
+            app:itemIconTint="@color/brand_emerald_dark"
+            app:itemTextColor="@color/brand_emerald_dark"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/teacher_nav_menu" />
+
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

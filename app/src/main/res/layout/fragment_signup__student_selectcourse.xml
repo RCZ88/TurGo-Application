@@ -1,110 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android/tools"
-    xmlns:tools2="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".signup__student_selectcourse">
 
-    <!-- Title -->
-
-    <!-- Spinner (Dropdown for Course Selection) -->
-
-    <!-- Button to Add Selected Course -->
-
-    <!-- Title for Selected Courses -->
-
-    <!-- ListView for Displaying Selected Courses -->
-
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/tv_CwyCAcc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Course Interests"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/tv_useBorM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Select the courses you want to enroll in:"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/tv_CwyCAcc"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:text="Course Interested?"
-                    android:textAlignment="center"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tv_useBorM"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:text="Select course that you are interested in:" />
-
-            <GridView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            android:layout_marginTop="32dp"
+            android:background="@drawable/bg_emerald_card"
+            android:elevation="4dp"
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/tv_select_courses"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="44dp"
-                android:text="Select Courses:"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="Available Courses"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
 
-            <Spinner
-                android:id="@+id/spinner_courses"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="10dp" />
+                android:layout_height="56dp"
+                android:background="@drawable/bg_emerald_input">
+
+                <Spinner
+                    android:id="@+id/spinner_courses"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:spinnerMode="dropdown" />
+            </FrameLayout>
 
             <Button
                 android:id="@+id/btn_add_course"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_emerald_btn_outlined"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="+ Add to List"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_emerald"
+                android:textSize="16sp"
+                app:backgroundTint="@null" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="24dp"
+                android:alpha="0.4"
+                android:background="@color/brand_emerald_pale" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_selected_courses_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/bricolage_grotesque_bold"
+                    android:text="Your Selections"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selected"
+                    android:textSize="12sp"
+                    android:textColor="@color/brand_emerald"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Add Course" />
+                android:background="@drawable/bg_emerald_input"
+                android:minHeight="150dp"
+                android:orientation="vertical">
+
+                <ListView
+                    android:id="@+id/listview_selected_courses"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:divider="@color/brand_emerald_pale"
+                    android:dividerHeight="1dp"
+                    android:nestedScrollingEnabled="true"
+                    tools:listitem="@android:layout/simple_list_item_1" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/textView12"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="13dp"
-                android:text="You can always Add More Later" />
-
-            <TextView
-                android:id="@+id/tv_selected_courses_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Selected Courses:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <ListView
-                android:id="@+id/listview_selected_courses"
-                android:layout_width="373dp"
-                android:layout_height="289dp"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp" />
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/bricolage_body"
+                android:text="* You can edit these later in settings"
+                android:textAlignment="center"
+                android:textColor="@color/brand_emerald"
+                android:textSize="12sp"
+                android:textStyle="italic" />
 
         </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 import kotlinx.serialization.KSerializer;
 
-public class CourseType implements Serializable, RequireUpdate<CourseType, CourseTypeFirebase> {
+public class CourseType implements Serializable, RequireUpdate<CourseType, CourseTypeFirebase, CourseTypeRepository> {
     public static final FirebaseNode fbn = FirebaseNode.COURSETYPE;
     private Class<CourseTypeFirebase> fbc = CourseTypeFirebase.class;
     private String courseType_ID;
@@ -28,6 +28,11 @@ public class CourseType implements Serializable, RequireUpdate<CourseType, Cours
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<CourseTypeRepository> getRepositoryClass() {
+        return CourseTypeRepository.class;
     }
 
     @Override

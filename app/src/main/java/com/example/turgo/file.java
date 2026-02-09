@@ -3,7 +3,7 @@ package com.example.turgo;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class file implements RequireUpdate<file, fileFirebase>{
+public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
     private final FirebaseNode fbn = FirebaseNode.FILE;
     private final Class<fileFirebase> fbc = fileFirebase.class;
     private final String fileID;
@@ -98,6 +98,11 @@ public class file implements RequireUpdate<file, fileFirebase>{
     @Override
     public Class<fileFirebase> getFirebaseClass() {
         return fbc;
+    }
+
+    @Override
+    public Class<FileRepository> getRepositoryClass() {
+        return FileRepository.class;
     }
 
 

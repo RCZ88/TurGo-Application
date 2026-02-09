@@ -23,8 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
+public interface RequireUpdate<C extends RequireUpdate<C, FBC, RC>, FBC extends FirebaseClass<C>, RC extends RepositoryClass<C, FBC>> {
     FirebaseNode getFirebaseNode();
+    Class<RC> getRepositoryClass();
     Class<FBC>getFirebaseClass();
 
 
@@ -35,21 +36,28 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
     static void getUserDBRef(String ID, ObjectCallBack<Pair<DatabaseReference, Class<? extends UserFirebase>>>pairObjectCallBack){
         final String[] type = {""};
         Log.d("User Type Retrieving", "Retrieving User Type from ID" + ID + "...");
-        String path = FirebaseNode.USERIDROLES.getPath() + "/" + ID + "/role";
+        String path = FirebaseNode.USERIDROLES.getPath() + "/" + ID ;
         Log.d("User Type Path: ", path);
         DatabaseReference userRoleRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.USERIDROLES.getPath()).child(ID).child("role");
+        Log.d("DEBUG", "ID being used: " + ID);
+        Log.d("DEBUG", "Full path: " + userRoleRef);
         userRoleRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Log.d("DEBUG", "onDataChange CALLED!");
                 Log.d("DEBUG", "Snapshot exists: " + snapshot.exists());
                 Log.d("DEBUG", "Snapshot value: " + snapshot.getValue());
+                Log.d("DEBUG", "Snapshot value class: " + (snapshot.getValue() != null ? snapshot.getValue().getClass() : "null"));
                 Log.d("DEBUG", "Snapshot key: " + snapshot.getKey());
+
+                // Try this instead
+                Object value = snapshot.getValue();
+                Log.d("DEBUG", "Raw value type: " + value.getClass().getName());
 
                 type[0] = snapshot.getValue(String.class);
                 Log.d("User Type Retrieved: ", type[0]);
 
-                String studentType = STUDENT.type();
+                String studentType = UserType.STUDENT.type();
                 String teacherType = UserType.TEACHER.type();
                 String parentType = UserType.PARENT.type();
                 String adminType = UserType.ADMIN.type();
@@ -80,7 +88,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
         });
     }
     //can be used on any class (preferably)
-    static void retrieveUser(String ID, ObjectCallBack<Object>user){
+    static void retrieveUser(String ID, ObjectCallBack<Object>callBack){
         final Pair<DatabaseReference, Class<? extends UserFirebase>>[] userPair = new Pair[1];
         getUserDBRef(ID, new ObjectCallBack<>() {
             @Override
@@ -93,7 +101,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         try {
-                            user.onObjectRetrieved(snapshot.getValue(type));
+                            callBack.onObjectRetrieved(snapshot.getValue(type));
                         } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                                  IllegalAccessException | InstantiationException e) {
                             throw new RuntimeException(e);
@@ -211,7 +219,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
             }
         });
     }
-    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>>
+    default <CO extends RequireUpdate<?, ?, ?>, COFB extends FirebaseClass<CO>>
     void findAggregatedObject(Class<CO> containerClass, String varName, ObjectCallBack<CO> callBack)
             throws IllegalAccessException, InstantiationException {
 
@@ -333,7 +341,7 @@ public interface RequireUpdate<C, FBC extends FirebaseClass<C>> {
 
 
     // In RequireUpdate or a utils class
-    default <CO extends RequireUpdate<?, ?>, COFB extends FirebaseClass<CO>>
+    default <CO extends RequireUpdate<?, ?, ?>, COFB extends FirebaseClass<CO>>
     void findAllAggregatedObjects(
             Class<CO> containerClass,
             String varName,

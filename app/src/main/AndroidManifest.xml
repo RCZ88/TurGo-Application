@@ -13,34 +13,45 @@
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.USE_EXACT_ALARM"
+        tools:ignore="ExactAlarmPolicy" />
 
     <application
         android:name=".TurgoApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/turgo_applogo"
+        android:icon="@mipmap/green_turgo_logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/turgo_applogo_round"
+        android:roundIcon="@mipmap/green_turgo_logo_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".NotifPageFull"
+            android:exported="false" />
+        <activity
             android:name=".DataLoading"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:fitsSystemWindows="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".AdminCreateCourse"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".AdminScreen"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ActivityLauncher"
             android:exported="true"
-            android:screenOrientation="portrait">
+            android:fitsSystemWindows="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TurGo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -50,48 +61,60 @@
         <activity
             android:name=".ComposeMail"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".TeacherScreen"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".CreateCourse"
             android:exported="false"
-            android:theme="@style/Theme.TurGo"
-            android:screenOrientation="portrait" />
+            android:fitsSystemWindows="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TurGo" />
         <activity
             android:name=".MailPageFull"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:label="@string/title_activity_mail_page_full"
             android:screenOrientation="portrait" />
         <activity
             android:name=".MailExpandFull"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".RegisterCourse"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".StudentScreen"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:label="@string/title_activity_student_screen"
-            android:screenOrientation="portrait" /> <!-- Your Activities -->
+            android:screenOrientation="portrait" />
         <activity
             android:name=".SignUpPage"
             android:exported="false"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".SignInPage"
             android:exported="false"
-            android:theme="@style/Theme.TurGo"
-            android:screenOrientation="portrait" />
+            android:fitsSystemWindows="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TurGo" />
         <activity
             android:name=".MainActivity"
-            android:exported="true" /> <!-- Firebase and Google Play Services Integration -->
+            android:exported="false"
+            android:fitsSystemWindows="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".CaptureAct"
+            android:fitsSystemWindows="true"
             android:screenOrientation="portrait"
             android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme" />

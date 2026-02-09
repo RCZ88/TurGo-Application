@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -12,12 +13,18 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +38,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -110,6 +118,21 @@ public class Tool {
                 .addToBackStack(null)
                 .commit();
     }
+
+    public static void loadFragment(FragmentActivity activity, int containerId, Fragment fragment, Bundle bundle) {
+        if (bundle != null) {
+            fragment.setArguments(bundle);
+        }
+        activity.getSupportFragmentManager()
+                .beginTransaction()
+                .replace(containerId, fragment)
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit();
+    }
+    public static String stringifyStartEndTime(LocalTime start, LocalTime end){
+        return start.getHour()  + ":" + start.getMinute() + " - " + end.getHour() + ":" + end.getMinute();
+    }
     public static boolean boolOf(Object object) {
         if (object == null) {
             return false;
@@ -146,23 +169,32 @@ public class Tool {
     public static void run(FragmentActivity activity, String loadingMessage, ThrowingRunnable action, Runnable success, Consumer<Exception> onError){
         LoadingBottomSheet loadingBottomSheet = LoadingBottomSheet.newInstance(loadingMessage);
         loadingBottomSheet.show(activity.getSupportFragmentManager(), "loading");
-        new Thread(()->{
-           try{
+
+        final long startTime = System.currentTimeMillis();
+        final long MIN_DISPLAY_TIME = 500; // Minimum 500ms display
+
+        new Thread(() -> {
+            try {
                 action.run();
-                activity.runOnUiThread(()->{
+
+                // Calculate how long to wait to meet minimum display time
+                long elapsed = System.currentTimeMillis() - startTime;
+                long delay = Math.max(0, MIN_DISPLAY_TIME - elapsed);
+
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     loadingBottomSheet.dismiss();
-                    if(success != null){
+                    if (success != null) {
                         success.run();
                     }
-                });
-           }catch(Exception e){
-               activity.runOnUiThread(() -> {
-                   loadingBottomSheet.dismiss();
-                   if (onError != null) onError.accept(e);
-               });
-           }
-        }).start();
+                }, delay);
 
+            } catch (Exception e) {
+                activity.runOnUiThread(() -> {
+                    loadingBottomSheet.dismiss();
+                    if (onError != null) onError.accept(e);
+                });
+            }
+        }).start();
     }
     @FunctionalInterface
     public interface ThrowingRunnable {
@@ -216,12 +248,13 @@ public class Tool {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             fbUser = activity.getIntent().getSerializableExtra(userInstance.getSerializeCode(), UserFirebase.class);
         } else {
-            fbUser = (TeacherFirebase) activity.getIntent().getSerializableExtra(userInstance.getSerializeCode());
+            fbUser = (UserFirebase) activity.getIntent().getSerializableExtra(userInstance.getSerializeCode());
         }
         if(fbUser == null){
             Log.e(activity.toString(), "Retrieved " + userType + " is null");
             Toast.makeText(activity, "Error loading " + userType + " data", Toast.LENGTH_SHORT).show();
-            activity.finish();
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+            FirebaseUser currentUser = auth.getCurrentUser();
         }else{
             Log.d(activity.toString(), "Retrieved " + userType + ": " + fbUser);
         }
@@ -474,12 +507,21 @@ public class Tool {
     }
 
 
-    public static void handleEmpty(boolean empty, ViewGroup view, TextView emptyText){
+    public static void handleEmpty(boolean empty, ViewGroup view, TextView textView){
         if(empty){
             view.setVisibility(View.GONE);
-            emptyText.setVisibility(View.VISIBLE);
+            textView.setVisibility(View.VISIBLE);
         }else{
-            emptyText.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+    public static void handleEmpty(boolean empty, ViewGroup view, LinearLayout linearLayout){
+        if(empty){
+            view.setVisibility(View.GONE);
+            linearLayout.setVisibility(View.VISIBLE);
+        }else{
+            linearLayout.setVisibility(View.GONE);
             view.setVisibility(View.VISIBLE);
         }
     }

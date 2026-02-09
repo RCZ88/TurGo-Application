@@ -8,76 +8,57 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DTARepository {
-    private static DTARepository instance;
+public class DTARepository implements RepositoryClass<DayTimeArrangement, DTAFirebase> {
     private DatabaseReference dtaRef;
 
-    public static DTARepository getInstance(String dtaId) {
-        if (instance == null) {
-            instance = new DTARepository(dtaId);
-        }
-        return instance;
-    }
-
-    private DTARepository(String dtaId) {
+    public DTARepository(String dtaId) {
         dtaRef = FirebaseDatabase.getInstance()
                 .getReference(FirebaseNode.DTA.getPath())
                 .child(dtaId);
     }
 
-    public void save(DayTimeArrangement object) {
-        try {
-            DTAFirebase firebaseObj = object.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(object);
-            dtaRef.setValue(firebaseObj);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to save DTA", e);
-        }
+    @Override
+    public DatabaseReference getDbReference() {
+        return dtaRef;
     }
 
+    @Override
+    public Class<DTAFirebase> getFbClass() {
+        return DTAFirebase.class;
+    }
 
     public void delete() {
         dtaRef.removeValue();
     }
 
     public void updateDay(DayOfWeek newDay) {
-        dtaRef.child("day").setValue(newDay);
+        dtaRef.child("day").setValue(newDay == null ? null : newDay.toString());
     }
 
     public void updateStart(LocalTime newStart) {
-        dtaRef.child("start").setValue(newStart);
+        dtaRef.child("start").setValue(newStart == null ? null : newStart.toString());
     }
 
     public void updateEnd(LocalTime newEnd) {
-        dtaRef.child("end").setValue(newEnd);
+        dtaRef.child("end").setValue(newEnd == null ? null : newEnd.toString());
     }
 
     /**
-     * Adds a Schedule to this DTA.
-     * Saves the full Schedule object to its Firebase path and stores only the ID reference here.
+     * Adds a Schedule ID reference to this DTA's occupied array.
      */
     public void addOccupied(Schedule item) {
-        try {
-            ScheduleFirebase firebaseObj = item.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(item);
-
-            FirebaseDatabase.getInstance()
-                    .getReference(item.getFirebaseNode().getPath())
-                    .child(item.getID())
-                    .setValue(firebaseObj);
-
-            dtaRef.child("occupied").push().setValue(item.getID());
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to add occupied Schedule", e);
-        }
+        addStringToArray("occupied", item.getID());
     }
 
     public void removeOccupied(String scheduleId) {
-        dtaRef.child("occupied").child(scheduleId).removeValue();
+        removeStringFromArray("occupied", scheduleId);
     }
 
+    /**
+     * Removes the Schedule reference from this DTA and deletes the Schedule object.
+     */
     public void removeOccupiedCompletely(Schedule item) {
-        dtaRef.child("occupied").child(item.getID()).removeValue();
+        removeStringFromArray("occupied", item.getID());
         FirebaseDatabase.getInstance()
                 .getReference(item.getFirebaseNode().getPath())
                 .child(item.getID())

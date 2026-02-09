@@ -27,7 +27,7 @@ public class RC_UserInformation extends Fragment implements checkFragmentComplet
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    static final String viewTitle = "User Details & Information";
+    static final String viewTitle = "Student Profile";
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -133,7 +133,7 @@ public class RC_UserInformation extends Fragment implements checkFragmentComplet
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton("Yes", (dialog, which) -> {
                             // ✅ YES ACTION
-                            StudentRepository studentRepository = StudentRepository.getInstance(student.getID());
+                            StudentRepository studentRepository = new StudentRepository(student.getID());
                             student.setSchool(et_school.getText().toString());
                             studentRepository.updateSchool(et_school.getText().toString());
                             student.setGradeLevel(et_grade.getText().toString());
@@ -150,6 +150,8 @@ public class RC_UserInformation extends Fragment implements checkFragmentComplet
             if(Tool.boolOf(student.getSchool()) && Tool.boolOf(student.getGradeLevel())){
                 et_school.setText(student.getSchool());
                 et_grade.setText(student.getGradeLevel());
+            }else{
+                Toast.makeText(requireContext(), "Presets not found! Fill then Save to set preset.", Toast.LENGTH_SHORT).show();
             }
         });
         return view;

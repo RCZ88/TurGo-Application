@@ -1,6 +1,8 @@
 package com.example.turgo;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -8,17 +10,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.turgo.databinding.ActivityStudentScreenBinding;
@@ -41,6 +49,8 @@ public class StudentScreen extends AppCompatActivity{
     private FirebaseUser fbUser;
     private NavHostFragment navHostFragment;
     private BottomNavigationView navView;
+
+    private LinearLayout ll_mailEmpty, ll_notifEmpty;
     private Toolbar topAppBar;
     private ArrayList<MailFirebase> inboxFirebase = new ArrayList<>();
     private ArrayList<NotificationFirebase>notifs = new ArrayList<>();
@@ -48,8 +58,8 @@ public class StudentScreen extends AppCompatActivity{
     private NotifAdapter notifAdapter;
     private BottomNavigationView bottomNav;
     private ArrayList<Mail> inbox = new ArrayList<>();
+
     private PopupWindow mailPopupWindow, notifPopupWindow;
-    private TextView tv_mailEmpty, tv_notifEmpty;
     private boolean inLoading = false;
     RecyclerView rv_MailDropDown, rv_NotifDropdown;
 
@@ -58,109 +68,77 @@ public class StudentScreen extends AppCompatActivity{
         super.onCreate(savedInstanceState);
 
         binding = ActivityStudentScreenBinding.inflate(getLayoutInflater());
+        EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
-        tv_mailEmpty = findViewById(R.id.tv_MDD_MailEmpty);
-        tv_notifEmpty = findViewById(R.id.tv_NDD_NotifEmpty);
+        topAppBar = findViewById(R.id.tb_ss_topAppBar);
+        ll_mailEmpty = findViewById(R.id.ll_MDD_EmptyState);
+        ll_notifEmpty = findViewById(R.id.ll_NDD_EmptyState);
         bottomNav = findViewById(R.id.nv_ss_BottomNavigation);
 
-        Class<? extends RequiresDataLoading> fragmentToLoad = (Class<? extends RequiresDataLoading>)getIntent().getSerializableExtra("FragmentToLoad");
-        Bundle bundleExtra = getIntent().getExtras();
-        int bottomNavMenuId = getIntent().getIntExtra("BottomNavToSelect", -1);
-        Log.d("StudentScreen", "BottomNavMenuId Loaded: " + bottomNavMenuId);
-        if(fragmentToLoad != null && bundleExtra != null){
-            //After Data Loading.
-            Log.d("StudentScreen", "FragmentToLoad not Null!");
-            student =  (Student) getIntent().getSerializableExtra("FullUserObject");
-            prepareActivityUI();
-            navigateToFragment(fragmentToLoad, bundleExtra, bottomNavMenuId);
-        }else{
-            Log.d("StudentScreen", "FragmentToLoad is Null, Redirecting to Dashboard!");
-            //load the student once. ui can come on every new activity.
-            if(!Tool.boolOf(student)){
-                Student dummy = new Student();
-                dummy.setUserType(UserType.STUDENT);
-                Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
-                    @Override
-                    public void onObjectRetrieved(User object) {
-                        student = (Student) object;
-                        Log.d("StudentScreen", "Student Normal Object retrieved: " + student);
-                        if (student == null) {
-                            Log.d("StudentScreen", "Error Converting StudentFirebase");
-                        }else{
-                            loadDashboard();
-                        }
-                    }
+        FirebaseAuth  auth = FirebaseAuth.getInstance();
+        fbUser = auth.getCurrentUser();
 
-                    @Override
-                    public void onError(DatabaseError error) {
+        Student dummy = new Student();
+        dummy.setUserType(UserType.STUDENT);
 
-                    }
-                });
+        Intent intent = getIntent();
+        student = (Student)intent.getSerializableExtra("Student_RequireUpdate");
+        if(student != null){
+            continueAfterStudentNotNull();
+            return;
+        }
+        Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(User object) {
+                student = (Student) object;
+                Log.d("StudentScreen", "Student Normal Object retrieved: " + student);
+                if (student != null) {
+                    continueAfterStudentNotNull();
+                }else{
+                    loadDashboard();
+                }
             }
 
-        }
+            @Override
+            public void onError(DatabaseError error) {
 
-
-
-    }
-    private void prepareActivityUI(){
-        runOnUiThread(() -> {
-            try {
-                initializeUI();
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                fbUser = auth.getCurrentUser();
-                Log.d("StudentScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
-
-                prepareObjects();
-
-                if (student != null && fbUser != null) {
-                    UserPresenceManager.startTracking(fbUser.getUid());
-                    Log.d("StudentScreen", "Started tracking user presence");
-                }
-
-                Log.d("StudentScreen", "========== initializeUI END ==========");
-            } catch (ParseException | InvocationTargetException |
-                     NoSuchMethodException | IllegalAccessException |
-                     InstantiationException e) {
-                throw new RuntimeException(e);
             }
         });
+
+    }
+
+    private void continueAfterStudentNotNull(){
+        prepareActivityUI();
+        Intent intent = getIntent();
+        if(intent.getBooleanExtra("showCourseJoined", false)){
+            Bundle bundle = intent.getBundleExtra("bundleToCourseJoined");
+            Tool.loadFragment(this, getContainer(), new CourseJoinedFullPage(), bundle);
+            return;
+        }
+        loadDashboard();
+    }
+    private void prepareActivityUI() {
+        initializeUI();
+        prepareObjects();
+
+        if (student != null && fbUser != null) {
+            UserPresenceManager.startTracking(fbUser.getUid());
+            Log.d("StudentScreen", "Started tracking user presence");
+        }
     }
     private void loadDashboard(){
-        Bundle bundle = new Bundle();
-        Meeting nextMeeting = student.getNextMeeting();
-        bundle.putSerializable("nextMeeting", nextMeeting);
-        bundle.putSerializable("student", student);
-        DataLoading.loadAndNavigate(this, Student_Dashboard.class, bundle, true, this.getClass(), student);
+        Tool.loadFragment(this, R.id.nhf_ss_FragContainer, new Student_Dashboard());
     }
-    private void navigateToFragment(Class<? extends RequiresDataLoading> fragmentClass, Bundle bundle, int bottomNavToSelect){
-        try {
-            Fragment fragment = (Fragment) fragmentClass.newInstance();
-            Log.d("NavigateToFragment", "String converted to Fragment Successfully: " + fragment.getClass());
-            if(bundle != null){
-                fragment.setArguments(bundle);
-            }
-            int menuId = getMenuIdForFragment(fragmentClass.getName());
-            inLoading = true;
-            if(menuId != -1){
-                Log.d("NavigateToFragment", "View ("+ fragmentClass +") is part of Bottom Nav");
-                bottomNav.setSelectedItemId(menuId);
-
-                Log.d("NavigateToFragment", "Menu Id Selected: " + menuId);
-            }else{
-                Log.d("NavigateToFragment", "View (" + fragmentClass + ") is Not part of Bottom Nav");
-                if(bottomNavToSelect != -1){
-                    bottomNav.setSelectedItemId(bottomNavToSelect);
-                }
-            }
-            Tool.loadFragment(this, R.id.nhf_ss_FragContainer, fragment);
-            inLoading =false;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-
+    public static int getContainer(){
+        return R.id.nhf_ss_FragContainer;
     }
+
     public static int getMenuIdForFragment(String fragmentClassName) {
         String className = fragmentClassName.substring(fragmentClassName.lastIndexOf(".") + 1);
         switch (className) {
@@ -173,15 +151,14 @@ public class StudentScreen extends AppCompatActivity{
         }
     }
 
-    private void initializeUI() throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+    private void initializeUI() {
         String logTag = student.getUserType().name() + "_SCREEN";
 
         Log.d(logTag, "========== initializeUI START ==========");
         Log.d(logTag, student.getUserType() + student.getFullName());
 
 
-        Toolbar topAppBar = findViewById(R.id.tb_ss_topAppBar);
-
+        topAppBar = findViewById(R.id.tb_ss_topAppBar);
         setSupportActionBar(topAppBar);
         if(getSupportActionBar() != null){
             getSupportActionBar().setTitle(student.getFullName());
@@ -194,14 +171,9 @@ public class StudentScreen extends AppCompatActivity{
     }
     private void setupBottomNavigation(BottomNavigationView bnv){
         bnv.setOnItemSelectedListener(item ->{
-            if(inLoading){
-                return true;
-            }
             int itemId = item.getItemId();
             if(itemId == R.id.dest_studentExploreCourses){
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
-                DataLoading.loadAndNavigate(this, Student_ExploreCourse.class, bundle, true, this.getClass(), student);
+                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_ExploreCourse());
                 return true;
             }
             if(itemId == R.id.dest_studentDashboard){
@@ -210,101 +182,128 @@ public class StudentScreen extends AppCompatActivity{
                 return true;
             }
             if(itemId == R.id.dest_studentMyCourses){
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
-                DataLoading.loadAndNavigate(this, Student_MyCourses.class, bundle, true, this.getClass(), student);
+                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_MyCourses());
                 return true;
             }
             if(itemId == R.id.dest_studentTaskList){
-                Tool.loadFragment(this, R.id.nhf_ss_FragContainer, new Student_TaskList());
+                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_TaskList());
                 return true;
             }
             return false;
         });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item){
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
+        Log.d("StudentScreen", "Item Clicked: (" + itemId + ")");
 
         if (itemId == R.id.action_mail) {
-            // Close notifications popup if open
+            // Close notifications if open
             if (notifPopupWindow != null && notifPopupWindow.isShowing()) {
+                Log.d("StudentScreen", "(MAIL) Closing notif popup");
                 notifPopupWindow.dismiss();
             }
 
             // Toggle mail popup
             if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
+                Log.d("StudentScreen", "(MAIL) Closing mail popup");
                 mailPopupWindow.dismiss();
-                return true; // Handled
+                return true;
             }
 
-            // Create and show mail popup
-            View popDownView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
-            rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
+            // Create mail popup ✅ FIXED SIZING
+            View mailView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
+            rv_MailDropDown = mailView.findViewById(R.id.rv_MailDropDown);
             mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, false);
+            rv_MailDropDown.setLayoutManager(new LinearLayoutManager(this));
             rv_MailDropDown.setAdapter(mailSmallAdapter);
 
-            mailPopupWindow = new PopupWindow(popDownView,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout ll_mailEmpty = mailView.findViewById(R.id.ll_MDD_EmptyState);
+            Tool.handleEmpty(inbox.isEmpty(), rv_MailDropDown, ll_mailEmpty);
 
-            View anchor = findViewById(R.id.action_mail);
-            if (anchor != null) {
-                mailPopupWindow.showAsDropDown(anchor, -50, 10);
-            } else {
-                Log.e("Dropdown Error", "No Anchor Found!(Null)");
-            }
-
-            Button seeAll = popDownView.findViewById(R.id.btn_ViewAllMail);
-            seeAll.setOnClickListener(view1 -> {
-                Intent intent = new Intent(StudentScreen.this, MailPageFull.class);
-                startActivity(intent);
-            });
-
-            return true; // Handled
+            mailPopupWindow = createPopupWindow(mailView, R.id.action_mail, "Mail");
+            setupMailSeeAll(mailView);
 
         } else if (itemId == R.id.action_notifications) {
-            // Close mail popup if open
+            // Close mail if open
             if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
+                Log.d("StudentScreen", "(NOTIF) Closing mail popup");
                 mailPopupWindow.dismiss();
             }
 
             // Toggle notif popup
             if (notifPopupWindow != null && notifPopupWindow.isShowing()) {
+                Log.d("StudentScreen", "(NOTIF) Closing notif popup");
                 notifPopupWindow.dismiss();
-                return true; // Handled
+                return true;
             }
 
-            // Create and show notifications popup
-            View popDownView = getLayoutInflater().inflate(R.layout.notification_drop_down, null);
-            rv_NotifDropdown = popDownView.findViewById(R.id.rv_NotifDropDown);
+            // Create notif popup ✅ FIXED SIZING
+            View notifView = getLayoutInflater().inflate(R.layout.notification_drop_down, null);
+            rv_NotifDropdown = notifView.findViewById(R.id.rv_NotifDropDown);
             notifAdapter = new NotifAdapter(notifs);
+            rv_NotifDropdown.setLayoutManager(new LinearLayoutManager(this));
             rv_NotifDropdown.setAdapter(notifAdapter);
 
-            notifPopupWindow = new PopupWindow(popDownView,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            LinearLayout ll_notifEmpty = notifView.findViewById(R.id.ll_NDD_EmptyState);
+            Tool.handleEmpty(notifs.isEmpty(), rv_NotifDropdown, ll_notifEmpty);
 
-            View anchor = findViewById(R.id.action_notifications);
-            if (anchor != null) {
-                notifPopupWindow.showAsDropDown(anchor, -50, 10);
-            } else {
-                Log.e("Dropdown Error", "No Anchor Found!");
-            }
-
-            return true; // Handled
+            notifPopupWindow = createPopupWindow(notifView, R.id.action_notifications, "Notifications");
 
         } else if (itemId == R.id.action_signOut) {
-            // Dismiss any open popups
+            Log.d("StudentScreen", "(SIGNOUT) Sign out clicked");
             dismissPopups();
-
             return Tool.logOutUI(this, fbUser);
+        }
 
+        return super.onOptionsItemSelected(item);
+    }
+
+    private PopupWindow createPopupWindow(View contentView, int anchorId, String tag) {
+        // ✅ FIXED DIMENSIONS - Works with RecyclerView
+        PopupWindow popup = new PopupWindow(contentView,
+                dpToPx(340), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setElevation(12f);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+
+        // ✅ MEASURE content first (fixes WRAP_CONTENT bug)
+        contentView.measure(
+                View.MeasureSpec.makeMeasureSpec(dpToPx(340), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+        popup.setHeight(contentView.getMeasuredHeight());
+
+        // Show at anchor
+        View anchor = findViewById(anchorId);
+        if (anchor != null) {
+            popup.showAsDropDown(anchor, -dpToPx(20), dpToPx(8));
+            Log.d("StudentScreen", tag + " popup shown at anchor");
         } else {
-            return super.onOptionsItemSelected(item); // Not handled
+            Log.e("PopupError", tag + " anchor not found");
+        }
+
+        return popup;
+    }
+
+    private void setupMailSeeAll(View mailView) {
+        Button seeAll = mailView.findViewById(R.id.btn_ViewAllMail);
+        if (seeAll != null) {
+            seeAll.setOnClickListener(v -> {
+                Intent intent = new Intent(StudentScreen.this, MailPageFull.class);
+                intent.putExtra(User.SERIALIZE_KEY_CODE, student);
+                startActivity(intent);
+                if (mailPopupWindow != null) mailPopupWindow.dismiss();
+            });
         }
     }
+
 
     private void dismissPopups() {
         if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
@@ -326,7 +325,6 @@ public class StudentScreen extends AppCompatActivity{
         studentRef.child("inboxIDs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Tool.handleEmpty(snapshot.exists(), rv_MailDropDown , tv_mailEmpty);
                 String mailID = snapshot.getValue(String.class);
                 Mail m = new Mail();
                 m.retrieveOnce(new ObjectCallBack<>() {
@@ -335,7 +333,7 @@ public class StudentScreen extends AppCompatActivity{
                         inboxFirebase.add(object);
                         //updates the UI and the adapter in general
                         final Mail[] mail = new Mail[1];
-                        object.convertToNormal(new ObjectCallBack<Mail>() {
+                        object.convertToNormal(new ObjectCallBack<>() {
                             @Override
                             public void onObjectRetrieved(Mail object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                                 mail[0] = object;
@@ -381,7 +379,6 @@ public class StudentScreen extends AppCompatActivity{
         studentRef.child("notitficationIDs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Tool.handleEmpty(snapshot.exists(), rv_NotifDropdown , tv_notifEmpty);
                 String notifID = snapshot.getValue(String.class);
                 Notification<?> n = new Notification<>();
                 n.retrieveOnce(new ObjectCallBack<>() {

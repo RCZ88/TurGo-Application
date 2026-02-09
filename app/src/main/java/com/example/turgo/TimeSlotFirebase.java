@@ -35,6 +35,7 @@ public class TimeSlotFirebase implements FirebaseClass<TimeSlot>{
         schedules = Tool.boolOf(from.getSchedules()) ? convertToIdList(from.getSchedules()) : new ArrayList<>();
         minuteIncrement = from.getMinuteIncrement();
     }
+    public TimeSlotFirebase(){}
 
     @Override
     public String getID() {

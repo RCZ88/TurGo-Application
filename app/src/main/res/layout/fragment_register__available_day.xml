@@ -4,184 +4,220 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".RC_AvailableDayTime">
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="40dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:layout_marginVertical="10dp"
-                android:background="@drawable/rounded_border"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="4dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingVertical="18dp">
+                android:padding="24dp">
 
                 <TextView
                     android:id="@+id/tv_SelectDayTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Select Day x  of y Days"
-                    android:textSize="22sp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+                    android:text="Select Day x of y Days"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_ListOfAvailDays"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="210dp"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="24dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:visibility="gone">
+                    android:layout_height="wrap_content">
 
-                </androidx.recyclerview.widget.RecyclerView>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_ListOfAvailDays"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:padding="8dp"
+                        android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tv_rcad_dayNotFound"
-                    android:layout_width="match_parent"
-                    android:layout_height="210dp"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:gravity="center_vertical"
-                    android:text="No Day Found!"
-                    android:textAlignment="center" />
+                    <TextView
+                        android:id="@+id/tv_rcad_dayNotFound"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:gravity="center"
+                        android:text="No Day Found!"
+                        android:textColor="@color/brand_emerald"
+                        android:textStyle="italic" />
+                </FrameLayout>
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:layout_marginVertical="10dp"
-                android:background="@drawable/rounded_border"
+                android:layout_marginHorizontal="4dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="4dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingVertical="18dp">
+                android:padding="24dp">
 
                 <TextView
                     android:id="@+id/tv_SelectTimeTitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Select Time For Day "
-                    android:textSize="22sp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+                    android:text="Select Time For Day"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/edittext_border"
+                    android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/textView46"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:letterSpacing="0.05"
+                        android:text="Time Offset"
+                        android:textAllCaps="true"
+                        android:textColor="@color/brand_emerald"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_rcad_timeOffsetText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Select Time Offset"
-                        android:textStyle="bold|italic" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <SeekBar
-                            android:id="@+id/sb_rcad_TimeOffset"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/tv_rcad_timeOffsetText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="15 Minutes"
-                            android:textAlignment="center" />
-                    </LinearLayout>
-
+                        android:background="@drawable/bg_emerald_input"
+                        android:fontFamily="@font/space_mono_bold"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:text="15 Minutes"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_ListOfAvailTimes"
+                <SeekBar
+                    android:id="@+id/sb_rcad_TimeOffset"
                     android:layout_width="match_parent"
-                    android:layout_height="210dp"
-                    android:layout_marginStart="24dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:layout_marginEnd="24dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:visibility="gone" />
+                    android:layout_marginBottom="24dp"
+                    android:progressTint="@color/brand_emerald"
+                    android:thumbTint="@color/brand_emerald" />
 
-                <TextView
-                    android:id="@+id/tv_rcad_timeListEmpty"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="210dp"
-                    android:layout_marginHorizontal="24dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:gravity="center_vertical"
-                    android:text="Please Select Day First"
-                    android:textAlignment="center" />
+                    android:layout_height="wrap_content">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_ListOfAvailTimes"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:padding="8dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/tv_rcad_timeListEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="210dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:gravity="center"
+                        android:text="Please Select Day First"
+                        android:textColor="@color/brand_emerald"
+                        android:textStyle="italic" />
+                </FrameLayout>
+
+                <Button
+                    android:id="@+id/btn_rsad_AddScheduleTS"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/bg_emerald_btn_primary"
+                    android:fontFamily="@font/bricolage_grotesque_heading"
+                    android:text="Add to Schedule"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_soft"
+                    android:textSize="16sp"
+                    app:backgroundTint="@null" />
+
             </LinearLayout>
-
-            <Button
-                android:id="@+id/btn_rsad_AddScheduleTS"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/rounded_border"
+                android:layout_marginHorizontal="4dp"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="4dp"
                 android:gravity="center_horizontal"
                 android:orientation="vertical"
-                android:paddingVertical="16dp">
+                android:padding="24dp">
 
                 <TextView
                     android:id="@+id/textView47"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginBottom="16dp"
+                    android:fontFamily="@font/bricolage_condensed_extrabold"
                     android:text="Schedule Selected"
                     android:textAlignment="center"
-                    android:textSize="22sp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="26sp"
                     android:textStyle="bold" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_rcad_scheduleSelected"
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginHorizontal="32dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:minHeight="120dp"
-                    android:visibility="gone">
+                    android:layout_height="wrap_content">
 
-                </androidx.recyclerview.widget.RecyclerView>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_rcad_scheduleSelected"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_emerald_input"
+                        android:minHeight="120dp"
+                        android:padding="8dp"
+                        android:visibility="gone" />
 
-                <TextView
-                    android:id="@+id/tv_rcad_scheduleSelectedEmpty"
-                    android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:layout_marginHorizontal="32dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text="Empty" />
+                    <TextView
+                        android:id="@+id/tv_rcad_scheduleSelectedEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:fontFamily="@font/spacemono_regular"
+                        android:gravity="center"
+                        android:text="No times selected yet"
+                        android:textColor="@color/brand_emerald" />
+                </FrameLayout>
 
             </LinearLayout>
 

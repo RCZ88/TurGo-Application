@@ -9,9 +9,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 
-public class Teacher extends User implements Serializable, RequireUpdate<Teacher, TeacherFirebase> {
+public class Teacher extends User implements Serializable, RequireUpdate<Teacher, TeacherFirebase, TeacherRepository> {
     private static final FirebaseNode fbn = FirebaseNode.TEACHER;
     private static final int MAX_LATEST_SUBMISSION_SIZE = 3;
     private static final Class<TeacherFirebase> fbc = TeacherFirebase.class;
@@ -49,6 +50,11 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     }
 
     @Override
+    public Class<TeacherRepository> getRepositoryClass() {
+        return TeacherRepository.class;
+    }
+
+    @Override
     public Class<TeacherFirebase> getFirebaseClass() {
         return fbc;
     }
@@ -58,6 +64,7 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         Log.d("Teacher", "getID: " + getUid());
         return getUid();
     }
+
     public void addLatestSubmission(SubmissionDisplay submission){
         latestSubmission.add(0, submission);
         if(latestSubmission.size() > MAX_LATEST_SUBMISSION_SIZE){
@@ -81,7 +88,7 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         this.profileImageCloudinary = profileImageCloudinary;
     }
     public ArrayList<Schedule>getAllSchedule(){
-        ArrayList< Schedule> allSchedule = new ArrayList<>();
+        ArrayList<Schedule> allSchedule = new ArrayList<>();
         for(DayTimeArrangement dta : timeArrangements){
             allSchedule.addAll(dta.getOccupied());
         }
@@ -106,6 +113,7 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         profileImageCloudinary = "https://res.cloudinary.com/daccry0jr/image/upload/v1761196379/islooktidmooszzfrga3.png";
         courseTypeTeach = new ArrayList<>();
         agendas = new ArrayList<>();
+        timeArrangements = new ArrayList<>();
         completedMeetings = new ArrayList<>();
         latestSubmission = new ArrayList<>();
     }
@@ -116,7 +124,7 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     }
 
     public void createAgenda(String contents, LocalDate date, Meeting ofMeeting, Student student, Course ofCourse) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        Agenda agenda = new Agenda(contents, date, ofMeeting, this, student, ofCourse);
+        Agenda agenda = new Agenda(contents, date, ofMeeting, this, student, ofCourse.getCourseID());
         this.agendas.add(agenda);
         updateUserDB();
         student.addAgenda(agenda);
@@ -133,21 +141,29 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
         });
         student.updateUserDB();
     }
-    public void addTask(Task task, Course course) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        for(Student student : Await.get(task::getStudentsAssigned)){
-            student.getStudentCourseFromCourse(course, new ObjectCallBack<>() {
-                @Override
-                public void onObjectRetrieved(StudentCourse object) {
-                    object.assignTask(task);
-                }
+    public void addTask(Task task, Course course) {
+        task.getStudentAssigned().addOnSuccessListener(students->{
+            for(Student student : students){
+                student.getStudentCourseFromCourse(course, new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(StudentCourse object) {
+                        object.assignTask(task);
+                    }
 
-                @Override
-                public void onError(DatabaseError error) {
+                    @Override
+                    public void onError(DatabaseError error) {
 
+                    }
+                });
+                try {
+                    student.updateUserDB();
+                } catch (InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    throw new RuntimeException(e);
                 }
-            });
-            student.updateUserDB();
-        }
+            }
+        });
+
 
     }
     public void addCourse(Course course){
@@ -175,6 +191,9 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     }
 
     public ArrayList<DayTimeArrangement> getTimeArrangements() {
+        if(timeArrangements == null){
+            timeArrangements = new ArrayList<>();
+        }
         return timeArrangements;
     }
 
@@ -185,6 +204,17 @@ public class Teacher extends User implements Serializable, RequireUpdate<Teacher
     public void addDTA(DayTimeArrangement dta) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         timeArrangements.add(dta);
         updateUserDB();
+    }
+    public Schedule getNextSchedule(){
+
+        ArrayList<Schedule> allSchedule = getAllSchedule();
+        Schedule.sortSchedule(allSchedule);
+        for(Schedule schedule : allSchedule){
+            if(schedule.getMeetingStart().isAfter(LocalTime.now())){
+                return schedule;
+            }
+        }
+        return null;
     }
 
     public void setTeachYearExperience(int teachYearExperience) {

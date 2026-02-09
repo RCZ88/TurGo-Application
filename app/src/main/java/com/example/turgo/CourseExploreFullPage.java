@@ -18,16 +18,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link CourseExploreFullPage#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class CourseExploreFullPage extends Fragment implements RequiresDataLoading{
+public class CourseExploreFullPage extends Fragment {
 
     Button btn_joinCourse;
     TextView tv_courseTitle, tv_courseDescription, tv_teacherName, tv_teacherDescription;
@@ -38,12 +31,9 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
     Course course;
     Teacher teacher;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
@@ -51,15 +41,6 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CourseExploreDetails.
-     */
-    // TODO: Rename and change types and number of parameters
     public static CourseExploreFullPage newInstance(String param1, String param2) {
         CourseExploreFullPage fragment = new CourseExploreFullPage();
         Bundle args = new Bundle();
@@ -73,17 +54,17 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            onDataLoaded(getArguments());
+            course = (Course) getArguments().getSerializable(Course.SERIALIZE_KEY_CODE);
         }
-
     }
 
     @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_explore_course_full_page, container, false);
+
         tv_courseTitle = view.findViewById(R.id.tv_ecfp_CourseTitle);
         btn_joinCourse = view.findViewById(R.id.btn_JoinCourse);
         tv_courseDescription = view.findViewById(R.id.tv_CourseDescription);
@@ -96,15 +77,14 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
         rv_courseDayTimes.setLayoutManager(new LinearLayoutManager(requireContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
-        ArrayList<DayTimeArrangement>dtas = course.getDayTimeArrangement();
-
+        // Static UI from course (synchronous)
+        ArrayList<DayTimeArrangement> dtas = course.getDayTimeArrangement();
         ArrayList<String> daysOfDtas = DayTimeArrangement.getDaysOfDtas(dtas);
         ArrayList<String> timesOfDtas = DayTimeArrangement.getTimesOfDtas(dtas);
         Log.d("CEFP", daysOfDtas.toString());
         Log.d("CEFP", timesOfDtas.toString());
 
         DayTimeAdapter adapter = new DayTimeAdapter(daysOfDtas, timesOfDtas);
-        rv_courseDayTimes.setLayoutManager(new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         rv_courseDayTimes.setAdapter(adapter);
 
         Tool.setImageCloudinary(getContext(), course.getBackgroundCloudinary(), iv_courseWallpaper);
@@ -112,26 +92,41 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
         tv_courseTitle.setText(course.getCourseName());
         tv_courseDescription.setText(course.getCourseDescription());
 
-        tv_teacherName.setText(teacher.getFullName());
-        String teacherResume = "Teacher Description not Found";
-        if(Tool.boolOf(teacher.getTeacherResume())){
-            teacherResume = teacher.getTeacherResume();
-        }
-        tv_teacherDescription.setText(teacherResume);
+        CourseImageAdapter cia = new CourseImageAdapter(course.getImagesCloudinary());
+        setupCarousel(cia);
 
         btn_joinCourse.setOnClickListener(view1 -> {
             Intent intent = new Intent(getContext(), RegisterCourse.class);
-            intent.putExtra("Student", ((StudentScreen)getContext()).getStudent());
+            intent.putExtra("Student", ((StudentScreen) getContext()).getStudent());
             intent.putExtra(Course.SERIALIZE_KEY_CODE, course);
             startActivity(intent);
         });
-        CourseImageAdapter cia = new CourseImageAdapter(course.getImagesCloudinary());
-        setupCarousel(cia);
+
+        // Async load teacher (no Await)
+        loadTeacher();
 
         return view;
     }
 
-    private void setupCarousel(CourseImageAdapter adapter){
+    private void loadTeacher() {
+        course.getTeacher()
+                .addOnSuccessListener(t -> {
+                    teacher = t;
+                    tv_teacherName.setText(teacher.getFullName());
+
+                    String teacherResume = "Teacher Description not Found";
+                    if (Tool.boolOf(teacher.getTeacherResume())) {
+                        teacherResume = teacher.getTeacherResume();
+                    }
+                    tv_teacherDescription.setText(teacherResume);
+                })
+                .addOnFailureListener(e -> {
+                    tv_teacherName.setText("Teacher not found");
+                    tv_teacherDescription.setText("Teacher description not available");
+                });
+    }
+
+    private void setupCarousel(CourseImageAdapter adapter) {
         vp_courseImages.setAdapter(adapter);
 
         setupIndicators(adapter.getItemCount());
@@ -142,7 +137,6 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
                 updateIndicators(position);
             }
         });
-
     }
 
     private void setupIndicators(int imageAmount) {
@@ -163,28 +157,5 @@ public class CourseExploreFullPage extends Fragment implements RequiresDataLoadi
             ImageView dot = (ImageView) ll_ImageIndicators.getChildAt(i);
             dot.setSelected(i == currentPosition);
         }
-    }
-
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
-        Bundle output = new Bundle();
-        Course course =  (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
-        if(course != null){
-            Teacher teacher = Await.get(course::getTeacher);
-            output.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
-            output.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-        }
-        return output;
-    }
-
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
-        course = (Course) preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
-    }
-
-    @Override
-    public void onLoadingError(Exception error) {
-
     }
 }

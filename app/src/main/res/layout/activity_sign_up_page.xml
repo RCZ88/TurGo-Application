@@ -2,89 +2,120 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ConstraintLayout"
+    android:id="@+id/ll_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".SignUpPage">
 
-
-
-    <TextView
-        android:id="@+id/tv_SignUp"
+    <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/signUp"
-        android:textAlignment="center"
-        android:textSize="50sp"
-        android:textStyle="bold"
+        android:background="@color/white_soft"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:paddingTop="20dp"
+        android:paddingBottom="24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <ProgressBar
-        android:id="@+id/pb_SignUpProgress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="340dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_SignUp" />
+        <TextView
+            android:id="@+id/tv_SignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="SIGN UP"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="32sp" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fcv_UserInfo"
-        android:name="com.example.turgo.signup_UserCategory"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Let's get you started"
+            android:textAlignment="center"
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
+
+        <ProgressBar
+            android:id="@+id/pb_SignUpProgress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="20dp"
+            android:progress="33"
+            android:progressBackgroundTint="@color/brand_emerald_pale"
+            android:progressTint="@color/brand_emerald"
+            android:scaleY="2" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
         android:layout_width="0dp"
-        android:layout_height="550dp"
-        android:layout_marginBottom="64dp"
-        android:overScrollMode="always"
-        android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="493dp"
+        android:background="@drawable/bg_emerald_card"
+        android:orientation="vertical"
+        android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pb_SignUpProgress"
-        tools:layout="@layout/fragment_signup__user_category" />
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fcv_UserInfo"
+            android:name="com.example.turgo.signup_UserCategory"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_signup__user_category" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_SUP_Buttons"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@color/white_soft"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fcv_UserInfo">
+        app:layout_constraintStart_toStartOf="parent">
 
         <Button
             android:id="@+id/btn_PreviousPage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_emerald_btn_outlined"
             android:onClick="goToPreviousSegment"
             android:text="@string/previous"
-            android:textAlignment="textEnd" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
+            android:textAllCaps="false"
+            android:textColor="@color/brand_emerald"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/btn_NextPage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_emerald_btn_primary"
             android:onClick="goToNextSegment"
-            android:text="@string/next" />
+            android:text="@string/next"
+            android:textAllCaps="false"
+            android:textColor="@color/white_soft"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
 
     </LinearLayout>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

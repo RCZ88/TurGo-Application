@@ -11,6 +11,7 @@ public class AdminFirebase extends UserFirebase implements FirebaseClass<Admin>{
         super(UserType.ADMIN.type());
     }
 
+
     @Override
     public void importObjectData(Admin from) {
         setID(from.getID());

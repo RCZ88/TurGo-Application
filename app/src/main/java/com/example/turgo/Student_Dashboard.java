@@ -1,7 +1,6 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -27,18 +26,14 @@ import com.bumptech.glide.Glide;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Student_Dashboard#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class Student_Dashboard extends Fragment implements RequiresDataLoading{
+public class Student_Dashboard extends Fragment {
+
     RecyclerView rv_coursesCompletedThisWeek;
     FragmentContainerView fcv_upcomingSchedule;
     Student user;
@@ -55,59 +50,23 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
     Schedule scheduleOfNextMeeting;
     Course course;
     String roomId;
-    ArrayList<Course>coursesForScheduleAdapter = new ArrayList<>();
-    ArrayList<Schedule>schedulesCompleted = new ArrayList<>();
+    ArrayList<Course> coursesForScheduleAdapter = new ArrayList<>();
+    ArrayList<Schedule> schedulesCompleted = new ArrayList<>();
     Meeting nextMeeting;
     Teacher teacher;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
     private Meeting currentMeeting;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
-    public Student_Dashboard() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment StudentDashboard.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Student_Dashboard newInstance(String param1, String param2) {
-        Student_Dashboard fragment = new Student_Dashboard();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            onDataLoaded(getArguments());
-        }
-
-    }
+    public Student_Dashboard() {}
 
     @SuppressLint({"MissingInflatedId", "CommitTransaction", "SetTextI18n"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_student_dashboard, container, false);
+
+        // Initialize UI components
         rv_coursesCompletedThisWeek = view.findViewById(R.id.rv_CourseCompleted);
         tv_noScheduleFound = view.findViewById(R.id.tv_SD_ScheduleEmpty);
         tv_noMeetingCompleted = view.findViewById(R.id.tv_SD_NoMeetingsCompleted);
@@ -121,180 +80,157 @@ public class Student_Dashboard extends Fragment implements RequiresDataLoading{
         pb_progressThisWeek = view.findViewById(R.id.pb_WeeksProgress);
         vp2_listOfTasks = view.findViewById(R.id.vp2_TasksContainer);
 
-
+        // Get student instance
         StudentScreen activity = (StudentScreen) getActivity();
-        assert activity != null;
+        if (activity == null) throw new IllegalStateException("Activity is null");
         user = activity.getStudent();
-        Log.d("StudentDashboard(OnCreate)", "Student Retrieved:"+user);
+        Log.d("StudentDashboard", "Student Retrieved: " + user);
 
-        studentTasks = user.getUncompletedTask();
-
-        rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        //Course course = Await.get(schedule::getScheduleOfCourse);
-        ScheduleAdapter sa = new ScheduleAdapter(schedulesCompleted, coursesForScheduleAdapter);
-        rv_coursesCompletedThisWeek.setAdapter(sa);
-        boolean empty = !Tool.boolOf(schedulesCompleted) || schedulesCompleted.isEmpty();
-        Tool.handleEmpty(empty , rv_coursesCompletedThisWeek, tv_noMeetingCompleted);
-
-
-        double progress = user.getPercentageCompleted();
-        pb_progressThisWeek.setProgress((int)Math.ceil(progress));
-
-        if(studentTasks != null){
-            Tool.handleEmpty(studentTasks.isEmpty(), ll_Task, tv_noTaskFound);
-            adapter = new TaskPagerAdapter(getActivity(), studentTasks);
-            vp2_listOfTasks.setAdapter(adapter);
-        }
-
-
-        ib_nextTask.setOnClickListener(view12 -> {
-            int currentItem = vp2_listOfTasks.getCurrentItem();
-            if(currentItem < adapter.getItemCount()){
-                vp2_listOfTasks.setCurrentItem(currentItem + 1, true);
-            }
-        });
-        ib_prevTask.setOnClickListener(view13 -> {
-            int currentItem = vp2_listOfTasks.getCurrentItem();
-            if(currentItem > 0){
-                vp2_listOfTasks.setCurrentItem(currentItem - 1, true);
-            }
-        });
-
-
-
-        Tool.handleEmpty(nextMeeting == null, fcv_upcomingSchedule, tv_noScheduleFound);
-        if(nextMeeting != null){
-            Log.d("studentDashboard", "NextMeeting != null");
-
-            MeetingDisplay meetingDisplay = new MeetingDisplay();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Student.SERIALIZE_KEY_CODE, user);
-            meetingDisplay.setArguments(bundle);
-
-            FragmentManager fragmentManager = getChildFragmentManager();
-
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
-            fragmentTransaction.commit();
-            CourseDetails courseDetails = new CourseDetails();
-            courseDetails.tv_room.setText(roomId);
-            courseDetails.tv_duration.setText(scheduleOfNextMeeting.getDuration());
-            courseDetails.tv_teacherName.setText(teacher.getFullName());
-            courseDetails.tv_dayOfWeek.setText(course.getDaysOfSchedule(user));
-            LocalDate closestMeeting = user.getClosestMeetingOfCourse(course);
-            if(closestMeeting!= null){
-                courseDetails.tv_nextMeetingDate.setText(closestMeeting.toString());
-            }else{
-                courseDetails.tv_nextMeetingDate.setText("No Meeting Found!");
-            }
-            Glide.with(requireContext()).load(course.getLogo()).into(courseDetails.iv_courseLogo);
-
-            if(savedInstanceState != null){
-                Tool.loadFragment(requireActivity(),fcv_upcomingSchedule.getId(), meetingDisplay);
-            }
-
-            expanded = false;
-
-            btn_details.setOnClickListener(view1 -> {
-                if(!expanded){
-                    expanded = true;
-                    if(savedInstanceState != null){
-                        Tool.loadFragment(requireActivity(),fcv_upcomingSchedule.getId(), courseDetails);
-                    }
-                    btn_details.setImageResource(R.drawable.caret);
-                }else{
-                    expanded = false;
-                    if(savedInstanceState != null){
-                        Tool.loadFragment(requireActivity(),fcv_upcomingSchedule.getId(), meetingDisplay);
-                    }
-                    btn_details.setImageResource(R.drawable.caret_down);
-                }
-            });
-            btn_scanQR.setOnClickListener(this::attendMeetingScan);
-
-//        courseDetails.iv_courseLogo.setImageBitmap(scheduleOfCourse.getLogo());
-
-        }
+        // Load all data synchronously
+        loadCompletedSchedules();
+        loadProgress();
+        loadTasks();
+        loadUpcomingMeeting();
+        setupTaskNavigation();
+        btn_scanQR.setOnClickListener(this::attendMeetingScan);
 
         return view;
     }
-    public void attendMeetingScan(View view){
+
+    private void loadCompletedSchedules() {
+        schedulesCompleted = user.getScheduleCompletedThisWeek();
+        coursesForScheduleAdapter = new ArrayList<>();
+        for(Schedule schedule : schedulesCompleted){
+            schedule.getScheduleOfCourse().addOnSuccessListener(course ->{
+                coursesForScheduleAdapter.add(course);
+            });
+        }
+
+        rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(getContext()));
+        ScheduleAdapter sa = new ScheduleAdapter(schedulesCompleted, coursesForScheduleAdapter);
+        rv_coursesCompletedThisWeek.setAdapter(sa);
+
+        boolean empty = schedulesCompleted == null || schedulesCompleted.isEmpty();
+        Tool.handleEmpty(empty, rv_coursesCompletedThisWeek, tv_noMeetingCompleted);
+    }
+
+    private void loadProgress() {
+        double progress = user.getPercentageCompleted();
+        pb_progressThisWeek.setProgress((int) Math.ceil(progress));
+    }
+
+    private void loadTasks() {
+        studentTasks = user.getUncompletedTask();
+        Tool.handleEmpty(studentTasks == null || studentTasks.isEmpty(), ll_Task, tv_noTaskFound);
+
+        if (studentTasks != null && !studentTasks.isEmpty()) {
+            adapter = new TaskPagerAdapter(getActivity(), studentTasks);
+            vp2_listOfTasks.setAdapter(adapter);
+        }
+    }
+
+    private void loadUpcomingMeeting() {
+        nextMeeting = user.getNextMeeting();
+        Tool.handleEmpty(nextMeeting == null, fcv_upcomingSchedule, tv_noScheduleFound);
+
+        if (nextMeeting == null) return;
+
+        nextMeeting.getMeetingOfSchedule()
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+
+                    scheduleOfNextMeeting = task.getResult();
+                    return scheduleOfNextMeeting.getScheduleOfCourse();
+                })
+                .continueWithTask(task -> {
+                    if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+
+                    course = task.getResult();
+                    return course.getTeacher(); // must return Task<Teacher>
+                })
+                .continueWithTask(task -> {
+                    teacher = task.getResult();
+                    return scheduleOfNextMeeting.getRoom();
+                }).addOnSuccessListener(result->{
+                    roomId = result.getID();
+                });
+        // synchronous
+
+        // Setup fragments
+        MeetingDisplay meetingDisplay = new MeetingDisplay();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Student.SERIALIZE_KEY_CODE, user);
+        meetingDisplay.setArguments(bundle);
+
+        FragmentManager fragmentManager = getChildFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
+        fragmentTransaction.commit();
+
+        CourseDetails courseDetails = new CourseDetails();
+        courseDetails.tv_room.setText(roomId);
+        courseDetails.tv_duration.setText(scheduleOfNextMeeting.getDuration());
+        courseDetails.tv_teacherName.setText(teacher.getFullName());
+        course.getDaysOfSchedule(user).addOnSuccessListener(days->{
+            courseDetails.tv_dayOfWeek.setText(days);
+        });
+
+
+        LocalDate closestMeeting = user.getClosestMeetingOfCourse(course);
+        courseDetails.tv_nextMeetingDate.setText(
+                closestMeeting != null ? closestMeeting.toString() : "No Meeting Found!"
+        );
+
+        Glide.with(requireContext())
+                .load(course.getLogo())
+                .into(courseDetails.iv_courseLogo);
+
+        expanded = false;
+
+        btn_details.setOnClickListener(v -> {
+            Fragment fragmentToLoad = expanded ? meetingDisplay : courseDetails;
+            expanded = !expanded;
+            Tool.loadFragment(requireActivity(), fcv_upcomingSchedule.getId(), fragmentToLoad);
+            btn_details.setImageResource(expanded ? R.drawable.caret : R.drawable.caret_down);
+        });
+    }
+
+    private void setupTaskNavigation() {
+        ib_nextTask.setOnClickListener(v -> {
+            int currentItem = vp2_listOfTasks.getCurrentItem();
+            if (adapter != null && currentItem < adapter.getItemCount() - 1) {
+                vp2_listOfTasks.setCurrentItem(currentItem + 1, true);
+            }
+        });
+
+        ib_prevTask.setOnClickListener(v -> {
+            int currentItem = vp2_listOfTasks.getCurrentItem();
+            if (currentItem > 0) {
+                vp2_listOfTasks.setCurrentItem(currentItem - 1, true);
+            }
+        });
+    }
+
+    public void attendMeetingScan(View view) {
         QRCmanager.scanCode(barLauncher);
     }
-    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result->{
-        if(result.getContents() != null){
-            AtomicReference<Schedule> schedule = new AtomicReference<>();
-            Tool.run(requireActivity(), "Attending Meeting...",
-                    ()->{
-                        currentMeeting = Await.get(cb -> Meeting.getMeetingFromDB(result.getContents(),cb));
-                        schedule.set(Await.get(currentMeeting::getMeetingOfSchedule));
-                    },
-                    ()->{
+
+    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(
+            new ScanContract(),
+            result -> {
+                if (result.getContents() != null) {
+                    AtomicReference<Schedule> schedule = new AtomicReference<>();
+
+                    currentMeeting = new Meeting();
+                    currentMeeting.getMeetingOfSchedule().addOnSuccessListener(mos->{
+                        schedule.set(mos);
                         user.attendMeeting(currentMeeting);
                         int hour = schedule.get().getMeetingEnd().getHour();
                         int minute = schedule.get().getMeetingEnd().getMinute();
                         TimeChecker.addTimer(hour, minute, currentMeeting);
                         Toast.makeText(getContext(), "Successful!", Toast.LENGTH_SHORT).show();
-                    },
-                    e->{
-
                     });
-
-        }
-    });
-
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback loadingLog) {
-        Bundle bundle = new Bundle();
-        Meeting nextMeeting;
-        Student user;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            nextMeeting = input.getSerializable("nextMeeting", Meeting.class);
-            user = input.getSerializable("student", Student.class);
-        }else{
-            nextMeeting = (Meeting) input.getSerializable("nextMeeting");
-            user = (Student) input.getSerializable("student");
-        }
-
-        Schedule schedule = null;
-        Course course = null;
-        Teacher teacher = null;
-        String roomId = "";
-        if(Tool.boolOf(nextMeeting)){
-            loadingLog.onProgress("Loading Meeting of Schedule...");
-            schedule = Await.get(nextMeeting::getMeetingOfSchedule);
-            course = Await.get(schedule::getScheduleOfCourse);
-            teacher = Await.get(course::getTeacher);
-            roomId = Await.get(schedule::getRoom).getID();
-        }
-
-
-        ArrayList<Schedule> completedSchedules = user.getScheduleCompletedThisWeek();
-        ArrayList<Course> coursesOfSchedule = completedSchedules.stream().map(s -> Await.get(s::getScheduleOfCourse)).collect(Collectors.toCollection(ArrayList::new));
-
-        bundle.putSerializable(Schedule.SERIALIZE_KEY_CODE, schedule);
-        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-        bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
-        bundle.putSerializable("completedSchedules", completedSchedules);
-        bundle.putSerializable("coursesOfSchedule", coursesOfSchedule);
-        bundle.putSerializable("nextMeeting", nextMeeting);
-        bundle.putString("roomId", roomId);
-        return bundle;
-    }
-
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        scheduleOfNextMeeting = (Schedule)preloadedData.getSerializable(Schedule.SERIALIZE_KEY_CODE);
-        course = (Course)preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
-        teacher = (Teacher)preloadedData.getSerializable(Teacher.SERIALIZE_KEY_CODE);
-        coursesForScheduleAdapter = (ArrayList<Course>) preloadedData.getSerializable("coursesOfSchedule");
-        schedulesCompleted = (ArrayList<Schedule>)preloadedData.getSerializable("completedSchedules");
-        nextMeeting = (Meeting)preloadedData.getSerializable("nextMeeting");
-        roomId = preloadedData.getString("roomId");
-    }
-
-    @Override
-    public void onLoadingError(Exception error) {
-
-    }
+                }
+            }
+    );
 }

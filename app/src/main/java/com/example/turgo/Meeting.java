@@ -10,6 +10,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,35 +28,39 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFirebase> {
+public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFirebase, MeetingRepository> {
     private final FirebaseNode fbn = FirebaseNode.MEETING;
     private final Class<MeetingFirebase> fbc = MeetingFirebase.class;
     private final String meetingID;
     private static final String FIREBASE_DB_REFERENCE = "Meetings";
     private HashMap<Student, LocalTime> studentsAttended;
     private User preScheduledBy;
+    private String ofSchedule;
     private LocalDate dateOfMeeting;
     private LocalTime startTimeChange;
     private LocalTime endTimeChange;
     private Room roomChange;
     private boolean completed;
-    private final Context context;
+    private boolean alarmAssigned = false;  // NEW: Track if alarm set
+    private LocalDateTime alarmAssignedAt;  // NEW: When alarm was assigned
 
 
-    public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
+    public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, String ofSchedule){
         meetingID = UUID.randomUUID().toString();
         studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
         endTimeChange = meetingOfSchedule.getMeetingEnd();
         this.preScheduledBy = preScheduledBy;
+        this.ofSchedule = ofSchedule;
         roomChange = null;
         completed = false;
-        this.context = context;
-        assignAlarmNotification(Await.get(meetingOfSchedule::getStudents));
     }
-    public Meeting(String meetingID, Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, Context context){
+    public Meeting(String meetingID, Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy){
         this.meetingID = meetingID;
         studentsAttended = new HashMap<>();
         this.dateOfMeeting = dateOfMeeting;
@@ -63,21 +69,124 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         this.preScheduledBy = preScheduledBy;
         roomChange = null;
         completed = false;
-        this.context = context;
-        assignAlarmNotification(Await.get(meetingOfSchedule::getStudents));
     }
     public Meeting(){
-        meetingID = "";
-        context = null;
+        meetingID = UUID.randomUUID().toString();
 
     }
-    public void assignAlarmNotification(ArrayList<Student>students){
+    public static Task<Meeting> getClosestMeetingToSchedule(Schedule schedule) {
+        TaskCompletionSource<Meeting> tcs = new TaskCompletionSource<>();
+
+        MeetingRepository mr;
+        try {
+            mr = MeetingRepository.class.newInstance();
+        } catch (IllegalAccessException | InstantiationException e) {
+            tcs.setException(e);
+            return tcs.getTask();
+        }
+
+        mr.loadAll(new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(ArrayList<MeetingFirebase> list) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+
+                if (list.isEmpty()) {
+                    tcs.setResult(null);
+                    return;
+                }
+
+                AtomicReference<Meeting> closest = new AtomicReference<>(null);
+                AtomicInteger pending = new AtomicInteger(list.size());
+                AtomicBoolean failed = new AtomicBoolean(false);
+
+                for (MeetingFirebase mf : list) {
+                    mf.convertToNormal(new ObjectCallBack<>() {
+                        @Override
+                        public void onObjectRetrieved(Meeting meeting) {
+
+                            meeting.getMeetingOfSchedule()
+                                    .addOnSuccessListener(mos -> {
+
+                                        if (mos == schedule) {
+                                            Meeting current = closest.get();
+                                            if (current == null ||
+                                                    current.getDateOfMeeting()
+                                                            .isAfter(meeting.getDateOfMeeting())) {
+                                                closest.set(meeting);
+                                            }
+                                        }
+
+                                        finishOne();
+                                    })
+                                    .addOnFailureListener(e -> failOnce(e));
+                        }
+
+                        @Override
+                        public void onError(DatabaseError error) {
+                            failOnce(error.toException());
+                        }
+
+                        private void finishOne() {
+                            if (pending.decrementAndGet() == 0 && !failed.get()) {
+                                tcs.setResult(closest.get());
+                            }
+                        }
+
+                        private void failOnce(Exception e) {
+                            if (failed.compareAndSet(false, true)) {
+                                tcs.setException(e);
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                tcs.setException(error.toException());
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+
+
+
+    public String getOfSchedule() {
+        return ofSchedule;
+    }
+
+    public void setOfSchedule(String ofSchedule) {
+        this.ofSchedule = ofSchedule;
+    }
+
+    //students of the schedule.
+    public void assignAlarmNotification(ArrayList<Student>students, Context context){
         LocalDateTime ldt = LocalDateTime.of(this.dateOfMeeting, startTimeChange);
         for(Student student : students){
-            Schedule schedule = Await.get(this::getMeetingOfSchedule);
-            Course course = Await.get(schedule::getScheduleOfCourse);
-            MeetingAlarm.setMeetingAlarm(context, ldt, course, student, schedule);
+//            Schedule schedule = Await.get(this::getMeetingOfSchedule);
+//            Course course = Await.get(schedule::getScheduleOfCourse);
+            AtomicReference<Schedule> schedule = new AtomicReference<>();
+            getMeetingOfSchedule().continueWithTask(task ->{
+                schedule.set(task.getResult());
+                return schedule.get().getScheduleOfCourse();
+            }).addOnSuccessListener(course ->{
+                MeetingAlarm.setMeetingAlarm(context, ldt, course, student, schedule.get());
+            });
         }
+    }
+
+    public Task<Schedule> getMeetingOfSchedule(){
+        ScheduleRepository scheduleRepository = new ScheduleRepository(ofSchedule);
+        return scheduleRepository.loadAsNormal();
+    }
+
+    public Task<Course> getMeetingOfCourse(){
+        TaskCompletionSource<Course>taskCourse = new TaskCompletionSource<>();
+        getMeetingOfSchedule().addOnSuccessListener(schedule->{
+            schedule.getScheduleOfCourse().addOnSuccessListener(taskCourse::setResult);
+        });
+        return taskCourse.getTask();
     }
 
     public void doTimeChanges(LocalTime start, LocalTime end){
@@ -86,7 +195,7 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     }
 
     @SuppressLint("ScheduleExactAlarm")
-    public static void setMeetingEndAlarm(Context context, LocalDate date, LocalTime endTime, Student student, Meeting meeting){
+    public void setMeetingEndAlarm(Context context, LocalDate date, LocalTime endTime, Student student){
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         LocalDateTime dateTime = LocalDateTime.of(date, endTime);
@@ -94,13 +203,20 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
 
         Intent intent = new Intent(context, MeetingAlarmReciever.class);
         intent.putExtra("Student", student);
-        intent.putExtra("Meeting", meeting);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra("Meeting", this);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE  // ✅ Fixed!
+        );
+
 
         if (alarmManager != null) {
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, millis , pendingIntent);
         }
     }
+
 
     public User getPreScheduledBy() {
         return preScheduledBy;
@@ -124,6 +240,11 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     }
 
     @Override
+    public Class<MeetingRepository> getRepositoryClass() {
+        return MeetingRepository.class;
+    }
+
+    @Override
     public Class<MeetingFirebase> getFirebaseClass() {
         return fbc;
     }
@@ -134,44 +255,68 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         return this.meetingID;
     }
 
+    public FirebaseNode getFbn() {
+        return fbn;
+    }
+
+    public Class<MeetingFirebase> getFbc() {
+        return fbc;
+    }
+
+    public boolean isAlarmAssigned() {
+        return alarmAssigned;
+    }
+
+    public void setAlarmAssigned(boolean alarmAssigned) {
+        this.alarmAssigned = alarmAssigned;
+    }
+
+    public LocalDateTime getAlarmAssignedAt() {
+        return alarmAssignedAt;
+    }
+
+    public void setAlarmAssignedAt(LocalDateTime alarmAssignedAt) {
+        this.alarmAssignedAt = alarmAssignedAt;
+    }
+
     public void changeDay(LocalDate date){
         this.dateOfMeeting = date;
     }
 
-    public void getMeetingOfSchedule(ObjectCallBack<Schedule> callBack) {
-        // Try finding in Student's preScheduledMeetings or meetingHistory
-        // Since meetings can be in either Student or Teacher lists, we search both
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath());
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean found = false;
-                for(DataSnapshot studentSnapshot : snapshot.getChildren()){
-                    // Check preScheduledMeetings
-                    DataSnapshot prescheduled = studentSnapshot.child("preScheduledMeetings");
-                    if(searchMeetingInList(prescheduled, callBack)){
-                        found = true;
-                        break;
-                    }
-                    // Check meetingHistory
-                    DataSnapshot history = studentSnapshot.child("meetingHistory");
-                    if(searchMeetingInList(history, callBack)){
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found){
-                    // Search in Teacher if not found in Student
-                    searchInTeacher(callBack);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Meeting(getMeetingOfSchedule)", "Error finding Schedule: " + error);
-            }
-        });
-    }
+//    public void getMeetingOfSchedule(ObjectCallBack<Schedule> callBack) {
+//        // Try finding in Student's preScheduledMeetings or meetingHistory
+//        // Since meetings can be in either Student or Teacher lists, we search both
+//        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath());
+//        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                boolean found = false;
+//                for(DataSnapshot studentSnapshot : snapshot.getChildren()){
+//                    // Check preScheduledMeetings
+//                    DataSnapshot prescheduled = studentSnapshot.child("preScheduledMeetings");
+//                    if(searchMeetingInList(prescheduled, callBack)){
+//                        found = true;
+//                        break;
+//                    }
+//                    // Check meetingHistory
+//                    DataSnapshot history = studentSnapshot.child("meetingHistory");
+//                    if(searchMeetingInList(history, callBack)){
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if(!found){
+//                    // Search in Teacher if not found in Student
+//                    searchInTeacher(callBack);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.e("Meeting(getMeetingOfSchedule)", "Error finding Schedule: " + error);
+//            }
+//        });
+//    }
     
     private boolean searchMeetingInList(DataSnapshot listSnapshot, ObjectCallBack<Schedule> callBack){
         for(DataSnapshot meetingSnapshot : listSnapshot.getChildren()){

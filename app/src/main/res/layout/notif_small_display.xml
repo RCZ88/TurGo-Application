@@ -3,33 +3,64 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_emerald_input"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="12dp">
 
-    <TextView
-        android:id="@+id/tv_notif_TitleHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="32dp"
-        android:text="TITLE HEADER"
-        android:textSize="18sp"
-        android:textStyle="bold"
+    <View
+        android:id="@+id/v_notif_StatusDot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_qr_button"
+        android:backgroundTint="@color/brand_emerald_light"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/tv_notif_TitleHeader" />
 
-    <TextView
-        android:id="@+id/tv_notif_Content"
-        android:layout_width="349dp"
-        android:layout_height="39dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="26dp"
-        android:layout_marginBottom="32dp"
-        android:text="@string/lorem_short"
+    <LinearLayout
+        android:id="@+id/linearLayout9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/v_notif_StatusDot"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_notif_TitleHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_grotesque_extra_bold"
+            android:text="Class Update"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_notif_Content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif"
+            android:maxLines="2"
+            android:text="@string/lorem_short"
+            android:textColor="@color/black_soft"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/v_notif_Divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="@color/brand_emerald_pale"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_notif_TitleHeader"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toStartOf="@+id/tv_notif_TitleHeader"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

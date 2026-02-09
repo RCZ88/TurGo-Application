@@ -1,69 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frag_UserCat"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:orientation="vertical"
+    android:padding="20dp"
     tools:context=".signup_UserCategory">
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:fontFamily="sans-serif"
+        android:layout_marginTop="24dp"
+        android:fontFamily="@font/bricolage_grotesque_bold"
         android:text="Tell us about yourself!"
         android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textColor="@color/brand_emerald_dark"
+        android:textSize="26sp" />
 
     <TextView
         android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Select Type of User Shown Below:"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/bricolage_body"
+        android:text="Select the option that best describes you:"
+        android:textAlignment="center"
+        android:textColor="@color/brand_emerald"
+        android:textSize="14sp" />
 
-    <RadioGroup
-        android:id="@+id/rg_userOptions"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3">
+        android:layout_marginTop="32dp"
+        android:background="@drawable/bg_emerald_card"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <RadioButton
-            android:id="@+id/rb_StudentOpt"
+        <RadioGroup
+            android:id="@+id/rg_userOptions"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="Student" />
+            android:layout_height="wrap_content">
 
-        <RadioButton
-            android:id="@+id/rb_TeacherOpt"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="Teacher" />
+            <RadioButton
+                android:id="@+id/rb_StudentOpt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_emerald_input"
+                android:buttonTint="@color/brand_emerald"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:layoutDirection="rtl"
+                android:padding="16dp"
+                android:text="Student"
+                android:textAlignment="textStart"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
 
-        <RadioButton
-            android:id="@+id/rb_AdminOpt"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="Admin" />
+            <RadioButton
+                android:id="@+id/rb_TeacherOpt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_emerald_input"
+                android:buttonTint="@color/brand_emerald"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:layoutDirection="rtl"
+                android:padding="16dp"
+                android:text="Teacher"
+                android:textAlignment="textStart"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
 
-        <RadioButton
-            android:id="@+id/rb_ParentOpt"
-            android:layout_width="match_parent"
-            android:layout_height="64dp"
-            android:text="Parent" />
-    </RadioGroup>
+            <RadioButton
+                android:id="@+id/rb_AdminOpt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/bg_emerald_input"
+                android:buttonTint="@color/brand_emerald"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:layoutDirection="rtl"
+                android:padding="16dp"
+                android:text="Admin"
+                android:textAlignment="textStart"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <RadioButton
+                android:id="@+id/rb_ParentOpt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_emerald_input"
+                android:buttonTint="@color/brand_emerald"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:layoutDirection="rtl"
+                android:padding="16dp"
+                android:text="Parent"
+                android:textAlignment="textStart"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
+
+        </RadioGroup>
+    </LinearLayout>
+
+</LinearLayout>

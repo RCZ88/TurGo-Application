@@ -1,12 +1,15 @@
 package com.example.turgo;
 
 
+import com.google.android.gms.tasks.Task;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebase> {
+public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebase, AgendaRepository> {
     private final String agenda_ID;
+    public static final String SERIALIZE_KEY_CODE = "agendas";
 
     private static final FirebaseNode fbn = FirebaseNode.AGENDA;
     private static final Class<AgendaFirebase> fbc = AgendaFirebase.class;
@@ -17,26 +20,29 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
     private Meeting ofMeeting;
     private Teacher teacher;
     private Student student;
+    private String ofCourse;
 
-    public Agenda(String contents, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, Course ofCourse){
+    public Agenda(String contents, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, String ofCourse){
         this.contents = contents;
         this.date = date;
         this.ofMeeting = ofMeeting;
         this.teacher = teacher;
         this.student = student;
         agenda_ID = UUID.randomUUID().toString();
+        this.ofCourse = ofCourse;
     }
     public Agenda(){
         agenda_ID = "";
     }
 
-    public Agenda(file file, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, Course ofCourse){
+    public Agenda(file file, LocalDate date, Meeting ofMeeting, Teacher teacher, Student student, String ofCourse){
         agendaImage = file;
         this.date = date;
         this.ofMeeting = ofMeeting;
         this.teacher = teacher;
         this.student = student;
         agenda_ID = UUID.randomUUID().toString();
+        this.ofCourse = ofCourse;
     }
 
 
@@ -80,6 +86,25 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
             throw new RuntimeException(e);
         }
     }
+    public Task<Course>getOfCourse(){
+        CourseRepository courseRepository = new CourseRepository(ofCourse);
+        return courseRepository.loadAsNormal();
+    }
+    public String getOfCourseId(){
+        return ofCourse;
+    }
+
+    public void setOfCourse(String ofCourse) {
+        this.ofCourse = ofCourse;
+    }
+
+    public file getAgendaImage() {
+        return agendaImage;
+    }
+
+    public void setAgendaImage(file agendaImage) {
+        this.agendaImage = agendaImage;
+    }
 
     public LocalDate getDate() {
         return date;
@@ -93,6 +118,11 @@ public class Agenda implements Serializable, RequireUpdate<Agenda, AgendaFirebas
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<AgendaRepository> getRepositoryClass() {
+        return AgendaRepository.class;
     }
 
     @Override

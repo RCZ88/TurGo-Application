@@ -2,17 +2,20 @@ package com.example.turgo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.turgo.databinding.ActivityMailPageFullBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -21,7 +24,7 @@ public class MailPageFull extends AppCompatActivity {
 
     FloatingActionButton fab_WriteMail;
     BottomNavigationView nv_MailPage;
-
+    TextView tv_pageTitle;
     private ActivityMailPageFullBinding binding;
     private User user;
     private Toolbar toolbar;
@@ -34,24 +37,29 @@ public class MailPageFull extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = ActivityMailPageFullBinding.inflate(getLayoutInflater());
+        EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         toolbar = findViewById(R.id.tb_MailTopBar);
         setSupportActionBar(toolbar);
+        toolbar.setTitle("");
         setSelectionMode(false);
+
+        tv_pageTitle = findViewById(R.id.tv_mpf_FragmentTitle);
 
         nv_MailPage = findViewById(R.id.nv_MailPage);
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_inbox, R.id.navigation_outbox, R.id.navigation_drafts)
+                R.id.dest_mailInbox, R.id.dest_mailOutbox, R.id.dest_mailDrafts)
                 .build();
-        NavController navController = Navigation.findNavController(this, R.id.fcv_MPF_Container);
-        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(nv_MailPage, navController);
 
         Intent intent = getIntent();
         this.user = (User) intent.getSerializableExtra(User.SERIALIZE_KEY_CODE);
-
         fab_WriteMail = findViewById(R.id.fab_WriteMail);
         fab_WriteMail.setOnClickListener(view -> {
             Intent intent1 = new Intent(MailPageFull.this, ComposeMail.class);
@@ -59,9 +67,38 @@ public class MailPageFull extends AppCompatActivity {
             startActivity(intent1);
         });
 
-
+        setupBottomNavigation(nv_MailPage);
+        nv_MailPage.setSelectedItemId(R.id.dest_mailInbox);
     }
 
+
+    private void setupBottomNavigation(BottomNavigationView bnv){
+        bnv.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Bundle bundle = new Bundle();
+
+            Log.d("BottomNav", "Navigation clicked: " + itemId);
+            final String mt = MailType.MAIL_TYPE.getMailType();
+            if(itemId == R.id.dest_mailInbox){
+                bundle.putSerializable(mt, MailType.INBOX);
+            }else if(itemId == R.id.dest_mailDrafts){
+                bundle.putSerializable(mt, MailType.DRAFT);
+            }else if(itemId == R.id.dest_mailOutbox){
+                bundle.putSerializable(mt, MailType.OUTBOX);
+            }else{
+                Log.w("BottomNav", "Unknown item clicked: " + itemId);
+                return false;
+            }
+
+            Tool.loadFragment(this, getContainer(), new MailListPage(), bundle);
+
+            return true;
+        });
+    }
+
+    public static int getContainer(){
+        return R.id.fcv_MPF_Container;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,15 +128,21 @@ public class MailPageFull extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void setSelectionMode(boolean enabled){
+    public void setSelectionMode(boolean enabled) {
         inSelectionMode = enabled;
-        if(enabled){
-            toolbar.setTitle("Select");
-        }else{
-            toolbar.setTitle("Mail");
+
+        if (getSupportActionBar() != null) {
+            if (enabled) {
+                getSupportActionBar().setTitle("Select");
+                getSupportActionBar().setDisplayShowTitleEnabled(true);
+            } else {
+                getSupportActionBar().setDisplayShowTitleEnabled(false);
+            }
         }
-        invalidateMenu();
+
+        invalidateOptionsMenu();
     }
+
 
 
 

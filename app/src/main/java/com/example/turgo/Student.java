@@ -4,7 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.compose.runtime.snapshots.Snapshot;
 
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -14,16 +17,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Student extends User implements Serializable, RequireUpdate<Student, StudentFirebase>{
+public class Student extends User implements Serializable, RequireUpdate<Student, StudentFirebase, StudentRepository>{
     private static final FirebaseNode fbn = FirebaseNode.STUDENT;
     private static final Class<StudentFirebase> fbc = StudentFirebase.class;
     private ArrayList<Course> courseTaken;
@@ -48,7 +57,6 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     private ArrayList<Agenda> allAgendas;
     private int lateAttendance;
     private int lateSubmissions;
-    private Context context;
 
     public Student(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
         super(UserType.STUDENT, gender, fullName, birthDate, nickname, email, phoneNumber);
@@ -102,6 +110,11 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     @Override
+    public Class<StudentRepository> getRepositoryClass() {
+        return StudentRepository.class;
+    }
+
+    @Override
     public Class<StudentFirebase> getFirebaseClass() {
         return fbc;
     }
@@ -114,14 +127,17 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public Student(){
-        courseTaken = new ArrayList<>();
-        courseInterested = new ArrayList<>();
-        courseRelated = new ArrayList<>();
-        preScheduledMeetings = new ArrayList<>();
-        allSchedules = new ArrayList<>();
-        meetingHistory = new ArrayList<>();
-        scheduleCompletedThisWeek = new ArrayList<>();
-        allAgendas = new ArrayList<>();
+        this.courseTaken = new ArrayList<>();
+        this.studentCourseTaken = new ArrayList<>();
+        this.courseInterested = new ArrayList<>();
+        this.courseRelated = new ArrayList<>();
+        this.preScheduledMeetings = new ArrayList<>();
+        this.meetingHistory = new ArrayList<>();
+        this.scheduleCompletedThisWeek = new ArrayList<>();
+        this.allSchedules = new ArrayList<>();
+        this.allTask = new ArrayList<>();
+        this.uncompletedTask = new ArrayList<>();
+        this.allAgendas = new ArrayList<>();
     }
 
     @Override
@@ -139,18 +155,23 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         return uncompleted;
     }
 
-    public ArrayList<Meeting> getAllMeetingOfCourse(Course course){
+    public com.google.android.gms.tasks.Task<ArrayList<Meeting>> getAllMeetingOfCourse(Course course){
+        List<com.google.android.gms.tasks.Task<Course>>tasks = new ArrayList<>();
         ArrayList<Meeting>meetings = new ArrayList<>();
         for(Meeting meeting : this.meetingHistory){
-            Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-            Course c = Await.get(schedule::getScheduleOfCourse);
-            if(c==course){
-                meetings.add(meeting);
-            }
-
-
+            com.google.android.gms.tasks.Task<Course>task =  meeting.getMeetingOfCourse();
+            tasks.add(task);
+            task.addOnSuccessListener(c->{
+                if(c==course){
+                    meetings.add(meeting);
+                }
+            });
         }
-        return meetings;
+        TaskCompletionSource<ArrayList<Meeting>>tcs = new TaskCompletionSource<>();
+        Tasks.whenAllSuccess(tasks).addOnSuccessListener(courses ->{
+            tcs.setResult(meetings);
+        });
+        return tcs.getTask();
     }
     public void calculatePercentageCompleted(){
         if(allSchedules!= null){
@@ -171,36 +192,115 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             lateAttendance++;
         }
     }
-    public void addScheduledMeeting() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+    // In Student.java
+    public void addScheduledMeeting(Context context,  Teacher teacher) {
         LocalDate today = LocalDate.now();
-        ArrayList<Schedule>oldAllSchedule = allSchedules;
-        StudentRepository studentRepository = StudentRepository.getInstance(getID());
-        for(int i = 0; i<autoSchedule; i++){
-            for(int j = 0; j<allSchedules.size(); j++){
-                if(!allSchedules.get(j).isHasScheduled()){
-                    LocalDate meetingDate= today.plusWeeks(i-1).with(TemporalAdjusters.nextOrSame(allSchedules.get(j).getDay()));
-                    Meeting meeting = new Meeting(allSchedules.get(j), meetingDate, this, context);
-                    Meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(), meeting.getEndTimeChange(), this, meeting);
-                    MeetingRepository.getInstance(meeting.getMeetingID()).save(meeting);
+        StudentRepository studentRepository = new StudentRepository(getID());
+
+        for (int i = 0; i < autoSchedule; i++) {
+            for (Schedule schedule : allSchedules) {
+                if (schedule.isHasScheduled()) {
+                    continue;
+                }
+
+                LocalDate meetingDate = today.plusWeeks(i).with(
+                        TemporalAdjusters.nextOrSame(schedule.getDay())
+                );
+
+                Meeting meeting = new Meeting(schedule, meetingDate, this, schedule.getID());
+
+                try {
+                    meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(),
+                            meeting.getEndTimeChange(), this);
+
+                    MeetingRepository meetingRepo = new MeetingRepository(meeting.getMeetingID());
+                    meetingRepo.save(meeting);
+
                     preScheduledMeetings.add(meeting);
-                    Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-                    Course course = Await.get(schedule::getScheduleOfCourse);
-                    Teacher teacher = Await.get(course::getTeacher);
 
-                    teacher.addScheduledMeeting(meeting);
+                    // ✅ Use passed-in course and teacher (no Await.get needed!)
                     teacher.addScheduledMeeting(meeting);
 
-                    for(Student student: Await.get(allSchedules.get(j)::getStudents)){
-                        student.preScheduledMeetings.add(meeting);
-                        studentRepository.addPreScheduledMeeting(meeting);
-                    }
-                    allSchedules.get(i).setScheduler(this);
+                    schedule.getStudents().addOnSuccessListener(studentsList ->{
+                        for (Student student : studentsList) {
+                            student.preScheduledMeetings.add(meeting);
+                            studentRepository.addPreScheduledMeeting(meeting);
+                        }
+                    });
+
+                    schedule.setScheduler(this);
+                    schedule.setHasScheduled(true);
+
+                } catch (Exception e) {
+                    Log.e("Student", "Failed to process meeting", e);
                 }
             }
         }
-        studentRepository.replaceAllSchedule(oldAllSchedule, allSchedules);
+
         lastScheduled = today;
         studentRepository.updateLastScheduled(today);
+    }
+    public com.google.android.gms.tasks.Task<Void> addScheduledMeetingAsync(Context context, Teacher teacher) {
+        LocalDate today = LocalDate.now();
+        StudentRepository studentRepository = new StudentRepository(getID());
+        List<com.google.android.gms.tasks.Task<?>> tasks = new ArrayList<>();
+
+        for (int i = 0; i < autoSchedule; i++) {
+            for (Schedule schedule : allSchedules) {
+                if (schedule.isHasScheduled()) {
+                    continue;
+                }
+
+                LocalDate meetingDate = today.plusWeeks(i).with(
+                        TemporalAdjusters.nextOrSame(schedule.getDay())
+                );
+
+                Meeting meeting = new Meeting(schedule, meetingDate, this, schedule.getID());
+
+                try {
+                    meeting.setMeetingEndAlarm(context, meeting.getDateOfMeeting(),
+                            meeting.getEndTimeChange(), this);
+                } catch (Exception e) {
+                    return Tasks.forException(e);
+                }
+
+                MeetingRepository meetingRepo = new MeetingRepository(meeting.getMeetingID());
+                tasks.add(logTask("meeting.save:" + meeting.getMeetingID(), meetingRepo.saveAsync(meeting)));
+
+                preScheduledMeetings.add(meeting);
+
+                TeacherRepository teacherRepository = new TeacherRepository(teacher.getID());
+                tasks.add(logTask("teacher.addScheduledMeeting:" + meeting.getID(),
+                        teacherRepository.addStringToArrayAsync("scheduledMeetings", meeting.getID())));
+                teacher.addScheduledMeeting(meeting);
+
+                com.google.android.gms.tasks.Task<List<Student>> studentsTask = schedule.getStudents();
+                com.google.android.gms.tasks.Task<Void> addToStudentsTask = studentsTask.onSuccessTask(studentsList -> {
+                    List<com.google.android.gms.tasks.Task<?>> studentTasks = new ArrayList<>();
+                    for (Student student : studentsList) {
+                        student.preScheduledMeetings.add(meeting);
+                        StudentRepository sr = new StudentRepository(student.getID());
+                        studentTasks.add(sr.addStringToArrayAsync("preScheduledMeetings", meeting.getID()));
+                    }
+                    return Tasks.whenAll(studentTasks);
+                });
+                tasks.add(logTask("students.addPreScheduledMeeting:" + meeting.getID(), addToStudentsTask));
+
+                schedule.setScheduler(this);
+                schedule.setHasScheduled(true);
+                ScheduleRepository scheduleRepository = new ScheduleRepository(schedule.getID());
+                tasks.add(logTask("schedule.save:" + schedule.getID(), scheduleRepository.saveAsync(schedule)));
+            }
+        }
+
+        lastScheduled = today;
+        tasks.add(logTask("student.updateLastScheduled:" + getID(),
+                studentRepository.getDbReference().child("lastScheduled").setValue(today.toString())));
+
+        if (tasks.isEmpty()) {
+            return Tasks.forResult(null);
+        }
+        return Tasks.whenAll(tasks);
     }
 
     private ArrayList<Schedule> updateSchedule(){ //updates schedule based on course's schedule
@@ -213,13 +313,11 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         for(int i = 0; i<schedules.size(); i++){
             scheduleArr[i] = schedules.get(i);
         }
-        sortSchedule(schedules);
+        Schedule.sortSchedule(schedules);
         return schedules;
     }
 
-    private void sortSchedule(ArrayList<Schedule> schedules){
-        schedules.sort(Comparator.comparing(Schedule::getDay).thenComparing(Schedule::getMeetingStart));
-    }
+
 
     public LocalDate getClosestMeetingOfCourse(Course course){
         int minDistance = Integer.MAX_VALUE;
@@ -241,12 +339,15 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public void completeMeeting(Meeting meeting){
-        StudentRepository studentRepository = StudentRepository.getInstance(getID());
+        StudentRepository studentRepository = new StudentRepository(getID());
         preScheduledMeetings.remove(meeting);
         studentRepository.removePreScheduledMeetingCompletely(meeting);
-        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-        scheduleCompletedThisWeek.add(schedule);
-        studentRepository.addScheduleCompletedThisWeek(schedule);
+//        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
+        meeting.getMeetingOfSchedule().addOnSuccessListener(schedule ->{
+            scheduleCompletedThisWeek.add(schedule);
+            studentRepository.addScheduleCompletedThisWeek(schedule);
+        });
+
     }
 
     private boolean checkAllComplete(){
@@ -269,15 +370,69 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             }
         }
     }
-    public void joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        CourseRepository courseRepository = CourseRepository.getInstance(getID());
-        course.addStudent(this, paymentPreferences, privateOrGroup, payment, schedules, timeSlot);
-        course.getSchedules().addAll(schedules);
-        schedules.forEach(courseRepository::addSchedule);
-        StudentRepository studentRepository = StudentRepository.getInstance(getID());
-        ArrayList<Schedule>newSchedules = updateSchedule();
-        studentRepository.replaceAllSchedule(allSchedules, newSchedules);
-        addScheduledMeeting();
+    public com.google.android.gms.tasks.Task<Void> joinCourse(Course course, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot, Context context) {
+        String tag = "JoinCourse";
+        List<com.google.android.gms.tasks.Task<?>> tasks = new ArrayList<>();
+
+        tasks.add(logTask("course.addStudentAsync:" + course.getID(),
+                course.addStudentAsync(this, paymentPreferences, privateOrGroup, payment, schedules, timeSlot)));
+        Log.d(tag, "course add student started");
+
+        StudentRepository studentRepository = new StudentRepository(getID());
+        allSchedules.addAll(schedules);
+        for (Schedule schedule : schedules) {
+            ScheduleRepository scheduleRepository = new ScheduleRepository(schedule.getID());
+            tasks.add(logTask("student.addAllSchedules:" + schedule.getID(),
+                    studentRepository.addStringToArrayAsync("allSchedules", schedule.getID())));
+            tasks.add(logTask("schedule.save:" + schedule.getID(), scheduleRepository.saveAsync(schedule)));
+        }
+        Log.d(tag, "all Schedules queued for database");
+
+        com.google.android.gms.tasks.Task<Void> teacherTask = course.getTeacher().onSuccessTask(teacher -> {
+            List<com.google.android.gms.tasks.Task<?>> teacherTasks = new ArrayList<>();
+
+            teacherTasks.add(logTask("student.addScheduledMeetingAsync:" + getID(),
+                    addScheduledMeetingAsync(context, teacher)));
+
+            for (Schedule schedule : schedules) {
+                DayOfWeek dow = schedule.getDay();
+                boolean found = false;
+                for (DayTimeArrangement dta : teacher.getTimeArrangements()) {
+                    if (dta.getDay() == dow) {
+                        dta.getOccupied().add(schedule);
+                        DTARepository dtaRepository = new DTARepository(dta.getID());
+                        teacherTasks.add(logTask("dta.addOccupied:" + dta.getID() + ":" + schedule.getID(),
+                                dtaRepository.addStringToArrayAsync("occupied", schedule.getID())));
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    DayTimeArrangement dta = new DayTimeArrangement();
+                    dta.getOccupied().add(schedule);
+                    DTARepository dtaRepository = new DTARepository(dta.getID());
+                    teacherTasks.add(logTask("dta.save:" + dta.getID(), dtaRepository.saveAsync(dta)));
+                    teacherTasks.add(logTask("dta.addOccupied:" + dta.getID() + ":" + schedule.getID(),
+                            dtaRepository.addStringToArrayAsync("occupied", schedule.getID())));
+                    TeacherRepository teacherRepository = new TeacherRepository(teacher.getID());
+                    teacherTasks.add(logTask("teacher.addTimeArrangement:" + dta.getID(),
+                            teacherRepository.addStringToArrayAsync("timeArrangements", dta.getID())));
+                }
+            }
+            return Tasks.whenAll(teacherTasks);
+        });
+        tasks.add(logTask("course.getTeacher:" + course.getID(), teacherTask));
+
+        if (tasks.isEmpty()) {
+            return Tasks.forResult(null);
+        }
+        return Tasks.whenAll(tasks);
+    }
+
+    private static <T> com.google.android.gms.tasks.Task<T> logTask(String label, com.google.android.gms.tasks.Task<T> task) {
+        task.addOnSuccessListener(result -> Log.d("JoinCourseTask", "SUCCESS: " + label));
+        task.addOnFailureListener(e -> Log.e("JoinCourseTask", "FAIL: " + label, e));
+        return task;
     }
     public void assignAgenda(Agenda agenda){
         allAgendas.add(agenda);
@@ -320,13 +475,6 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         this.notificationEarlyDuration = notificationEarlyDuration;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public void setContext(Context context) {
-        this.context = context;
-    }
 
     public ArrayList<Course> getCourseTaken(){
         return courseTaken;
@@ -405,9 +553,10 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     }
 
     public void addMeetingCompleted(Meeting meeting){
-        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-        scheduleCompletedThisWeek.add(schedule);
-        meeting.setCompleted(true);
+        meeting.getMeetingOfSchedule().addOnSuccessListener(schedule->{
+            scheduleCompletedThisWeek.add(schedule);
+            meeting.setCompleted(true);
+        });
     }
 
     public ArrayList<Schedule> getScheduleCompletedThisWeek() {
@@ -451,6 +600,10 @@ public class Student extends User implements Serializable, RequireUpdate<Student
         this.uncompletedTask = uncompletedTask;
     }
     public ArrayList<Task>getAllTaskOfCourse(Course course){
+        if(uncompletedTask == null){
+            uncompletedTask = new ArrayList<>();
+            return uncompletedTask;
+        }
         ArrayList<Task>tasks = new ArrayList<>();
         for(Task task : uncompletedTask){
             if(task.getTaskOfCourse() == course){
@@ -462,6 +615,15 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     public void getAgendaOfCourse(Course course, ObjectCallBack<ArrayList<Agenda>>callBack){
         ArrayList<Agenda>a = new ArrayList<>();
         AtomicInteger completed = new AtomicInteger(0);
+        if (allAgendas == null || allAgendas.isEmpty()) {
+            try {
+                callBack.onObjectRetrieved(a);
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+            return;
+        }
         for(Agenda agenda : allAgendas){
             agenda.getOfCourse(new ObjectCallBack<>() {
                 @Override
@@ -505,7 +667,11 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             @Override
             public void onObjectRetrieved(ArrayList<Agenda> object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                 int size = object.size();
-                callBack.onObjectRetrieved(object.get(size - 1));
+                if (size == 0) {
+                callBack.onObjectRetrieved(null);
+                return;
+            }
+            callBack.onObjectRetrieved(object.get(size - 1));
             }
 
             @Override
@@ -530,101 +696,129 @@ public class Student extends User implements Serializable, RequireUpdate<Student
     public void setLateSubmissions(int lateSubmissions) {
         this.lateSubmissions = lateSubmissions;
     }
-    public void getExploreCourse(ObjectCallBack<ArrayList<Course>>callback){
-        DatabaseReference coursesRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSE.getPath());
+    public com.google.android.gms.tasks.Task<ArrayList<Course>> getExploreCourse() {
+        TaskCompletionSource<ArrayList<Course>> tcs = new TaskCompletionSource<>();
+
+        DatabaseReference coursesRef = FirebaseDatabase.getInstance()
+                .getReference(FirebaseNode.COURSE.getPath());
 
         coursesRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<CourseFirebase> allCourses = new ArrayList<>();
+
                 for (DataSnapshot courseSnap : snapshot.getChildren()) {
                     CourseFirebase course = courseSnap.getValue(CourseFirebase.class);
                     if (course != null) {
                         allCourses.add(course);
                     }
                 }
-                DatabaseReference dbref = FirebaseDatabase.getInstance().getReference(CourseType.fbn.getPath());
-                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                DatabaseReference courseTypeRef = FirebaseDatabase.getInstance()
+                        .getReference(CourseType.fbn.getPath());
+
+                courseTypeRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         ArrayList<CourseFirebase> courseInterested = new ArrayList<>();
-                        for(DataSnapshot ds : snapshot.getChildren()){
-                            CourseTypeFirebase ctf = ds.getValue(CourseTypeFirebase.class);
-                            for(CourseFirebase cf : allCourses){
 
-                                if(cf.getCourseType().equals(ctf.getID())){
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            CourseTypeFirebase ctf = ds.getValue(CourseTypeFirebase.class);
+                            if (ctf == null) continue;
+
+                            for (CourseFirebase cf : allCourses) {
+                                if (cf.getCourseType().equals(ctf.getID())) {
                                     courseInterested.add(cf);
                                     Log.d("Student", "Course Interest Added: " + cf);
                                 }
                             }
                         }
-                        if(courseInterested.isEmpty()){
-                            try {
-                                callback.onObjectRetrieved(new ArrayList<>());
-                            } catch (ParseException | InvocationTargetException |
-                                     NoSuchMethodException | IllegalAccessException |
-                                     InstantiationException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        ArrayList<Course> courses = new ArrayList<>();
-                        for(int i = 0; i < courseInterested.size(); i++){
-                            int finalI = i;
-                            try {
-                                courseInterested.get(i).convertToNormal(new ObjectCallBack<>() {
-                                    @Override
-                                    public void onObjectRetrieved(Course object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                                        courses.add(object);
-                                        if (finalI == courseInterested.size() - 1) {
-                                            callback.onObjectRetrieved(courses);
-                                        }
-                                    }
 
-                                    @Override
-                                    public void onError(DatabaseError error) {
-
-                                    }
-                                });
-                            } catch (ParseException | InvocationTargetException |
-                                     NoSuchMethodException | IllegalAccessException |
-                                     InstantiationException e) {
-                                throw new RuntimeException(e);
-                            }
+                        if (courseInterested.isEmpty()) {
+                            tcs.setResult(new ArrayList<>());
+                            return;
                         }
 
-//                        Tool.<CourseFirebase, Course>convertFirebaseListToNormal(courseInterested, new Tool.ConvertToNormalCallback<>() {
-//                            @Override
-//                            public void onAllConverted(ArrayList<Course> normalList) {
-//                                try {
-//                                    callback.onObjectRetrieved(normalList);
-//                                } catch (ParseException | InvocationTargetException |
-//                                         NoSuchMethodException | IllegalAccessException |
-//                                         InstantiationException e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onError(DatabaseError error) {
-//
-//                            }
-//                        });
+                        DatabaseReference courseJoinedRef = FirebaseDatabase.getInstance()
+                                .getReference(FirebaseNode.STUDENT.getPath())
+                                .child(getID())
+                                .child("courseTaken");
+
+                        courseJoinedRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                ArrayList<String> courseExisted = new ArrayList<>();
+
+                                for (DataSnapshot s : snapshot.getChildren()) {
+                                    courseExisted.add(s.getValue(String.class));
+                                }
+
+                                courseInterested.removeIf(cf -> courseExisted.contains(cf.getCourseID()));
+
+                                if (courseInterested.isEmpty()) {
+                                    tcs.setResult(new ArrayList<>());
+                                    return;
+                                }
+
+                                convertCourses(courseInterested, tcs);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                tcs.setException(error.toException());
+                            }
+                        });
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
+                        tcs.setException(error.toException());
                     }
                 });
-
-
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // handle error
+                tcs.setException(error.toException());
             }
         });
+
+        return tcs.getTask();
     }
+    private void convertCourses(ArrayList<CourseFirebase> courseFirebases,
+                                TaskCompletionSource<ArrayList<Course>> tcs) {
+
+        ArrayList<Course> result = new ArrayList<>();
+        int total = courseFirebases.size();
+        final int[] completed = {0};
+
+        for (CourseFirebase cf : courseFirebases) {
+            try {
+                cf.convertToNormal(new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(Course course) {
+                        result.add(course);
+                        completed[0]++;
+
+                        if (completed[0] == total) {
+                            result.removeIf(c -> courseTaken.contains(c));
+                            tcs.setResult(result);
+                        }
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+                        tcs.setException(error.toException());
+                    }
+                });
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
 
     public void submitTask(ArrayList<file>filesSelected, Task task) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         for(file file: filesSelected){
@@ -642,10 +836,11 @@ public class Student extends User implements Serializable, RequireUpdate<Student
             fileNames.add(file.getFileName());
         }
         SubmissionDisplay sd = new SubmissionDisplay(getFullName(), task.getTitle(), task.getTaskOfCourse().getCourseName(), task.getDueDate().toString(), fileNames);
-        Teacher teacher = Await.get(task.getTaskOfCourse()::getTeacher);
-        teacher.addLatestSubmission(sd);
-        uncompletedTask.remove(task);
-
+//            Teacher teacher = Await.get(task.getTaskOfCourse()::getTeacher);
+        task.getTaskOfCourse().getTeacher().addOnSuccessListener(teacher ->{
+            teacher.addLatestSubmission(sd);
+            uncompletedTask.remove(task);
+        });
 
     }
 
@@ -656,3 +851,4 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                 '}';
     }
 }
+

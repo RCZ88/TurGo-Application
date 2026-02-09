@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class Submission implements RequireUpdate<Submission, SubmissionFirebase> {
+public class Submission implements RequireUpdate<Submission, SubmissionFirebase, SubmissionRepository> {
     private final FirebaseNode fbn = FirebaseNode.SUBMISSION;
     private final Class<SubmissionFirebase> fbc = SubmissionFirebase.class;
     private String submission_ID;
@@ -25,7 +25,7 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
     public void addFile(file file){
         LocalDateTime timeOfSubmission = LocalDateTime.now();
         files.put(file, isLate(timeOfSubmission));
-        SubmissionRepository submissionRepository = SubmissionRepository.getInstance(getID());
+        SubmissionRepository submissionRepository = new SubmissionRepository(getID());
         submissionRepository.addFile(file, isLate(timeOfSubmission));
         if(!completed){
             completed = true;
@@ -91,6 +91,10 @@ public class Submission implements RequireUpdate<Submission, SubmissionFirebase>
         return fbc;
     }
 
+    @Override
+    public Class<SubmissionRepository> getRepositoryClass() {
+        return SubmissionRepository.class;
+    }
 
     @Override
     public String getID() {

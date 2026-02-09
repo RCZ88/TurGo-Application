@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +18,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,7 +29,7 @@ public class RC_SelectPaymentConfirm extends Fragment implements checkFragmentCo
     LinearLayout  VL_pwSlot, VL_pmSlot;
     RecyclerView rv_reviewSchedules;
     HashMap<TimeSlot, Integer> lists;
-    static final String viewName = "Confirmation & Payment Selection";
+    static final String viewName = "Checkout";
     TextView tv_ppw, tv_ppm, tv_savePercentage, tv_requestWarning;
     Button btn_sw, btn_sm;
 
@@ -88,56 +88,20 @@ public class RC_SelectPaymentConfirm extends Fragment implements checkFragmentCo
         Course course = rc.getCourse();
         ArrayList<Double>prices = new ArrayList<>();
 
-        RcScheduleAdapter rcScheduleAdapter = new RcScheduleAdapter(timeSlots);
+        RcScheduleAdapter rcScheduleAdapter = new RcScheduleAdapter(timeSlots, false);
         rv_reviewSchedules.setLayoutManager(new LinearLayoutManager(this.getContext(), LinearLayoutManager.HORIZONTAL, false));
         rv_reviewSchedules.setAdapter(rcScheduleAdapter);
         lists = rc.slotAmount;
         if(lists == null){
             lists = new HashMap<>();
         }
-        for(int i = 0; i<lists.size(); i++){
-            prices.add(course.calcPrice(rc.getSq() == ScheduleQuality.PRIVATE_ONLY, timeSlots.get(i).getPersonCount().one, (double) timeSlots.get(i).getTime().getSeconds() /60));
-//            LinearLayout ll = new LinearLayout(getContext());
-//            ll.setOrientation(LinearLayout.VERTICAL);
-//            LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
-//                    ViewGroup.LayoutParams.WRAP_CONTENT, // width
-//                    ViewGroup.LayoutParams.MATCH_PARENT); //height
-//            containerParams.setMargins(8, 0, 8, 0);
-//            ll.setLayoutParams(containerParams);
-//
-//            LinearLayout.LayoutParams textContentParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            textContentParams.setMargins(0, 0, 0, 8);
-//            TextView tv_day = new TextView(getContext()), tv_timeSlot = new TextView(getContext()), tv_peopleAmount = new TextView(getContext());
-//            tv_day.setText(timeSlots.get(i).getDay().toString());
-//            tv_day.setTextSize(18);
-//            tv_day.setTypeface(null, Typeface.BOLD);
-//            tv_day.setLayoutParams(textContentParams);
-//
-//            ll.addView(tv_day);
-//
-//            tv_timeSlot.setText(timeSlots.get(i).toStr());
-//            tv_timeSlot.setTextSize(14);
-//            tv_timeSlot.setLayoutParams(textContentParams);
-//
-//            ll.addView(tv_timeSlot);
-//
-//            LinearLayout pplAmountContainer = new LinearLayout(getContext());
-//
-//            ImageView iv_peopleLogo = new ImageView(getContext());
-//            iv_peopleLogo.setImageResource(R.drawable.user);
-//
-//            tv_peopleAmount.setText(amtPpl.get(i));
-//            tv_peopleAmount.setTextSize(14);
-//
-//            pplAmountContainer.addView(iv_peopleLogo);
-//            pplAmountContainer.addView(tv_peopleAmount);
-//
-//            ll.addView(pplAmountContainer);
-//
-//            LL_tsSlot.addView(ll);
+        if(lists.size() == timeSlots.size()){
+            for(int i = 0; i<lists.size(); i++){
+                prices.add(course.calcPrice(rc.getSq() == ScheduleQuality.PRIVATE_ONLY, timeSlots.get(i).getPersonCount().one, (double) timeSlots.get(i).getTime().getSeconds() /60));
 
-
+            }
         }
+
 
         tv_ppw = view.findViewById(R.id.tv_pricePerWeek);
         tv_ppm = view.findViewById(R.id.tv_PricePerMonth);
@@ -162,15 +126,13 @@ public class RC_SelectPaymentConfirm extends Fragment implements checkFragmentCo
             pwm = false;
             rc.setPaymentPreferences(false);
             rc.setSelectedPrice((int)costPW);
-            VL_pwSlot.setBackgroundColor(Color.parseColor("#FFC107"));
-            VL_pmSlot.setBackgroundColor(Color.parseColor("#63A375"));
+            handlePaymentSelectedUI(VL_pmSlot, btn_sm, VL_pwSlot, btn_sw);
         });
         btn_sw.setOnClickListener(view12 -> {
             pwm = true;
             rc.setPaymentPreferences(true);
             rc.setSelectedPrice((int)costPM);
-            VL_pmSlot.setBackgroundColor(Color.parseColor("#FFC107"));
-            VL_pwSlot.setBackgroundColor(Color.parseColor("#63A375"));
+            handlePaymentSelectedUI(VL_pwSlot, btn_sw, VL_pmSlot, btn_sm);
         });
 
         tv_requestWarning = view.findViewById(R.id.tv_requestWarning);
@@ -180,10 +142,34 @@ public class RC_SelectPaymentConfirm extends Fragment implements checkFragmentCo
             tv_requestWarning.setVisibility(View.VISIBLE);
             tv_requestWarning.setText("This will send a request to the teacher to accept the meeting.");
         }
+        removeSelection(VL_pmSlot, btn_sm);
+        removeSelection(VL_pwSlot, btn_sw);
         // Inflate the layout for this fragment
         return view;
     }
+    @SuppressLint("SetTextI18n")
+    private void handlePaymentSelectedUI(LinearLayout llOn, Button btnOn, LinearLayout llOff, Button btnOff){
+        llOff.setBackgroundResource(R.drawable.bg_emerald_card);
+        llOff.setElevation(4);
+        btnOff.setBackgroundResource(R.drawable.bg_emerald_btn_outlined);
+        btnOff.setTextColor(ContextCompat.getColor(requireContext(), R.color.brand_emerald));
+        btnOff.setText("Select");
 
+        llOn.setBackgroundResource(R.drawable.bg_emerald_card_selected);
+        llOn.setElevation(8);
+        btnOn.setBackgroundResource(R.drawable.bg_emerald_btn_primary);
+        btnOn.setTextColor(ContextCompat.getColor(requireContext(), R.color.white_soft));
+        btnOn.setText("Selected");
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void removeSelection(LinearLayout llOff, Button btnOff){
+        llOff.setBackgroundResource(R.drawable.bg_emerald_card);
+        llOff.setElevation(4);
+        btnOff.setBackgroundResource(R.drawable.bg_emerald_btn_outlined);
+        btnOff.setTextColor(ContextCompat.getColor(requireContext(), R.color.brand_emerald));
+        btnOff.setText("Select");
+    }
     @Override
     public boolean checkIfCompleted() {
         RegisterCourse rc = (RegisterCourse) getActivity();

@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,7 @@ import java.text.ParseException;
  * Use the {@link MeetingDisplay#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MeetingDisplay extends Fragment implements RequiresDataLoading{
+public class MeetingDisplay extends Fragment{
 
     ImageView iv_courseLogo;
     TextView tv_courseTitle, tv_courseTime, tv_courseDateDay;
@@ -62,9 +63,6 @@ public class MeetingDisplay extends Fragment implements RequiresDataLoading{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            onDataLoaded(getArguments());
-        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -73,48 +71,31 @@ public class MeetingDisplay extends Fragment implements RequiresDataLoading{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_meeting_display, container, false);
-        StudentScreen activity = (StudentScreen) getActivity();
 
         iv_courseLogo = view.findViewById(R.id.iv_cdf_CourseIcon);
         tv_courseDateDay = view.findViewById(R.id.tv_mdf_MeetingDates);
         tv_courseTime = view.findViewById(R.id.tv_StartTime);
         tv_courseTitle = view.findViewById(R.id.tv_mdf_CourseTitle);
 
-        assert activity != null;
-        Student student = activity.getStudent();
-        if(student.getNextMeeting() != null){
-            //async - completed
+        Student student = (Student) getArguments().getSerializable(Student.SERIALIZE_KEY_CODE);
 
-            Glide.with(requireContext()).load(course.getLogo()).into(iv_courseLogo);
-            tv_courseTitle.setText(course.getCourseName());
-            tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
-            tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
-
+        if(student == null){
+            Log.e("MeetingDisplay", "Student is Null!");
+            return view;
         }
+        student.getNextMeeting().getMeetingOfSchedule()
+                .continueWithTask(task -> task.getResult().getScheduleOfCourse())
+                .addOnSuccessListener(c ->{
+                    course = c;
+                    if(course != null){
+                        Glide.with(requireContext()).load(course.getLogo()).into(iv_courseLogo);
+                        tv_courseTitle.setText(course.getCourseName());
+                        tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
+                        tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
+                    }
+                });
 
         return view;
     }
 
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
-        Bundle output = new Bundle();
-        Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
-        Schedule schedule = Await.get(student.getNextMeeting()::getMeetingOfSchedule);
-        Course course = Await.get(schedule::getScheduleOfCourse);
-
-        output.putSerializable(Schedule.SERIALIZE_KEY_CODE, schedule);
-        output.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-        return output;
-    }
-
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        course = (Course) preloadedData.getSerializable(Course.SERIALIZE_KEY_CODE);
-        schedule = (Schedule)preloadedData.getSerializable(Schedule.SERIALIZE_KEY_CODE);
-    }
-
-    @Override
-    public void onLoadingError(Exception error) {
-
-    }
 }

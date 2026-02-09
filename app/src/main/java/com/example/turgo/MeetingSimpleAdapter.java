@@ -32,10 +32,7 @@ public class MeetingSimpleAdapter extends RecyclerView.Adapter<ScheduleSimpleVie
     public void onBindViewHolder(@NonNull ScheduleSimpleViewHolder holder, int position) {
         Meeting meeting = meetings.get(position);
         holder.tv_timeRange.setText(meeting.getStartTimeChange().toString() + " - "  + meeting.getEndTimeChange());
-        //asynnc
-        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-        Course course = Await.get(schedule::getScheduleOfCourse);
-        holder.tv_CourseName.setText(course.getCourseName());
+        meeting.getMeetingOfCourse().addOnSuccessListener(course -> holder.tv_CourseName.setText(course.getCourseName()));
     }
 
     @Override

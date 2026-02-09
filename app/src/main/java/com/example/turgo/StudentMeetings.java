@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Use the {@link StudentMeetings#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class StudentMeetings extends Fragment implements RequiresDataLoading {
+public class StudentMeetings extends Fragment {
     RecyclerView rv_futureMeeting, rv_pastMeetings;
     Course course;
     Student student;
@@ -64,7 +64,7 @@ public class StudentMeetings extends Fragment implements RequiresDataLoading {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            onDataLoaded(getArguments());
+            loadItems(getArguments());
         }
     }
 
@@ -86,29 +86,20 @@ public class StudentMeetings extends Fragment implements RequiresDataLoading {
         return view;
     }
 
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback callback) {
-        Student student = (Student) input.getSerializable(Student.SERIALIZE_KEY_CODE);
-        Course course = (Course) input.getSerializable(Course.SERIALIZE_KEY_CODE);
+    private void loadItems(Bundle bundle){
+        Student student = ((StudentScreen)requireActivity()).getStudent();
+        Course course = (Course) bundle.getSerializable(Course.SERIALIZE_KEY_CODE);
 
-        ArrayList<Meeting> meetings=student.getAllMeetingOfCourse(course);
-        ArrayList<Schedule>schedules = meetings.stream().map(meeting->Await.get(meeting::getMeetingOfSchedule)).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Course>courses = schedules.stream().map(schedule->Await.get(schedule::getScheduleOfCourse)).collect(Collectors.toCollection(ArrayList::new));
-        Bundle output = new Bundle();
-        output.putSerializable("Meetings", meetings);
-        output.putSerializable("courses", courses);
-        return output;
+        student.getAllMeetingOfCourse(course).addOnSuccessListener(ms ->{
+            meetings = ms;
+            for(Meeting meeting : meetings){
+                meeting.getMeetingOfSchedule()
+                        .continueWithTask(task -> task.getResult().getScheduleOfCourse())
+                        .addOnSuccessListener(c -> courses.add(c));
+            }
+        });
+
+
     }
 
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        this.courses = (ArrayList<Course>)preloadedData.getSerializable("courses");
-        this.meetings = (ArrayList<Meeting>) preloadedData.getSerializable("Meetings");
-    }
-
-
-    @Override
-    public void onLoadingError(Exception error) {
-
-    }
 }

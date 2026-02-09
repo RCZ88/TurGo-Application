@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseUser currentUser;   
     User userFound;
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
-
 
         if(hasUser()){
             Log.d("FireBase User", "Firebase User Found");
@@ -67,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Auth User", "User Not found!");
 //            tv_userDisplay.setText("Guest");
         }
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ConstraintLayout), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.cl_MA_rootLayout), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;

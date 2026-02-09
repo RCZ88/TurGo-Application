@@ -1,5 +1,8 @@
 package com.example.turgo;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
@@ -8,10 +11,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleFirebase> {
+public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleFirebase, ScheduleRepository> {
     private final FirebaseNode fbn = FirebaseNode.SCHEDULE;
     private final Class<ScheduleFirebase>fbc = ScheduleFirebase.class;
     public final String scheduleID;
@@ -21,20 +26,24 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     private boolean isPrivate;
     private boolean hasScheduled;
     private User scheduler;
+    private String ofCourse;
     private LocalTime meetingStart;
     private LocalTime meetingEnd;
     private int duration;
     private DayOfWeek day;
+    private String room;
+    public ArrayList<String>students;
 
-    public Schedule(LocalTime meetingStart, int duration, DayOfWeek day,  boolean isPrivate){
+    public Schedule(LocalTime meetingStart, int duration, DayOfWeek day,  boolean isPrivate, String ofCourse){
         this.scheduleID = UUID.randomUUID().toString();
         this.meetingStart = meetingStart;
         this.duration = duration;
+        this.ofCourse = ofCourse;
         this.day = day;
         this.meetingEnd = meetingStart.plus(Duration.ofMinutes(duration));
         this.isPrivate = isPrivate;
         this.hasScheduled = false;
-        scheduler = null;
+        this.students = new ArrayList<>();
     }
     public LocalDate getNextMeetingDate(){
         DayOfWeek day = this.day;
@@ -106,12 +115,36 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         }
     }
 
+    public Task<Room> getRoom(){
+        RoomRepository roomRepository = new RoomRepository(room);
+        return roomRepository.loadAsNormal();
+    }
+    public String getRoomId(){
+        return room;
+    }
+
+    public String getOfCourse() {
+        return ofCourse;
+    }
+
+    public void setOfCourse(String ofCourse) {
+        this.ofCourse = ofCourse;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
     public void getScheduleOfCourse(ObjectCallBack<Course> callBack) {
         try {
             findAggregatedObject( Course.class, "schedules", callBack);
         } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(e);
         }
+    }
+    public Task<Course> getScheduleOfCourse(){
+        CourseRepository courseRepository = new CourseRepository(ofCourse);
+        return courseRepository.loadAsNormal();
     }
 
     public int getNumberOfStudents() {
@@ -126,13 +159,26 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         return scheduleID;
     }
 
-    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
-        try {
-            findAllAggregatedObjects(Student.class, "allSchedules", callBack);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
-        }
+    public static void sortSchedule(ArrayList<Schedule> schedules){
+        schedules.sort(Comparator.comparing(Schedule::getDay).thenComparing(Schedule::getMeetingStart));
     }
+
+//    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
+//        try {
+//            findAllAggregatedObjects(Student.class, "allSchedules", callBack);
+//        } catch (IllegalAccessException | InstantiationException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+    public Task<List<Student>>getStudents(){
+        List<Task<Student>> studentTask = new ArrayList<>();
+        for(String studentId : students){
+            StudentRepository studentRepository = new StudentRepository(studentId);
+            studentTask.add(studentRepository.loadAsNormal());
+        }
+        return Tasks.whenAllSuccess(studentTask);
+    }
+
 
 
 
@@ -155,6 +201,11 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<ScheduleRepository> getRepositoryClass() {
+        return ScheduleRepository.class;
     }
 
     @Override

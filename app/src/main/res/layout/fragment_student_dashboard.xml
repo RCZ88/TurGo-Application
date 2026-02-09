@@ -75,7 +75,6 @@
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/fcv_UpcomingClass"
-                    android:name="com.example.turgo.MeetingDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
@@ -102,8 +101,8 @@
                     android:layout_marginTop="8dp"
                     android:background="@color/transparent"
                     android:scaleType="center"
-                    android:tint="@color/brand_emerald"
-                    android:src="@drawable/caret_down" />
+                    android:src="@drawable/caret_down"
+                    app:tint="@color/brand_emerald" />
             </LinearLayout>
 
             <!-- ===================== GRID: MEETINGS + ATTENDANCE ===================== -->
@@ -133,7 +132,7 @@
                         android:letterSpacing="0.01"
                         android:text="Meetings Completed"
                         android:textColor="@color/brand_emerald_dark"
-                        android:textSize="20sp" />
+                        android:textSize="22sp" />
 
                     <TextView
                         android:id="@+id/tv_SD_NoMeetingsCompleted"
@@ -196,8 +195,8 @@
                         android:contentDescription="Scan an Attendance QR Code"
                         android:onClick="attendMeetingScan"
                         android:scaleType="centerInside"
-                        android:tint="@color/white_soft"
-                        android:src="@drawable/qr_scan" />
+                        android:src="@drawable/qr_scan"
+                        app:tint="@color/white_soft" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -249,8 +248,8 @@
                         android:background="@color/transparent"
                         android:contentDescription="Previous Task"
                         android:scaleType="center"
-                        android:tint="@color/brand_emerald"
-                        android:src="@drawable/caret_left" />
+                        android:src="@drawable/caret_left"
+                        app:tint="@color/brand_emerald" />
 
                     <androidx.viewpager2.widget.ViewPager2
                         android:id="@+id/vp2_TasksContainer"
@@ -265,8 +264,8 @@
                         android:background="@color/transparent"
                         android:contentDescription="Next Task"
                         android:scaleType="center"
-                        android:tint="@color/brand_emerald"
-                        android:src="@drawable/caret_right" />
+                        android:src="@drawable/caret_right"
+                        app:tint="@color/brand_emerald" />
                 </LinearLayout>
             </LinearLayout>
 

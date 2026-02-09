@@ -27,7 +27,7 @@ import java.util.HashMap;
  * create an instance of this fragment.
  */
 public class RC_AvailableDayTime extends Fragment implements checkFragmentCompletion {
-    static final String viewName = "Select Schedule Day & Time Slot";
+    static final String viewName = "Select Schedule";
     TextView tv_daysTitle, tv_timeTitle, tv_dayEmpty, tv_timeEmpty, tv_schedulesEmpty;
     RecyclerView rv_listOfDays, rv_listOfTS, rv_scheduleAdded;
     Button btn_add;
@@ -37,7 +37,7 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
     ArrayList<DayOfWeek> daysAlreadySelected;
     SeekBar sb_timeOffset;
     TextView tv_offsetText;
-    final int[] cycleCount = {1};
+    final int[] cycleCount = {0};
     final TimeSlot[] currentSelectedTS = new TimeSlot[1];
     final int[] currentAmtPpl = new int[1];
     final boolean[] selected = {false};
@@ -106,11 +106,13 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
         cycleCount[0] = 1;
 
         selectedTimeSlots = new ArrayList<>();
-        scheduleAdapter = new RcScheduleAdapter(selectedTimeSlots);
+        scheduleAdapter = new RcScheduleAdapter(selectedTimeSlots, true);
         scheduleAdapter.setClickListener(new OnItemClickListener<>() {
             @Override
             public void onItemClick(Integer item) {
                 daysAlreadySelected.remove(scheduleAdapter.getSlots().get(item).getDay());
+                rc.getDowSelected().remove(scheduleAdapter.getSlots().get(item).getDay());
+                Tool.handleEmpty(false, rv_listOfDays, tv_dayEmpty);
                 scheduleAdapter.removeSlot(item);
                 cycleCount[0]--;
                 updateUI();
@@ -123,13 +125,16 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
         });
         rv_scheduleAdded.setAdapter(scheduleAdapter);
 
+
         tv_schedulesEmpty = view.findViewById(R.id.tv_rcad_scheduleSelectedEmpty);
         tv_dayEmpty = view.findViewById(R.id.tv_rcad_dayNotFound);
         tv_timeEmpty = view.findViewById(R.id.tv_rcad_timeListEmpty);
 
         btn_add = view.findViewById(R.id.btn_rsad_AddScheduleTS);
         rc = (RegisterCourse) getActivity();
+
         assert rc != null;
+        rc.slotAmount = new HashMap<>();
         rc.tv_title.setText(viewName);
         daysAlreadySelected = new ArrayList<>();
         tsAmountPeople = new HashMap<>();
@@ -158,10 +163,9 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
                     scheduleAdapter.addSlot(currentSelectedTS[0]);
                     Tool.handleEmpty(scheduleAdapter.getSlots().isEmpty(), rv_scheduleAdded, tv_schedulesEmpty);
 
+                    rc.getSelectedTS().add(currentSelectedTS[0]);
                     cycleCount[0]++;
-                    if(cycleCount[0] == amtPerWeek){
-                        rc.setSelectedTS(scheduleAdapter.getSlots());
-                    }
+
                     daysAlreadySelected.add(currentSelectedDay.getValue());
                     rc.getDowSelected().add(currentSelectedDay.getValue());
                     Log.d("Days Selected", "Days Selected: " + daysAlreadySelected);
@@ -185,7 +189,7 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
             tv_timeEmpty.setText("Selection Complete.");
             tv_dayEmpty.setText("Selection Complete.");
             Tool.handleEmpty(dayAdapter.getDays().isEmpty(), rv_listOfDays, tv_dayEmpty);
-
+            Tool.handleEmpty(true, rv_listOfTS, tv_timeTitle);
             rc.slotAmount = tsAmountPeople;
             return;
         }
@@ -196,7 +200,7 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
         title = "Select Time For Day " + cycleCount[0];
         tv_timeTitle.setText(title);
         Course course = rc.getCourse();
-        ArrayList<DayOfWeek> days = course.filterFullDays(rc.getSq(), rc.getDuration());
+        ArrayList<DayOfWeek> days = course.filterFullDays(rc.getSq(), rc.getDuration(), rc.getDtaAvailable());
         if(!daysAlreadySelected.isEmpty()){
             for(DayOfWeek day : daysAlreadySelected){
                 Log.d("updateUI", "Day Already Selected: " + day.toString());
@@ -204,22 +208,27 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
             }
         }
         Tool.handleEmpty(true, rv_listOfTS, tv_timeEmpty);
-        TimeSlotAdapter tsa = new TimeSlotAdapter(timeSlotsOfShiftMinute, new OnItemClickListener<SelectedIndicatorHelper<TimeSlot>>() {
+        TimeSlotAdapter tsa = new TimeSlotAdapter(timeSlotsOfShiftMinute, new OnItemClickListener<>() {
             @Override
             public void onItemClick(SelectedIndicatorHelper<TimeSlot> item) {
                 currentSelectedTS[0] = item.object;
                 Schedule scheduleOfTS = course.getScheduleFromTimeSlot(item.object);
                 currentAmtPpl[0] = 1;
-                if(scheduleOfTS != null){
+                if (scheduleOfTS != null) {
                     currentAmtPpl[0] = scheduleOfTS.getNumberOfStudents();
                 }
 
                 selected[0] = true;
                 Log.d("TimeSlotAdapter", "Time Slot Selected: " + currentSelectedTS[0]);
-                if(Tool.boolOf(tsvh)){
+                if (Tool.boolOf(tsvh)) {
                     tsvh.updateBackground();
                 }
-                ((TimeSlotViewHolder)item.currentViewHolder).tv_timeSlot.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.tertiary_text));
+                int colorEmerald = ContextCompat.getColor(requireContext(), R.color.brand_emerald);
+                int colorWhite = ContextCompat.getColor(requireContext(), R.color.white_soft);
+                ((TimeSlotViewHolder) item.currentViewHolder).mcv_bg.setCardBackgroundColor(colorEmerald);
+                ((TimeSlotViewHolder) item.currentViewHolder).mcv_bg.setStrokeWidth(0);
+                ((TimeSlotViewHolder) item.currentViewHolder).mcv_bg.setCardElevation(8f);
+                ((TimeSlotViewHolder) item.currentViewHolder).tv_timeSlot.setTextColor(colorWhite);
                 tsvh = (TimeSlotViewHolder) item.currentViewHolder;
             }
 
@@ -236,22 +245,42 @@ public class RC_AvailableDayTime extends Fragment implements checkFragmentComple
             public void onItemClick(SelectedIndicatorHelper<DayOfWeek> item) {
                 Log.d("DayAdapter", "Clicked!");
                 currentSelectedDay.setValue(item.object);
+                // Define Colors
+                int colorEmerald = ContextCompat.getColor(requireContext(), R.color.brand_emerald);
+                int colorWhite = ContextCompat.getColor(requireContext(), R.color.white_soft);
+
+// 1. Reset PREVIOUS Item (dvh) -> Unselected Style (White with Border)
                 if(Tool.boolOf(dvh)){
-                    dvh.tv_Day.setBackgroundColor(ContextCompat.getColor(requireContext(),R.color.surface));
+                    dvh.cardView.setCardBackgroundColor(colorWhite);
+                    dvh.cardView.setStrokeWidth(3); // Restore the border
+                    dvh.tv_Day.setTextColor(colorEmerald); // Text goes back to green
+                    dvh.cardView.setCardElevation(4f); // Lower elevation
                 }
-                ((DayViewHolder) item.currentViewHolder).tv_Day.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.turgo_gray));
+
+// 2. Set CURRENT Item -> Selected Style (Solid Emerald)
+                DayViewHolder currentHolder = (DayViewHolder) item.currentViewHolder;
+
+                currentHolder.cardView.setCardBackgroundColor(colorEmerald);
+                currentHolder.cardView.setStrokeWidth(0); // Remove border for clean filled look
+                currentHolder.tv_Day.setTextColor(colorWhite); // Text becomes white
+                currentHolder.cardView.setCardElevation(12f); // Higher elevation for "Selected" state
+
                 dvh = (DayViewHolder) item.currentViewHolder;
                 Tool.handleEmpty(false, rv_listOfTS, tv_timeEmpty);
                 ArrayList<TimeSlot> ts = rc.getCourse().findFreeSpotOfDay(currentSelectedDay.getValue(), rc.getSq(), rc.getCourse().getMaxStudentPerMeeting(), rc.getDuration());
+                if(ts == null){
+                    ts = new ArrayList<>();
+                }
                 timeSlotsOfShiftMinute = ts;
                 sb_timeOffset.setProgress(0);
                 TimeSlot.filterTimesOfIncrement(ts, 0);
                 handleTimeListChange(ts, tsa, 0);
+                ArrayList<TimeSlot> finalTs = ts;
                 sb_timeOffset.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                        handleTimeListChange(ts, tsa, progress);
+                        handleTimeListChange(finalTs, tsa, progress);
                     }
 
                     @Override

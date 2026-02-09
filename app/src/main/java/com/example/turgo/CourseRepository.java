@@ -6,35 +6,26 @@ import com.google.firebase.database.ServerValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CourseRepository {
-    private static CourseRepository instance;
+public class CourseRepository implements RepositoryClass<Course, CourseFirebase>{
     private DatabaseReference courseRef;
 
-    public static CourseRepository getInstance(String courseId) {
-        if (instance == null) {
-            instance = new CourseRepository(courseId);
-        }
-        return instance;
-    }
-
-    private CourseRepository(String courseId) {
+    public CourseRepository(String courseId) {
         courseRef = FirebaseDatabase.getInstance()
                 .getReference(FirebaseNode.COURSE.getPath())
                 .child(courseId);
     }
 
-    public void save(Course object) {
-        try {
-            CourseFirebase firebaseObj = object.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(object);
-            courseRef.setValue(firebaseObj);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to save Course", e);
-        }
+    @Override
+    public DatabaseReference getDbReference() {
+
+        return courseRef;
     }
-    public void delete() {
-        courseRef.removeValue();
+
+    @Override
+    public Class<CourseFirebase> getFbClass() {
+        return CourseFirebase.class;
     }
+
 
     public void updateLogoCloudinary(String newLogoCloudinary) {
         courseRef.child("logoCloudinary").setValue(newLogoCloudinary);
@@ -81,23 +72,14 @@ public class CourseRepository {
     }
 
     public void addImagesCloudinary(String item) {
-        courseRef.child("imagesCloudinary").push().setValue(item);
+        addStringToArray("imagesCloudinary", item);
     }
 
     public void removeImagesCloudinary(String itemId) {
-        courseRef.child("imagesCloudinary").child(itemId).removeValue();
+        removeStringFromArray("imagesCloudinary", itemId);
     }
-
-    public void addPaymentPer(boolean item) {
-        courseRef.child("paymentPer").push().setValue(item);
-    }
-
     public void updatePaymentPerAtIndex(int index, boolean value) {
         courseRef.child("paymentPer").child(String.valueOf(index)).setValue(value);
-    }
-
-    public void addPrivateGroup(boolean item) {
-        courseRef.child("privateGroup").push().setValue(item);
     }
 
     public void updatePrivateGroupAtIndex(int index, boolean value) {
@@ -105,27 +87,14 @@ public class CourseRepository {
     }
 
     /**
-     * Adds a DayTimeArrangement to this Course.
-     * Saves the full DayTimeArrangement object to its Firebase path and stores only the ID reference here.
+     * Adds a DayTimeArrangement ID reference to this Course.
      */
     public void addDayTimeArrangement(DayTimeArrangement item) {
-        try {
-            DTAFirebase firebaseObj = item.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(item);
-
-            FirebaseDatabase.getInstance()
-                    .getReference(item.getFirebaseNode().getPath())
-                    .child(item.getID())
-                    .setValue(firebaseObj);
-
-            courseRef.child("dayTimeArrangement").push().setValue(item.getID());
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to add DayTimeArrangement", e);
-        }
+        addStringToArray("dayTimeArrangement", item.getID());
     }
 
     public void removeDayTimeArrangement(String itemId) {
-        courseRef.child("dayTimeArrangement").child(itemId).removeValue();
+        removeStringFromArray("dayTimeArrangement", itemId);
     }
 
     public void removeDayTimeArrangementCompletely(DayTimeArrangement item) {
@@ -137,27 +106,29 @@ public class CourseRepository {
     }
 
     /**
-     * Adds a Schedule to this Course.
-     * Saves the full Schedule object to its Firebase path and stores only the ID reference here.
+     * Adds a Student ID reference to this Course.
+     */
+    public void addStudent(Student student) {
+        addStringToArray("students", student.getID());
+    }
+
+    /**
+     * Removes a Student ID reference from this Course.
+     */
+    public void removeStudent(String studentId) {
+        removeStringFromArray("students", studentId);
+    }
+
+
+    /**
+     * Adds a Schedule ID reference to this Course.
      */
     public void addSchedule(Schedule item) {
-        try {
-            ScheduleFirebase firebaseObj = item.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(item);
-
-            FirebaseDatabase.getInstance()
-                    .getReference(item.getFirebaseNode().getPath())
-                    .child(item.getID())
-                    .setValue(firebaseObj);
-
-            courseRef.child("schedules").push().setValue(item.getID());
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to add Schedule", e);
-        }
+        addStringToArray("schedules", item.scheduleID);
     }
 
     public void removeSchedule(String itemId) {
-        courseRef.child("schedules").child(itemId).removeValue();
+        removeStringFromArray("schedules", itemId);
     }
 
     public void removeScheduleCompletely(Schedule item) {
@@ -169,27 +140,14 @@ public class CourseRepository {
     }
 
     /**
-     * Adds an Agenda to this Course.
-     * Saves the full Agenda object to its Firebase path and stores only the ID reference here.
+     * Adds an Agenda ID reference to this Course.
      */
     public void addAgenda(Agenda item) {
-        try {
-            AgendaFirebase firebaseObj = item.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(item);
-
-            FirebaseDatabase.getInstance()
-                    .getReference(item.getFirebaseNode().getPath())
-                    .child(item.getID())
-                    .setValue(firebaseObj);
-
-            courseRef.child("agendas").push().setValue(item.getID());
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to add Agenda", e);
-        }
+        addStringToArray("agendas", item.getID());
     }
 
     public void removeAgenda(String itemId) {
-        courseRef.child("agendas").child(itemId).removeValue();
+        removeStringFromArray("agendas", itemId);
     }
 
     public void removeAgendaCompletely(Agenda item) {
@@ -201,27 +159,14 @@ public class CourseRepository {
     }
 
     /**
-     * Adds a StudentCourse to this Course.
-     * Saves the full StudentCourse object to its Firebase path and stores only the ID reference here.
+     * Adds a StudentCourse ID reference to this Course.
      */
     public void addStudentCourse(StudentCourse item) {
-        try {
-            StudentCourseFirebase firebaseObj = item.getFirebaseClass().newInstance();
-            firebaseObj.importObjectData(item);
-
-            FirebaseDatabase.getInstance()
-                    .getReference(item.getFirebaseNode().getPath())
-                    .child(item.getID())
-                    .setValue(firebaseObj);
-
-            courseRef.child("studentsCourse").push().setValue(item.getID());
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException("Failed to add StudentCourse", e);
-        }
+        addStringToArray("studentsCourse", item.getID());
     }
 
     public void removeStudentCourse(String itemId) {
-        courseRef.child("studentsCourse").child(itemId).removeValue();
+        removeStringFromArray("studentsCourse", itemId);
     }
 
     public void removeStudentCourseCompletely(StudentCourse item) {
@@ -234,12 +179,29 @@ public class CourseRepository {
 
     /**
      * Updates multiple fields atomically with a lastModified timestamp.
+     * Only allows primitive-safe values and strings.
      */
     public void updateMultipleFields(Map<String, Object> updates) {
         Map<String, Object> childUpdates = new HashMap<>();
+
         for (Map.Entry<String, Object> entry : updates.entrySet()) {
-            childUpdates.put(entry.getKey(), entry.getValue());
+            Object value = entry.getValue();
+
+            if (value instanceof String ||
+                    value instanceof Integer ||
+                    value instanceof Double ||
+                    value instanceof Boolean ||
+                    value instanceof Long) {
+
+                childUpdates.put(entry.getKey(), value);
+
+            } else {
+                throw new IllegalArgumentException(
+                        "Invalid value type for Firebase: " + value.getClass().getSimpleName()
+                );
+            }
         }
+
         childUpdates.put("lastModified", ServerValue.TIMESTAMP);
         courseRef.updateChildren(childUpdates);
     }

@@ -68,7 +68,12 @@ public abstract class User implements Serializable{
         SERIALIZE_KEY_CODE = serializeKeyCode;
     }
 
-    public User(){}
+    public User(){
+        this.inbox = new ArrayList<>();
+        this.outbox = new ArrayList<>();
+        this.draftMails = new ArrayList<>();
+        this.notifications = new ArrayList<>();
+    }
     public UserStatus getUserStatus(){
         return UserPresenceManager.getUserStatus(this);
     }
@@ -234,10 +239,10 @@ public abstract class User implements Serializable{
     public static void sendMail(Mail mail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         User to = mail.getTo();
         to.inbox.add(mail);
+        ((UserRepositoryClass)(((RequireUpdate)to).getRepositoryClass().newInstance())).recieveMail(mail);
         User from = mail.getFrom();
         from.outbox.add(mail);
-        to.updateUserDB();
-        from.updateUserDB();
+        ((UserRepositoryClass)(((RequireUpdate)from).getRepositoryClass().newInstance())).sendMail(mail);
     }
 
 

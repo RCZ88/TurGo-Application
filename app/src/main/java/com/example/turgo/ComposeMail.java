@@ -213,10 +213,13 @@ public class ComposeMail extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     ArrayList<User>matchedUsers = new ArrayList<>();
                     for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        User user = dataSnapshot.getValue(User.class);
-                        if(user!= null){
-                            matchedUsers.add(user);
+                        if(dataSnapshot.getValue() instanceof TeacherFirebase || dataSnapshot.getValue() instanceof StudentFirebase){
+                            User user = (User) dataSnapshot.getValue();
+                            if(user!= null){
+                                matchedUsers.add(user);
+                            }
                         }
+
                     }
                     listener.onUsersResult(matchedUsers);
                 }
@@ -250,10 +253,13 @@ public class ComposeMail extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        User user = dataSnapshot.getValue(User.class);
-                        if(user!= null){
-                            users.add(user);
+                        if(dataSnapshot.getValue() instanceof TeacherFirebase || dataSnapshot.getValue() instanceof StudentFirebase){
+                            User user = (User) dataSnapshot.getValue();
+                            if(user!= null){
+                                users.add(user);
+                            }
                         }
+
                     }
                 }
 

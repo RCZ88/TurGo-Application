@@ -8,7 +8,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class StudentCourse implements Serializable, RequireUpdate<StudentCourse, StudentCourseFirebase> {
+public class StudentCourse implements Serializable, RequireUpdate<StudentCourse, StudentCourseFirebase, StudentCourseRepository> {
     private final FirebaseNode fbn = FirebaseNode.STUDENTCOURSE;
     private final Class<StudentCourseFirebase>fbc = StudentCourseFirebase.class;
     private final String sc_ID;
@@ -30,9 +30,9 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         sc_ID = UUID.randomUUID().toString();
     }
     public void assignTask(Task task){
-        getStudent(new ObjectCallBack<Student>() {
+        getStudent(new ObjectCallBack<>() {
             @Override
-            public void onObjectRetrieved(Student object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+            public void onObjectRetrieved(Student object) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                 object.assignTask(task);
                 tasks.add(task);
             }
@@ -44,7 +44,7 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         });
     }
     public void assignAgenda(Agenda agenda) throws IllegalAccessException, InstantiationException {
-        StudentCourseRepository studentCourseRepository = StudentCourseRepository.getInstance(getID());
+        StudentCourseRepository studentCourseRepository = new StudentCourseRepository(getID());
 
         agendas.add(agenda);
         studentCourseRepository.addAgenda(agenda);
@@ -52,8 +52,9 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
             @Override
             public void onObjectRetrieved(Student object) throws IllegalAccessException, InstantiationException {
                 object.addAgenda(agenda);
-                StudentRepository studentRepository = StudentRepository.getInstance(object.getID());
+                StudentRepository studentRepository = new StudentRepository(object.getID());
                 studentCourseRepository.addAgenda(agenda);
+                studentRepository.addAllAgenda(agenda);
             }
 
             @Override
@@ -160,4 +161,10 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
     public String getID() {
         return sc_ID;
     }
+
+    @Override
+    public Class<StudentCourseRepository> getRepositoryClass() {
+        return StudentCourseRepository.class;
+    }
+
 }

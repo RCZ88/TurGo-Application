@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
-public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotFirebase> {
+public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotFirebase, TimeSlotRepository> {
     private final String timeSlotId;
     private DayOfWeek day;
     private LocalTime start;
@@ -34,7 +34,7 @@ public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotF
         this.day = day;
         this.start = start;
         this.end = end;
-        this.time = Duration.ofMinutes(Math.abs(end.minusMinutes(start.getMinute()).getMinute()));
+        this.time = Duration.ofMinutes(Duration.between(start, end).toMinutes());
         Log.d("TimeSlot", "Duration: "+ this.time);
         this.minuteIncrement = minuteIncrement;
     }
@@ -138,6 +138,11 @@ public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotF
     @Override
     public FirebaseNode getFirebaseNode() {
         return FirebaseNode.TIME_SLOT;
+    }
+
+    @Override
+    public Class<TimeSlotRepository> getRepositoryClass() {
+        return TimeSlotRepository.class;
     }
 
     @Override

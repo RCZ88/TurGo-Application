@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFirebase>{
+public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFirebase, MailRepository>{
     private ArrayList<Schedule> schedules;
     private Course course;
     private String reasonForJoining;
@@ -21,9 +21,11 @@ public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFir
         this.school = school;
         this.grade = grade;
         super.setHeader("Course Application Request - " + from);
-        Teacher teacher = Await.get(cb -> course.getTeacher(cb));
-        String body = "Dear " +teacher.getNickname() +", \nI hope this message finds you well.\nMy name is" + from.getNickname() + " and I am currently a student at" + school + ", in " + grade + ". I am interested in joining your course and would like to express my enthusiasm for the opportunity.";
-        super.setBody(body);
+        course.getTeacher().addOnSuccessListener(teacher ->{
+            String body = "Dear " +teacher.getNickname() +", \nI hope this message finds you well.\nMy name is" + from.getNickname() + " and I am currently a student at" + school + ", in " + grade + ". I am interested in joining your course and would like to express my enthusiasm for the opportunity.";
+            super.setBody(body);
+        });
+
     }
 
     public ArrayList<Schedule> getSchedules() {
@@ -88,5 +90,10 @@ public class MailApplyCourse extends Mail implements RequireUpdate<Mail, MailFir
     @Override
     public FirebaseNode getFirebaseNode() {
         return FirebaseNode.MAIL_APPLY_COURSE;
+    }
+
+    @Override
+    public Class<MailRepository> getRepositoryClass() {
+        return MailRepository.class;
     }
 }

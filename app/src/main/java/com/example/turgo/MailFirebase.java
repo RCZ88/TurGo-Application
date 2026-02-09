@@ -15,6 +15,7 @@ public class MailFirebase implements FirebaseClass<Mail> {
     private String body;
     private boolean opened;
 
+    public MailFirebase(){}
 
     public String getPreview(){
         return body.substring(0, 30);

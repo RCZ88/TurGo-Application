@@ -34,16 +34,34 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull CourseTeachersViewHolder holder, int position) {
-        //async - completed
-        Meeting nextMeetingOfNextSchedule = meetings.get(position);
+        // Handle null/empty courses list
+        if (courses == null || position >= courses.size() || courses.get(position) == null) {
+            holder.tv_courseName.setText("No course");
+            holder.tv_numberOfStudents.setText("0 Student(s)");
+            holder.tv_nextSchedule.setText("-");
+            return;
+        }
+
+        Course course = courses.get(position);
+        holder.tv_courseName.setText(course.getCourseName() != null ? course.getCourseName() : "Unnamed Course");
+
+        // Handle student count safely
+        String studentCountText = "0 Student(s)";
+        if (studentCountOfCourse != null && position < studentCountOfCourse.size()) {
+            Integer count = studentCountOfCourse.get(position);
+            studentCountText = (count != null ? count : 0) + " Student(s)";
+        }
+        holder.tv_numberOfStudents.setText(studentCountText);
+
+        // Handle meetings/schedule safely
         String nextMeeting = "-";
-        if(nextMeetingOfNextSchedule != null){
-            nextMeeting = nextMeetingOfNextSchedule.getDateOfMeeting().toString();
+        if (meetings != null && position < meetings.size()) {
+            Meeting nextMeetingOfNextSchedule = meetings.get(position);
+            if (nextMeetingOfNextSchedule != null && nextMeetingOfNextSchedule.getDateOfMeeting() != null) {
+                nextMeeting = nextMeetingOfNextSchedule.getDateOfMeeting().toString();
+            }
         }
         holder.tv_nextSchedule.setText(nextMeeting);
-        Course course = courses.get(position);
-        holder.tv_courseName.setText(course.getCourseName());
-        holder.tv_numberOfStudents.setText(studentCountOfCourse.get(position) + " Student(s)");
     }
 
     @Override

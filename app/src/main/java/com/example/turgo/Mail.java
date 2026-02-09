@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class Mail implements RequireUpdate<Mail, MailFirebase>, Serializable {
+public class Mail implements RequireUpdate<Mail, MailFirebase, MailRepository>, Serializable {
     private final String mailID;
     private final FirebaseNode fbn = FirebaseNode.MAIL;
     public static final String SERIALIZE_KEY_CODE = "mailObj";
@@ -49,6 +49,11 @@ public class Mail implements RequireUpdate<Mail, MailFirebase>, Serializable {
     @Override
     public String getID() {
         return mailID;
+    }
+
+    @Override
+    public Class<MailRepository> getRepositoryClass() {
+        return MailRepository.class;
     }
 
     public String getMailID() {

@@ -11,10 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
     private final ArrayList<Course>courses;
+    private static final DateTimeFormatter MEETING_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("MMM d, yyyy");
     protected OnItemClickListener<Course> listener;
     private ArrayList<Teacher> teachers;
     private Context context;
@@ -39,7 +42,7 @@ public class CourseAdapter extends RecyclerView.Adapter<CourseViewHolder>{
     public void onBindViewHolder(@NonNull CourseViewHolder holder, int position) {
         LocalDate closestMeeting = student.getClosestMeetingOfCourse(courses.get(position));
         if(closestMeeting != null){
-            holder.tv_nextMeeting.setText(closestMeeting.toString());
+            holder.tv_nextMeeting.setText(closestMeeting.format(MEETING_DATE_FORMAT));
         }else{
             holder.tv_nextMeeting.setText("No Meeting Found!");
         }

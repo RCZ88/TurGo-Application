@@ -148,30 +148,24 @@ public class TeacherCreateTask extends Fragment {
         });
         if(courseSelected[0] != null){
             final ArrayList<Student>[] studentsOfCourse = new ArrayList[]{new ArrayList<>()};
-            Tool.run(requireActivity(), "Loading Student of Course Selected",
-                    ()->{
-                        studentsOfCourse[0] = Await.get(courseSelected[0]::getStudents);
-                    },
-                    ()->{
-                        if(studentsOfCourse[0] != null){
-                            sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, studentsOfCourse[0]));
-                            sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            courseSelected[0].getStudents().addOnSuccessListener(students ->{
+                studentsOfCourse[0] = (ArrayList<Student>) students;
+                if(studentsOfCourse[0] != null){
+                    sp_studentSelect.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, studentsOfCourse[0]));
+                    sp_studentSelect.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-                                @Override
-                                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                                    studentSelected[0] = (Student)parent.getSelectedItem();
-                                }
-
-                                @Override
-                                public void onNothingSelected(AdapterView<?> parent) {
-
-                                }
-                            });
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            studentSelected[0] = (Student)parent.getSelectedItem();
                         }
-                    },
-                    e ->{
 
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+
+                        }
                     });
+                }
+            });
         }else{
             sp_studentSelect.setEnabled(false);
         }
@@ -205,23 +199,19 @@ public class TeacherCreateTask extends Fragment {
                 //async - completed
                 AtomicReference<Task> task = new AtomicReference<>();
                 Course finalCourse = course;
-                Tool.run(requireActivity(), "Loading Tasks",
-                        ()->{
-                            task.set(new Task(taskTitle, taskDescription, submissionDate, finalCourse, null, teacher, cb_openDropbox.isChecked()));
-                        },
-                        ()->{
-                            for(Student s : studentSelectedList){
-                                try {
-                                    s.assignTask(task.get());
-                                } catch (InvocationTargetException | NoSuchMethodException |
-                                         IllegalAccessException | java.lang.InstantiationException e) {
-                                    throw new RuntimeException(e);
-                                }
+                task.set(new Task(taskTitle, taskDescription, submissionDate, finalCourse, null, teacher));
+                if(cb_openDropbox.isChecked()){
+                    task.get().enableDropbox().addOnSuccessListener(nothing ->{
+                        for(Student s : studentSelectedList){
+                            try {
+                                s.assignTask(task.get());
+                            } catch (InvocationTargetException | NoSuchMethodException |
+                                     IllegalAccessException | java.lang.InstantiationException e) {
+                                throw new RuntimeException(e);
                             }
-                        },
-                        e->{
-
-                        });
+                        }
+                    });
+                }
 
 
             }else{

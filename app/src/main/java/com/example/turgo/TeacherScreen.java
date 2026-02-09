@@ -2,6 +2,8 @@ package com.example.turgo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -9,14 +11,20 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.TextView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.turgo.databinding.ActivityTeacherScreenBinding;
@@ -34,19 +42,23 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 public class TeacherScreen extends AppCompatActivity {
+
     private Teacher teacher;
     private ActivityTeacherScreenBinding binding;
+
     private MailSmallAdapter mailSmallAdapter;
     private NotifAdapter notifAdapter;
+
     private ArrayList<NotificationFirebase> notifs = new ArrayList<>();
     private ArrayList<Mail> inbox = new ArrayList<>();
+
     private Toolbar topAppBar;
-    private TextView tv_mailEmpty, tv_notifEmpty;
+    private LinearLayout ll_mailEmpty, ll_notifEmpty;
     private PopupWindow mailPopupWindow, notifPopupWindow;
-    private boolean inLoading = false;
-    RecyclerView rv_MailDropDown, rv_NotifDropdown;
-    BottomNavigationView bottomNav;
-    FirebaseUser fbUser;
+    private RecyclerView rv_MailDropDown, rv_NotifDropdown;
+    private ImageButton notifFullPage;
+    private BottomNavigationView bottomNav;
+    private FirebaseUser fbUser;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -54,256 +66,211 @@ public class TeacherScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = ActivityTeacherScreenBinding.inflate(getLayoutInflater());
-        setContentView(R.layout.activity_teacher_screen);
+        EdgeToEdge.enable(this);
+        setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         topAppBar = findViewById(R.id.tb_ts_topAppBar);
-        Log.d("TeacherScreen", "topAppBar found: " + (topAppBar != null));
+        ll_mailEmpty = findViewById(R.id.ll_MDD_EmptyState);
+        ll_notifEmpty = findViewById(R.id.ll_NDD_EmptyState);
+        bottomNav = findViewById(R.id.nv_ts_BottomNavigation);
 
-        tv_mailEmpty = findViewById(R.id.tv_MDD_MailEmpty);
-        tv_notifEmpty = findViewById(R.id.tv_NDD_NotifEmpty);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        fbUser = auth.getCurrentUser();
 
-        findViewById(android.R.id.content)
-                .getViewTreeObserver()
-                .addOnGlobalLayoutListener(() -> {
-                    View container = findViewById(R.id.nhf_ts_FragmentContainer);
-                    Log.d("LAYOUT", "Container real size: " +
-                            container.getWidth() + " × " + container.getHeight());
-                });
+        Teacher dummy = new Teacher();
+        dummy.setUserType(UserType.TEACHER);
 
-        Class<? extends RequiresDataLoading> fragmentToLoad = (Class<? extends RequiresDataLoading>)getIntent().getSerializableExtra("FragmentToLoad");
-        Bundle bundleExtra = getIntent().getExtras();
-        if(fragmentToLoad != null && bundleExtra != null){
-            teacher = (Teacher) getIntent().getSerializableExtra("FullUserObject");
-            prepareActivityUI();
-            navigateToFragment(fragmentToLoad, bundleExtra);
-        }else{
-
-            if(!Tool.boolOf(teacher)){
-                Teacher dummy = new Teacher();
-                dummy.setUserType(UserType.TEACHER);
-                Log.d("TeacherScreen", "Teacher Obj" + dummy);
-
-
-                Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
-                    @Override
-                    public void onObjectRetrieved(User object) {
-                        teacher = (Teacher) object;
-                        if (teacher != null) {
-                            loadDashboard();
-                        } else {
-                            Log.e("TeacherScreen", "Error converting teacher");
-                        }
-                    }
-
-
-                    @Override
-                    public void onError(DatabaseError error) {
-                        Log.e("TeacherScreen", "Error converting teacher: " + error.getMessage());
-                    }
-                });
-            }
-        }
-
-
-
-    }
-    private void prepareActivityUI(){
-        Log.d("TeacherScreen", "Teacher: " + teacher);
-        runOnUiThread(() -> {
-            try {
-                initializeUI();
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                fbUser = auth.getCurrentUser();
-                Log.d("TeacherScreen", "fbUser: " + (fbUser != null ? fbUser.getUid() : "NULL"));
-
-                prepareObjects();
-
-                if (teacher != null && fbUser != null) {
-                    UserPresenceManager.startTracking(fbUser.getUid());
-                    Log.d("TeacherScreen", "Started tracking user presence");
+        Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(User object) {
+                teacher = (Teacher) object;
+                if (teacher != null) {
+                    prepareActivityUI();
+                    loadDashboard();
+                } else {
+                    Log.e("TeacherScreen", "Teacher conversion failed");
                 }
-                
-                Log.d("TeacherScreen", "========== initializeUI END ==========");
-            }catch(Exception e){
+            }
 
-
+            @Override
+            public void onError(DatabaseError error) {
+                Log.e("TeacherScreen", "Error retrieving teacher: " + error.getMessage());
             }
         });
     }
-    private void loadDashboard(){
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Teacher.SERIALIZE_KEY_CODE, teacher);
-        DataLoading.loadAndNavigate(this, TeacherDashboard.class, bundle, true, this.getClass(), teacher);
-    }
-    private int getMenuIdForFragment(String fragmentClassName) {
-        String className = fragmentClassName.substring(fragmentClassName.lastIndexOf(".") + 1);
-        switch (className) {
-            case "Student_Dashboard": return R.id.dest_studentDashboard;
-            case "student_ExploreCourse": return R.id.dest_studentExploreCourses;
-            case "Student_MyCourses": return R.id.dest_studentMyCourses;
-            case "Student_TaskList": return R.id.dest_studentTaskList;
-            case "Profile": return R.id.dest_studentProfile;
-            default: return -1;
+
+    private void prepareActivityUI() {
+        initializeUI();
+        prepareObjects();
+
+        if (teacher != null && fbUser != null) {
+            UserPresenceManager.startTracking(fbUser.getUid());
         }
     }
 
-    private void navigateToFragment(Class<? extends RequiresDataLoading>fragmentClass, Bundle bundle){
-        try {
-            Fragment fragment = (Fragment) fragmentClass.newInstance();
-            if(bundle != null){
-                fragment.setArguments(bundle);
-            }
-            int menuId = getMenuIdForFragment(fragmentClass.getSimpleName());
-            if(menuId != -1){
-                inLoading = true;
-                bottomNav.setSelectedItemId(menuId);
+    private void loadDashboard() {
+        Tool.loadFragment(this, getContainerId(), new TeacherDashboard());
+    }
 
-            }
-            Tool.loadFragment(this, R.id.nhf_ss_FragContainer, fragment);
-            inLoading = false;
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
+    private void initializeUI() {
+        setSupportActionBar(topAppBar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(teacher.getFullName());
         }
 
+        setupBottomNavigation(bottomNav);
     }
+
+    private void setupBottomNavigation(BottomNavigationView bnv) {
+        bnv.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.dest_teacherDashboard) {
+                loadDashboard();
+                return true;
+            }
+            if (itemId == R.id.dest_teacherAllCourse) {
+                Tool.loadFragment(this, getContainerId(), new TeacherAllCourse());
+                return true;
+            }
+            if (itemId == R.id.dest_teacherCreateTask) {
+                Tool.loadFragment(this, getContainerId(), new TeacherCreateTask());
+                return true;
+            }
+            return false;
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.topbar_user_menu, menu);
         return true;
     }
 
-    private void initializeUI() {
-        Log.d("TeacherScreen", "========== initializeUI START ==========");
-        Log.d("TeacherScreen", "Teacher: " + (teacher != null ? teacher.getFullName() : "NULL"));
-
-        // Setup TOP BAR
-        topAppBar = findViewById(R.id.tb_ts_topAppBar);
-        Log.d("TeacherScreen", "topAppBar found: " + (topAppBar != null));
-
-        tv_mailEmpty = findViewById(R.id.tv_MDD_MailEmpty);
-        tv_notifEmpty = findViewById(R.id.tv_NDD_NotifEmpty);
-
-
-        setSupportActionBar(topAppBar);
-        Log.d("TeacherScreen", "setSupportActionBar done");
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(teacher.getFullName());
-            Log.d("TeacherScreen", "ActionBar title set to: " + teacher.getFullName());
-        } else {
-            Log.e("TeacherScreen", "getSupportActionBar() returned NULL!");
-        }
-
-        // Setup BOTTOM BAR NAVIGATION
-        bottomNav = findViewById(R.id.nv_ts_BottomNavigation);
-        Log.d("TeacherScreen", "navView found: " + (bottomNav != null));
-
-        setupBottomNavigation(bottomNav);
-
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
     }
 
-    private void setupBottomNavigation(BottomNavigationView bnv){
-        bnv.setOnItemSelectedListener(item ->{
-            if(inLoading){
-                return true;
-            }
-            int itemId = item.getItemId();
-            if(itemId == R.id.dest_teacherDashboard){
-                loadDashboard();
-                return true;
-            }
-            if(itemId == R.id.dest_teacherAllCourse){
-                Tool.loadFragment(this, R.id.nhf_ts_FragmentContainer, new TeacherAllCourse());
-                return true;
-            }
-            if(itemId == R.id.dest_teacherCreateTask){
-                Tool.loadFragment(this, R.id.nhf_ts_FragmentContainer, new TeacherCreateTask());
-            }
-            return false;
-        });
-    }
-    @Override
+    @SuppressLint("MissingInflatedId")
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
+        Log.d("TeacherScreen", "Item Clicked: (" + itemId + ")");
 
         if (itemId == R.id.action_mail) {
-            // Close notifications popup if open
+            // Close notifications if open
             if (notifPopupWindow != null && notifPopupWindow.isShowing()) {
+                Log.d("TeacherScreen", "(MAIL) Closing notif popup");
                 notifPopupWindow.dismiss();
             }
 
             // Toggle mail popup
             if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
+                Log.d("TeacherScreen", "(MAIL) Closing mail popup");
                 mailPopupWindow.dismiss();
-                return true; // Handled
+                return true;
             }
 
-            // Create and show mail popup
-            View popDownView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
-            rv_MailDropDown = popDownView.findViewById(R.id.rv_MailDropDown);
+            // Create mail popup ✅ FIXED SIZING
+            View mailView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
+            rv_MailDropDown = mailView.findViewById(R.id.rv_MailDropDown);
             mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, false);
+            rv_MailDropDown.setLayoutManager(new LinearLayoutManager(this));
             rv_MailDropDown.setAdapter(mailSmallAdapter);
 
-            mailPopupWindow = new PopupWindow(popDownView,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
 
-            View anchor = findViewById(R.id.action_mail);
-            if (anchor != null) {
-                mailPopupWindow.showAsDropDown(anchor, -50, 10);
-            } else {
-                Log.e("Dropdown Error", "No Anchor Found!(Null)");
-            }
 
-            Button seeAll = popDownView.findViewById(R.id.btn_ViewAllMail);
-            seeAll.setOnClickListener(view1 -> {
-                Intent intent = new Intent(TeacherScreen.this, MailPageFull.class);
-                startActivity(intent);
-            });
+            LinearLayout ll_mailEmpty = mailView.findViewById(R.id.ll_MDD_EmptyState);
+            Tool.handleEmpty(inbox.isEmpty(), rv_MailDropDown, ll_mailEmpty);
 
-            return true; // Handled
+            mailPopupWindow = createPopupWindow(mailView, R.id.action_mail, "Mail");
+            setupMailSeeAll(mailView);
 
         } else if (itemId == R.id.action_notifications) {
-            // Close mail popup if open
+            // Close mail if open
             if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
+                Log.d("TeacherScreen", "(NOTIF) Closing mail popup");
                 mailPopupWindow.dismiss();
             }
 
             // Toggle notif popup
             if (notifPopupWindow != null && notifPopupWindow.isShowing()) {
+                Log.d("TeacherScreen", "(NOTIF) Closing notif popup");
                 notifPopupWindow.dismiss();
-                return true; // Handled
+                return true;
             }
 
-            // Create and show notifications popup
-            View popDownView = getLayoutInflater().inflate(R.layout.notification_drop_down, null);
-            rv_NotifDropdown = popDownView.findViewById(R.id.rv_NotifDropDown);
+            // Create notif popup ✅ FIXED SIZING
+            View notifView = getLayoutInflater().inflate(R.layout.notification_drop_down, null);
+            rv_NotifDropdown = notifView.findViewById(R.id.rv_NotifDropDown);
             notifAdapter = new NotifAdapter(notifs);
+            rv_NotifDropdown.setLayoutManager(new LinearLayoutManager(this));
             rv_NotifDropdown.setAdapter(notifAdapter);
 
-            notifPopupWindow = new PopupWindow(popDownView,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT);
 
-            View anchor = findViewById(R.id.action_notifications);
-            if (anchor != null) {
-                notifPopupWindow.showAsDropDown(anchor, -50, 10);
-            } else {
-                Log.e("Dropdown Error", "No Anchor Found!");
-            }
+            notifFullPage = notifView.findViewById(R.id.ib_NotifViewAll);
+            notifFullPage.setOnClickListener(v -> {
+                Intent intent = new Intent(TeacherScreen.this, NotifPageFull.class);
+            });
+            LinearLayout ll_notifEmpty = notifView.findViewById(R.id.ll_NDD_EmptyState);
+            Tool.handleEmpty(notifs.isEmpty(), rv_NotifDropdown, ll_notifEmpty);
 
-            return true; // Handled
+            notifPopupWindow = createPopupWindow(notifView, R.id.action_notifications, "Notifications");
 
         } else if (itemId == R.id.action_signOut) {
-            // Dismiss any open popups
+            Log.d("TeacherScreen", "(SIGNOUT) Sign out clicked");
             dismissPopups();
-
             return Tool.logOutUI(this, fbUser);
+        }
 
+        return super.onOptionsItemSelected(item);
+    }
+
+    private PopupWindow createPopupWindow(View contentView, int anchorId, String tag) {
+        // ✅ FIXED DIMENSIONS - Works with RecyclerView
+        PopupWindow popup = new PopupWindow(contentView,
+                dpToPx(340), ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setElevation(12f);
+        popup.setFocusable(true);
+        popup.setOutsideTouchable(true);
+
+        // ✅ MEASURE content first (fixes WRAP_CONTENT bug)
+        contentView.measure(
+                View.MeasureSpec.makeMeasureSpec(dpToPx(340), View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        );
+        popup.setHeight(contentView.getMeasuredHeight());
+
+        // Show at anchor
+        View anchor = findViewById(anchorId);
+        if (anchor != null) {
+            popup.showAsDropDown(anchor, -dpToPx(20), dpToPx(8));
+            Log.d("TeacherScreen", tag + " popup shown at anchor");
         } else {
-            return super.onOptionsItemSelected(item); // Not handled
+            Log.e("PopupError", tag + " anchor not found");
+        }
+
+        return popup;
+    }
+
+    private void setupMailSeeAll(View mailView) {
+        Button seeAll = mailView.findViewById(R.id.btn_ViewAllMail);
+        if (seeAll != null) {
+            seeAll.setOnClickListener(v -> {
+                Intent intent = new Intent(TeacherScreen.this, MailPageFull.class);
+                intent.putExtra(User.SERIALIZE_KEY_CODE, teacher);
+                startActivity(intent);
+                if (mailPopupWindow != null) mailPopupWindow.dismiss();
+            });
         }
     }
+
 
     private void dismissPopups() {
         if (mailPopupWindow != null && mailPopupWindow.isShowing()) {
@@ -314,122 +281,80 @@ public class TeacherScreen extends AppCompatActivity {
         }
     }
 
-    public void prepareObjects(){
-        DatabaseReference teacherRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.TEACHER.getPath()).child(teacher.getID());
-//        final boolean[] exist = new boolean[1];
-//        Tool.checkIfReferenceExists(teacherRef, new ObjectCallBack<>() {
-//            @Override
-//            public void onObjectRetrieved(Boolean object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-//                exist[0] = object;
-//            }
-//
-//            @Override
-//            public void onError(DatabaseError error) {
-//
-//            }
-//        });
+
+    public static int getContainerId() {
+        return R.id.nhf_ts_FragmentContainer;
+    }
+
+    public void prepareObjects() {
+        DatabaseReference teacherRef = FirebaseDatabase.getInstance()
+                .getReference(FirebaseNode.TEACHER.getPath())
+                .child(teacher.getID());
+
         teacherRef.child("inboxIDs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Tool.handleEmpty(snapshot.exists(), rv_MailDropDown , tv_mailEmpty);
-                if(snapshot.exists()){
-                    String mailID = snapshot.getValue(String.class);
-                    Mail m = new Mail();
-                    m.retrieveOnce(new ObjectCallBack<>() {
-                        @Override
-                        public void onObjectRetrieved(MailFirebase object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                            final Mail[] mail = new Mail[1];
+                Tool.handleEmpty(snapshot.exists(), rv_MailDropDown, ll_mailEmpty);
+                if (!snapshot.exists()) return;
+
+                String mailID = snapshot.getValue(String.class);
+                Mail m = new Mail();
+                m.retrieveOnce(new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(MailFirebase object) throws ParseException {
+                        try {
                             object.convertToNormal(new ObjectCallBack<>() {
                                 @Override
-                                public void onObjectRetrieved(Mail object) {
-                                    mail[0] = object;
+                                public void onObjectRetrieved(Mail mail) {
+                                    inbox.add(mail);
+                                    mailSmallAdapter.addMail(mail);
                                 }
 
                                 @Override
-                                public void onError(DatabaseError error) {
-
-                                }
+                                public void onError(DatabaseError error) { }
                             });
-                            inbox.add(mail[0]);
-                            //updates the UI and the adapter in general
-                            mailSmallAdapter.addMail(mail[0]);
+                        } catch (InvocationTargetException | NoSuchMethodException |
+                                 IllegalAccessException | InstantiationException e) {
+                            throw new RuntimeException(e);
                         }
+                    }
 
-                        @Override
-                        public void onError(DatabaseError error) {
-
-                        }
-                    }, mailID);
-                }
-
+                    @Override
+                    public void onError(DatabaseError error) { }
+                }, mailID);
             }
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
-
-
 
         teacherRef.child("notitficationIDs").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                Tool.handleEmpty(snapshot.exists(), rv_NotifDropdown , tv_notifEmpty);
-                if(snapshot.exists()){
-                    String notifID = snapshot.getValue(String.class);
-                    Notification<?> n = new Notification<>();
-                    n.retrieveOnce(new ObjectCallBack<>() {
-                        @Override
-                        public void onObjectRetrieved(NotificationFirebase object) {
-                            notifs.add(object);
-                            notifAdapter.addNotification(object);
-                        }
+                Tool.handleEmpty(snapshot.exists(), rv_NotifDropdown, ll_notifEmpty);
+                if (!snapshot.exists()) return;
 
-                        @Override
-                        public void onError(DatabaseError error) {
+                String notifID = snapshot.getValue(String.class);
+                Notification<?> n = new Notification<>();
+                n.retrieveOnce(new ObjectCallBack<>() {
+                    @Override
+                    public void onObjectRetrieved(NotificationFirebase object) {
+                        notifs.add(object);
+                        notifAdapter.addNotification(object);
+                    }
 
-                        }
-                    }, notifID);
-                }
+                    @Override
+                    public void onError(DatabaseError error) { }
+                }, notifID);
             }
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
-
     }
 
     public Teacher getTeacher() {

@@ -9,19 +9,12 @@ import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ScheduleRepository {
+public class ScheduleRepository implements RepositoryClass<Schedule, ScheduleFirebase>{
 
-    private static ScheduleRepository instance;
     private DatabaseReference scheduleRef;
 
-    public static ScheduleRepository getInstance(String scheduleId) {
-        if (instance == null) {
-            instance = new ScheduleRepository(scheduleId);
-        }
-        return instance;
-    }
 
-    private ScheduleRepository(String scheduleId) {
+    public ScheduleRepository(String scheduleId) {
         scheduleRef = FirebaseDatabase.getInstance()
                 .getReference(FirebaseNode.SCHEDULE.getPath())
                 .child(scheduleId);
@@ -31,14 +24,19 @@ public class ScheduleRepository {
        Core CRUD
        ========================= */
 
-    public void save(Schedule object) throws IllegalAccessException, InstantiationException {
-        ScheduleFirebase firebaseObj = object.getFirebaseClass().newInstance();
-        firebaseObj.importObjectData(object);
-        scheduleRef.setValue(firebaseObj);
+
+    public void delete(Schedule object) {
+        scheduleRef.child(object.getID()).removeValue();
     }
 
-    public void delete() {
-        scheduleRef.removeValue();
+    @Override
+    public DatabaseReference getDbReference() {
+        return scheduleRef;
+    }
+
+    @Override
+    public Class<ScheduleFirebase> getFbClass() {
+        return ScheduleFirebase.class;
     }
 
     /* =========================

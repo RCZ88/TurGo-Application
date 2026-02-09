@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * Use the {@link TeacherScheduleOfCourse#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoading{
+public class TeacherScheduleOfCourse extends Fragment{
     RecyclerView rv_schedules;
     Spinner sp_dayOptions;
     ArrayList<ArrayList<Student>>students = new ArrayList<>();
@@ -64,7 +64,7 @@ public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            onDataLoaded(getArguments());
+            loadItems();
         }
     }
 
@@ -102,32 +102,18 @@ public class TeacherScheduleOfCourse extends Fragment implements RequiresDataLoa
         return view;
     }
 
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
-        Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
-        Bundle output = new Bundle();
-        ArrayList<Schedule>schedules = teacher.getAllSchedule();
-        ArrayList<ArrayList<Student>>students = schedules.stream().map((schedule -> Await.get(schedule::getStudents))).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Course> courses = schedules.stream().map((schedule ->Await.get(schedule::getScheduleOfCourse))).collect(Collectors.toCollection(ArrayList::new));
-        output.putSerializable("students", students);
-        output.putSerializable("schedules", schedules);
-        output.putSerializable("courses", courses);
-        return output;
-    }
-
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        try{
-            students = (ArrayList<ArrayList<Student>>)preloadedData.getSerializable("students");
-            schedules = (ArrayList<Schedule>)preloadedData.getSerializable("schedules");
-            courses = (ArrayList<Course>) preloadedData.getSerializable("courses");
-        }catch(ClassCastException e){
-            Log.e("TeacherScheduleOfCourse", "Failed to Cast!");
+    private void loadItems(){
+        Teacher teacher =((TeacherScreen) requireActivity()).getTeacher();
+        schedules = teacher.getAllSchedule();
+        for(Schedule schedule : schedules){
+            schedule.getStudents().addOnSuccessListener(students->{
+                this.students.add((ArrayList<Student>) students);
+            });
+        }
+        courses = new ArrayList<>();
+        for(Schedule schedule : schedules){
+            schedule.getScheduleOfCourse().addOnSuccessListener(course ->courses.add(course));
         }
     }
 
-    @Override
-    public void onLoadingError(Exception error) {
-
-    }
 }

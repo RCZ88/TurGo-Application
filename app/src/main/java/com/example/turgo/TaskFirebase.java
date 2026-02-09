@@ -21,15 +21,15 @@ public class TaskFirebase implements FirebaseClass<Task> {
     private String dropbox;                // Dropbox ID
     private String publisher;              // Teacher ID
 
+    public TaskFirebase(){}
+
     @Override
     public void importObjectData(Task from) {
         if (from == null) return;
 
-        // Convert list of Student objects to list of IDs
-        ArrayList<Student> studentsAssigned = Await.get(from::getStudentsAssigned);
-        if (studentsAssigned != null) {
-            this.studentsAssigned = convertToIdList(studentsAssigned);
-        }
+//        // Convert list of Student objects to list of IDs
+//        ArrayList<Student> studentsAssigned = Await.get(from::getStudentsAssigned);
+        this.studentsAssigned = from.getStudentsAssign();
 
         // Simple String fields
         this.title = from.getTitle();

@@ -3,5 +3,5 @@
     <font
         android:fontStyle="normal"
         android:fontWeight="700"
-        android:font="@font/space_mono_bold"/>
+        android:font="@font/spacemono_bold"/>
 </font-family>

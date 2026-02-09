@@ -70,10 +70,8 @@ public class AllAgendaPage extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_agenda_page, container, false);
         rv_allAgenda = view.findViewById(R.id.rv_AllAgendas);
-        if(agendas == null){
-            Intent intent = getActivity().getIntent();
-            this.agendas = (ArrayList<Agenda>)intent.getSerializableExtra("Agendas");
-        }
+        Bundle bundle = getArguments();
+        agendas = (ArrayList<Agenda>)bundle.getSerializable(Agenda.SERIALIZE_KEY_CODE);
         AgendaAdapter agendaAdapter = new AgendaAdapter(agendas);
         rv_allAgenda.setAdapter(agendaAdapter);
         // Inflate the layout for this fragment

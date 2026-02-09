@@ -3,5 +3,5 @@
     <font
         android:fontStyle="normal"
         android:fontWeight="800"
-        android:font="@font/bricolage_condensed_extrabold"/>
+        android:font="@font/bricolage_condensed_semibold"/>
 </font-family>

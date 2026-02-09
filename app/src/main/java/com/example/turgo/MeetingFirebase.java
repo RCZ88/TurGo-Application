@@ -17,37 +17,40 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
     private String roomChange;
     private boolean completed;
     private Map<String, String> studentsAttended; // studentID -> time string
-
-    public MeetingFirebase(String meetingID, String meetingOfSchedule, String preScheduledBy, String dateOfMeeting, String startTimeChange, String endTimeChange, String roomChange, boolean completed, Map<String, String> studentsAttended) {
-        this.meetingID = meetingID;
-        this.preScheduledBy = preScheduledBy;
-        this.dateOfMeeting = dateOfMeeting;
-        this.startTimeChange = startTimeChange;
-        this.endTimeChange = endTimeChange;
-        this.roomChange = roomChange;
-        this.completed = completed;
-        this.studentsAttended = studentsAttended;
-    }
+    private boolean alarmAssigned;
+    private String alarmAssignedAt;
+    private String ofSchedule;
+    public MeetingFirebase(){}
 
 
     @Override
     public void importObjectData(Meeting from) {
         this.meetingID = from.getMeetingID();
-        // Use callback for getMeetingOfSchedule
-        
-        this.preScheduledBy = from.getPreScheduledBy().getUid();
-        this.dateOfMeeting = from.getDateOfMeeting().toString(); // "yyyy-MM-dd"
 
-        this.startTimeChange = from.getStartTimeChange().toString(); // "HH:mm"
-        this.endTimeChange = from.getEndTimeChange().toString();     // "HH:mm"
+        // ✅ Tool.boolOf() null-proof EVERYTHING
+        this.preScheduledBy = Tool.boolOf(from.getPreScheduledBy()) ? from.getPreScheduledBy().getUid() : "";
+        this.dateOfMeeting = Tool.boolOf(from.getDateOfMeeting()) ? from.getDateOfMeeting().toString() : "";
 
-        this.roomChange = from.getRoomChange().getID();
-        this.completed = from.isCompleted();
+        this.startTimeChange = Tool.boolOf(from.getStartTimeChange()) ? from.getStartTimeChange().toString() : "";
+        this.endTimeChange = Tool.boolOf(from.getEndTimeChange()) ? from.getEndTimeChange().toString() : "";
 
+        this.roomChange = Tool.boolOf(from.getRoomChange()) ? from.getRoomChange().getID() : "";
+        this.completed = Tool.boolOf(from.isCompleted());
+
+        // ✅ Safe Map copy
         this.studentsAttended = new HashMap<>();
-        for (Map.Entry<Student, LocalTime> entry : from.getStudentsAttended().entrySet()) {
-            this.studentsAttended.put(entry.getKey().getID(), entry.getValue().toString()); // "HH:mm"
+        if (Tool.boolOf(from.getStudentsAttended())) {
+            for (Map.Entry<Student, LocalTime> entry : from.getStudentsAttended().entrySet()) {
+                String studentId = Tool.boolOf(entry.getKey()) ? entry.getKey().getID() : "";
+                String attendTime = Tool.boolOf(entry.getValue()) ? entry.getValue().toString() : "";
+                this.studentsAttended.put(studentId, attendTime);
+            }
         }
+
+        this.alarmAssigned = from.isAlarmAssigned();
+        this.alarmAssignedAt = alarmAssigned ? from.getAlarmAssignedAt().toString() : "";
+
+        this.ofSchedule = Tool.boolOf(from.getOfSchedule()) ? from.getOfSchedule() : "";
     }
 
     @Override
@@ -68,6 +71,94 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
 
             }
         });
+    }
+
+    public String getOfSchedule() {
+        return ofSchedule;
+    }
+
+    public void setOfSchedule(String ofSchedule) {
+        this.ofSchedule = ofSchedule;
+    }
+
+    public boolean isAlarmAssigned() {
+        return alarmAssigned;
+    }
+
+    public void setAlarmAssigned(boolean alarmAssigned) {
+        this.alarmAssigned = alarmAssigned;
+    }
+
+    public String getAlarmAssignedAt() {
+        return alarmAssignedAt;
+    }
+
+    public void setAlarmAssignedAt(String alarmAssignedAt) {
+        this.alarmAssignedAt = alarmAssignedAt;
+    }
+
+    public String getMeetingID() {
+        return meetingID;
+    }
+
+    public void setMeetingID(String meetingID) {
+        this.meetingID = meetingID;
+    }
+
+    public String getPreScheduledBy() {
+        return preScheduledBy;
+    }
+
+    public void setPreScheduledBy(String preScheduledBy) {
+        this.preScheduledBy = preScheduledBy;
+    }
+
+    public String getDateOfMeeting() {
+        return dateOfMeeting;
+    }
+
+    public void setDateOfMeeting(String dateOfMeeting) {
+        this.dateOfMeeting = dateOfMeeting;
+    }
+
+    public String getStartTimeChange() {
+        return startTimeChange;
+    }
+
+    public void setStartTimeChange(String startTimeChange) {
+        this.startTimeChange = startTimeChange;
+    }
+
+    public String getEndTimeChange() {
+        return endTimeChange;
+    }
+
+    public void setEndTimeChange(String endTimeChange) {
+        this.endTimeChange = endTimeChange;
+    }
+
+    public String getRoomChange() {
+        return roomChange;
+    }
+
+    public void setRoomChange(String roomChange) {
+        this.roomChange = roomChange;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
+    public Map<String, String> getStudentsAttended() {
+        return studentsAttended;
+    }
+
+    public void setStudentsAttended(Map<String, String> studentsAttended) {
+        this.studentsAttended = studentsAttended;
     }
 }
 

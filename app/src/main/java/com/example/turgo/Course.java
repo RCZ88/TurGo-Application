@@ -1,13 +1,14 @@
 package com.example.turgo;
 
-import static com.example.turgo.ObjectManager.ADD_COURSE;
 import static com.example.turgo.Tool.getDrawableFromId;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DatabaseError;
 
 import java.io.Serializable;
@@ -16,12 +17,16 @@ import java.text.ParseException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
-public class Course implements Serializable, RequireUpdate<Course, CourseFirebase>{
+public class Course implements Serializable, RequireUpdate<Course, CourseFirebase, CourseRepository>{
     private final String courseID;
     private Class<CourseFirebase> fbc = CourseFirebase.class;
     public static final String SERIALIZE_KEY_CODE = "courses";
@@ -34,6 +39,7 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private ArrayList<String> imagesCloudinary;
     private String logoCloudinary;
     private String backgroundCloudinary;
+    private String teacher;
     private CourseType courseType;
     private String courseName;
     private String courseDescription;
@@ -44,21 +50,24 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     private ArrayList<Schedule> schedules;
     private ArrayList<Agenda>agendas;
     private ArrayList<StudentCourse>studentsCourse;
+    private ArrayList<String>students;
     private double baseCost;
     private double hourlyCost;
     private double monthlyDiscountPercentage;
     private boolean autoAcceptStudent;
-    public Course(Context context, CourseType courseType, String courseName, String courseDescription, Teacher teacher, ArrayList<Schedule>schedules, int maxStudentPerMeeting, double baseCost, double hourlyCost, ArrayList<Boolean>paymentPer, ArrayList<Boolean>privateGroup, double monthlyDiscountPercentage, boolean autoAcceptStudent){
+    public Course(Context context, CourseType courseType, String courseName, String courseDescription, String teacher, ArrayList<Schedule>schedules, int maxStudentPerMeeting, double baseCost, double hourlyCost, ArrayList<Boolean>paymentPer, ArrayList<Boolean>privateGroup, double monthlyDiscountPercentage, boolean autoAcceptStudent){
         courseID = UUID.randomUUID().toString();
         this.context = context;
         this.courseType = courseType;
         this.courseName = courseName;
+        this.teacher = teacher;
         this.courseDescription = courseDescription;
         this.schedules = schedules;
         this.baseCost = baseCost;
         this.hourlyCost = hourlyCost;
         this.maxStudentPerMeeting = maxStudentPerMeeting;
         agendas = new ArrayList<>();
+        students = new ArrayList<>();
         studentsCourse = new ArrayList<>();
         dayTimeArrangement = new ArrayList<>();
         this.paymentPer = paymentPer;
@@ -70,6 +79,18 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     }
     public Course(){
         courseID = UUID.randomUUID().toString();
+        this.imagesCloudinary = new ArrayList<>();
+        this.paymentPer = new ArrayList<>();
+        this.privateGroup = new ArrayList<>();
+        this.dayTimeArrangement = new ArrayList<>();
+        this.schedules = new ArrayList<>();
+        this.agendas = new ArrayList<>();
+        this.studentsCourse = new ArrayList<>();
+        this.students = new ArrayList<>();
+    }
+
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
     }
 
     public void setMonthlyDiscountPercentage(double monthlyDiscountPercentage) {
@@ -87,7 +108,9 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     public void setStudentsCourse(ArrayList<StudentCourse> studentsCourse) {
         this.studentsCourse = studentsCourse;
     }
-
+    public ArrayList<String> getStudentIds(){
+        return students;
+    }
     public String getBackgroundCloudinary() {
         return backgroundCloudinary;
     }
@@ -149,6 +172,10 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     }
 
     public void getSCofStudent(Student student, ObjectCallBack<StudentCourse>callBack) {
+        if(!Tool.boolOf(studentsCourse)){
+            studentsCourse = new ArrayList<>();
+            return;
+        }
         for(StudentCourse sc : studentsCourse){
             sc.getStudent(new ObjectCallBack<Student>() {
                 @Override
@@ -197,10 +224,20 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         }
         return null;
     }
+    public void addStudent(Student student){
+       addStudent(student.getID());
+    }
+    public void addStudent(String studentId){
+        students.add(studentId);
+    }
     public int amountDaysAvail(){
         return dayTimeArrangement.size();
     }
     public ArrayList<Schedule> getScheduleOfDay(DayOfWeek day){
+        if(!Tool.boolOf(schedules)){
+            schedules =  new ArrayList<>();
+            return schedules;
+        }
         ArrayList<Schedule>schedules = new ArrayList<>();
         for(Schedule schedule : this.schedules){
             if(schedule.getDay() == day){
@@ -209,16 +246,24 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         }
         return schedules;
     }
-    public boolean hasStudent(Student student){
-        ArrayList<Student>students = Await.get(this::getStudents);
-        for(Student s : students){
-            if(s == student){
-                return true;
+    public Task<Boolean> hasStudent(Student student) {
+        return getStudents().continueWith(task -> {
+            if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
+
+            for (Student s : task.getResult()) {
+                if (s.getID().equals(student.getID())) {
+                    return true;
+                }
             }
-        }
-        return false;
+            return false;
+        });
     }
+
     public DayTimeArrangement getDTAOfDay(DayOfWeek day){
+        if(!Tool.boolOf(dayTimeArrangement)){
+            dayTimeArrangement = new ArrayList<>();
+        }
+
         for(DayTimeArrangement dta : this.dayTimeArrangement){
             if(dta.getDay() == day){
                 return dta;
@@ -226,9 +271,9 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         }
         return null;
     }
-    public ArrayList<DayOfWeek>filterFullDays(ScheduleQuality sq, int duration){//filter out full days.
+    public ArrayList<DayOfWeek>filterFullDays(ScheduleQuality sq, int duration, ArrayList<DayTimeArrangement>dtaAvailable){//filter out full days.
         ArrayList<DayOfWeek>daysAvail = new ArrayList<>();
-        for(DayTimeArrangement dta : dayTimeArrangement){
+        for(DayTimeArrangement dta : dtaAvailable){
             ArrayList<TimeSlot> freeSlots = dta.findFreeSlots(sq, 5, duration);
             String str = String.join(", ", Tool.streamToArray(freeSlots.stream().map(TimeSlot::toString)));
             Log.d("FilterFullDays", "Free Slots: " + str);
@@ -246,6 +291,11 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     @Override
     public FirebaseNode getFirebaseNode() {
         return fbn;
+    }
+
+    @Override
+    public Class<CourseRepository> getRepositoryClass() {
+        return CourseRepository.class;
     }
 
     @Override
@@ -365,65 +415,121 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     public void addStudent(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule>schedules, ArrayList<TimeSlot> timeSlot) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         StudentCourse sc = new StudentCourse(paymentPreferences, privateOrGroup, payment, timeSlot);
         sc.setSchedulesOfCourse(schedules);
+        StudentCourseRepository studentCourseRep = new StudentCourseRepository(sc.getID());
+        studentCourseRep.save(sc);
+
         if(studentsCourse == null){
             studentsCourse = new ArrayList<>();
         }
-        ArrayList<Student>students = Await.get(this::getStudents);
-        if(students == null){
-            students = new ArrayList<>();
-        }
+        CourseRepository courseRepo = new CourseRepository(courseID);
+
         studentsCourse.add(sc);
-        CourseRepository courseRepo = CourseRepository.getInstance(courseID);
         courseRepo.addStudentCourse(sc);
-        students.add(student);
-        StudentRepository studentRepo = StudentRepository.getInstance(student.getID());
+
+        students.add(student.getID());
+        courseRepo.addStudent(student);
+
+        StudentRepository studentRepo = new StudentRepository(student.getID());
         student.getCourseTaken().add(this);
-        studentRepo.addCourseTaken(this);
+
         student.getStudentCourseTaken().add(sc);
         studentRepo.addStudentCourseTaken(sc);
-        student.updateUserDB();
+
         for(Schedule schedule : schedules){
             DayTimeArrangement dtaOfDay = getDTAOfDay(schedule.getDay());
-            if(!dtaOfDay.getOccupied().contains(schedule)){//if a new schedule, add the schedule
-                dtaOfDay.getOccupied().add(schedule);
-                DTARepository dtaRepository = DTARepository.getInstance(dtaOfDay.getID());
-                dtaRepository.addOccupied(schedule);
-            }else{
-                for(Schedule s : dtaOfDay.getOccupied()){
-                    student.getAllSchedules().add(s);
-                    studentRepo.addAllSchedule(s);
-                }
+            if(dtaOfDay == null){
+                continue;
             }
+            dtaOfDay.getOccupied().add(schedule);
+            DTARepository dtaRepository = new DTARepository(dtaOfDay.getID());
+            dtaRepository.addOccupied(schedule);
+            this.schedules.add(schedule);
+            courseRepo.addSchedule(schedule);
         }
-    }
-    public Meeting getNextMeetingOfNextSchedule(){
-        ArrayList<Schedule>scheduleToday= new ArrayList<>();
-        Schedule nextSchedule = null;
-        for(Schedule schedule : schedules){
-            if(schedule.getDay().getValue() == LocalDate.now().getDayOfWeek().getValue()){
-                scheduleToday.add(schedule);
-            }
-            if(schedule.getDay().getValue() > LocalDate.now().getDayOfWeek().getValue()){
-                nextSchedule = schedule;
-                break;
-            }
-        }
-        if(!scheduleToday.isEmpty()){
-            for(Schedule schedule : scheduleToday){
-                if(schedule.getMeetingStart().isAfter(LocalTime.now())){
-                    return new Meeting(schedule, LocalDate.now(), null, context);
-                }
-            }
-        }else{
-            if(nextSchedule!= null){
-                LocalDate nextDate = LocalDate.now().with(TemporalAdjusters.next(nextSchedule.getDay()));
-                return new Meeting(nextSchedule, nextDate, null, context);
-            }else{
-                return null;
-            }
 
+    }
+    public Task<Void> addStudentAsync(Student student, boolean paymentPreferences, boolean privateOrGroup, int payment, ArrayList<Schedule> schedules, ArrayList<TimeSlot> timeSlot) {
+        List<Task<?>> tasks = new ArrayList<>();
+        StudentCourse sc = new StudentCourse(paymentPreferences, privateOrGroup, payment, timeSlot);
+        sc.setSchedulesOfCourse(schedules);
+
+        StudentCourseRepository studentCourseRep = new StudentCourseRepository(sc.getID());
+        tasks.add(logTask("studentCourse.save:" + sc.getID(), studentCourseRep.saveAsync(sc)));
+
+        if (studentsCourse == null) {
+            studentsCourse = new ArrayList<>();
+        }
+        if (this.schedules == null) {
+            this.schedules = new ArrayList<>();
+        }
+
+        CourseRepository courseRepo = new CourseRepository(courseID);
+
+        studentsCourse.add(sc);
+        tasks.add(logTask("course.addStudentCourse:" + sc.getID(),
+                courseRepo.addStringToArrayAsync("studentsCourse", sc.getID())));
+
+        students.add(student.getID());
+        tasks.add(logTask("course.addStudent:" + student.getID(),
+                courseRepo.addStringToArrayAsync("students", student.getID())));
+
+        StudentRepository studentRepo = new StudentRepository(student.getID());
+        student.getCourseTaken().add(this);
+        student.getStudentCourseTaken().add(sc);
+        tasks.add(logTask("student.addCourseTaken:" + this.getID(),
+                studentRepo.addStringToArrayAsync("courseTaken", this.getID())));
+        tasks.add(logTask("student.addStudentCourseTaken:" + sc.getID(),
+                studentRepo.addStringToArrayAsync("studentCourseTaken", sc.getID())));
+
+        for (Schedule schedule : schedules) {
+            DayTimeArrangement dtaOfDay = getDTAOfDay(schedule.getDay());
+            if (dtaOfDay == null) {
+                continue;
+            }
+            dtaOfDay.getOccupied().add(schedule);
+            DTARepository dtaRepository = new DTARepository(dtaOfDay.getID());
+            tasks.add(logTask("dta.addOccupied:" + dtaOfDay.getID() + ":" + schedule.getID(),
+                    dtaRepository.addStringToArrayAsync("occupied", schedule.getID())));
+            this.schedules.add(schedule);
+            tasks.add(logTask("course.addSchedule:" + schedule.getID(),
+                    courseRepo.addStringToArrayAsync("schedules", schedule.getID())));
+        }
+
+        return Tasks.whenAll(tasks);
+    }
+
+    private static <T> Task<T> logTask(String label, Task<T> task) {
+        task.addOnSuccessListener(result -> Log.d("JoinCourseTask", "SUCCESS: " + label));
+        task.addOnFailureListener(e -> Log.e("JoinCourseTask", "FAIL: " + label, e));
+        return task;
+    }
+    public int getMaxMeetingDuration(){
+        int maxDuration = 0;
+        for(DayTimeArrangement dta : dayTimeArrangement){
+            int minute = dta.getDuration();
+            Log.d("getDuration", minute + " minutes");
+            if(minute > maxDuration){
+                maxDuration = minute;
+            }
+        }
+        return maxDuration;
+    }
+    public ArrayList<DayTimeArrangement> getDtasOfTime(int minutes){
+        return Tool.streamToArray(dayTimeArrangement.stream().filter(dta -> dta.getDuration() >= minutes));
+    }
+    public Task<Meeting> getNextMeetingOfNextSchedule(){
+        LocalDate today = LocalDate.now();
+        if(!Tool.boolOf(schedules)) return null;
+        for(Schedule schedule : schedules){
+            if(schedule.getDay().equals(today.getDayOfWeek()) && schedule.getMeetingStart().isAfter(LocalTime.now())){
+                return Meeting.getClosestMeetingToSchedule(schedule);
+            }
         }
         return null;
+    }
+    public Task<Teacher> getTeacher(){
+        TeacherRepository teacherRepository = new TeacherRepository(teacher);
+        return teacherRepository.loadAsNormal();
     }
 
 
@@ -443,12 +549,24 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         }
     }
     //TODO:Handle the use cases for getStudents (circular reference).
-    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
-        try {
-            findAllAggregatedObjects(Student.class, "courseTaken", callBack);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
+//    public void getStudents(ObjectCallBack<ArrayList<Student>>callBack) {
+//        try {
+//            findAllAggregatedObjects(Student.class, "courseTaken", callBack);
+//        } catch (IllegalAccessException | InstantiationException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+    public Task<List<Student>> getStudents() {
+        ArrayList<Task<Student>> taskRetrieveStudent = new ArrayList<>();
+        StudentRepository studentRepository;
+
+        for (String studentId : students) {
+            studentRepository = new StudentRepository(studentId);
+            taskRetrieveStudent.add(studentRepository.loadAsNormal());
         }
+
+        // ✅ Combines all Tasks into one Task<List<Student>>
+        return Tasks.whenAllSuccess(taskRetrieveStudent);
     }
 
 
@@ -461,35 +579,66 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     }
     public void addSchedule(Schedule schedule) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         schedules.add(schedule);
-        CourseRepository.getInstance(getID()).addSchedule(schedule);
+        new CourseRepository(getID()).addSchedule(schedule);
     }
     public String getLogo() {
         return logoCloudinary;
     }
-    public ArrayList<Schedule> getScheduleOfStudent(Student student){
-        ArrayList<Schedule>sos = new ArrayList<>();
-        for(Schedule schedule : schedules){
-            ArrayList<Student>students = Await.get(schedule::getStudents);
-            if(students.contains(student)){
-                sos.add(schedule);
-            }
+    public void getScheduleOfStudent(Student student, ObjectCallBack<ArrayList<Schedule>>callBack){
+        ArrayList<Schedule> result = new ArrayList<>();
+        List<Task<List<Student>>> tasks = new ArrayList<>();
+
+        for (Schedule schedule : schedules) {
+            Task<List<Student>> task = schedule.getStudents();
+            tasks.add(task);
+
+            task.addOnSuccessListener(students -> {
+                if (students.contains(student)) {
+                    result.add(schedule);
+                }
+            });
         }
-        return sos;
-    }
-    public String getDaysOfSchedule(Student student){
-        ArrayList<Schedule>schedules = getScheduleOfStudent(student);
-        String[]days = new String[schedules.size()];
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i<schedules.size(); i++){
-            days[i] = schedules.get(i).getDay().toString();
-            if(i+1 != schedules.size()){
-                sb.append(days[i] + ", ");
-            }else{
-                sb.append(days[i]);
+        Tasks.whenAllSuccess(tasks).addOnSuccessListener(schedulesResult -> {
+            try {
+                callBack.onObjectRetrieved(schedules);
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | InstantiationException e) {
+                throw new RuntimeException(e);
             }
-        }
-        return sb.toString();
+        });
     }
+    public Task<String> getDaysOfSchedule(Student student) {
+
+        TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+
+        getScheduleOfStudent(student, new ObjectCallBack<>() {
+
+            @Override
+            public void onObjectRetrieved(ArrayList<Schedule> schedulesOfStudent) {
+
+                if (schedulesOfStudent.isEmpty()) {
+                    tcs.setResult("");
+                    return;
+                }
+
+                Set<String>uniqueDays = new LinkedHashSet<>();
+                for(Schedule s : schedules){
+                    uniqueDays.add(s.getDay().toString());
+                }
+
+                String result = String.join(", ", uniqueDays);
+                tcs.setResult(result);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                tcs.setException(error.toException());
+            }
+        });
+
+        return tcs.getTask();
+    }
+
     public String getCourseID(){
         return this.courseID;
     }

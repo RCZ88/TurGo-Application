@@ -5,26 +5,26 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FCFDFD"
+    android:background="@color/white_soft"
     tools:context=".ActivityLauncher">
 
     <ImageView
         android:id="@+id/imageView19"
-        android:layout_width="245dp"
-        android:layout_height="245dp"
-        android:layout_marginTop="172dp"
+        android:layout_width="357dp"
+        android:layout_height="161dp"
+        android:layout_marginTop="204dp"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/turgo_black_no_bg" />
+        app:srcCompat="@drawable/turgo_text_logo_nobg" />
 
     <ProgressBar
         android:id="@+id/pb_AL_LoadingApp"
         style="@android:style/Widget.Material.Light.ProgressBar.Large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="48dp"
         android:indeterminate="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -35,7 +35,8 @@
         android:id="@+id/tv_AL_LoadingText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="32dp"
+        android:fontFamily="@font/space_mono_regular"
         android:text="Loading..."
         android:textSize="26dp"
         android:textStyle="bold|italic"

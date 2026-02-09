@@ -2,88 +2,142 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ConstraintLayout"
+    android:id="@+id/cl_SIP_rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".SignInPage">
 
-    <ImageButton
-        android:id="@+id/btn_SignInWithGoogle"
-        android:layout_width="180dp"
-        android:layout_height="47dp"
-        android:layout_marginTop="24dp"
-        android:background="#00FFFFFF"
-        android:contentDescription="Sign in with Google Account"
-        android:onClick="signInWGoogle"
-        android:src="@drawable/android_light_rd_si"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_SIP_PasswordField" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tv_SignIn"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="64dp"
-        android:layout_marginEnd="16dp"
-        android:text="Sign In"
-        android:textAlignment="center"
-        android:textSize="50sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <EditText
-        android:id="@+id/pt_EmailOrUsername"
-        android:layout_width="284dp"
-        android:layout_height="57dp"
-        android:layout_marginTop="48dp"
-        android:ems="10"
-        android:hint="Email or Username"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_SignIn" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/et_SIP_PasswordField"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="348dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:hint="Password"
-        app:endIconDrawable="@drawable/eye"
-        app:endIconMode="password_toggle"
-        app:endIconScaleType="center"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.386"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pt_EmailOrUsername"
-        tools:ignore="MissingConstraints">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tie_SIP_PasswordField"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:password="true" />
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="24dp">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/tv_SignIn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/dela_gothic_one_regular"
+                android:text="Welcome Back"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="34sp"
+                android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btn_Login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="signIn"
-        android:text="Login"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_SignInWithGoogle"
-        app:layout_constraintVertical_bias="0.313" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:fontFamily="@font/bricolage_condensed_regular"
+                android:text="Sign in to continue your journey"
+                android:textColor="@color/brand_emerald"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_emerald_card"
+                android:elevation="4dp"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/et_SIP_UserEmailField"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="20dp"
+                    android:hint="Username or Email"
+                    android:textColorHint="#670B6E4F"
+                    app:boxBackgroundColor="@color/white_soft"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/brand_emerald"
+                    app:boxStrokeWidth="1dp"
+                    app:hintTextColor="@color/brand_emerald">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/pt_EmailOrUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:inputType="textEmailAddress"
+                        android:textColor="@color/black_soft" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/et_SIP_PasswordField"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    android:hint="Password"
+                    android:textColorHint="#670B6E4F"
+                    app:boxBackgroundColor="@color/white_soft"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxStrokeColor="@color/brand_emerald"
+                    app:boxStrokeWidth="1dp"
+                    app:endIconDrawable="@drawable/eye"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/brand_emerald"
+                    app:hintTextColor="@color/brand_emerald">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tie_SIP_PasswordField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:inputType="textPassword"
+                        android:textColor="@color/black_soft" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Button
+                    android:id="@+id/btn_Login"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_emerald_btn_primary"
+                    android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+                    android:onClick="signIn"
+                    android:text="Log In"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white_soft"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="16dp"
+                android:text="Or continue with"
+                android:textColor="@color/black_soft"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/btn_SignInWithGoogle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/transparent"
+                android:contentDescription="Sign in with Google Account"
+                android:onClick="signInWGoogle"
+                android:src="@drawable/android_light_rd_si" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

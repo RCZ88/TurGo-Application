@@ -33,7 +33,7 @@ public interface FirebaseClass<F>{
     /// 1. Create an empty firebaseObject (ex. StudentFirebase sf = new StudentFirebase())
     /// 2. Then use the method to import all the normalObject to the firebaseObject (sf.importObjectDataToFirebase(this))
     void importObjectData(F from);
-    default <O extends RequireUpdate<?, ?>>ArrayList<String> convertToIdList(ArrayList<O> objectList){
+    default <O extends RequireUpdate<?, ?, ?>>ArrayList<String> convertToIdList(ArrayList<O> objectList){
         ArrayList<String> idList = new ArrayList<>();
         if(objectList != null){
             for (O obj : objectList) {
@@ -62,7 +62,7 @@ public interface FirebaseClass<F>{
         Log.d("constructClass", "Class: " + clazz.getSimpleName() + ", ID: " + id);
 
         // Get Firebase path
-        RequireUpdate<?, ?> tempInstance = (RequireUpdate<?, ?>) clazz.getDeclaredConstructor().newInstance();
+        RequireUpdate<?, ?, ?> tempInstance = (RequireUpdate<?, ?, ?>) clazz.getDeclaredConstructor().newInstance();
         String path = tempInstance.getFirebaseNode().getPath();
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(path).child(id);
@@ -193,7 +193,7 @@ public interface FirebaseClass<F>{
                                         for(String objectID : ids) {
                                             Log.d("constructClass", "  → Fetching nested object with ID: " + objectID);
 
-                                            constructClass(elementClass, objectID, new ConstructClassCallback() {
+                                            constructClass(elementClass, objectID,  new ConstructClassCallback() {
                                                 @Override
                                                 public void onSuccess(Object childObject) {
                                                     Log.d("constructClass", "  ✓ Nested object retrieved: " + elementClass.getSimpleName() + " (ID: " + objectID + ")");
@@ -379,7 +379,7 @@ public interface FirebaseClass<F>{
 
                                 pendingFields.incrementAndGet();
 
-                                constructClass(field.getType(), nestedObjectId, new ConstructClassCallback() {
+                                constructClass(field.getType(), nestedObjectId,  new ConstructClassCallback() {
                                     @Override
                                     public void onSuccess(Object nestedObject) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                                         Log.d("constructClass", "  ✓ Nested object retrieved: " + field.getType().getSimpleName() + " (ID: " + nestedObjectId + ")");

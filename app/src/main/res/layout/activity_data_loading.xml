@@ -1,28 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/brand_emerald_pale"
+    android:background="@color/white_soft"
     tools:context=".DataLoading">
 
     <!-- Logo -->
+
+    <!-- Progress Circle -->
+
     <ImageView
         android:id="@+id/imageView20"
-        android:layout_width="260dp"
-        android:layout_height="260dp"
-        android:layout_marginTop="160dp"
+        android:layout_width="320dp"
+        android:layout_height="151dp"
+        android:layout_marginTop="216dp"
         android:elevation="8dp"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/turgo_black_no_bg" />
+        app:srcCompat="@drawable/turgo_text_logo_nobg" />
 
-    <!-- Progress Circle -->
     <ProgressBar
         android:id="@+id/pb_ADL_LoadingCircle"
         style="@android:style/Widget.Material.Light.ProgressBar.Large"
@@ -41,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:fontFamily="@font/bricolage_condensed_semibold"
+        android:fontFamily="@font/space_mono_regular"
         android:text="Loading..."
         android:textAlignment="center"
         android:textColor="@color/brand_emerald_dark"

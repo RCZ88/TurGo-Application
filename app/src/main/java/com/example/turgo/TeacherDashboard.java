@@ -1,9 +1,13 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,25 +16,30 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+
 import java.util.ArrayList;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link TeacherDashboard#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TeacherDashboard extends Fragment implements RequiresDataLoading{
+public class TeacherDashboard extends Fragment{
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    Button btn_viewTodaySchedule, btn_CreateTask, btn_addAgenda, btn_addDTA;
+    Button btn_viewTodaySchedule, btn_CreateTask, btn_addAgenda, btn_addDTA, btn_createCourse;
     TextView tv_courseName, tv_scheduleTime, tv_meetingRoom
             ,tv_noActiveCourses, tv_noRecentStudentSubmit;
-    RecyclerView rv_activeCourses, rv_recentStudentSubmit;
+    RecyclerView rv_recentStudentSubmit;
+    ViewPager2 vp2_activeCourses;
 
     ArrayList<Course> teacherCoursesTeach = new ArrayList<>();
     ArrayList<Integer> studentCountOfCourses = new ArrayList<>();
@@ -70,6 +79,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         }
     }
 
+    @SuppressLint({"SetTextI18n", "MissingInflatedId"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -83,7 +93,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         Log.d("TeacherDashboard", "✓ View inflated: " + view);
         Log.d("TeacherDashboard", "View class: " + view.getClass().getName());
         Log.d("TeacherDashboard", "View LayoutParams: " + view.getLayoutParams());
-
+        loadTeacher();
         // Find all views
         Log.d("TeacherDashboard", "Finding views...");
         btn_viewTodaySchedule = view.findViewById(R.id.btn_TD_TodaysSchedule);
@@ -98,6 +108,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         btn_addDTA = view.findViewById(R.id.btn_TD_AddDTA);
         Log.d("TeacherDashboard", "btn_addDTA: " + (btn_addDTA != null ? "FOUND" : "NULL"));
 
+        btn_createCourse = view.findViewById(R.id.btn_TD_CreateCourse);
 
         tv_courseName = view.findViewById(R.id.tv_TD_courseName);
         Log.d("TeacherDashboard", "tv_courseName: " + (tv_courseName != null ? "FOUND" : "NULL"));
@@ -121,8 +132,8 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         tv_noRecentStudentSubmit = view.findViewById(R.id.tv_TD_NoRecentSubmission);
         Log.d("TeacherDashboard", "tv_noRecentStudentSubmit: " + (tv_noRecentStudentSubmit != null ? "FOUND" : "NULL"));
 
-        rv_activeCourses = view.findViewById(R.id.rv_TD_ActiveCourses);
-        Log.d("TeacherDashboard", "rv_activeCourses: " + (rv_activeCourses != null ? "FOUND" : "NULL"));
+        vp2_activeCourses = view.findViewById(R.id.vp_TD_activeCourses);
+        Log.d("TeacherDashboard", "vp2_activeCourses: " + (vp2_activeCourses != null ? "FOUND" : "NULL"));
 
         rv_recentStudentSubmit = view.findViewById(R.id.rv_TD_RecentStudentSubmit);
         Log.d("TeacherDashboard", "rv_recentStudentSubmit: " + (rv_recentStudentSubmit != null ? "FOUND" : "NULL"));
@@ -138,6 +149,35 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         }
 
         Log.d("TeacherDashboard", "Setting up button listeners...");
+
+        Schedule nextSchedule = teacher.getNextSchedule();
+        if (Tool.boolOf(nextSchedule)) {
+            nextSchedule.getScheduleOfCourse().addOnSuccessListener(course -> {
+                if (tv_courseName != null) {
+                    tv_courseName.setText(course != null ? course.getCourseName() : "No course");
+                }
+                nextSchedule.getRoom().addOnSuccessListener(room -> {
+                    if (tv_meetingRoom != null) {
+                        tv_meetingRoom.setText(room != null ? room.getID() : "No room");
+                    }
+                });
+                if (tv_scheduleTime != null) {
+                    tv_scheduleTime.setText(Tool.stringifyStartEndTime(nextSchedule.getMeetingStart(), nextSchedule.getMeetingEnd()));
+                }
+            }).addOnFailureListener(e -> {
+                // Handle failure case
+                if (tv_courseName != null) tv_courseName.setText("Error loading course");
+                if (tv_meetingRoom != null) tv_meetingRoom.setText("Error loading room");
+                if (tv_scheduleTime != null) tv_scheduleTime.setText("Error loading time");
+            });
+        } else {
+            // Handle no schedule case
+            if (tv_courseName != null) tv_courseName.setText("No schedule");
+            if (tv_meetingRoom != null) tv_meetingRoom.setText("No room");
+            if (tv_scheduleTime != null) tv_scheduleTime.setText("No time");
+        }
+
+
 
         btn_viewTodaySchedule.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "View Today's Schedule clicked");
@@ -155,19 +195,24 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tct);
         });
 
-//        btn_addAgenda.setOnClickListener(view1 -> {
-//            Log.d("TeacherDashboard", "Add Agenda clicked");
-//            TeacherAddAgenda taa = new TeacherAddAgenda();
-//
-//            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
-//        });
+        btn_addAgenda.setOnClickListener(view1 -> {
+            Log.d("TeacherDashboard", "Add Agenda clicked");
+            TeacherAddAgenda taa = new TeacherAddAgenda();
+
+            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
+        });
 
         btn_addDTA.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add DTA clicked");
             TeacherAddDTA tad = new TeacherAddDTA();
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tad);
         });
-        
+
+        btn_createCourse.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), CreateCourse.class);
+            startActivity(intent);
+        });
+
 
         Log.d("TeacherDashboard", "Processing courses...");
         ArrayList<Course> coursesTeach = new ArrayList<>();
@@ -181,8 +226,8 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
 
         Log.d("TeacherDashboard", "Calling Tool.handleEmpty for courses...");
         Tool.handleEmpty(teacherCoursesTeach == null || teacherCoursesTeach.isEmpty(),
-                rv_activeCourses, tv_noActiveCourses);
-        Log.d("TeacherDashboard", "After handleEmpty - rv_activeCourses visibility: " + rv_activeCourses.getVisibility());
+                vp2_activeCourses, tv_noActiveCourses);
+        Log.d("TeacherDashboard", "After handleEmpty - vp2_activeCourses visibility: " + vp2_activeCourses.getVisibility());
         Log.d("TeacherDashboard", "After handleEmpty - tv_noActiveCourses visibility: " + tv_noActiveCourses.getVisibility());
 
         Log.d("TeacherDashboard", "Creating CourseTeachersAdapter...");
@@ -193,7 +238,7 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
                 Log.d("TeacherDashboard", "Course clicked: " + item);
                 TeacherCourseScreen tcs = new TeacherCourseScreen();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("course", item);
+                bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
                 tcs.setArguments(bundle);
                 getParentFragmentManager().beginTransaction()
                         .replace(R.id.nhf_ts_FragmentContainer, tcs)
@@ -205,9 +250,8 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
             public void onItemLongClick(Course item) {
             }
         });
-
-        Log.d("TeacherDashboard", "Setting adapter to rv_activeCourses...");
-        rv_activeCourses.setAdapter(cta);
+        Log.d("TeacherDashboard", "Setting adapter to vp2_activeCourses...");
+        vp2_activeCourses.setAdapter(cta);
         Log.d("TeacherDashboard", "✓ Adapter set");
 
         Log.d("TeacherDashboard", "Processing submissions...");
@@ -247,7 +291,18 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         Log.d("TeacherDashboard", "View: " + view);
         Log.d("TeacherDashboard", "View parent: " + view.getParent());
     }
-
+    private void loadTeacher(){
+        Teacher teacher = ((TeacherScreen)requireActivity()).getTeacher();
+        teacherCoursesTeach = teacher.getCoursesTeach();
+        List<Task<Meeting>> taskForMeeting = Tool.streamToArray(teacherCoursesTeach.stream().map(Course::getNextMeetingOfNextSchedule).filter(Objects::nonNull));
+        Tasks.whenAllSuccess(taskForMeeting).addOnSuccessListener(meetings ->{
+            nextMeetingOfCourses = new ArrayList<>();
+            for(Object m : meetings){
+                nextMeetingOfCourses.add((Meeting)m);
+            }
+        });
+        studentCountOfCourses = Tool.streamToArray(teacherCoursesTeach.stream().map(course -> course.getStudentIds().size()));
+    }
     @Override
     public void onStart() {
         super.onStart();
@@ -260,30 +315,4 @@ public class TeacherDashboard extends Fragment implements RequiresDataLoading{
         Log.d("TeacherDashboard", "========== onResume ==========");
     }
 
-    @Override
-    public Bundle loadDataInBackground(Bundle input, DataLoading.ProgressCallback log) {
-        Teacher teacher = (Teacher) input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
-        ArrayList<Course> teacherCoursesTeach = teacher.getCoursesTeach();
-        ArrayList<Meeting>nextMeetingOfCourses = teacherCoursesTeach.stream().map(course-> course.getNextMeetingOfNextSchedule()).collect(Collectors.toCollection(ArrayList::new));
-        ArrayList<Integer> studentCountOfCourses = Tool.streamToArray(teacherCoursesTeach.stream().map(course -> Await.get(course::getStudents).size()));
-
-        Bundle output = new Bundle();
-        output.putSerializable("teacherCoursesTeach", teacherCoursesTeach);
-        output.putSerializable("nextMeetingOfCourses", nextMeetingOfCourses);
-        output.putSerializable("studentCountOfCourses", studentCountOfCourses);
-
-        return output;
-    }
-
-    @Override
-    public void onDataLoaded(Bundle preloadedData) {
-        teacherCoursesTeach = (ArrayList<Course>) preloadedData.getSerializable("teacherCoursesTeacher");
-        nextMeetingOfCourses = (ArrayList<Meeting>) preloadedData.getSerializable("nextMeetingOfCourses");
-        studentCountOfCourses = (ArrayList<Integer>) preloadedData.getSerializable("studentCountOfCourses");
-    }
-
-    @Override
-    public void onLoadingError(Exception error) {
-
-    }
 }

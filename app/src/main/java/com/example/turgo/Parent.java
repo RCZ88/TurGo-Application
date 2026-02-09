@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
-public class Parent extends User implements Serializable, RequireUpdate<Parent, ParentFirebase> {
+public class Parent extends User implements Serializable, RequireUpdate<Parent, ParentFirebase, ParentRepository> {
     private ArrayList<Student> children;
     public static String SERIALIZE_KEY_CODE = "parentObj";
     public Parent(String fullName, String gender, String birthDate, String nickname, String email, String phoneNumber) throws ParseException {
@@ -16,6 +16,11 @@ public class Parent extends User implements Serializable, RequireUpdate<Parent, 
     @Override
     public FirebaseNode getFirebaseNode() {
         return FirebaseNode.PARENT;
+    }
+
+    @Override
+    public Class<ParentRepository> getRepositoryClass() {
+        return ParentRepository.class;
     }
 
     @Override

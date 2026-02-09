@@ -13,15 +13,20 @@ public class rcScheduleViewHolder extends RecyclerView.ViewHolder {
     ImageButton btn_remove;
     int id;
 
-    public rcScheduleViewHolder(@NonNull View itemView, OnItemClickListener<Integer>clickListener) {
+    public rcScheduleViewHolder(@NonNull View itemView, OnItemClickListener<Integer>clickListener, boolean removeButton) {
         super(itemView);
         btn_remove = itemView.findViewById(R.id.ib_rcsi_removeSchedule);
         tv_day =itemView.findViewById(R.id.tv_rcsi_day);
         tv_time = itemView.findViewById(R.id.tv_rcsi_time);
         tv_amtPeople = itemView.findViewById(R.id.tv_rcsi_amtOfPerson);
-        btn_remove.setOnClickListener(view->{
-            clickListener.onItemClick(id);
-        });
+        if(removeButton){
+            btn_remove.setVisibility(View.VISIBLE);
+            btn_remove.setOnClickListener(view->{
+                clickListener.onItemClick(id);
+            });
+        }else{
+            btn_remove.setVisibility(View.GONE);
+        }
     }
     public void setId(int id){
         this.id = id;

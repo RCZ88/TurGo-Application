@@ -9,19 +9,26 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.DatabaseError;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 
 public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder>{
     private ArrayList<Schedule> schedules;
-    private ArrayList<Course>courses;
+    private ArrayList<Course> courses;
 
-    public ScheduleAdapter(ArrayList<Schedule> schedules, ArrayList<Course>courses){
+    public ScheduleAdapter(ArrayList<Schedule> schedules, ArrayList<Course> courses){
         this.schedules = schedules;
         this.courses = courses;
+    }
+
+    public ScheduleAdapter(ArrayList<Schedule> schedules, Course course){
+        this.schedules = schedules;
+        this.courses = new ArrayList<>();
+        if (schedules != null && course != null) {
+            for (int i = 0; i < schedules.size(); i++) {
+                this.courses.add(course);
+            }
+        }
     }
 
     @NonNull
@@ -35,17 +42,47 @@ public class ScheduleAdapter extends RecyclerView.Adapter<ScheduleViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull ScheduleViewHolder holder, int position) {
+        if (schedules == null || courses == null || position >= schedules.size() || position >= courses.size()) {
+            return;
+        }
         Schedule schedule = schedules.get(position);
-        //Course course = Await.get(schedule::getScheduleOfCourse);
         Course course = courses.get(position);
-        //async - completed
-        holder.tv_duration.setText(schedule.getDuration());
+
         holder.tv_subject.setText(course.getCourseName());
-        holder.tv_day.setText(schedule.getDay().toString());
+        holder.tv_day.setText(formatDay(schedule.getDay()));
+        holder.tv_time.setText(Tool.stringifyStartEndTime(schedule.getMeetingStart(), schedule.getMeetingEnd()));
+        holder.tv_duration.setText(formatDuration(schedule.getDuration()));
     }
 
     @Override
     public int getItemCount() {
-        return boolOf(schedules.size()) ? schedules.size() : 0;
+        return schedules == null ? 0 : schedules.size();
+    }
+
+    public ArrayList<Course> getCourses(){
+        return courses;
+    }
+
+    private static String formatDuration(int minutes) {
+        if (minutes <= 0) {
+            return "0m";
+        }
+        int hours = minutes / 60;
+        int mins = minutes % 60;
+        if (hours > 0 && mins > 0) {
+            return hours + "h " + mins + "m";
+        }
+        if (hours > 0) {
+            return hours + "h";
+        }
+        return mins + "m";
+    }
+
+    private static String formatDay(DayOfWeek day) {
+        if (day == null) {
+            return "";
+        }
+        String name = day.toString().toLowerCase();
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 }

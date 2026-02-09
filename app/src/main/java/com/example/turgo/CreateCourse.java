@@ -308,11 +308,14 @@ public class CreateCourse extends AppCompatActivity {
                         course.setLogo(courseIconCloudinary);
                         course.setBackground(courseBannerCloudinary);
                         course.setImagesCloudinary(this.courseImagesCloudinary);
+                        course.setTeacher(teacher.getID());
 
                         teacher.addCourse(course);
-                        TeacherRepository.getInstance(teacher.getID()).addCourseTeach(course);
+                        TeacherRepository  teacherRepository = new TeacherRepository(teacher.getID());
+                        teacherRepository.addCourseTeach(course);
+                        dtas.forEach(teacherRepository::addTimeArrangement);
                         Log.d("CreateCourse", "Course Created Object: " + course);
-                        CourseRepository courseRepository = CourseRepository.getInstance(course.getID());
+                        CourseRepository courseRepository = new CourseRepository(course.getID());
                         courseRepository.save(course);
 
                         updateProgress.run();

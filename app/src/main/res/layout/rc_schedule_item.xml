@@ -1,65 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="6dp"
+    android:layout_marginVertical="8dp"
+    app:cardBackgroundColor="@color/white_soft"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:strokeColor="@color/brand_emerald_pale"
+    app:strokeWidth="1dp">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="10dp"
-        android:background="@drawable/universal_container_background"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/tv_rcsi_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Thursday"
-            android:textSize="18sp"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="@font/bricolage_semicondensed_medium"
+            android:text="THURSDAY"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="20dp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_rcsi_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="13:20 -  14:20"
-            android:textSize="14sp" />
+            android:layout_marginBottom="12dp"
+            android:text="13:20 - 14:20"
+            android:textColor="@color/brand_emerald"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_emerald_input"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp">
 
             <ImageView
                 android:id="@+id/imageView18"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/user" />
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="6dp"
+                android:src="@drawable/user"
+                app:tint="@color/brand_emerald" />
 
             <TextView
                 android:id="@+id/tv_rcsi_amtOfPerson"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="5 Person"
-                android:textSize="14sp" />
+                android:text="5"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <ImageButton
             android:id="@+id/ib_rcsi_removeSchedule"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/background"
-            app:srcCompat="@android:drawable/ic_delete" />
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_emerald_btn_outlined"
+            android:padding="6dp"
+            android:scaleType="fitCenter"
+            app:backgroundTint="@color/white_soft"
+            app:srcCompat="@android:drawable/ic_delete"
+            app:tint="@color/brand_emerald" />
 
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

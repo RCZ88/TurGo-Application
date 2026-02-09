@@ -25,6 +25,7 @@ public class CourseFirebase implements FirebaseClass<Course>{
     private ArrayList<String>agendas;
     private ArrayList<String>studentsCourse;
     private ArrayList<String> imagesCloudinary;
+    private ArrayList<String>students;
 
     public CourseFirebase(){
 
@@ -44,11 +45,13 @@ public class CourseFirebase implements FirebaseClass<Course>{
         schedules = convertToIdList(from.getSchedules());
         agendas = convertToIdList(from.getAgenda());
         studentsCourse = convertToIdList(from.getStudentsCourse());
+        students = from.getStudentIds();
         backgroundCloudinary = from.getBackgroundCloudinary();
         logoCloudinary = from.getLogoCloudinary();
         maxStudentPerMeeting = from.getMaxStudentPerMeeting();
         autoAcceptStudent = from.isAutoAcceptStudent();
         imagesCloudinary = from.getImagesCloudinary();
+
     }
 
     @Override
@@ -69,6 +72,14 @@ public class CourseFirebase implements FirebaseClass<Course>{
 
             }
         });
+    }
+
+    public ArrayList<String> getStudents() {
+        return students;
+    }
+
+    public void setStudents(ArrayList<String> students) {
+        this.students = students;
     }
 
     public ArrayList<String> getImagesCloudinary() {

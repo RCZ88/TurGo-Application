@@ -1,42 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:padding="16dp"
+    android:background="@drawable/bg_emerald_card"
+    android:elevation="2dp">
+
+    <ImageView
+        android:id="@+id/iv_calendar_icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@android:drawable/ic_menu_my_calendar"
+        app:tint="@color/brand_emerald"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_AgendaDate"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_AgendaDate"/>
 
     <TextView
         android:id="@+id/tv_AgendaDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:text="mm/dd/yyyy"
-        android:textSize="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_AgendaContent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:text="@string/lorem_short"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_AgendaDate" />
+        android:fontFamily="@font/bricolage_grotesque_bold"
+        android:textColor="@color/brand_emerald_dark"
+        android:textSize="14sp"
+        tools:text="Oct 24, 2024"
+        app:layout_constraintStart_toEndOf="@+id/iv_calendar_icon"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_AgendaTeacher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="16dp"
-        android:text="Teacher Name"
-        android:textSize="20sp"
+        android:fontFamily="@font/bricolage_body"
+        android:textColor="@color/brand_emerald"
+        android:textSize="12sp"
+        android:background="@drawable/bg_emerald_input"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="4dp"
+        tools:text="Dr. Smith"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_AgendaContent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_AgendaDate"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="#1A000000"
+        app:layout_constraintTop_toBottomOf="@+id/tv_AgendaDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_AgendaContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/bricolage_body"
+        android:textColor="@color/black_soft"
+        android:textSize="15sp"
+        android:lineSpacingExtra="4dp"
+        tools:text="Read Chapter 4 and complete the exercises on page 102 regarding partial derivatives."
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

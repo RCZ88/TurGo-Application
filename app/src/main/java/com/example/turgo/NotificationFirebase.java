@@ -14,13 +14,14 @@ public class NotificationFirebase implements FirebaseClass<Notification<?>> {
     private String from;
     private String to;
 
+    public NotificationFirebase(){}
     @Override
     public void importObjectData(Notification<?> from) {
         notif_ID = from.getID();
         title = from.getTitle();
         content = from.getContent();
         timeSent = from.getTimeSent().toString();
-        this.from = ((RequireUpdate<?, ?>) from.getFrom()).getID();
+        this.from = ((RequireUpdate<?, ?, ?>) from.getFrom()).getID();
         to = from.getTo().getUid();
     }
 

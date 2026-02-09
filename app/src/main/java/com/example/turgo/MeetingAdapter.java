@@ -37,9 +37,10 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingViewHolder>{
         holder.tv_timeFromUntil.setText(startEnd);
         holder.tv_date.setText(meeting.getDateOfMeeting().getDayOfYear());
         holder.tv_day.setText(meeting.getDateOfMeeting().getDayOfWeek().toString());
-        Schedule schedule = Await.get(meeting::getMeetingOfSchedule);
-        Course course = Await.get(schedule::getScheduleOfCourse);
-        holder.tv_CourseName.setText(course.getCourseName());
+        meeting.getMeetingOfSchedule()
+                .continueWithTask(tasks -> tasks.getResult().getScheduleOfCourse())
+                .addOnSuccessListener(course->holder.tv_CourseName.setText(course.getCourseName()));
+
     }
 
     @Override

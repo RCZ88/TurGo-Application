@@ -5,16 +5,19 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".RegisterCourse">
 
     <LinearLayout
         android:id="@+id/ll_arc_topView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#A0DBF4"
+        android:background="@drawable/bg_toolbar_emerald"
+        android:elevation="4dp"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingTop="20dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,17 +27,25 @@
             android:id="@+id/textView41"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register for Course"
+            android:fontFamily="@font/spacemono_regular"
+            android:letterSpacing="0.05"
+            android:text="REGISTER FOR COURSE"
             android:textAlignment="center"
-            android:textColor="@color/secondary_text" />
+            android:textAllCaps="true"
+            android:textColor="@color/brand_emerald_pale"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_arc_ViewTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/delagothicone_regular"
             android:text="User Details"
             android:textAlignment="center"
-            android:textSize="34dp"
+            android:textColor="@color/white_soft"
+            android:textSize="32sp"
             android:textStyle="bold" />
 
         <ProgressBar
@@ -42,17 +53,22 @@
             style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
             android:layout_marginBottom="8dp"
-            android:paddingVertical="4dp" />
+            android:paddingVertical="4dp"
+            android:progressTint="@color/brand_emerald_light"
+            android:progressBackgroundTint="@color/brand_emerald_dark" />
 
         <ImageButton
             android:id="@+id/btn_arc_CollapseTopBar"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="#1E47B1F1"
-            app:srcCompat="@drawable/caret" />
+            android:layout_height="24dp"
+            android:layout_marginTop="4dp"
+            android:background="@android:color/transparent"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/caret"
+            app:tint="@color/brand_emerald_pale" />
     </LinearLayout>
 
     <androidx.fragment.app.FragmentContainerView
@@ -70,8 +86,11 @@
         android:id="@+id/ll_arc_botButtons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
+        android:background="@color/white_soft"
+        android:elevation="16dp"
         android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -80,11 +99,13 @@
         <Button
             android:id="@+id/btn_previous_rc"
             android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:layout_marginStart="16dp"
-            android:backgroundTint="@color/turgo_teal_dark"
-            android:text="@string/previous" />
+            android:layout_height="50dp"
+            android:background="@drawable/bg_emerald_btn_outlined"
+            android:fontFamily="@font/space_mono_regular"
+            android:text="@string/previous"
+            android:textAllCaps="false"
+            android:textColor="@color/brand_emerald"
+            app:backgroundTint="@null" />
 
         <View
             android:layout_width="0dp"
@@ -94,11 +115,13 @@
         <Button
             android:id="@+id/btn_next_rc"
             android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:layout_marginEnd="16dp"
-            android:backgroundTint="@color/turgo_teal_dark"
-            android:text="@string/next" />
+            android:layout_height="50dp"
+            android:background="@drawable/bg_emerald_btn_primary"
+            android:fontFamily="@font/space_mono_regular"
+            android:text="@string/next"
+            android:textAllCaps="false"
+            android:textColor="@color/white_soft"
+            app:backgroundTint="@null" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

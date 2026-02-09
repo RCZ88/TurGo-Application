@@ -1,9 +1,35 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.TurGo" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+
+    <!-- ✅ ADD THIS: Base theme for day mode -->
+    <style name="Base.Theme.TurGo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_emerald</item>
+        <item name="colorOnPrimary">@color/white_soft</item>
+        <item name="colorPrimaryContainer">#D1FAE5</item>
+        <item name="colorOnPrimaryContainer">@color/brand_emerald_dark</item>
+        <item name="colorSecondaryContainer">#D1FAE5</item>
+        <item name="colorOnSecondaryContainer">@color/brand_emerald_dark</item>
     </style>
 
-    <style name="Theme.TurGo" parent="Base.Theme.TurGo" />
+    <!-- Keep this as is -->
+    <style name="Theme.TurGo" parent="Base.Theme.TurGo">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="CourseTitleExpanded" parent="TextAppearance.Design.CollapsingToolbar.Expanded">
+        <item name="android:fontFamily">@font/bricolage_grotesque_bold</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textColor">@color/white_soft</item>
+        <item name="android:shadowColor">#CC000000</item>
+        <item name="android:shadowDy">2</item>
+        <item name="android:shadowRadius">8</item>
+    </style>
+
+    <style name="CourseTitleCollapsed" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:fontFamily">@font/bricolage_grotesque_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/white_soft</item>
+    </style>
 </resources>
