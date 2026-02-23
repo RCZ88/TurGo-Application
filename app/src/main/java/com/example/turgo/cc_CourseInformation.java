@@ -41,7 +41,6 @@ public class cc_CourseInformation extends Fragment implements checkFragmentCompl
     private static final String ARG_PARAM2 = "param2";
     private EditText et_CourseName, etml_CourseDescription;
     private Spinner sp_CourseTypes;
-
     private static final String tag = "cc_CourseInformation";
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -101,6 +100,7 @@ public class cc_CourseInformation extends Fragment implements checkFragmentCompl
 
             }
         });
+
 
         if(cc.courseName != null){
             if(cc.courseName.isEmpty()){
@@ -166,7 +166,7 @@ public class cc_CourseInformation extends Fragment implements checkFragmentCompl
         return view;
     }
     private void retrieveCourseTypes(ObjectCallBack<ArrayList<CourseType>>callback){
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSETYPE.getPath());
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference(FirebaseNode.COURSE_TYPE.getPath());
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

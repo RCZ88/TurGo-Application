@@ -26,6 +26,7 @@ public class CourseFirebase implements FirebaseClass<Course>{
     private ArrayList<String>studentsCourse;
     private ArrayList<String> imagesCloudinary;
     private ArrayList<String>students;
+    private String teacher;
 
     public CourseFirebase(){
 
@@ -51,6 +52,7 @@ public class CourseFirebase implements FirebaseClass<Course>{
         maxStudentPerMeeting = from.getMaxStudentPerMeeting();
         autoAcceptStudent = from.isAutoAcceptStudent();
         imagesCloudinary = from.getImagesCloudinary();
+        teacher = from.getTeacherId();
 
     }
 
@@ -243,6 +245,14 @@ public class CourseFirebase implements FirebaseClass<Course>{
 
     public void setMonthlyDiscountPercentage(double monthlyDiscountPercentage) {
         this.monthlyDiscountPercentage = monthlyDiscountPercentage;
+    }
+
+    public String getTeacher() {
+        return teacher;
+    }
+
+    public void setTeacher(String teacher) {
+        this.teacher = teacher;
     }
 
 

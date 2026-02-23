@@ -4,27 +4,82 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_page_gradient"
     tools:context=".TeacherAllCourse">
 
-    <TextView
-        android:id="@+id/textView118"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_tac_header"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="ALL COURSE"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/white_soft"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/brand_emerald_pale"
+        app:strokeWidth="1dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="18dp"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:id="@+id/tv_tac_overline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_label"
+                android:letterSpacing="0.08"
+                android:text="TEACHING DASHBOARD"
+                android:textColor="@color/brand_emerald"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tv_tac_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/bricolage_grotesque_heading"
+                android:text="All Courses"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="28sp" />
+
+            <TextView
+                android:id="@+id/tv_tac_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:fontFamily="@font/bricolage_body"
+                android:text="Track classes, next meetings, and student load"
+                android:textColor="@color/black_soft"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_TAC_AllCourse"
-        android:layout_width="411dp"
-        android:layout_height="561dp"
-        android:layout_marginTop="24dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginEnd="12dp"
+        android:clipToPadding="false"
+        android:paddingStart="4dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView118" />
+        app:layout_constraintTop_toBottomOf="@id/card_tac_header"
+        tools:listitem="@layout/course_teacher_viewholder" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

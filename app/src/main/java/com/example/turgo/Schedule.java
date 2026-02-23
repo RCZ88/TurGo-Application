@@ -116,6 +116,9 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     }
 
     public Task<Room> getRoom(){
+        if (!Tool.boolOf(room)) {
+            return Tasks.forResult(null);
+        }
         RoomRepository roomRepository = new RoomRepository(room);
         return roomRepository.loadAsNormal();
     }
@@ -135,19 +138,19 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
         this.room = room;
     }
 
-    public void getScheduleOfCourse(ObjectCallBack<Course> callBack) {
-        try {
-            findAggregatedObject( Course.class, "schedules", callBack);
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-    }
     public Task<Course> getScheduleOfCourse(){
+        if (!Tool.boolOf(ofCourse)) {
+            return Tasks.forResult(null);
+        }
         CourseRepository courseRepository = new CourseRepository(ofCourse);
         return courseRepository.loadAsNormal();
     }
 
     public int getNumberOfStudents() {
+        if(numberOfStudents == 0 && !students.isEmpty()){
+            getRepositoryInstance().incrementNumberOfStudents(students.size());
+            numberOfStudents = students.size();
+        }
         return numberOfStudents;
     }
 
@@ -171,11 +174,23 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
 //        }
 //    }
     public Task<List<Student>>getStudents(){
+        if (students == null || students.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
+        }
+
         List<Task<Student>> studentTask = new ArrayList<>();
-        for(String studentId : students){
+        for (String studentId : students) {
+            if (!Tool.boolOf(studentId)) {
+                continue;
+            }
             StudentRepository studentRepository = new StudentRepository(studentId);
             studentTask.add(studentRepository.loadAsNormal());
         }
+
+        if (studentTask.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
+        }
+
         return Tasks.whenAllSuccess(studentTask);
     }
 

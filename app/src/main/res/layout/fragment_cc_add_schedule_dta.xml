@@ -1,185 +1,264 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/surface_inner_panel"
     tools:context=".cc_AddScheduleDTA">
 
-    <ScrollView
-        android:layout_width="408dp"
-        android:layout_height="0dp"
-        android:fadeScrollbars="false"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:scrollbarStyle="insideOverlay"
-        android:scrollbars="vertical"
-        android:verticalScrollbarPosition="defaultPosition"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textView26"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Schedule Configuration"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/textView70"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="@font/bricolage_body"
+            android:lineSpacingExtra="4dp"
+            android:text="Define the weekly availability for this course. Set the earliest and latest acceptable times for student attendance."
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card_surface"
+            android:padding="20dp">
 
             <TextView
-                android:id="@+id/textView26"
+                android:id="@+id/tv_lbl_day"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="64dp"
-                android:text="Add DTA Schedule"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:text="DAY OF WEEK"
+                android:letterSpacing="0.05"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_day_select"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:endIconTint="@color/brand_emerald"
+                app:layout_constraintTop_toBottomOf="@id/tv_lbl_day">
+
+                <AutoCompleteTextView
+                    android:id="@+id/sp_CC_DayOfWeek"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_body"
+                    android:hint="Select Day..."
+                    android:inputType="none"
+                    android:paddingTop="14dp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
-                android:id="@+id/linearLayout27"
-                android:layout_width="327dp"
-                android:layout_height="391dp"
-                android:layout_marginTop="44dp"
-                android:gravity="center_horizontal"
-                android:orientation="vertical">
+                android:id="@+id/ll_time_row"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal"
+                android:baselineAligned="false"
+                app:layout_constraintTop_toBottomOf="@id/til_day_select">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="24sp"
-                    android:gravity="center_horizontal"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/textView67"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Select Day of Week"
-                        android:textSize="20sp" />
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:text="START TIME"
+                        android:letterSpacing="0.05"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="12sp" />
 
-                    <Spinner
-                        android:id="@+id/sp_CC_DayOfWeek"
-                        android:layout_width="150sp"
-                        android:layout_height="38sp"
-                        android:layout_marginTop="24dp"
-                        android:entries="@array/day_of_week" />
+                    <TextView
+                        android:id="@+id/btn_CC_EarlyTimeDTA"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:gravity="center_vertical"
+                        android:text="08:00 AM"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="16sp"
+                        app:drawableEndCompat="@android:drawable/ic_menu_recent_history"
+                        app:drawableTint="@color/brand_emerald" />
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="38sp"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
 
-                    <LinearLayout
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_margin="10sp"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical">
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:text="END TIME"
+                        android:letterSpacing="0.05"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="12sp" />
 
-                        <TextView
-                            android:id="@+id/textView68"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Earliest Time"
-                            android:textSize="18sp" />
-
-                        <Button
-                            android:id="@+id/btn_CC_EarlyTimeDTA"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:text="Select Time" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="10sp"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textView69"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Latest Time"
-                            android:textSize="18sp" />
-
-                        <Button
-                            android:id="@+id/btn_CC_LatestTimeDTA"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:text="Select Time" />
-                    </LinearLayout>
+                    <TextView
+                        android:id="@+id/btn_CC_LatestTimeDTA"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:gravity="center_vertical"
+                        android:text="05:00 PM"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="16sp"
+                        app:drawableEndCompat="@android:drawable/ic_menu_recent_history"
+                        app:drawableTint="@color/brand_emerald" />
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <CheckBox
-                        android:id="@+id/cb_CC_MeetingLimit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_marginEnd="10sp"
-                        android:text="Meeting Limit?" />
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textView83"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Max Meeting of Day" />
-
-                        <EditText
-                            android:id="@+id/etn_CC_maxMeetingOfDay"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:ems="10"
-                            android:inputType="number" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <Button
-                    android:id="@+id/btn_CC_AddDTA"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20sp"
-                    android:text="Add DTA" />
-
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView86"
+                android:id="@+id/tv_lbl_room"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="DTA Configured:"
-                android:textSize="20sp" />
+                android:layout_marginTop="20dp"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:text="ASSIGNED ROOM"
+                android:letterSpacing="0.05"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_time_row" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_room_select"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                app:boxStrokeWidth="0dp"
+                app:boxStrokeWidthFocused="0dp"
+                app:endIconTint="@color/brand_emerald"
+                app:layout_constraintTop_toBottomOf="@id/tv_lbl_room">
+
+                <AutoCompleteTextView
+                    android:id="@+id/sp_CC_RoomSelection"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_body"
+                    android:hint="Select Room..."
+                    android:inputType="none"
+                    android:paddingTop="14dp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_limits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/til_room_select">
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/cb_CC_MeetingLimit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Limit Meeting"
+                    android:textColor="@color/brand_emerald_dark"
+                    app:thumbTint="@color/white"
+                    app:trackTint="@color/brand_emerald" />
+
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="wrap_content" />
+
+                <EditText
+                    android:id="@+id/etn_CC_maxMeetingOfDay"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_emerald_input"
+                    android:hint="Max Meetings"
+                    android:inputType="number"
+                    android:paddingHorizontal="12dp"
+                    android:textSize="14sp"
+                    android:visibility="visible" />
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_CC_AddDTA"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:background="@drawable/bg_emerald_btn_primary"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:text="+ Add Schedule"
+                android:textAllCaps="false"
+                android:textColor="@color/white_soft"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/ll_limits" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/textView86"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+            android:text="Active Schedules"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="20sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_emerald_card">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_CC_DTASelected"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginHorizontal="20dp"
-                android:background="@drawable/edittext_border" />
+                android:layout_height="wrap_content"
+                android:minHeight="120dp"
+                android:nestedScrollingEnabled="false"
+                tools:itemCount="2"
+                tools:listitem="@layout/dta_view_holder" />
+        </FrameLayout>
 
-            <TextView
-                android:id="@+id/textView70"
-                android:layout_width="343dp"
-                android:layout_height="92dp"
-                android:layout_marginTop="44dp"
-                android:text="The Time Constraint on Whether a course is available at which days, and what are the earlist time that a student can apply and the latest time that the student can attend the course. It will create the Arrangement for that day. Fill all the fields before adding the DTA."
-                android:textAlignment="center" />
-
-        </LinearLayout>
-    </ScrollView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

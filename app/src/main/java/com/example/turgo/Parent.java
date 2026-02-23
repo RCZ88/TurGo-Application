@@ -32,12 +32,6 @@ public class Parent extends User implements Serializable, RequireUpdate<Parent, 
     public String getID() {
         return super.getUid();
     }
-
-    @Override
-    public void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        this.updateDB();
-    }
-
     public Parent(){}
 
     @Override

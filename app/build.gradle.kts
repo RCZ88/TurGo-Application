@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.preference)
     implementation(libs.work.runtime)
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -67,6 +68,7 @@ dependencies {
 
     // Add the dependency for the Firebase SDK for Google Analytics
     implementation(libs.firebase.analytics)
+    implementation("com.google.firebase:firebase-messaging")
 
     // TODO: Add the dependencies for any other Firebase products you want to use
     // See https://firebase.google.com/docs/android/setup#available-libraries
@@ -80,7 +82,6 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.firebase.database)
-    implementation(libs.google.services)
 
     //implementation(libs.google.firebase.auth)
     //implementation(libs.google.firebase.firestore)

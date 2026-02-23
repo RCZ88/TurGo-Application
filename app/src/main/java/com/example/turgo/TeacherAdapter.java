@@ -16,12 +16,14 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherViewHolder> {
     ArrayList<TeacherMini> teacherFullList;
     ArrayList<TeacherMini> teacherSearchResult;
     Context context;
+    boolean showButton;
     OnItemClickListener<Pair<Integer, TeacherMini>>listener;
-    public TeacherAdapter(ArrayList<TeacherMini>teachers, Context context, OnItemClickListener<Pair<Integer, TeacherMini>>listener){
+    public TeacherAdapter(ArrayList<TeacherMini>teachers, Context context, OnItemClickListener<Pair<Integer, TeacherMini>>listener, boolean showButton){
         this.teacherFullList = teachers;
         teacherSearchResult = new ArrayList<>(teachers);
         this.context = context;
         this.listener = listener;
+        this.showButton = showButton;
     }
     @NonNull
     @Override
@@ -42,6 +44,8 @@ public class TeacherAdapter extends RecyclerView.Adapter<TeacherViewHolder> {
         holder.subjectTeaching.setText(teacherSearchResult.get(position).getSubjectTeaching());
         holder.teacherName.setText(teacherSearchResult.get(position).getTeacherName());
         holder.tm = teacherSearchResult.get(position);
+        boolean canShowAction = this.showButton && listener != null;
+        holder.addTeacher.setVisibility(canShowAction ? View.VISIBLE : View.GONE);
         holder.position = position;
         holder.pair =  new Pair<>(position, holder.tm);
     }

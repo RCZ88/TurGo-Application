@@ -12,7 +12,7 @@ public class StudentCourseRepository implements RepositoryClass<StudentCourse, S
 
     public StudentCourseRepository(String scId) {
         studentCourseRef = FirebaseDatabase.getInstance()
-                .getReference(FirebaseNode.STUDENTCOURSE.getPath())
+                .getReference(FirebaseNode.STUDENT_COURSE.getPath())
                 .child(scId);
     }
 

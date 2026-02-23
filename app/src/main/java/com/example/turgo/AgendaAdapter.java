@@ -27,9 +27,21 @@ public class AgendaAdapter extends RecyclerView.Adapter<AgendaViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull AgendaViewHolder holder, int position) {
         Agenda agenda = agendas.get(position);
-        holder.tv_teacherName.setText(agenda.getTeacher().getFullName());
-        holder.tv_contents.setText(agenda.getContents());
-        holder.tv_dateDisplay.setText(agenda.getDate().toString());
+        String teacherName = "Teacher";
+        if (agenda != null && agenda.getTeacher() != null && Tool.boolOf(agenda.getTeacher().getFullName())) {
+            teacherName = agenda.getTeacher().getFullName();
+        }
+        holder.tv_teacherName.setText(teacherName);
+
+        String content = agenda != null && Tool.boolOf(agenda.getContents())
+                ? agenda.getContents()
+                : "No agenda details.";
+        holder.tv_contents.setText(content);
+
+        String date = agenda != null && agenda.getDate() != null
+                ? agenda.getDate().toString()
+                : "No date";
+        holder.tv_dateDisplay.setText(date);
     }
 
     @Override

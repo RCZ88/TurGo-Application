@@ -10,14 +10,17 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase, DropboxR
     private final FirebaseNode fbn = FirebaseNode.DROPBOX;
     private final Class<DropboxFirebase> fbc = DropboxFirebase.class;
     private ArrayList<Submission>submissions;
-    private final String UID;
+    private String UID;
     private Task ofTask;
     public Dropbox(Task ofTask){
         submissions = new ArrayList<>();
         this.ofTask = ofTask;
         UID = UUID.randomUUID().toString();
     }
-
+    public Dropbox(){
+        UID = UUID.randomUUID().toString();
+        submissions = new ArrayList<>();
+    }
 
 
 
@@ -31,13 +34,16 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase, DropboxR
                     tcs.setResult(null);
                 })
                 .addOnFailureListener(tcs::setException);
-
         return tcs.getTask();
     }
 
     public Submission getSubmissionSlot(Student student){
-        for(Submission submission : submissions){
-            if(submission.getOf() == student){
+        if (student == null || !Tool.boolOf(student.getID())) {
+            return null;
+        }
+        for(Submission submission : getSubmissions()){
+            Student owner = submission.getOf();
+            if(owner != null && Tool.boolOf(owner.getID()) && owner.getID().equals(student.getID())){
                 return submission;
             }
         }
@@ -45,7 +51,11 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase, DropboxR
     }
     public void setupSubmissions(ArrayList<Student> students){
         for(Student student : students){
-            submissions.add(new Submission(student));
+            Submission submissionSlot = new Submission(student, this.getID());
+            submissionSlot.setDropbox(getID());
+            SubmissionRepository submissionRepository = new SubmissionRepository(submissionSlot.getID());
+            submissionRepository.save(submissionSlot);
+            submissions.add(submissionSlot);
         }
     }
 
@@ -63,12 +73,19 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase, DropboxR
         return UID;
     }
 
+    public void setUID(String UID) {
+        this.UID = UID;
+    }
+
     @Override
     public Class<DropboxRepository> getRepositoryClass() {
         return DropboxRepository.class;
     }
 
     public ArrayList<Submission> getSubmissions() {
+        if (submissions == null) {
+            submissions = new ArrayList<>();
+        }
         return submissions;
     }
 
@@ -83,4 +100,5 @@ public class Dropbox implements RequireUpdate<Dropbox, DropboxFirebase, DropboxR
     public void setOfTask(Task ofTask) {
         this.ofTask = ofTask;
     }
+
 }

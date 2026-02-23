@@ -19,10 +19,10 @@ public class MACFirebase extends MailFirebase implements FirebaseClass<Mail>{
     @Override
     public void importObjectData(Mail from) {
         setMailID(from.getID());
-        setFrom(from.getFrom().getUid());
-        setTo(from.getTo().getUid());
+        setFrom(from.getFromId());
+        setTo(from.getToId());
         setTimeSent(from.getTimeSent().toString());
-        setTimeOpened(from.getTimeOpened().toString());
+        setTimeOpened(from.getTimeOpened() != null ? from.getTimeOpened().toString() : null);
         setHeader(from.getHeader());
         setBody(from.getBody());
         setOpened(from.isOpened());

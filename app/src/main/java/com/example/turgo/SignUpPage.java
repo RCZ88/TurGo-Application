@@ -74,7 +74,7 @@ public class SignUpPage extends AppCompatActivity {
         }
         btn_next = findViewById(R.id.btn_NextPage);
         btn_previous = findViewById(R.id.btn_PreviousPage);
-        btn_previous.setEnabled(false);
+        btn_previous.setVisibility(View.GONE);
 
         signUpSegments[0] = frag_userCategory;
         signUpSegments[1] = frag_userDetails;
@@ -107,12 +107,24 @@ public class SignUpPage extends AppCompatActivity {
         }else{
             Log.e("Next Segment Button", "current Segment is less then segmentIndex: " + condition1 + "current segment Completed: " + condition2);
         }
+        if(currentSegmentIndex +1 == signUpSegments.length){
+            btn_next.setVisibility(View.GONE);
+        }
+        if(currentSegmentIndex != 0){
+            btn_previous.setVisibility(View.VISIBLE);
+        }
     }
     public void goToPreviousSegment(View view){
         if(currentSegmentIndex > 0){
             currentSegmentIndex--;
             updateProgressBar();
             updateFragment();
+        }
+        if(currentSegmentIndex +1 != signUpSegments.length){
+            btn_next.setVisibility(View.VISIBLE);
+        }
+        if(currentSegmentIndex == 0){
+            btn_previous.setVisibility(View.GONE);
         }
     }
 
@@ -247,16 +259,20 @@ public class SignUpPage extends AppCompatActivity {
                                     });
 
 
-                            try {
-                                if(newUser.getUid() != null){
-                                    newUser.updateUserDB();
-                                    Log.d("SignUpPage", "ID User: " + newUser.getUid());
-                                }else{
-                                    Log.e("SignUpPage", "Error: " + "User ID is null");
+                            if(newUser.getUid() != null){
+                                rtdbManager.storeUserType(newUser);
+                                if (newUser instanceof Student) {
+                                    ((Student) newUser).getRepositoryInstance().save((Student) newUser);
+                                } else if (newUser instanceof Teacher) {
+                                    ((Teacher) newUser).getRepositoryInstance().save((Teacher) newUser);
+                                } else if (newUser instanceof Parent) {
+                                    ((Parent) newUser).getRepositoryInstance().save((Parent) newUser);
+                                } else if (newUser instanceof Admin) {
+                                    ((Admin) newUser).getRepositoryInstance().save((Admin) newUser);
                                 }
-                            } catch (InvocationTargetException | InstantiationException |
-                                     IllegalAccessException | NoSuchMethodException e) {
-                                throw new RuntimeException(e);
+                                Log.d("SignUpPage", "ID User: " + newUser.getUid());
+                            }else{
+                                Log.e("SignUpPage", "Error: " + "User ID is null");
                             }
 
                             Intent i = new Intent(SignUpPage.this, SignInPage.class);

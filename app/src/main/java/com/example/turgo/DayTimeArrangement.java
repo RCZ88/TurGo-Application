@@ -251,7 +251,7 @@ public class DayTimeArrangement implements Serializable, RequireUpdate<DayTimeAr
 
     public void getAtCourse(ObjectCallBack<Course>callBack) {
         try {
-            findAggregatedObject( Course.class, "dayTimeArrangements", callBack);
+            findAggregatedObject( Course.class, "dayTimeArrangement", callBack);
         } catch (IllegalAccessException | InstantiationException e) {
             throw new RuntimeException(e);
         }

@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import com.google.firebase.database.Exclude;
 import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim arrangement
     // Firebase-compatible fields
     private String DTA_ID;
+    private String id; // legacy alias
     private String ofTeacher; // Store Teacher ID instead of Teacher object
     private String atCourse; // Store Course ID instead of Course object
     private String day; // Store DayOfWeek as String
@@ -28,11 +30,12 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
     public void importObjectData(DayTimeArrangement from) {
         // Copy DTA ID
         DTA_ID = from.getID();
+        id = DTA_ID;
 
         // Convert object references to IDs
         from.getOfTeacher(new ObjectCallBack<Teacher>() {
             @Override
-            public void onObjectRetrieved(Teacher object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+            public void onObjectRetrieved(Teacher object) {
                 if(object != null){
                     ofTeacher = object.getID();
                 }
@@ -82,8 +85,9 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
     }
 
     @Override
+    @Exclude
     public String getID() {
-        return DTA_ID;
+        return Tool.boolOf(DTA_ID) ? DTA_ID : id;
     }
 
     @Override
@@ -107,6 +111,18 @@ public class DTAFirebase implements FirebaseClass<DayTimeArrangement>{ //day tim
 
     public void setDTA_ID(String DTA_ID) {
         this.DTA_ID = DTA_ID;
+        this.id = DTA_ID;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+        if (!Tool.boolOf(this.DTA_ID)) {
+            this.DTA_ID = id;
+        }
     }
 
     public String getOfTeacher() {

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/brand_emerald_pale"
+    tools:context=".AdminCreateRoom">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="12dp"
+            android:paddingTop="32dp"
+            android:paddingBottom="16dp">
+
+            <ImageButton
+                android:id="@+id/ib_ACR_goBack"
+                android:layout_width="30dp"
+                android:layout_height="70dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/bg_slot_new"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/caret_left" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView32"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/dela_gothic_one_regular"
+                    android:text="Create Room"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bricolage_body"
+                    android:text="Configure new study spaces for students"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/brand_emerald_light"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:text="Room Name / Tag"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/et_ACR_roomTag"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="20dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:hint="e.g. Lab 402"
+                        android:inputType="text"
+                        android:paddingHorizontal="16dp"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:text="Suitable Course Types"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp" />
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/cg_ACR_courseTypes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        app:chipSpacingHorizontal="8dp"
+                        app:chipSpacingVertical="4dp">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_lecture"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Lecture"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:chipBackgroundColor="@color/brand_emerald_pale"
+                            app:chipStrokeColor="@color/brand_emerald_light"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_lab"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Laboratory"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:chipBackgroundColor="@color/brand_emerald_pale"
+                            app:chipStrokeColor="@color/brand_emerald_light"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_seminar"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Seminar"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:chipBackgroundColor="@color/brand_emerald_pale"
+                            app:chipStrokeColor="@color/brand_emerald_light"
+                            app:chipStrokeWidth="1dp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chip_workshop"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Workshop"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:chipBackgroundColor="@color/brand_emerald_pale"
+                            app:chipStrokeColor="@color/brand_emerald_light"
+                            app:chipStrokeWidth="1dp" />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Maximum Capacity"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tv_ACR_studentCapacityCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/space_mono_regular"
+                            android:text="0 Students"
+                            android:textSize="12dp" />
+                    </LinearLayout>
+
+                    <SeekBar
+                        android:id="@+id/sb_ACR_roomCapacity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:progressTint="@color/brand_emerald"
+                        android:thumbTint="@color/brand_emerald_dark" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_ACR_create"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:text="CREATE ROOM"
+                        app:backgroundTint="@color/brand_emerald"
+                        app:cornerRadius="16dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/textView54"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/bricolage_grotesque_48pt_semi_bold"
+                android:text="Existing Rooms"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/tv_ACR_emptyRoom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_emerald_card_selected"
+                android:fontFamily="@font/space_mono_regular"
+                android:gravity="center"
+                android:minHeight="150dp"
+                android:padding="18dp"
+                android:text="No Rooms Found!" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_ACR_roomsCreated"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                tools:listitem="@layout/room_item_view" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

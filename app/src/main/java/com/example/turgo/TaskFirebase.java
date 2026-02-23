@@ -4,60 +4,44 @@ import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 public class TaskFirebase implements FirebaseClass<Task> {
     private String taskID;
-    private List<String> studentsAssigned;  // Stores Student IDs
+    private ArrayList<String> studentsAssign;
     private String title;
     private String description;
-    private String dueDate;                // ISO-8601 string representation
-    private String taskOfCourse;           // Course ID
-    private String fromSchedule;           // Schedule ID
-    private String dateAssigned;           // ISO-8601 string representation
-    private String dropbox;                // Dropbox ID
-    private String publisher;              // Teacher ID
+    private String dueDate;
+    private String taskOfCourse;
+    private String fromSchedule;
+    private String dateAssigned;
+    private String dropbox;
+    private boolean manualCompletionRequired;
+    private String publisher;
 
     public TaskFirebase(){}
 
     @Override
     public void importObjectData(Task from) {
         if (from == null) return;
+        this.taskID = from.getTaskID();
+        this.studentsAssign = from.getStudentsAssign() != null ? from.getStudentsAssign() : new ArrayList<>();
 
-//        // Convert list of Student objects to list of IDs
-//        ArrayList<Student> studentsAssigned = Await.get(from::getStudentsAssigned);
-        this.studentsAssigned = from.getStudentsAssign();
-
-        // Simple String fields
         this.title = from.getTitle();
         this.description = from.getDescription();
 
-        // Date/time conversions (assuming ISO format)
-        if (from.getDueDate() != null) {
-            this.dueDate = from.getDueDate().toString();
-        }
-        if (from.getDateAssigned() != null) {
-            this.dateAssigned = from.getDateAssigned().toString();
-        }
+        this.dueDate = from.getDueDate() != null ? from.getDueDate().toString() : null;
+        this.dateAssigned = from.getDateAssigned() != null ? from.getDateAssigned().toString() : null;
 
-        // Object-to-ID conversions
-        this.taskOfCourse = (from.getTaskOfCourse() != null) ?
-                from.getTaskOfCourse().getID() : null;
-        this.fromSchedule = (from.getFromSchedule() != null) ?
-                from.getFromSchedule().getID() : null;
-        this.dropbox = (from.getDropbox() != null) ?
-                from.getDropbox().getID() : null;
-        this.publisher = (from.getPublisher() != null) ?
-                from.getPublisher().getID() : null;
+        this.taskOfCourse = from.getTaskOfCourse();
+        this.fromSchedule = from.getFromSchedule();
+        this.dropbox = from.getDropbox();
+        this.manualCompletionRequired = from.isManualCompletionRequired();
+        this.publisher = from.getPublisher();
     }
 
     @Override
     public String getID() {
-        // Assuming TaskFirebase gets its ID from somewhere
-        // You might want to add an ID field if needed
         return taskID;
     }
 
@@ -76,17 +60,12 @@ public class TaskFirebase implements FirebaseClass<Task> {
         });
     }
 
+    public String getTaskID() {
+        return taskID;
+    }
 
     public void setTaskID(String taskID) {
         this.taskID = taskID;
-    }
-
-    public List<String> getStudentsAssigned() {
-        return studentsAssigned;
-    }
-
-    public void setStudentsAssigned(List<String> studentsAssigned) {
-        this.studentsAssigned = studentsAssigned;
     }
 
     public String getTitle() {
@@ -151,5 +130,21 @@ public class TaskFirebase implements FirebaseClass<Task> {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public boolean isManualCompletionRequired() {
+        return manualCompletionRequired;
+    }
+
+    public void setManualCompletionRequired(boolean manualCompletionRequired) {
+        this.manualCompletionRequired = manualCompletionRequired;
+    }
+
+    public ArrayList<String> getStudentsAssign() {
+        return studentsAssign;
+    }
+
+    public void setStudentsAssign(ArrayList<String> studentsAssign) {
+        this.studentsAssign = studentsAssign;
     }
 }

@@ -10,57 +10,64 @@
     android:paddingHorizontal="16dp"
     android:paddingVertical="12dp">
 
-    <View
-        android:id="@+id/v_notif_StatusDot"
-        android:layout_width="8dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/bg_qr_button"
-        android:backgroundTint="@color/brand_emerald_light"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/tv_notif_TitleHeader" />
-
     <LinearLayout
-        android:id="@+id/linearLayout9"
+        android:id="@+id/linearLayout3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/v_notif_StatusDot"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tv_notif_TitleHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/bricolage_grotesque_extra_bold"
-            android:text="Class Update"
-            android:textColor="@color/brand_emerald_dark"
-            android:textSize="16sp" />
+        <View
+            android:id="@+id/v_notif_StatusDot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_qr_button"
+            android:backgroundTint="@color/brand_emerald_light" />
 
-        <TextView
-            android:id="@+id/tv_notif_Content"
+        <LinearLayout
+            android:id="@+id/linearLayout9"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:fontFamily="sans-serif"
-            android:maxLines="2"
-            android:text="@string/lorem_short"
-            android:textColor="@color/black_soft"
-            android:textSize="14sp" />
+            android:layout_marginStart="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_notif_TitleHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_grotesque_extra_bold"
+                android:text="Class Update"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_notif_Content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:maxLines="2"
+                android:text="@string/lorem_short"
+                android:textColor="@color/black_soft"
+                android:textSize="14sp" />
+        </LinearLayout>
     </LinearLayout>
 
     <View
         android:id="@+id/v_notif_Divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:background="@color/brand_emerald_pale"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/tv_notif_TitleHeader"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout9" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

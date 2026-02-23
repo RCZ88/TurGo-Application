@@ -18,8 +18,10 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -27,7 +29,7 @@ import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 public class Course implements Serializable, RequireUpdate<Course, CourseFirebase, CourseRepository>{
-    private final String courseID;
+    private String courseID;
     private Class<CourseFirebase> fbc = CourseFirebase.class;
     public static final String SERIALIZE_KEY_CODE = "courses";
     public static final int PER_MONTH_INDEX = 0;
@@ -92,7 +94,105 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     public void setTeacher(String teacher) {
         this.teacher = teacher;
     }
+    public Task<ArrayList<Meeting>>getAllPrescheduledMeetingOfCourse(){
+        if (!Tool.boolOf(studentsCourse)) {
+            return Tasks.forResult(new ArrayList<>());
+        }
 
+        List<Task<Student>> studentTasks = new ArrayList<>();
+        for (StudentCourse studentCourse : studentsCourse) {
+            if (studentCourse == null) {
+                continue;
+            }
+            Task<Student> safeStudentTask = studentCourse.getStudent().continueWith(task -> {
+                if (task.isSuccessful()) {
+                    return task.getResult();
+                }
+                Log.w("Course#getAllPrescheduledMeetingOfCourse",
+                        "Skipping failed student load", task.getException());
+                return null;
+            });
+            studentTasks.add(safeStudentTask);
+        }
+
+        if (studentTasks.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
+        }
+
+        return Tasks.whenAllSuccess(studentTasks).continueWithTask(studentResultsTask -> {
+            ArrayList<Meeting> candidateMeetings = new ArrayList<>();
+            List<?> studentResults = studentResultsTask.getResult();
+
+            if (studentResults != null) {
+                for (Object rawStudent : studentResults) {
+                    if (!(rawStudent instanceof Student)) {
+                        continue;
+                    }
+                    Student student = (Student) rawStudent;
+                    ArrayList<Meeting> preScheduled = student.getPreScheduledMeetings();
+                    if (!Tool.boolOf(preScheduled)) {
+                        continue;
+                    }
+                    candidateMeetings.addAll(preScheduled);
+                }
+            }
+
+            if (candidateMeetings.isEmpty()) {
+                return Tasks.forResult(new ArrayList<>());
+            }
+
+            List<Task<Meeting>> meetingFilterTasks = new ArrayList<>();
+            final String thisCourseId = getID();
+            for (Meeting meeting : candidateMeetings) {
+                if (meeting == null) {
+                    continue;
+                }
+                Task<Meeting> filterTask = meeting.getMeetingOfCourse().continueWith(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("Course#getAllPrescheduledMeetingOfCourse",
+                                "Skipping failed meeting->course lookup", task.getException());
+                        return null;
+                    }
+                    Course meetingCourse = task.getResult();
+                    if (meetingCourse == null || !Tool.boolOf(meetingCourse.getID())) {
+                        return null;
+                    }
+                    if (!meetingCourse.getID().equals(thisCourseId)) {
+                        return null;
+                    }
+                    return meeting;
+                });
+                meetingFilterTasks.add(filterTask);
+            }
+
+            if (meetingFilterTasks.isEmpty()) {
+                return Tasks.forResult(new ArrayList<>());
+            }
+
+            return Tasks.whenAllSuccess(meetingFilterTasks).continueWith(filteredResultsTask -> {
+                ArrayList<Meeting> result = new ArrayList<>();
+                LinkedHashSet<String> seenMeetingIds = new LinkedHashSet<>();
+                List<?> filtered = filteredResultsTask.getResult();
+
+                if (filtered != null) {
+                    for (Object rawMeeting : filtered) {
+                        if (!(rawMeeting instanceof Meeting)) {
+                            continue;
+                        }
+                        Meeting meeting = (Meeting) rawMeeting;
+                        String meetingId = meeting.getMeetingID();
+                        if (!Tool.boolOf(meetingId) || seenMeetingIds.contains(meetingId)) {
+                            continue;
+                        }
+                        seenMeetingIds.add(meetingId);
+                        result.add(meeting);
+                    }
+                }
+
+                return result;
+            });
+        });
+    }
     public void setMonthlyDiscountPercentage(double monthlyDiscountPercentage) {
         this.monthlyDiscountPercentage = monthlyDiscountPercentage;
     }
@@ -438,11 +538,21 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         for(Schedule schedule : schedules){
             DayTimeArrangement dtaOfDay = getDTAOfDay(schedule.getDay());
             if(dtaOfDay == null){
-                continue;
+                dtaOfDay = buildDtaFromSchedule(schedule);
+                if (dayTimeArrangement == null) {
+                    dayTimeArrangement = new ArrayList<>();
+                }
+                dayTimeArrangement.add(dtaOfDay);
             }
+            reconcileDtaBounds(dtaOfDay, schedule);
             dtaOfDay.getOccupied().add(schedule);
             DTARepository dtaRepository = new DTARepository(dtaOfDay.getID());
             dtaRepository.addOccupied(schedule);
+            upsertCanonicalDtaFields(dtaRepository, dtaOfDay);
+            courseRepo.addStringToArrayAsync("dayTimeArrangement", dtaOfDay.getID());
+            if (Tool.boolOf(teacher)) {
+                new TeacherRepository(teacher).addStringToArrayAsync("timeArrangements", dtaOfDay.getID());
+            }
             this.schedules.add(schedule);
             courseRepo.addSchedule(schedule);
         }
@@ -484,12 +594,27 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         for (Schedule schedule : schedules) {
             DayTimeArrangement dtaOfDay = getDTAOfDay(schedule.getDay());
             if (dtaOfDay == null) {
-                continue;
+                dtaOfDay = buildDtaFromSchedule(schedule);
+                if (dayTimeArrangement == null) {
+                    dayTimeArrangement = new ArrayList<>();
+                }
+                dayTimeArrangement.add(dtaOfDay);
             }
+            reconcileDtaBounds(dtaOfDay, schedule);
             dtaOfDay.getOccupied().add(schedule);
             DTARepository dtaRepository = new DTARepository(dtaOfDay.getID());
+            Map<String, Object> dtaUpdate = buildCanonicalDtaUpdateMap(dtaOfDay);
             tasks.add(logTask("dta.addOccupied:" + dtaOfDay.getID() + ":" + schedule.getID(),
                     dtaRepository.addStringToArrayAsync("occupied", schedule.getID())));
+            tasks.add(logTask("dta.upsertCanonical:" + dtaOfDay.getID(),
+                    dtaRepository.getDbReference().updateChildren(dtaUpdate)));
+            tasks.add(logTask("course.addDayTimeArrangement:" + dtaOfDay.getID(),
+                    courseRepo.addStringToArrayAsync("dayTimeArrangement", dtaOfDay.getID())));
+            if (Tool.boolOf(teacher)) {
+                TeacherRepository teacherRepository = new TeacherRepository(teacher);
+                tasks.add(logTask("teacher.addTimeArrangement:" + dtaOfDay.getID(),
+                        teacherRepository.addStringToArrayAsync("timeArrangements", dtaOfDay.getID())));
+            }
             this.schedules.add(schedule);
             tasks.add(logTask("course.addSchedule:" + schedule.getID(),
                     courseRepo.addStringToArrayAsync("schedules", schedule.getID())));
@@ -502,6 +627,67 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         task.addOnSuccessListener(result -> Log.d("JoinCourseTask", "SUCCESS: " + label));
         task.addOnFailureListener(e -> Log.e("JoinCourseTask", "FAIL: " + label, e));
         return task;
+    }
+
+    private DayTimeArrangement buildDtaFromSchedule(Schedule schedule) {
+        int defaultMaxMeeting = 1;
+        if (schedule == null) {
+            return new DayTimeArrangement(this, DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(9, 0), defaultMaxMeeting);
+        }
+        DayOfWeek dayOfWeek = schedule.getDay() != null ? schedule.getDay() : DayOfWeek.MONDAY;
+        LocalTime start = schedule.getMeetingStart() != null ? schedule.getMeetingStart() : LocalTime.of(8, 0);
+        LocalTime end = schedule.getMeetingEnd() != null ? schedule.getMeetingEnd() : start.plusMinutes(Math.max(30, schedule.getDuration()));
+        return new DayTimeArrangement(this, dayOfWeek, start, end, defaultMaxMeeting);
+    }
+
+    private void reconcileDtaBounds(DayTimeArrangement dta, Schedule schedule) {
+        if (dta == null || schedule == null) {
+            return;
+        }
+        if (dta.getDay() == null && schedule.getDay() != null) {
+            dta.setDay(schedule.getDay());
+        }
+        LocalTime scheduleStart = schedule.getMeetingStart();
+        LocalTime scheduleEnd = schedule.getMeetingEnd();
+
+        if (dta.getStart() == null || (scheduleStart != null && scheduleStart.isBefore(dta.getStart()))) {
+            dta.setStart(scheduleStart);
+        }
+        if (dta.getEnd() == null || (scheduleEnd != null && scheduleEnd.isAfter(dta.getEnd()))) {
+            dta.setEnd(scheduleEnd);
+        }
+        if (dta.getMaxMeeting() <= 0) {
+            dta.setMaxMeeting(1);
+        }
+    }
+
+    private void upsertCanonicalDtaFields(DTARepository dtaRepository, DayTimeArrangement dta) {
+        if (dtaRepository == null || dta == null) {
+            return;
+        }
+        dtaRepository.getDbReference().updateChildren(buildCanonicalDtaUpdateMap(dta));
+    }
+
+    private Map<String, Object> buildCanonicalDtaUpdateMap(DayTimeArrangement dta) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("DTA_ID", dta.getID());
+        map.put("id", dta.getID());
+        map.put("atCourse", getID());
+        map.put("day", dta.getDay() != null ? dta.getDay().toString() : null);
+        map.put("start", dta.getStart() != null ? Tool.formatTime24h(dta.getStart()) : null);
+        map.put("end", dta.getEnd() != null ? Tool.formatTime24h(dta.getEnd()) : null);
+        map.put("maxMeeting", Math.max(1, dta.getMaxMeeting()));
+
+        ArrayList<String> occupiedIds = new ArrayList<>();
+        if (dta.getOccupied() != null) {
+            for (Schedule schedule : dta.getOccupied()) {
+                if (schedule != null && Tool.boolOf(schedule.getID()) && !occupiedIds.contains(schedule.getID())) {
+                    occupiedIds.add(schedule.getID());
+                }
+            }
+        }
+        map.put("occupied", occupiedIds);
+        return map;
     }
     public int getMaxMeetingDuration(){
         int maxDuration = 0;
@@ -518,14 +704,72 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         return Tool.streamToArray(dayTimeArrangement.stream().filter(dta -> dta.getDuration() >= minutes));
     }
     public Task<Meeting> getNextMeetingOfNextSchedule(){
-        LocalDate today = LocalDate.now();
-        if(!Tool.boolOf(schedules)) return null;
-        for(Schedule schedule : schedules){
-            if(schedule.getDay().equals(today.getDayOfWeek()) && schedule.getMeetingStart().isAfter(LocalTime.now())){
-                return Meeting.getClosestMeetingToSchedule(schedule);
+        if (!Tool.boolOf(schedules)) {
+            return Tasks.forResult(null);
+        }
+
+        final LocalDate today = LocalDate.now();
+        final LocalTime now = LocalTime.now();
+
+        final ArrayList<String> scheduleIds = new ArrayList<>();
+        for (Schedule schedule : schedules) {
+            if (schedule != null && Tool.boolOf(schedule.getID())) {
+                scheduleIds.add(schedule.getID());
             }
         }
-        return null;
+        if (scheduleIds.isEmpty()) {
+            return Tasks.forResult(null);
+        }
+
+        return RequireUpdate.getAllObjects(Meeting.class).continueWith(task -> {
+            if (!task.isSuccessful()) {
+                throw Objects.requireNonNull(task.getException());
+            }
+
+            List<Meeting> meetings = task.getResult();
+            if (!Tool.boolOf(meetings)) {
+                return null;
+            }
+
+            Meeting closest = null;
+            LocalDate closestDate = null;
+            LocalTime closestStart = null;
+
+            for (Meeting meeting : meetings) {
+                if (meeting == null || !Tool.boolOf(meeting.getOfSchedule())) {
+                    continue;
+                }
+                if (!scheduleIds.contains(meeting.getOfSchedule())) {
+                    continue;
+                }
+
+                LocalDate meetingDate = meeting.getDateOfMeeting();
+                if (meetingDate == null || meetingDate.isBefore(today)) {
+                    continue;
+                }
+
+                LocalTime startTime = meeting.getStartTimeChange();
+                if (startTime == null) {
+                    startTime = LocalTime.MIN;
+                }
+                if (meetingDate.equals(today) && !startTime.isAfter(now)) {
+                    continue;
+                }
+
+                if (closest == null
+                        || meetingDate.isBefore(closestDate)
+                        || (meetingDate.equals(closestDate) && startTime.isBefore(closestStart))) {
+                    closest = meeting;
+                    closestDate = meetingDate;
+                    closestStart = startTime;
+                }
+            }
+
+            return closest;
+        });
+    }
+    public String getTeacherId(){
+        return teacher;
     }
     public Task<Teacher> getTeacher(){
         TeacherRepository teacherRepository = new TeacherRepository(teacher);
@@ -558,15 +802,45 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
 //    }
     public Task<List<Student>> getStudents() {
         ArrayList<Task<Student>> taskRetrieveStudent = new ArrayList<>();
-        StudentRepository studentRepository;
-
-        for (String studentId : students) {
-            studentRepository = new StudentRepository(studentId);
-            taskRetrieveStudent.add(studentRepository.loadAsNormal());
+        if (students == null || students.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
         }
 
-        // ✅ Combines all Tasks into one Task<List<Student>>
-        return Tasks.whenAllSuccess(taskRetrieveStudent);
+        for (String studentId : students) {
+            if (!Tool.boolOf(studentId)) {
+                continue;
+            }
+            StudentRepository studentRepository = new StudentRepository(studentId);
+            Task<Student> safeTask = studentRepository.loadAsNormal().continueWith(task -> {
+                if (task.isSuccessful()) {
+                    return task.getResult();
+                }
+                Exception error = task.getException();
+                Log.w("Course#getStudents", "Skipping failed student load for ID: " + studentId, error);
+                return null;
+            });
+            taskRetrieveStudent.add(safeTask);
+        }
+
+        if (taskRetrieveStudent.isEmpty()) {
+            return Tasks.forResult(new ArrayList<>());
+        }
+
+        return Tasks.whenAllSuccess(taskRetrieveStudent).continueWith(task -> {
+            ArrayList<Student> resolved = new ArrayList<>();
+            List<?> rawResults = task.getResult();
+            if (rawResults != null) {
+                for (Object raw : rawResults) {
+                    if (raw instanceof Student) {
+                        resolved.add((Student) raw);
+                    }
+                }
+            }
+            return resolved;
+        });
+    }
+    public ArrayList<String>getStudentsId(){
+        return students;
     }
 
 
@@ -592,55 +866,61 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
             Task<List<Student>> task = schedule.getStudents();
             tasks.add(task);
 
-            task.addOnSuccessListener(students -> {
-                if (students.contains(student)) {
+            task.addOnSuccessListener(studentsInSchedule -> {
+                boolean isStudentInSchedule = false;
+                for (Student studentInSchedule : studentsInSchedule) {
+                    if (studentInSchedule != null && Objects.equals(studentInSchedule.getID(), student.getID())) {
+                        isStudentInSchedule = true;
+                        break;
+                    }
+                }
+                if (isStudentInSchedule) {
                     result.add(schedule);
                 }
             });
         }
         Tasks.whenAllSuccess(tasks).addOnSuccessListener(schedulesResult -> {
             try {
-                callBack.onObjectRetrieved(schedules);
+                callBack.onObjectRetrieved(result);
             } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                      IllegalAccessException | InstantiationException e) {
                 throw new RuntimeException(e);
             }
-        });
+        }).addOnFailureListener(e -> callBack.onError(DatabaseError.fromException(e)));
     }
-    public Task<String> getDaysOfSchedule(Student student) {
+    public String getDaysOfSchedule(Student student) {
 
-        TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        ArrayList<Schedule>studentSchedules =  student.getSchedulesOfCourse(this);
 
-        getScheduleOfStudent(student, new ObjectCallBack<>() {
+        if (studentSchedules.isEmpty()) {
+            return "No Days Found!";
+        }
 
-            @Override
-            public void onObjectRetrieved(ArrayList<Schedule> schedulesOfStudent) {
+        Set<String>uniqueDays = new LinkedHashSet<>();
+        for(Schedule s : studentSchedules){
+            uniqueDays.add(s.getDay().toString());
+        }
 
-                if (schedulesOfStudent.isEmpty()) {
-                    tcs.setResult("");
-                    return;
-                }
+        return  String.join(", ", uniqueDays);
+    }
 
-                Set<String>uniqueDays = new LinkedHashSet<>();
-                for(Schedule s : schedules){
-                    uniqueDays.add(s.getDay().toString());
-                }
-
-                String result = String.join(", ", uniqueDays);
-                tcs.setResult(result);
-            }
-
-            @Override
-            public void onError(DatabaseError error) {
-                tcs.setException(error.toException());
-            }
-        });
-
-        return tcs.getTask();
+    public Task<StudentCourse> getStudentCourseOfStudent(Student student){
+        TaskCompletionSource<StudentCourse>scTCS = new TaskCompletionSource<>();
+        for(StudentCourse sc : studentsCourse){
+           sc.getStudent().addOnSuccessListener(s->{
+               if(s == student){
+                   scTCS.setResult(sc);
+               }
+           });
+        }
+        return scTCS.getTask();
     }
 
     public String getCourseID(){
         return this.courseID;
+    }
+    public void setCourseID(String courseID) {
+        this.courseID = courseID;
     }
     public void setLogo(String logo) {
         this.logoCloudinary = logo;
@@ -675,7 +955,9 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.agendas = agenda;
     }
 
-
+//    public static Task<List<Course>> getAllCourse(){
+//
+//    }
     @Override
     public String toString() {
         String dtas = "empty";

@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,23 @@ public class FileAdapter extends RecyclerView.Adapter<FileViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        holder.tv_fileName.setText(submissions.get(position).getFileName());
-        holder.tv_timeDateUpload.setText(submissions.get(position).getFileCreateDate().toString());
+        file file = submissions.get(position);
+        holder.tv_fileName.setText(file.getFileName());
+        holder.tv_timeDateUpload.setText(file.getFileCreateDate().toString());
+        file.getOfTask().getSubmissionOfStudent((Student)file.getUploader()).addOnSuccessListener(submission ->{
+            boolean late = Boolean.TRUE.equals(submission.getFiles().get(file));
+            if(late){
+                holder.tv_statusSubmission.setVisibility(View.VISIBLE);
+                holder.tv_statusSubmission.setText("LATE");
+                holder.tv_statusSubmission.setTextColor(Color.parseColor("#C0392B")); // Deep Red
+                holder.tv_statusSubmission.setBackgroundResource(R.drawable.bg_status_badge_late);
+            }else{
+                holder.tv_statusSubmission.setVisibility(View.VISIBLE);
+                holder.tv_statusSubmission.setText("EARLY");
+                holder.tv_statusSubmission.setTextColor(Color.parseColor("#00A86B")); // Emerald Green
+                holder.tv_statusSubmission.setBackgroundResource(R.drawable.bg_status_badge_early);
+            }
+        });
     }
 
     @Override

@@ -4,31 +4,112 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:padding="24dp"
     tools:context=".Student_PastTasks">
 
-    <!-- TODO: Update blank fragment layout -->
+    <ImageButton
+        android:id="@+id/btn_spt_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Back"
+        android:padding="8dp"
+        android:scaleType="center"
+        android:src="@drawable/caret_left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/brand_emerald_dark" />
 
     <TextView
         android:id="@+id/textView139"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginStart="12dp"
+        android:fontFamily="@font/dela_gothic_one_regular"
         android:text="Past Tasks"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:textColor="@color/brand_emerald_dark"
+        android:textSize="32sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_spt_back"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView_spt_subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:fontFamily="@font/bricolage_body"
+        android:text="Review your completed and expired assignments."
+        android:textColor="@color/brand_emerald"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView139" />
+
+    <Spinner
+        android:id="@+id/sp_spt_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_emerald_input"
+        android:paddingHorizontal="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView_spt_subtitle" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_SPT_PastTasks"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_marginTop="36dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView139" />
+        app:layout_constraintTop_toBottomOf="@+id/sp_spt_filter"
+        tools:listitem="@layout/task_viewlayout" />
+
+    <LinearLayout
+        android:id="@+id/ll_spt_emptyState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sp_spt_filter"
+        tools:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_spt_empty_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginBottom="16dp"
+            app:srcCompat="@drawable/book"
+            app:tint="#D1D9D9" />
+
+        <TextView
+            android:id="@+id/tv_spt_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:text="No History Yet"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_spt_empty_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_body"
+            android:gravity="center"
+            android:text="Tasks you complete or miss\nwill appear here."
+            android:textColor="#99A3A4"
+            android:textSize="14sp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

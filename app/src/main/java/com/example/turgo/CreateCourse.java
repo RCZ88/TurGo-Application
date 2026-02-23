@@ -26,6 +26,7 @@ import java.util.Arrays;
 public class CreateCourse extends AppCompatActivity {
     protected String courseName, courseDescription,  courseIconCloudinary, courseBannerCloudinary;
     protected CourseType courseType;
+    protected Room room;
     Uri courseIcon, courseBanner = null;
     ArrayList<Uri>courseImages = new ArrayList<>();
     ArrayList<String> courseImagesCloudinary = new ArrayList<>();
@@ -49,6 +50,7 @@ public class CreateCourse extends AppCompatActivity {
     Admin admin;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +69,7 @@ public class CreateCourse extends AppCompatActivity {
         btn_next = findViewById(R.id.btn_CC_next);
         btn_prev = findViewById(R.id.btn_CC_back);
 
+
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.fcv_CreateCoursePhases, phases[0])
@@ -79,9 +82,7 @@ public class CreateCourse extends AppCompatActivity {
             try {
                 next();
             } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
-                     InstantiationException e) {
-                throw new RuntimeException(e);
-            } catch (IOException e) {
+                     InstantiationException | IOException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -180,7 +181,7 @@ public class CreateCourse extends AppCompatActivity {
                     final String[] iconUrl = {null};
                     final boolean[] iconDone = {false};
 
-                    Tool.uploadToCloudinary(Tool.uriToFile(courseIcon, this), new ObjectCallBack<String>() {
+                    Tool.uploadToCloudinary(Tool.uriToFile(courseIcon, this), new ObjectCallBack<>() {
                         @Override
                         public void onObjectRetrieved(String object) {
                             iconUrl[0] = object;
@@ -213,7 +214,7 @@ public class CreateCourse extends AppCompatActivity {
                     final String[] bannerUrl = {null};
                     final boolean[] bannerDone = {false};
 
-                    Tool.uploadToCloudinary(Tool.uriToFile(courseBanner, this), new ObjectCallBack<String>() {
+                    Tool.uploadToCloudinary(Tool.uriToFile(courseBanner, this), new ObjectCallBack<>() {
                         @Override
                         public void onObjectRetrieved(String object) {
                             bannerUrl[0] = object;
@@ -292,6 +293,7 @@ public class CreateCourse extends AppCompatActivity {
                         course.setHourlyCost(hourlyCost);
                         course.setMonthlyDiscountPercentage(monthlyDiscount);
                         course.setAutoAcceptStudent(autoAcceptStudent);
+
                         ArrayList<Boolean> paymentMethodsArray = new ArrayList<>();
                         for(boolean apm : acceptedPaymentMethods){
                             paymentMethodsArray.add(apm);
@@ -313,7 +315,10 @@ public class CreateCourse extends AppCompatActivity {
                         teacher.addCourse(course);
                         TeacherRepository  teacherRepository = new TeacherRepository(teacher.getID());
                         teacherRepository.addCourseTeach(course);
-                        dtas.forEach(teacherRepository::addTimeArrangement);
+                        for (DayTimeArrangement dta : dtas) {
+                            new DTARepository(dta.getID()).save(dta);
+                            teacherRepository.addTimeArrangement(dta);
+                        }
                         Log.d("CreateCourse", "Course Created Object: " + course);
                         CourseRepository courseRepository = new CourseRepository(course.getID());
                         courseRepository.save(course);

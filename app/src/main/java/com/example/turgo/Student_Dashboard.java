@@ -8,8 +8,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.util.Log;
@@ -18,39 +16,34 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class Student_Dashboard extends Fragment {
 
-    RecyclerView rv_coursesCompletedThisWeek;
     FragmentContainerView fcv_upcomingSchedule;
     Student user;
     ArrayList<Task> studentTasks = new ArrayList<>();
     ViewPager2 vp2_listOfTasks;
 
-    ProgressBar pb_progressThisWeek;
+    CircularProgressIndicator pb_progressThisWeek;
     ImageButton btn_details, ib_prevTask, ib_nextTask, btn_scanQR;
-    TaskPagerAdapter adapter;
-    TextView tv_noScheduleFound, tv_noTaskFound, tv_noMeetingCompleted;
+    TaskAdapter adapter;
+    TextView tv_noScheduleFound, tv_noTaskFound, tv_noMeetingCompleted, tv_meetingsCompletedCount, tv_weeklyProgressPercent;
     LinearLayout ll_Task;
     boolean expanded;
 
     Schedule scheduleOfNextMeeting;
     Course course;
-    String roomId;
-    ArrayList<Course> coursesForScheduleAdapter = new ArrayList<>();
+    String roomTag;
     ArrayList<Schedule> schedulesCompleted = new ArrayList<>();
     Meeting nextMeeting;
     Teacher teacher;
@@ -67,9 +60,10 @@ public class Student_Dashboard extends Fragment {
         View view = inflater.inflate(R.layout.fragment_student_dashboard, container, false);
 
         // Initialize UI components
-        rv_coursesCompletedThisWeek = view.findViewById(R.id.rv_CourseCompleted);
         tv_noScheduleFound = view.findViewById(R.id.tv_SD_ScheduleEmpty);
         tv_noMeetingCompleted = view.findViewById(R.id.tv_SD_NoMeetingsCompleted);
+        tv_meetingsCompletedCount = view.findViewById(R.id.tv_SD_MeetingsCompletedCount);
+        tv_weeklyProgressPercent = view.findViewById(R.id.tv_SD_WeekProgressPercent);
         tv_noTaskFound = view.findViewById(R.id.tv_SD_NoTask);
         ib_nextTask = view.findViewById(R.id.ib_NextTask);
         ib_prevTask = view.findViewById(R.id.ib_PrevTask);
@@ -79,12 +73,25 @@ public class Student_Dashboard extends Fragment {
         fcv_upcomingSchedule = view.findViewById(R.id.fcv_UpcomingClass);
         pb_progressThisWeek = view.findViewById(R.id.pb_WeeksProgress);
         vp2_listOfTasks = view.findViewById(R.id.vp2_TasksContainer);
+        MeetingProcessorWorker.enqueueCleanupNow(requireContext());
 
         // Get student instance
         StudentScreen activity = (StudentScreen) getActivity();
         if (activity == null) throw new IllegalStateException("Activity is null");
         user = activity.getStudent();
         Log.d("StudentDashboard", "Student Retrieved: " + user);
+//        Submission s1 = new Submission(user, "5f4afa7e-f844-44d8-bcf2-b74cfa056178");
+//        Submission s2 = new Submission(user, "d3b3a67f-f130-44aa-9c9d-e8a9b9da6266");
+//        Submission s3 = new Submission(user, "6c8c377e-e11e-40ea-b904-2c32a0d7f23e");
+//        ArrayList<Submission>submissions = new ArrayList<>();
+//        submissions.add(s1);
+//        submissions.add(s2);
+//        submissions.add(s3);
+//
+//        for (Submission submission : submissions) {
+//            SubmissionRepository submissionRepository = new SubmissionRepository(submission.getID());
+//            submissionRepository.save(submission);
+//        }
 
         // Load all data synchronously
         loadCompletedSchedules();
@@ -99,39 +106,52 @@ public class Student_Dashboard extends Fragment {
 
     private void loadCompletedSchedules() {
         schedulesCompleted = user.getScheduleCompletedThisWeek();
-        coursesForScheduleAdapter = new ArrayList<>();
-        for(Schedule schedule : schedulesCompleted){
-            schedule.getScheduleOfCourse().addOnSuccessListener(course ->{
-                coursesForScheduleAdapter.add(course);
-            });
-        }
-
-        rv_coursesCompletedThisWeek.setLayoutManager(new LinearLayoutManager(getContext()));
-        ScheduleAdapter sa = new ScheduleAdapter(schedulesCompleted, coursesForScheduleAdapter);
-        rv_coursesCompletedThisWeek.setAdapter(sa);
-
-        boolean empty = schedulesCompleted == null || schedulesCompleted.isEmpty();
-        Tool.handleEmpty(empty, rv_coursesCompletedThisWeek, tv_noMeetingCompleted);
+        int completedThisWeek = user.getCompletedScheduleCountThisWeek();
+        Log.d("StudentDashboard", "Schedule Completed This Week Count: " + completedThisWeek);
+        tv_meetingsCompletedCount.setText(String.valueOf(completedThisWeek));
+        String label = completedThisWeek == 1
+                ? "meeting completed this week"
+                : "meetings completed this week";
+        tv_noMeetingCompleted.setText(label);
     }
 
     private void loadProgress() {
         double progress = user.getPercentageCompleted();
-        pb_progressThisWeek.setProgress((int) Math.ceil(progress));
+        int progressInt = (int) Math.ceil(progress);
+        pb_progressThisWeek.setMax(100);
+        pb_progressThisWeek.setProgressCompat(progressInt, true);
+        tv_weeklyProgressPercent.setText(progressInt + "%");
     }
 
     private void loadTasks() {
         studentTasks = user.getUncompletedTask();
+        Log.d("StudentDashboard", "Student Tasks: " + studentTasks);
         Tool.handleEmpty(studentTasks == null || studentTasks.isEmpty(), ll_Task, tv_noTaskFound);
 
         if (studentTasks != null && !studentTasks.isEmpty()) {
-            adapter = new TaskPagerAdapter(getActivity(), studentTasks);
+            adapter = new TaskAdapter(studentTasks, user, new OnItemClickListener<>() {
+                @Override
+                public void onItemClick(Task item) {
+                    Bundle bundle = new Bundle();
+                    bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
+
+                    TaskFullPage tfp = new TaskFullPage();
+                    tfp.setArguments(bundle);
+                    Tool.loadFragment(requireActivity(), R.id.nhf_ss_FragContainer, tfp);
+                }
+
+                @Override
+                public void onItemLongClick(Task item) {
+
+                }
+            }, TaskItemMode.VIEW_PAGER);
             vp2_listOfTasks.setAdapter(adapter);
         }
     }
 
     private void loadUpcomingMeeting() {
         nextMeeting = user.getNextMeeting();
-        Tool.handleEmpty(nextMeeting == null, fcv_upcomingSchedule, tv_noScheduleFound);
+        Tool.handleEmpty(Tool.boolOf(nextMeeting), fcv_upcomingSchedule, tv_noScheduleFound);
 
         if (nextMeeting == null) return;
 
@@ -152,45 +172,76 @@ public class Student_Dashboard extends Fragment {
                     teacher = task.getResult();
                     return scheduleOfNextMeeting.getRoom();
                 }).addOnSuccessListener(result->{
-                    roomId = result.getID();
+                    roomTag = result.getRoomTag();
+                    continueAfterObjectsLoaded();
                 });
         // synchronous
-
         // Setup fragments
+    }
+
+    private void continueAfterObjectsLoaded(){
+        if (!isAdded() || getView() == null || fcv_upcomingSchedule == null) {
+            return;
+        }
+
         MeetingDisplay meetingDisplay = new MeetingDisplay();
         Bundle bundle = new Bundle();
         bundle.putSerializable(Student.SERIALIZE_KEY_CODE, user);
+        String meetingTitle = course != null ? course.getCourseName() : "Course";
+        String meetingTime = scheduleOfNextMeeting != null && scheduleOfNextMeeting.getMeetingStart() != null
+                ? scheduleOfNextMeeting.getMeetingStart().toString()
+                : "-";
+
+        String meetingDate = nextMeeting != null && nextMeeting.getDateOfMeeting() != null
+                ? nextMeeting.getDateOfMeeting().toString()
+                : "-";
+
+        String meetingLogo = course != null ? course.getLogo() : "";
+        bundle.putAll(MeetingDisplay.createArgs(meetingTitle, meetingTime, meetingDate, meetingLogo));
         meetingDisplay.setArguments(bundle);
 
         FragmentManager fragmentManager = getChildFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
-        fragmentTransaction.commit();
+        if (!fragmentManager.isStateSaved()) {
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
+            fragmentTransaction.commit();
+        }
 
         CourseDetails courseDetails = new CourseDetails();
-        courseDetails.tv_room.setText(roomId);
-        courseDetails.tv_duration.setText(scheduleOfNextMeeting.getDuration());
-        courseDetails.tv_teacherName.setText(teacher.getFullName());
-        course.getDaysOfSchedule(user).addOnSuccessListener(days->{
-            courseDetails.tv_dayOfWeek.setText(days);
-        });
+        String durationText = String.valueOf(scheduleOfNextMeeting.getDuration());
+        String teacherName = teacher != null ? teacher.getFullName() : "Unknown";
+        String daysOfSchedule = course != null ? course.getDaysOfSchedule(user) : "-";
+        String roomText = Tool.boolOf(roomTag) ? roomTag : "No Room";
+        String nextMeetingDate = nextMeeting != null && nextMeeting.getDateOfMeeting() != null
+                ? nextMeeting.getDateOfMeeting().toString()
+                : "No Meeting Found!";
+        String courseName = course != null ? course.getCourseName() : "Course";
+        String courseLogo = course != null ? course.getLogo() : "";
 
-
-        LocalDate closestMeeting = user.getClosestMeetingOfCourse(course);
-        courseDetails.tv_nextMeetingDate.setText(
-                closestMeeting != null ? closestMeeting.toString() : "No Meeting Found!"
-        );
-
-        Glide.with(requireContext())
-                .load(course.getLogo())
-                .into(courseDetails.iv_courseLogo);
+        courseDetails.setArguments(CourseDetails.createArgs(
+                courseName,
+                teacherName,
+                nextMeetingDate,
+                daysOfSchedule,
+                durationText,
+                roomText,
+                courseLogo
+        ));
 
         expanded = false;
 
         btn_details.setOnClickListener(v -> {
+            if (!isAdded() || getView() == null || fcv_upcomingSchedule == null) {
+                return;
+            }
             Fragment fragmentToLoad = expanded ? meetingDisplay : courseDetails;
             expanded = !expanded;
-            Tool.loadFragment(requireActivity(), fcv_upcomingSchedule.getId(), fragmentToLoad);
+            FragmentManager childFm = getChildFragmentManager();
+            if (!childFm.isStateSaved()) {
+                childFm.beginTransaction()
+                        .replace(R.id.fcv_UpcomingClass, fragmentToLoad)
+                        .commit();
+            }
             btn_details.setImageResource(expanded ? R.drawable.caret : R.drawable.caret_down);
         });
     }

@@ -46,15 +46,24 @@ public class SubmissionRepository implements RepositoryClass<Submission, Submiss
      * Adds a file entry with lateness flag.
      */
     public void addFile(file fileObj, boolean isLate) {
-        addStringToArray("files", fileObj.getID());
+        if (fileObj == null || !Tool.boolOf(fileObj.getID())) {
+            return;
+        }
+        submissionRef.child("files").child(fileObj.getID()).setValue(isLate);
     }
 
     public void removeFile(String fileId) {
-        removeStringFromArray("files", fileId);
+        if (!Tool.boolOf(fileId)) {
+            return;
+        }
+        submissionRef.child("files").child(fileId).removeValue();
     }
 
     public void removeFileCompletely(file fileObj) {
-        removeStringFromArray("files", fileObj.getID());
+        if (fileObj == null || !Tool.boolOf(fileObj.getID())) {
+            return;
+        }
+        submissionRef.child("files").child(fileObj.getID()).removeValue();
         FirebaseDatabase.getInstance()
                 .getReference(fileObj.getFirebaseNode().getPath())
                 .child(fileObj.getID())
@@ -68,6 +77,14 @@ public class SubmissionRepository implements RepositoryClass<Submission, Submiss
      */
     public void setStudent(Student student) {
         submissionRef.child("of").setValue(student.getID());
+    }
+
+    public void setDropbox(String dropboxId) {
+        submissionRef.child("dropbox").setValue(dropboxId);
+    }
+
+    public void clearDropbox() {
+        submissionRef.child("dropbox").removeValue();
     }
 
     public void clearStudent() {

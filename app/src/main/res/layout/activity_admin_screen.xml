@@ -1,65 +1,328 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_page_gradient"
     tools:context=".AdminScreen">
 
-    <TextView
-        android:id="@+id/textView94"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
-        android:text="Admin Screen"
-        android:textSize="24dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView94">
+        android:background="@android:color/transparent"
+        app:elevation="0dp">
 
-        <Button
-            android:id="@+id/btn_AS_CreateCourse"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="15dp"
-            android:text="Create new Course" />
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="48dp"
+            android:paddingBottom="32dp">
 
-        <Button
-            android:id="@+id/btn_AS_CreateUser"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/dela_gothic_one_regular"
+                android:text="Admin Dashboard"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="32sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="@font/bricolage_body"
+                android:text="Manage platform resources &amp; users"
+                android:textColor="@color/brand_emerald"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="15dp"
-            android:text="Manage User" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <Button
-            android:id="@+id/btn_AS_CreateTask"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="15dp"
-            android:text="Create new Task" />
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_course_mgmt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/brand_emerald_light"
+                app:strokeWidth="1dp">
 
-        <Button
-            android:id="@+id/btn_AS_SignOut"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:layout_marginVertical="15dp"
-            android:text="Sign Out" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical">
 
-    </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <LinearLayout
+                        android:id="@+id/header_course"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_icon_bubble"
+                            android:padding="10dp"
+                            android:src="@drawable/book"
+                            app:tint="@color/brand_emerald_dark" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Course Management"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/iv_AS_arrowCourse"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            app:tint="@color/brand_emerald" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/content_course"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#80FFFFFF"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_AS_CreateCourse"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Create New Course"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:icon="@android:drawable/ic_input_add"
+                            app:iconTint="@color/brand_emerald" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_AS_ViewAllCourses"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="View All Courses"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:icon="@android:drawable/ic_menu_search"
+                            app:iconTint="@color/brand_emerald" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_user_mgmt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/brand_emerald_light"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/header_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_icon_bubble"
+                            android:padding="10dp"
+                            android:src="@drawable/user"
+                            app:tint="@color/brand_emerald_dark" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="User Management"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/iv_AS_arrowUser"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            app:tint="@color/brand_emerald" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/content_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#80FFFFFF"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_AS_CreateUser"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Manage Users"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:icon="@android:drawable/ic_menu_edit"
+                            app:iconTint="@color/brand_emerald" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_task_mgmt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/brand_emerald_light"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:animateLayoutChanges="true"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/header_task"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="16dp">
+
+                        <ImageView
+                            android:layout_width="42dp"
+                            android:layout_height="42dp"
+                            android:background="@drawable/bg_icon_bubble"
+                            android:padding="10dp"
+                            android:src="@drawable/task_checklist"
+                            app:tint="@color/brand_emerald_dark" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="16dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Tasks &amp; Rooms"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/iv_AS_arrowTask"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/arrow_down_float"
+                            app:tint="@color/brand_emerald" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/content_task"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="#80FFFFFF"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="16dp"
+                        android:visibility="gone">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_AS_CreateTask"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Create New Task"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:icon="@android:drawable/ic_input_add"
+                            app:iconTint="@color/brand_emerald" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_AS_CreateRoom"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="Create New Room"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:icon="@android:drawable/ic_menu_add"
+                            app:iconTint="@color/brand_emerald" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_AS_SignOut"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:fontFamily="@font/space_mono_regular"
+                android:text="Sign Out"
+                android:textSize="16sp"
+                app:backgroundTint="@color/brand_emerald_dark"
+                app:cornerRadius="16dp"
+                app:elevation="4dp"
+                app:icon="@android:drawable/ic_lock_power_off"
+                app:iconGravity="textStart" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

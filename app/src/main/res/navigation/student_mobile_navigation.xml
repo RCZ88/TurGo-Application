@@ -17,14 +17,14 @@
         tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/dest_studentExploreCourses"
-        android:name="com.example.turgo.Student_ExploreCourse"
+        android:name="com.example.turgo.Student_ScheduleMeetings"
         android:label="fragment_navigation_explore"
-        tools:layout="@layout/fragment_student_explore_courses" />
+        tools:layout="@layout/fragment_student_schedule_meetings" />
     <fragment
         android:id="@+id/dest_studentMyCourses"
-        android:name="com.example.turgo.Student_MyCourses"
+        android:name="com.example.turgo.StudentExploreJoined"
         android:label="fragment_student_my_courses"
-        tools:layout="@layout/fragment_student_my_courses" />
+        tools:layout="@layout/fragment_student_explore_joined" />
     <fragment
         android:id="@+id/dest_studentTaskList"
         android:name="com.example.turgo.Student_TaskList"

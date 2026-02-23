@@ -14,13 +14,9 @@ import java.util.ArrayList;
 public class TeacherScheduleAdapter extends RecyclerView.Adapter<TeacherScheduleViewHolder>{
 
      ArrayList<Schedule> scheduleList;
-     ArrayList<ArrayList<Student>> listOfStudents;
-     ArrayList<Course> courses;
 
-    public TeacherScheduleAdapter(ArrayList<Schedule> scheduleList, ArrayList<ArrayList<Student>>students, ArrayList<Course>courses) {
+    public TeacherScheduleAdapter(ArrayList<Schedule> scheduleList) {
         this.scheduleList = scheduleList != null ? scheduleList : new ArrayList<>();
-        this.listOfStudents = students;
-        this.courses = courses;
     }
 
     @NonNull
@@ -47,27 +43,25 @@ public class TeacherScheduleAdapter extends RecyclerView.Adapter<TeacherSchedule
 
         // Duration
         holder.tvDuration.setText(schedule.getDuration() + " minutes");
-        ArrayList<Student>students = listOfStudents.get(position);
 //        ArrayList<Student>students = Await.get(schedule::getStudents);
         // Private or Group
         if (schedule.isPrivate()) {
-            holder.tvGroupPrivate.setText("Private");
-            String studentName = (students != null && !students.isEmpty())
-                    ? students.get(0).getFullName()
-                    : "—";
-            holder.tvStudentNumberORName.setText(studentName);
+            holder.tvGroupPrivate.setText("Private Session");
+
         } else {
             holder.tvGroupPrivate.setText("Group");
-            int enrolled = students != null ? students.size() : 0;
-            Course course = courses.get(position);
-            int max = course.getMaxStudentPerMeeting();
-            holder.tvStudentNumberORName.setText(enrolled + "/" + max + " Students");
-
         }
+
+        int enrolled = schedule.getNumberOfStudents();
+        schedule.getRoom().addOnSuccessListener(room->{
+            int max = room.getCapacity();
+            holder.tvStudentNumberORName.setText(enrolled + "/" + max + " Students");
+        });
+
 
         // Status
         String status = schedule.isHasScheduled() ? "Completed" : "Upcoming";
-        holder.tvStatus.setText(status);
+        holder.tvStatus.setText(status.toUpperCase());
 
     }
 

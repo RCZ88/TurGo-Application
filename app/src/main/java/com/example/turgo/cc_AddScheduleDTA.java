@@ -13,21 +13,20 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TimePicker;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,9 +36,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompletion {
 
 
-    Button btn_selectEarliest, btn_selectLatest, btn_addDTA;
-    Spinner sp_selectDay;
-    CheckBox cb_limit;
+    TextView btn_selectEarliest, btn_selectLatest;
+    Button btn_addDTA;
+    AutoCompleteTextView sp_selectDay, sp_selectRoom;
+    SwitchMaterial cb_limit;
     Boolean earlyOrLatest;
     RecyclerView rv_DTASelected;
     LocalTime earliest = null;
@@ -49,6 +49,7 @@ public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompleti
     EditText et_meetingLimit;
     CreateCourse cc;
     int meetingLimit = 0;
+    private ArrayList<Room>roomsAvailable = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -100,9 +101,18 @@ public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompleti
         btn_selectEarliest = view.findViewById(R.id.btn_CC_EarlyTimeDTA);
         btn_selectLatest = view.findViewById(R.id.btn_CC_LatestTimeDTA);
         sp_selectDay = view.findViewById(R.id.sp_CC_DayOfWeek);
+        sp_selectRoom = view.findViewById(R.id.sp_CC_RoomSelection);
         cb_limit = view.findViewById(R.id.cb_CC_MeetingLimit);
         et_meetingLimit = view.findViewById(R.id.etn_CC_maxMeetingOfDay);
         rv_DTASelected = view.findViewById(R.id.rv_CC_DTASelected);
+        RequireUpdate.getAllObjects(Room.class).addOnSuccessListener(rooms ->{
+            roomsAvailable = (ArrayList<Room>) rooms;
+            ArrayAdapter<String>adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, Tool.streamToArray(rooms.stream().map(Room::getRoomTag)));
+            sp_selectRoom.setAdapter(adapter);
+            sp_selectRoom.setOnItemClickListener((parent, view1, position, id) -> {
+                cc.room = roomsAvailable.get(position);
+            });
+        });
 
         maxMeetingStatus(false);
 
@@ -114,17 +124,19 @@ public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompleti
             earlyOrLatest = false;
             showTimePicker();
         });
-        sp_selectDay.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String selected = adapterView.getItemAtPosition(i).toString();
-                DayOfWeek dow = DayOfWeek.valueOf(selected.toUpperCase());
-                day = dow;
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
+        ArrayAdapter<DayOfWeek> dayAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_dropdown_item_1line,
+                DayOfWeek.values()
+        );
+        sp_selectDay.setAdapter(dayAdapter);
+        sp_selectDay.setOnItemClickListener((adapterView, view1, i, l) -> {
+            Object selected = adapterView.getItemAtPosition(i);
+            if (selected instanceof DayOfWeek) {
+                day = (DayOfWeek) selected;
+            } else {
+                String selectedStr = selected.toString();
+                day = DayOfWeek.valueOf(selectedStr.toUpperCase(Locale.getDefault()));
             }
         });
         cb_limit.setOnCheckedChangeListener((compoundButton, b) -> {
@@ -184,16 +196,29 @@ public class cc_AddScheduleDTA extends Fragment implements checkFragmentCompleti
         return view;
     }
 
-    private void maxMeetingStatus(boolean b) {
-        if(b){
+    private void maxMeetingStatus(boolean isLimited) {
+        if (isLimited) {
+            // ENABLED STATE
             et_meetingLimit.setEnabled(true);
             et_meetingLimit.setHint("Max students per meeting");
-            et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.black));
-        }else{
+
+            // Restore the Emerald input style
+            et_meetingLimit.setBackgroundResource(R.drawable.bg_emerald_input);
+
+            // Optional: Reset text color if you changed it
+            et_meetingLimit.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.brand_emerald_dark));
+
+        } else {
+            // DISABLED STATE
             et_meetingLimit.setEnabled(false);
             et_meetingLimit.setText("");
             et_meetingLimit.setHint("Unlimited");
-            et_meetingLimit.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), android.R.color.darker_gray));
+
+            // Set to the grayed-out style
+            et_meetingLimit.setBackgroundResource(R.drawable.bg_input_disabled);
+
+            // Optional: Make the "Unlimited" hint look more subtle
+            et_meetingLimit.setHintTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray));
         }
     }
 

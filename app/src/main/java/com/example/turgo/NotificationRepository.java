@@ -12,12 +12,12 @@ public class NotificationRepository implements RepositoryClass<Notification<?>, 
 
     @Override
     public DatabaseReference getDbReference() {
-        return null;
+        return notifRepo;
     }
 
     @Override
     public Class<NotificationFirebase> getFbClass() {
-        return null;
+        return NotificationFirebase.class;
     }
 
     public DatabaseReference getNotifRepo() {

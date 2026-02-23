@@ -2,7 +2,6 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/ll_MailSmallDisplay"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,24 +11,21 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
     app:strokeColor="@color/brand_emerald_pale"
-    app:strokeWidth="0.5dp">
+    app:strokeWidth="0.5dp"
+    android:layout_margin="8dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="14dp">
+        android:orientation="horizontal"
+        android:padding="16dp">
 
         <FrameLayout
             android:id="@+id/fl_icon_container"
             android:layout_width="42dp"
             android:layout_height="42dp"
             android:background="@drawable/bg_qr_button"
-            android:backgroundTint="@color/brand_emerald_pale"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0">
+            android:backgroundTint="@color/brand_emerald_pale">
 
             <ImageView
                 android:layout_width="22dp"
@@ -39,59 +35,60 @@
                 app:tint="@color/brand_emerald" />
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/tv_UserSent"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="14dp"
-            android:layout_marginEnd="8dp"
-            android:fontFamily="@font/bricolage_grotesque_bold"
-            android:text="Sender Name"
-            android:textColor="@color/brand_emerald_dark"
-            android:textSize="15sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toStartOf="@+id/tv_TitleHeading"
-            app:layout_constraintStart_toEndOf="@+id/fl_icon_container"
-            app:layout_constraintTop_toTopOf="@+id/fl_icon_container" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_TitleHeading"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/bricolage_body"
-            android:text="Subject"
-            android:textColor="@color/brand_emerald"
-            android:textSize="11sp"
-            app:layout_constraintBaseline_toBaselineOf="@+id/tv_UserSent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/tv_ShortMailContent"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="@font/bricolage_body"
-            android:text="Email preview text goes here..."
-            android:textColor="@color/black_soft"
-            android:textSize="13sp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tv_UserSent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_UserSent" />
+                <TextView
+                    android:id="@+id/tv_TitleHeading"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/bricolage_grotesque_bold"
+                    android:maxLines="1"
+                    android:text="Sender Name"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="15sp" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="14dp"
-            android:alpha="0.5"
-            android:background="@color/brand_emerald_pale"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tv_UserSent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_ShortMailContent" />
+                <TextView
+                    android:id="@+id/tv_UserSent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="@font/bricolage_body"
+                    android:text="Subject"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="11sp" />
+            </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_ShortMailContent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/bricolage_body"
+                android:maxLines="1"
+                android:text="Email preview text goes here..."
+                android:textColor="@color/black_soft"
+                android:textSize="13sp" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:alpha="0.5"
+                android:background="@color/brand_emerald_pale" />
+
+        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

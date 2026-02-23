@@ -71,7 +71,15 @@ public class Notification<FromType> implements Serializable, RequireUpdate<Notif
     public static void sendNotification(Notification<?> notification) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         User user = notification.getTo();
         user.recieveNotification(notification);
-        user.updateUserDB();
+        if (user instanceof Student) {
+            ((Student) user).getRepositoryInstance().save((Student) user);
+        } else if (user instanceof Teacher) {
+            ((Teacher) user).getRepositoryInstance().save((Teacher) user);
+        } else if (user instanceof Parent) {
+            ((Parent) user).getRepositoryInstance().save((Parent) user);
+        } else if (user instanceof Admin) {
+            ((Admin) user).getRepositoryInstance().save((Admin) user);
+        }
     }
 
     @Override

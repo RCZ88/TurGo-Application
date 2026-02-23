@@ -8,9 +8,16 @@ public class MeetingAlarmReciever extends BroadcastReceiver {
     //complete meeting
     @Override
     public void onReceive(Context context, Intent intent) {
-        Student student = (Student)intent.getSerializableExtra("Student");
-        Meeting meeting = (Meeting)intent.getSerializableExtra("Meeting");
-        assert student != null;
-        student.completeMeeting(meeting);
+        String meetingId = intent.getStringExtra("MeetingId");
+        if (!Tool.boolOf(meetingId)) {
+            Meeting meeting = (Meeting) intent.getSerializableExtra("Meeting");
+            if (meeting != null) {
+                meetingId = meeting.getID();
+            }
+        }
+        if (!Tool.boolOf(meetingId)) {
+            return;
+        }
+        MeetingCompletionService.completeMeetingIfDue(meetingId);
     }
 }

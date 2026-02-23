@@ -8,8 +8,9 @@ import java.util.ArrayList;
 
 public class DropboxFirebase implements FirebaseClass<Dropbox>{
     private ArrayList<String>submissions;
-    private String dropboxID;
-    private String ofTaskID;
+    private String UID;
+    private String ofTask;
+    private String dropboxID; // legacy alias
     public DropboxFirebase(){}
 
     @Override
@@ -21,16 +22,15 @@ public class DropboxFirebase implements FirebaseClass<Dropbox>{
             this.submissions = convertToIdList(from.getSubmissions());
         }
 
-        // Directly map the UID to dropboxID
-        this.dropboxID = from.getID();
+        this.UID = from.getID();
+        this.dropboxID = this.UID;
 
-        // Convert Task object to its ID
-        this.ofTaskID = (from.getOfTask() != null) ? from.getOfTask().getID() : null;
+        this.ofTask = (from.getOfTask() != null) ? from.getOfTask().getID() : null;
     }
 
     @Override
     public String getID() {
-        return dropboxID;
+        return Tool.boolOf(UID) ? UID : dropboxID;
     }
 
     @Override
@@ -62,13 +62,23 @@ public class DropboxFirebase implements FirebaseClass<Dropbox>{
 
     public void setDropboxID(String dropboxID) {
         this.dropboxID = dropboxID;
+        this.UID = dropboxID;
     }
 
-    public String getOfTaskID() {
-        return ofTaskID;
+    public String getUID() {
+        return UID;
     }
 
-    public void setOfTaskID(String ofTaskID) {
-        this.ofTaskID = ofTaskID;
+    public void setUID(String UID) {
+        this.UID = UID;
+        this.dropboxID = UID;
+    }
+
+    public String getOfTask() {
+        return ofTask;
+    }
+
+    public void setOfTask(String ofTask) {
+        this.ofTask = ofTask;
     }
 }

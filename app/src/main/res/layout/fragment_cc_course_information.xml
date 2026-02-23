@@ -1,106 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".cc_CourseInformation">
 
-    <TextView
-        android:id="@+id/textView58"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="Course Information"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <LinearLayout
-        android:id="@+id/linearLayout25"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView58">
+        android:padding="24dp">
 
         <TextView
-            android:id="@+id/textView59"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20sp"
-            android:text="Course Name"
-            android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/et_CC_courseName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/edittext_border"
-            android:ems="10"
-            android:inputType="text" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout26"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout25">
+            android:layout_marginBottom="4dp"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Course Details"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
 
         <TextView
-            android:id="@+id/textView62"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20sp"
-            android:text="Course Type:"
-            android:textSize="18sp" />
+            android:layout_marginBottom="24dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Fill in the basic information below to identify your course."
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
 
-        <Spinner
-            android:id="@+id/sp_CC_CourseType"
-            android:layout_width="255dp"
-            android:layout_height="53dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout26">
-
-        <TextView
-            android:id="@+id/textView65"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20sp"
-            android:text="Course Description"
-            android:textSize="18sp" />
+            android:background="@drawable/bg_card_surface"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <EditText
-            android:id="@+id/etml_CC_CourseDescription"
-            android:layout_width="300dp"
-            android:layout_height="150dp"
-            android:background="@drawable/edittext_border"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.05"
+                    android:text="COURSE NAME"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/book"
+                        app:tint="@color/brand_emerald"
+                        android:contentDescription="icon" />
+
+                    <EditText
+                        android:id="@+id/et_CC_courseName"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="12dp"
+                        android:background="@android:color/transparent"
+                        android:fontFamily="@font/bricolage_body"
+                        android:hint="e.g. Advanced Calculus"
+                        android:inputType="textCapWords"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textColorHint="#99A3A4"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.05"
+                    android:text="COURSE TYPE"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp" />
+
+                <Spinner
+                    android:id="@+id/sp_CC_CourseType"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:paddingHorizontal="16dp"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.05"
+                    android:text="DESCRIPTION"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp" />
+
+                <EditText
+                    android:id="@+id/etml_CC_CourseDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_body"
+                    android:gravity="top|start"
+                    android:hint="Briefly describe what students will learn..."
+                    android:inputType="textMultiLine"
+                    android:minLines="5"
+                    android:padding="16dp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textColorHint="#99A3A4"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+        </LinearLayout>
     </LinearLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

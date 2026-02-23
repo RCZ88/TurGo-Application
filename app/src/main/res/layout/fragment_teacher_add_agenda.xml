@@ -4,212 +4,279 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".TeacherAddAgenda">
 
-    <TextView
-        android:id="@+id/textView103"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:text="New Agenda Create"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <LinearLayout
-        android:id="@+id/linearLayout42"
+        android:id="@+id/ll_header_taa"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout41">
+        android:padding="24dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textView105"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Agenda Content"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/bricolage_body"
+            android:text="Course Management"
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/etml_TAA_AgendaContent"
-            android:layout_width="308dp"
-            android:layout_height="128dp"
-            android:layout_marginTop="15dp"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="Write Agenda here"
-            android:inputType="textMultiLine" />
-
-        <Button
-            android:id="@+id/btn_TAA_UploadAgendaImage"
+        <TextView
+            android:id="@+id/textView103"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="52dp"
-            android:text="Upload Image"
-            android:visibility="gone" />
-
-        <ImageView
-            android:id="@+id/iv_TAA_AgendaUploadedPreview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:visibility="gone" />
-
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="New Agenda Create"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="22sp" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout39"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/btn_TAA_SendAgenda"
+        app:layout_constraintTop_toBottomOf="@id/ll_header_taa">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="24dp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="#F2F7F6">
+
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="2"
+                    android:padding="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AGENDA OF COURSE"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textColor="@color/brand_emerald_dark"/>
+                        <TextView
+                            android:id="@+id/tv_TAA_PresetCourse"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Mathematics"
+                            android:visibility="gone" />
+                        <Spinner
+                            android:id="@+id/sp_TAA_AgendaOfCourse"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_emerald_input"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SELECT STUDENT"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textColor="@color/brand_emerald_dark"/>
+                        <TextView
+                            android:id="@+id/tv_TAA_PresetStudents"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Student1, Student2"
+                            android:visibility="gone" />
+                        <TextView
+                            android:id="@+id/tv_TAA_StudentsEmpty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Course has no student."
+                            android:textColor="@color/black_soft"
+                            android:textSize="11sp"
+                            android:visibility="gone" />
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/cg_TAA_SelectStudent"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:singleSelection="false" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="SELECT MEETING (OPTIONAL)"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textColor="@color/brand_emerald_dark"/>
+                        <Spinner
+                            android:id="@+id/sp_TAA_SelectMeeting"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_emerald_input"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_columnWeight="1"
+                        android:orientation="vertical"
+                        android:padding="8dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="FORMAT TOGGLE"
+                            android:textSize="10sp"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textColor="@color/brand_emerald_dark"/>
+                        <ToggleButton
+                            android:id="@+id/tb_TAA_AgendaFormat"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:background="@drawable/bg_emerald_input"
+                            android:textOff="Image"
+                            android:textOn="Text"
+                            android:textColor="@color/brand_emerald"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_columnSpan="2"
+                        android:layout_columnWeight="2"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="8dp"
+                        android:paddingTop="4dp"
+                        android:paddingEnd="8dp"
+                        android:paddingBottom="4dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Notify students"
+                            android:textColor="@color/brand_emerald"
+                            android:textSize="12sp" />
+
+                        <CheckBox
+                            android:id="@+id/cb_TAA_NotifyStudents"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/brand_emerald"
+                            android:checked="true"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp" />
+                    </LinearLayout>
+                </GridLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/textView105"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"
+                android:text="Agenda Content"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="14sp"/>
+
+            <EditText
+                android:id="@+id/etml_TAA_AgendaContent"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="@drawable/bg_emerald_input"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:gravity="top|start"
+                android:hint="Write Agenda here"
+                android:inputType="textMultiLine"
+                android:padding="16dp"
+                android:textColor="@color/brand_emerald_dark" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btn_TAA_UploadAgendaImage"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_emerald_input"
+                android:text="Upload Images"
+                android:textAllCaps="false"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/ll_TAA_NoImageSelected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_emerald_input"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@android:drawable/ic_menu_gallery"
+                    app:tint="@color/brand_emerald" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="No images selected yet"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_TAA_AgendaImagePreviews"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:nestedScrollingEnabled="false"
+                android:visibility="gone"
+                tools:itemCount="3"
+                tools:listitem="@layout/image_itemview" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_TAA_SendAgenda"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_margin="20dp"
+        android:background="@drawable/bg_emerald_btn_primary"
+        android:fontFamily="@font/dela_gothic_one_regular"
+        android:text="Send Agenda"
+        android:textColor="@color/white_soft"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView103">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="10dp">
-
-            <TextView
-                android:id="@+id/textView106"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="Agenda of Course:"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_TAA_PresetCourse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Mathematics"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/sp_TAA_AgendaOfCourse"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:padding="10dp"
-            tools:layout_editor_absoluteX="228dp"
-            tools:layout_editor_absoluteY="155dp">
-
-            <TextView
-                android:id="@+id/textView107"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="Select Student:"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_TAA_PresetStudents"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Student1, Student2"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/sp_TAA_StudentSelect"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout41"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout39">
-
-        <LinearLayout
-            android:id="@+id/linearLayout40"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout39">
-
-            <TextView
-                android:id="@+id/textView104"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:text="Select Meeting" />
-
-            <Spinner
-                android:id="@+id/sp_TAA_SelectMeeting"
-                android:layout_width="140dp"
-                android:layout_height="40dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView110"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Toggle Agenda Format"
-                android:textStyle="bold" />
-
-            <ToggleButton
-                android:id="@+id/tb_TAA_AgendaFormat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textOff="Image"
-                android:textOn="Text" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_TAA_SendAgenda"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Send Agenda"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout42" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

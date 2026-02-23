@@ -1,7 +1,6 @@
 package com.example.turgo;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -15,7 +14,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class TurgoApp extends Application {
@@ -31,9 +29,13 @@ public class TurgoApp extends Application {
         MediaManager.init(this, config);
 
         FirebaseApp.initializeApp(this);
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (Tool.boolOf(uid)) {
+            PushTokenManager.syncCurrentUserTokenByRole(uid);
+        }
 //        String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 //
-        scheduleMeetingProcessor();
+         scheduleMeetingProcessor();
     }
 
     private void scheduleMeetingProcessor() {

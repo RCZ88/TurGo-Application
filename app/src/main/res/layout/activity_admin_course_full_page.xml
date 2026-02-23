@@ -1,0 +1,786 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    tools:context=".AdminCourseFullPage">
+
+    <LinearLayout
+        android:id="@+id/ll_ACFP_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_toolbar_emerald"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:paddingTop="30dp"
+        android:paddingBottom="14dp"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cv_ACFP_back"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="@color/brand_emerald_dark"
+                app:cardCornerRadius="14dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_light"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/arrow_small_left"
+                    app:tint="@color/white_soft" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/tv_ACFP_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/delagothicone_regular"
+                android:text="Course Details"
+                android:textColor="@color/white_soft"
+                android:textSize="26sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_ACFP_saveTop"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:fontFamily="@font/space_mono_regular"
+                android:textColor="@color/white_soft"
+                app:backgroundTint="@color/brand_emerald"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_ACFP_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/space_mono_regular"
+            android:text="View and edit selected course"
+            android:textColor="@color/brand_emerald_pale"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nsv_ACFP_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:padding="16dp"
+        android:paddingBottom="120dp"
+        app:layout_constraintTop_toBottomOf="@id/ll_ACFP_header"
+        app:layout_constraintBottom_toTopOf="@id/ll_ACFP_bottomActions"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Identity"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:text="Course ID"
+                        android:textColor="#809090"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tv_ACFP_courseId"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:background="@drawable/bg_input_soft_emerald"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:padding="12dp"
+                        android:text="Loading..."
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="13sp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Basic Information"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_ACFP_courseName"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Course Name">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_courseName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:inputType="textCapWords" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_ACFP_description"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Course Description">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_body"
+                            android:gravity="top"
+                            android:inputType="textMultiLine"
+                            android:minLines="4" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_ACFP_courseType"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Course Type">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actv_ACFP_courseType"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:fontFamily="@font/bricolage_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/til_ACFP_teacher"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Assigned Teacher">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/actv_ACFP_teacher"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="none"
+                            android:fontFamily="@font/bricolage_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Pricing &amp; Enrollment"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="Base Cost">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_baseCost"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:fontFamily="@font/space_mono_regular" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Hourly Cost">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_hourlyCost"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:fontFamily="@font/space_mono_regular" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Monthly Discount Percentage">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_monthlyDiscount"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="numberDecimal"
+                            android:fontFamily="@font/space_mono_regular" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:hint="Max Students Per Meeting">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/et_ACFP_maxStudents"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="number"
+                            android:fontFamily="@font/space_mono_regular" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_ACFP_autoAccept"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="Auto-accept student requests"
+                        android:fontFamily="@font/bricolage_body" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Payment &amp; Session Modes"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_ACFP_payPerMonth"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Accept payment per month"
+                        android:fontFamily="@font/bricolage_body" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_ACFP_payPerMeeting"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Accept payment per meeting"
+                        android:fontFamily="@font/bricolage_body" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_ACFP_privateMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Offer private sessions"
+                        android:fontFamily="@font/bricolage_body" />
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_ACFP_groupMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Offer group sessions"
+                        android:fontFamily="@font/bricolage_body" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Media"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/iv_ACFP_logoPreview"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:background="@drawable/bg_icon_bubble"
+                            android:padding="10dp"
+                            tools:src="@drawable/book" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Course Logo"
+                                android:textSize="13sp"
+                                android:textColor="@color/brand_emerald_dark"
+                                android:fontFamily="@font/bricolage_body" />
+
+                            <TextView
+                                android:id="@+id/tv_ACFP_logoPath"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:textSize="11sp"
+                                android:textColor="#8A9A9A"
+                                android:fontFamily="@font/space_mono_regular"
+                                tools:text="https://res.cloudinary.com/.../logo.png" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ACFP_changeLogo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Change"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/space_mono_regular"
+                            app:backgroundTint="@color/brand_emerald_pale"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:id="@+id/iv_ACFP_bannerPreview"
+                            android:layout_width="90dp"
+                            android:layout_height="54dp"
+                            android:scaleType="centerCrop"
+                            android:background="@drawable/bg_card_surface"
+                            tools:src="@drawable/banner_blue" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Course Banner"
+                                android:textSize="13sp"
+                                android:textColor="@color/brand_emerald_dark"
+                                android:fontFamily="@font/bricolage_body" />
+
+                            <TextView
+                                android:id="@+id/tv_ACFP_bannerPath"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:maxLines="1"
+                                android:textSize="11sp"
+                                android:textColor="#8A9A9A"
+                                android:fontFamily="@font/space_mono_regular"
+                                tools:text="https://res.cloudinary.com/.../banner.png" />
+                        </LinearLayout>
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ACFP_changeBanner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Change"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/space_mono_regular"
+                            app:backgroundTint="@color/brand_emerald_pale"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Course Images"
+                            android:textSize="14sp"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:fontFamily="@font/bricolage_body" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ACFP_addImage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Add Image"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/space_mono_regular"
+                            app:backgroundTint="@color/brand_emerald"
+                            android:textColor="@color/white_soft" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_ACFP_images"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        tools:itemCount="2"
+                        tools:listitem="@layout/image_itemview" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:text="Day-Time Arrangements"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_ACFP_addDTA"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:text="Add DTA"
+                            android:textAllCaps="false"
+                            android:fontFamily="@font/space_mono_regular"
+                            app:backgroundTint="@color/brand_emerald"
+                            android:textColor="@color/white_soft" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_ACFP_dtas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:nestedScrollingEnabled="false"
+                        tools:listitem="@layout/dta_view_holder" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/white_soft"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Linked Data (Read-only summary)"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Students"
+                            android:fontFamily="@font/bricolage_body"
+                            android:textColor="#6E8080" />
+
+                        <TextView
+                            android:id="@+id/tv_ACFP_countStudents"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Schedules"
+                            android:fontFamily="@font/bricolage_body"
+                            android:textColor="#6E8080" />
+
+                        <TextView
+                            android:id="@+id/tv_ACFP_countSchedules"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Agendas"
+                            android:fontFamily="@font/bricolage_body"
+                            android:textColor="#6E8080" />
+
+                        <TextView
+                            android:id="@+id/tv_ACFP_countAgendas"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="StudentCourse records"
+                            android:fontFamily="@font/bricolage_body"
+                            android:textColor="#6E8080" />
+
+                        <TextView
+                            android:id="@+id/tv_ACFP_countStudentCourses"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textColor="@color/brand_emerald_dark" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/ll_ACFP_bottomActions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white_soft"
+        android:elevation="12dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ACFP_deleteCourse"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:text="Delete"
+            android:textAllCaps="false"
+            android:fontFamily="@font/space_mono_regular"
+            android:textColor="@android:color/white"
+            app:backgroundTint="#C0392B"
+            app:cornerRadius="12dp" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ACFP_discard"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:text="Discard"
+            android:textAllCaps="false"
+            android:fontFamily="@font/space_mono_regular"
+            android:textColor="@color/brand_emerald_dark"
+            app:backgroundTint="@color/brand_emerald_pale"
+            app:cornerRadius="12dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_ACFP_save"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:layout_marginStart="8dp"
+            android:text="Save Changes"
+            android:textAllCaps="false"
+            android:fontFamily="@font/space_mono_regular"
+            android:textColor="@color/white_soft"
+            app:backgroundTint="@color/brand_emerald"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

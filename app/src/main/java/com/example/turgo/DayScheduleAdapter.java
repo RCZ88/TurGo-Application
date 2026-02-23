@@ -1,9 +1,10 @@
 package com.example.turgo;
 
 import java.time.DayOfWeek;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
@@ -11,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class DayScheduleAdapter extends RecyclerView.Adapter<DayScheduleViewHolder> implements ModeUpdatable{
     ArrayList<ScheduleToDisplay>daySchedules;
+    private final Set<Integer> expandedPositions = new HashSet<>();
 
     public DayScheduleAdapter(Teacher teacher, boolean timeFrame) {
         daySchedules = new ArrayList<>();
@@ -31,20 +34,29 @@ public class DayScheduleAdapter extends RecyclerView.Adapter<DayScheduleViewHold
 
     @Override
     public void onBindViewHolder(@NonNull DayScheduleViewHolder holder, int position) {
-//        dayFilled =0;
-//        for(DayOfWeek day : DayOfWeek.values()){
-//            ArrayList<Schedule>scheduleOfDay = Schedule.getScheduleOfDay(day, daySchedules);
-//            if(!scheduleOfDay.isEmpty()){
-//                dayFilled ++;
-//            }
-//            holder.tv_dayName.setText(day.toString());
-//
-//            ScheduleSimpleAdapter scheduleSimpleAdapter = new ScheduleSimpleAdapter(scheduleOfDay);
-//            holder.rv_schedulesOfDay.setAdapter(scheduleSimpleAdapter);
-//        }
         ScheduleToDisplay scheduleToDisplay = daySchedules.get(position);
         holder.tv_dayName.setText(scheduleToDisplay.day);
+        if (holder.rv_schedulesOfDay.getLayoutManager() == null) {
+            holder.rv_schedulesOfDay.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
+        }
         holder.rv_schedulesOfDay.setAdapter(new ScheduleSimpleAdapter(scheduleToDisplay.schedules));
+        boolean expanded = expandedPositions.contains(position);
+        holder.rv_schedulesOfDay.setVisibility(expanded ? View.VISIBLE : View.GONE);
+        holder.itemView.setOnClickListener(v -> toggleExpanded(holder));
+        holder.tv_dayName.setOnClickListener(v -> toggleExpanded(holder));
+    }
+
+    private void toggleExpanded(DayScheduleViewHolder holder) {
+        int adapterPosition = holder.getBindingAdapterPosition();
+        if (adapterPosition == RecyclerView.NO_POSITION) {
+            return;
+        }
+        if (expandedPositions.contains(adapterPosition)) {
+            expandedPositions.remove(adapterPosition);
+        } else {
+            expandedPositions.add(adapterPosition);
+        }
+        notifyItemChanged(adapterPosition);
     }
 
     @Override
@@ -53,25 +65,28 @@ public class DayScheduleAdapter extends RecyclerView.Adapter<DayScheduleViewHold
     }
     @SuppressLint("NotifyDataSetChanged")
     public void getSchedulesOfMode(Teacher teacher, boolean timeFrame){
-        Calendar calendar = Calendar.getInstance();
-        DayOfWeek today = DayOfWeek.of(calendar.get(Calendar.DAY_OF_WEEK));
+        daySchedules.clear();
+        expandedPositions.clear();
+        DayOfWeek today = LocalDate.now().getDayOfWeek();
+
+        if (teacher == null || teacher.getTimeArrangements() == null) {
+            notifyDataSetChanged();
+            return;
+        }
 
         if(timeFrame){
             for(DayTimeArrangement dta: teacher.getTimeArrangements()){
                 if(dta.getDay() == today){
-                    this.daySchedules.add(new ScheduleToDisplay(dta.toString(), dta.getOccupied()));
-                    notifyDataSetChanged();
+                    daySchedules.add(new ScheduleToDisplay(dta.getDay().toString(), dta.getOccupied()));
                     break;
                 }
             }
         }else{
-            ArrayList<ScheduleToDisplay> schedules = new ArrayList<>();
             for(DayTimeArrangement dta: teacher.getTimeArrangements()){
-                schedules.add(new ScheduleToDisplay(dta.getDay().toString(), dta.getOccupied()));
+                daySchedules.add(new ScheduleToDisplay(dta.getDay().toString(), dta.getOccupied()));
             }
-            this.daySchedules = schedules;
-            notifyDataSetChanged();
         }
+        notifyDataSetChanged();
     }
 
     @Override

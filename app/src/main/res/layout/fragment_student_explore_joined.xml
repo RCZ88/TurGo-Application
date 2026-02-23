@@ -1,48 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8FAF9"
     tools:context=".StudentExploreJoined">
 
-    <LinearLayout
-        android:id="@+id/linearLayout34"
-        android:layout_width="match_parent"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_tab_container"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:orientation="horizontal"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        app:cardBackgroundColor="@color/white_soft"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/brand_emerald_pale"
+        app:strokeWidth="1dp">
 
-        <Button
-            android:id="@+id/btn_SEJ_Explore"
-            android:layout_width="100dp"
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/tg_SEJ_Tab"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:text="Explore Course" />
+            android:padding="6dp"
+            app:checkedButton="@+id/btn_SEJ_Explore"
+            app:selectionRequired="true"
+            app:singleSelection="true"
+            app:strokeWidth="0dp">
 
-        <Button
-            android:id="@+id/btn_SEJ_MyCourse"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:text="My Course" />
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_SEJ_Explore"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/lexend"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="Explore"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="14sp"
+                app:backgroundTint="@color/transparent"
+                app:cornerRadius="12dp"
+                app:shapeAppearanceOverlay="@null" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_SEJ_MyCourse"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/lexend"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:text="My Courses"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="14sp"
+                app:backgroundTint="@color/transparent"
+                app:cornerRadius="12dp"
+                app:shapeAppearanceOverlay="@null" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </com.google.android.material.card.MaterialCardView>
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fcv_SEJ_Container"
-        android:name="com.example.turgo.Student_MyCourses"
-        android:layout_width="match_parent"
-        android:layout_height="624dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        android:background="#FDFDFD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout34" />
+        app:layout_constraintTop_toBottomOf="@id/cv_tab_container" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

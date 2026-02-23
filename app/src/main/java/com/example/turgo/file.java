@@ -6,7 +6,7 @@ import java.util.UUID;
 public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
     private final FirebaseNode fbn = FirebaseNode.FILE;
     private final Class<fileFirebase> fbc = fileFirebase.class;
-    private final String fileID;
+    private String fileID;
     private String secureURL; //Cloudinary
     private String fileName;
     private static RTDBManager<String> linkRTDB;
@@ -14,14 +14,21 @@ public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
     private LocalDateTime fileCreateDate;
     private LocalDateTime submitTime;
     private Task ofTask;
+
     public file(String fileName, String cloudinaryURL, User user, LocalDateTime fileCreateDate){
+        this(fileName, cloudinaryURL, user, fileCreateDate, null);
+    }
+
+    public file(String fileName, String cloudinaryURL, User user, LocalDateTime fileCreateDate, Task ofTask){
         this.fileID = UUID.randomUUID().toString();
         this.secureURL = cloudinaryURL;
         this.uploader = user;
         this.fileName = fileName;
         this.fileCreateDate = fileCreateDate;
+        this.ofTask = ofTask;
     }
     public file(){this.fileID = UUID.randomUUID().toString();;}
+
 
 
     public FirebaseNode getFbn() {
@@ -34,6 +41,10 @@ public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
 
     public String getFileID() {
         return fileID;
+    }
+
+    public void setFileID(String fileID) {
+        this.fileID = fileID;
     }
 
     public String getFileName() {
@@ -87,7 +98,9 @@ public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
 
     public void setSecureURL(String secureURL) {
         this.secureURL = secureURL;
-        linkRTDB.storeData("URL Cloudinary", uploader.getUid(), secureURL, "Submission url", "Submission url");
+        if (linkRTDB != null && uploader != null && Tool.boolOf(uploader.getUid()) && Tool.boolOf(secureURL)) {
+            linkRTDB.storeData("URL Cloudinary", uploader.getUid(), secureURL, "Submission url", "Submission url");
+        }
     }
 
     @Override
@@ -110,4 +123,6 @@ public class file implements RequireUpdate<file, fileFirebase, FileRepository>{
     public String getID() {
         return fileID;
     }
+
+
 }

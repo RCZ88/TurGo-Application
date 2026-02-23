@@ -1,5 +1,6 @@
 package com.example.turgo;
 
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -80,7 +81,7 @@ public class TeacherRepository implements RepositoryClass<Teacher, TeacherFireba
     }
 
     public void addScheduledMeeting(Meeting item) {
-        addStringToArray("scheduledMeetings", item.getID());
+        addStringToArrayAsync("scheduledMeetings", item.getID());
     }
 
     public void removeScheduledMeeting(String meetingId) {
@@ -153,6 +154,17 @@ public class TeacherRepository implements RepositoryClass<Teacher, TeacherFireba
         }
         childUpdates.put("lastModified", ServerValue.TIMESTAMP);
         teacherRef.updateChildren(childUpdates);
+    }
+
+    public com.google.android.gms.tasks.Task<Void> addNotificationId(String notificationId) {
+        if (!Tool.boolOf(notificationId)) {
+            return Tasks.forResult(null);
+        }
+        return Tasks.whenAll(
+                addStringToArrayAsync("notitficationIDs", notificationId),
+                addStringToArrayAsync("notificationIDs", notificationId),
+                addStringToArrayAsync("notifications", notificationId)
+        );
     }
 
     @Override

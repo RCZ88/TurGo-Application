@@ -17,9 +17,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends FirebaseClass<R>> {
+
     default void save(R object){
         try {
             F firebaseObj = object.getFirebaseClass().newInstance();
@@ -45,6 +49,10 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
 
     default void delete(R object){
         getDbReference().child(object.getID()).removeValue();
+    }
+
+    default void remove(){
+        getDbReference().removeValue();
     }
 
     default void removeStringFromArray(String fieldName, String itemToRemove) {
@@ -100,16 +108,8 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
         getDbReference().child(fieldName).runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData currentData) {
-                ArrayList<String> currentList = new ArrayList<>();
-                Object value = currentData.getValue();
-                if (value instanceof List) {
-                    for (Object v : (List<?>) value) {
-                        if (v instanceof String) {
-                            currentList.add((String) v);
-                        }
-                    }
-                }
-                if (!currentList.contains(item)) {
+                ArrayList<String> currentList = extractStringList(currentData.getValue());
+                if (Tool.boolOf(item) && !currentList.contains(item)) {
                     currentList.add(item);
                 }
                 currentData.setValue(currentList);
@@ -118,6 +118,10 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
 
             @Override
             public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (isTooManyRetries(error)) {
+                    fallbackMergeSet(fieldName, item, tcs);
+                    return;
+                }
                 if (error != null) {
                     tcs.setException(error.toException());
                 } else {
@@ -133,24 +137,18 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
         getDbReference().child(fieldName).runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData currentData) {
-                ArrayList<String> currentList = new ArrayList<>();
-                Object value = currentData.getValue();
-                if (value instanceof List) {
-                    for (Object v : (List<?>) value) {
-                        if (v instanceof String) {
-                            String str = (String) v;
-                            if (!str.equals(itemToRemove)) {
-                                currentList.add(str);
-                            }
-                        }
-                    }
-                }
+                ArrayList<String> currentList = extractStringList(currentData.getValue());
+                currentList.removeIf(str -> str.equals(itemToRemove));
                 currentData.setValue(currentList);
                 return Transaction.success(currentData);
             }
 
             @Override
             public void onComplete(DatabaseError error, boolean committed, DataSnapshot currentData) {
+                if (isTooManyRetries(error)) {
+                    fallbackRemoveSet(fieldName, itemToRemove, tcs);
+                    return;
+                }
                 if (error != null) {
                     tcs.setException(error.toException());
                 } else {
@@ -159,6 +157,101 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
             }
         });
         return tcs.getTask();
+    }
+
+    default void fallbackMergeSet(String fieldName, String item, TaskCompletionSource<Void> tcs) {
+        getDbReference().child(fieldName).get().addOnSuccessListener(snapshot -> {
+            ArrayList<String> merged = extractStringList(snapshot.getValue());
+            if (Tool.boolOf(item) && !merged.contains(item)) {
+                merged.add(item);
+            }
+            getDbReference().child(fieldName).setValue(merged)
+                    .addOnSuccessListener(unused -> tcs.setResult(null))
+                    .addOnFailureListener(tcs::setException);
+        }).addOnFailureListener(tcs::setException);
+    }
+
+    default void fallbackRemoveSet(String fieldName, String itemToRemove, TaskCompletionSource<Void> tcs) {
+        getDbReference().child(fieldName).get().addOnSuccessListener(snapshot -> {
+            ArrayList<String> merged = extractStringList(snapshot.getValue());
+            merged.removeIf(str -> str.equals(itemToRemove));
+            getDbReference().child(fieldName).setValue(merged)
+                    .addOnSuccessListener(unused -> tcs.setResult(null))
+                    .addOnFailureListener(tcs::setException);
+        }).addOnFailureListener(tcs::setException);
+    }
+
+    default boolean isTooManyRetries(DatabaseError error) {
+        if (error == null) {
+            return false;
+        }
+        int code = error.getCode();
+        if (code == DatabaseError.MAX_RETRIES
+                || code == DatabaseError.OVERRIDDEN_BY_SET
+                || code == DatabaseError.DATA_STALE) {
+            return true;
+        }
+        String message = error.getMessage();
+        if (!Tool.boolOf(message)) {
+            return false;
+        }
+        String lowered = message.toLowerCase(Locale.US);
+        return lowered.contains("too many retries")
+                || lowered.contains("overridden by a subsequent set")
+                || lowered.contains("data is stale");
+    }
+
+    default ArrayList<String> extractStringList(Object value) {
+        LinkedHashSet<String> deduped = new LinkedHashSet<>();
+        if (value instanceof List<?>) {
+            for (Object v : (List<?>) value) {
+                if (v instanceof String && Tool.boolOf((String) v)) {
+                    deduped.add((String) v);
+                }
+            }
+        } else if (value instanceof Map<?, ?>) {
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                Object rawKey = entry.getKey();
+                Object rawVal = entry.getValue();
+                String key = rawKey == null ? null : rawKey.toString();
+                if (rawVal instanceof String && Tool.boolOf((String) rawVal)) {
+                    deduped.add((String) rawVal);
+                    continue;
+                }
+                if (Tool.boolOf(key) && !isNumericArrayKey(key) && isTruthyMembershipFlag(rawVal)) {
+                    deduped.add(key);
+                }
+            }
+        } else if (value instanceof String && Tool.boolOf((String) value)) {
+            deduped.add((String) value);
+        }
+        return new ArrayList<>(deduped);
+    }
+
+    default boolean isNumericArrayKey(String key) {
+        if (!Tool.boolOf(key)) {
+            return false;
+        }
+        for (int i = 0; i < key.length(); i++) {
+            if (!Character.isDigit(key.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    default boolean isTruthyMembershipFlag(Object rawValue) {
+        if (rawValue == null) {
+            return true;
+        }
+        if (rawValue instanceof Boolean) {
+            return (Boolean) rawValue;
+        }
+        if (rawValue instanceof Number) {
+            return ((Number) rawValue).intValue() != 0;
+        }
+        String value = rawValue.toString();
+        return "1".equals(value) || "true".equalsIgnoreCase(value);
     }
 
     default void load(ObjectCallBack<F>callBack){

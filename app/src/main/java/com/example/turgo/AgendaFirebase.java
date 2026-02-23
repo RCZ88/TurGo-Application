@@ -7,14 +7,15 @@ import java.text.ParseException;
 import java.time.LocalDate;
 
 public class AgendaFirebase implements FirebaseClass<Agenda> {
-    // Firebase-compatible fields
-    private String agendaID;
-    private String date; // Store LocalDate as String in ISO format (yyyy-MM-dd)
+    private String agenda_ID;
+    private String agendaID; // legacy alias
+    private String agendaImage;
+    private String date;
     private String contents;
-    private String ofMeeting; // Store Meeting ID instead of Meeting object
-    private String teacher; // Store Teacher ID instead of Teacher object
-    private String student; // Store Student ID instead of Student object
-    private String ofCourse; // Store Course ID instead of Course object
+    private String ofMeeting;
+    private String teacher;
+    private String student;
+    private String ofCourse;
 
     // Default constructor required for Firebase
     public AgendaFirebase() {
@@ -22,18 +23,19 @@ public class AgendaFirebase implements FirebaseClass<Agenda> {
 
     @Override
     public void importObjectData(Agenda from) {
-        // Copy agenda ID
-        agendaID = from.getID();
+        agenda_ID = from.getID();
+        agendaID = agenda_ID;
 
-        // Convert LocalDate to String
-        if (from.getDate() != null) {
-            date = from.getDate().toString(); // ISO format: yyyy-MM-dd
+        if (from.getAgendaImage() != null) {
+            agendaImage = from.getAgendaImage().getID();
+        } else {
+            agendaImage = "";
         }
 
-        // Copy contents directly
+        if (from.getDate() != null) {
+            date = from.getDate().toString();
+        }
         contents = from.getContents();
-
-        // Convert object references to IDs
         if (from.getOfMeeting() != null) {
             ofMeeting = from.getOfMeeting().getID();
         }
@@ -52,7 +54,7 @@ public class AgendaFirebase implements FirebaseClass<Agenda> {
 
     @Override
     public String getID() {
-        return agendaID;
+        return Tool.boolOf(agenda_ID) ? agenda_ID : agendaID;
     }
 
     @Override
@@ -74,6 +76,24 @@ public class AgendaFirebase implements FirebaseClass<Agenda> {
 
     public void setAgendaID(String agendaID) {
         this.agendaID = agendaID;
+        this.agenda_ID = agendaID;
+    }
+
+    public String getAgenda_ID() {
+        return agenda_ID;
+    }
+
+    public void setAgenda_ID(String agenda_ID) {
+        this.agenda_ID = agenda_ID;
+        this.agendaID = agenda_ID;
+    }
+
+    public String getAgendaImage() {
+        return agendaImage;
+    }
+
+    public void setAgendaImage(String agendaImage) {
+        this.agendaImage = agendaImage;
     }
 
     public String getDate() {

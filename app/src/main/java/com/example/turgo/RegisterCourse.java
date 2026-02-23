@@ -20,6 +20,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,8 +31,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -39,7 +44,7 @@ public class RegisterCourse extends AppCompatActivity {
     Fragment[]registerFragments = new Fragment[amtOfRegisFrag];
     HashMap<TimeSlot, Integer>slotAmount;
     ProgressBar pb_regisProgress;
-    ImageButton btn_collapse;
+    ImageButton btn_collapse, btn_goBack;
     Fragment frag_UserInfo, frag_AvailDayTime, frag_PrivateDurationAmount, frag_SelectPaymentConfirm;
 
     View fc_container;
@@ -82,6 +87,9 @@ public class RegisterCourse extends AppCompatActivity {
         tv_title = findViewById(R.id.tv_arc_ViewTitle);
         btn_collapse = findViewById(R.id.btn_arc_CollapseTopBar);
         ll_topNav =  findViewById(R.id.ll_arc_topView);
+        btn_goBack = findViewById(R.id.ib_RC_backNav);
+
+        btn_goBack.setOnClickListener(v->goBackToCourseFullPage());
 
 
 
@@ -159,10 +167,12 @@ public class RegisterCourse extends AppCompatActivity {
                         @Override
                         public void onObjectRetrieved(ArrayList<Schedule> object) {
                             schedules.set(object);
+                            ensureStudentLinkedToSchedules(schedules.get());
                             if (course.isAutoAcceptStudent()) {
                                 student.joinCourse(course, paymentPreferences,
                                                 sq == ScheduleQuality.PRIVATE_ONLY, selectedPrice,
                                                 schedules.get(), selectedTS, RegisterCourse.this)
+                                        .onSuccessTask(unused -> generateMeetingsNow(schedules.get()))
                                         .addOnSuccessListener(unused -> {
                                             Bundle bundle = new Bundle();
                                             bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
@@ -183,7 +193,7 @@ public class RegisterCourse extends AppCompatActivity {
                                 MailApplyCourse acm = new MailApplyCourse(student, teacher,
                                         schedules.get(), course, reasonForJoining, school, educationGrade);
                                 try {
-                                    User.sendMail(acm);
+                                    User.sendMail(acm, student, teacher);
                                 } catch (InvocationTargetException |
                                          NoSuchMethodException |
                                          IllegalAccessException |
@@ -207,173 +217,218 @@ public class RegisterCourse extends AppCompatActivity {
         );
 
     }
+    private Task<Void> generateMeetingsNow(ArrayList<Schedule> schedules) {
+        if (schedules == null || schedules.isEmpty()) {
+            return Tasks.forResult(null);
+        }
+        int weeksAhead = 4;
+        LocalDate today = LocalDate.now();
+        List<Task<?>> tasks = new ArrayList<>();
+        StudentRepository studentRepository = new StudentRepository(student.getID());
+
+        for (Schedule schedule : schedules) {
+            if (schedule == null || schedule.getDay() == null) {
+                continue;
+            }
+            for (int week = 0; week < weeksAhead; week++) {
+                LocalDate meetingDate = today.plusWeeks(week)
+                        .with(TemporalAdjusters.nextOrSame(schedule.getDay()));
+                String meetingId = schedule.getID() + "_" + meetingDate;
+                MeetingRepository meetingRepo = new MeetingRepository(meetingId);
+
+                Task<Void> task = meetingRepo.getDbReference().get().onSuccessTask(snapshot -> {
+                    if (snapshot.exists()) {
+                        return meetingRepo.loadAsNormal().onSuccessTask(existingMeeting -> {
+                            if (existingMeeting != null) {
+                                if (existingMeeting.getUsersRelated() == null) {
+                                    existingMeeting.setUsersRelated(new ArrayList<>());
+                                }
+                                if (!existingMeeting.getUsersRelated().contains(student.getID())) {
+                                    existingMeeting.getUsersRelated().add(student.getID());
+                                }
+                                String legacyMeetingId = existingMeeting.getRawMeetingID();
+                                return meetingRepo.saveAsync(existingMeeting)
+                                        .onSuccessTask(unused -> studentRepository.addStringToArrayAsync("preScheduledMeetings", meetingId))
+                                        .onSuccessTask(unused -> {
+                                            if (!meetingId.equals(legacyMeetingId)) {
+                                                return studentRepository.removeStringFromArrayAsync("preScheduledMeetings", legacyMeetingId);
+                                            }
+                                            return Tasks.forResult(null);
+                                        })
+                                        .onSuccessTask(unused -> existingMeeting.getMeetingOfCourse().onSuccessTask(moc -> {
+                                            TeacherRepository teacherRepository = new TeacherRepository(moc.getTeacherId());
+                                            Task<Void> addTask = teacherRepository.addStringToArrayAsync("scheduledMeetings", meetingId);
+                                            if (!meetingId.equals(legacyMeetingId)) {
+                                                return addTask.onSuccessTask(v ->
+                                                        teacherRepository.removeStringFromArrayAsync("scheduledMeetings", legacyMeetingId));
+                                            }
+                                            return addTask;
+                                        }));
+                            }
+                            return studentRepository.addStringToArrayAsync("preScheduledMeetings", meetingId);
+                        });
+                    }
+                    Meeting meeting = new Meeting(meetingId, schedule, meetingDate, student);
+                    meeting.assignUser(student);
+                    return meetingRepo.saveAsync(meeting)
+                            .onSuccessTask(unused -> studentRepository.addStringToArrayAsync("preScheduledMeetings", meetingId))
+                            .onSuccessTask(unused -> meeting.getMeetingOfCourse().onSuccessTask(moc -> {
+                                TeacherRepository teacherRepository = new TeacherRepository(moc.getTeacherId());
+                                return teacherRepository.addStringToArrayAsync("scheduledMeetings", meetingId);
+                            }));
+                });
+                tasks.add(task);
+            }
+        }
+        return tasks.isEmpty() ? Tasks.forResult(null) : Tasks.whenAll(tasks);
+    }
     private void createSchedules(ObjectCallBack<ArrayList<Schedule>> callBack) {
-        ArrayList<Schedule> schedules = new ArrayList<>();
-
-        Log.d("DEBUG", "createSchedules called, dowSelected size: " + dowSelected.size());
-
-        // Check if dowSelected is empty - return empty list immediately
-        if (dowSelected.isEmpty()) {
-            Log.d("DEBUG", "dowSelected is empty, returning empty list");
+        if (dowSelected == null || dowSelected.isEmpty()) {
             try {
                 callBack.onObjectRetrieved(new ArrayList<>());
             } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                      IllegalAccessException | InstantiationException e) {
-                Log.e("DEBUG", "Error in empty schedule callback", e);
-                try {
-                    // Try to report error through callback if possible
-                    // Note: This depends on your ObjectCallBack implementation
-                    // If there's no onError for exceptions, we need to handle differently
-                    callBack.onObjectRetrieved(new ArrayList<>());
-                    // You might need to adapt this based on your actual ObjectCallBack class
-                    // If it doesn't have onError for exceptions, we need another approach
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                Log.e("RegisterCourse", "Error returning empty schedule list", e);
             }
-            return; // IMPORTANT: Return after calling callback
+            return;
         }
 
-        Log.d("DEBUG", "Processing " + dowSelected.size() + " days");
+        if (selectedTS == null || selectedTS.size() < dowSelected.size()) {
+            Log.e("RegisterCourse", "Invalid selectedTS mapping. selectedTS size="
+                    + (selectedTS == null ? 0 : selectedTS.size())
+                    + ", dowSelected size=" + dowSelected.size());
+            try {
+                callBack.onObjectRetrieved(new ArrayList<>());
+            } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | InstantiationException e) {
+                Log.e("RegisterCourse", "Error returning empty schedule list for invalid selection", e);
+            }
+            return;
+        }
 
-        // Use AtomicInteger to track completion since we're in async callbacks
+        new CourseRepository(course.getID()).loadAsNormal()
+                .addOnSuccessListener(freshCourse -> {
+                    ArrayList<Schedule> existingSchedules = (freshCourse != null && freshCourse.getSchedules() != null)
+                            ? freshCourse.getSchedules()
+                            : new ArrayList<>();
+                    createSchedulesFromExisting(existingSchedules, callBack);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("RegisterCourse", "Failed loading fresh course schedules, fallback to in-memory list", e);
+                    ArrayList<Schedule> fallback = course.getSchedules() == null
+                            ? new ArrayList<>()
+                            : course.getSchedules();
+                    createSchedulesFromExisting(fallback, callBack);
+                });
+    }
+
+    private void createSchedulesFromExisting(ArrayList<Schedule> existingSchedules, ObjectCallBack<ArrayList<Schedule>> callBack) {
+        ArrayList<Schedule> schedules = new ArrayList<>();
         java.util.concurrent.atomic.AtomicInteger completedCount = new java.util.concurrent.atomic.AtomicInteger(0);
-
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.SCHEDULE.getPath());
-        ArrayList<Schedule>existingSchedules = new ArrayList<>();
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds : snapshot.getChildren()){
-                    try {
-                        ds.getValue(ScheduleFirebase.class).convertToNormal(new ObjectCallBack<>() {
-                            @Override
-                            public void onObjectRetrieved(Schedule object) {
-                                existingSchedules.add(object);
-                            }
-
-                            @Override
-                            public void onError(DatabaseError error) {
-
-                            }
-                        });
-                    } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                             IllegalAccessException | InstantiationException e) {
-                        throw new RuntimeException(e);
-                    }
-
-
+        int total = dowSelected.size();
+        Runnable maybeComplete = () -> {
+            if (completedCount.incrementAndGet() == total) {
+                try {
+                    callBack.onObjectRetrieved(schedules);
+                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
+                         IllegalAccessException | InstantiationException e) {
+                    Log.e("RegisterCourse", "Error returning created schedules", e);
                 }
             }
+        };
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        for (int i = 0; i < dowSelected.size(); i++) {
+        for (int i = 0; i < total; i++) {
             TimeSlot timeSlot = selectedTS.get(i);
             DayOfWeek dayOfWeek = dowSelected.get(i);
 
-            boolean scheduleFound = false;
-            Log.d("DEBUG", "Processing schedule " + i + ": DOW=" + dayOfWeek + ", TimeSlot=" + timeSlot.toStr());
-            for(Schedule schedule : existingSchedules){
-                if(timeSlot.getStart().equals(schedule.getMeetingStart()) && timeSlot.getEnd().equals(schedule.getMeetingEnd())){
-                    schedules.add(schedule);
-                    scheduleFound = true;
-                    break;
-                }
+            Schedule matched = findExactSchedule(existingSchedules, dayOfWeek, timeSlot.getStart(), timeSlot.getEnd());
+            if (matched != null) {
+                schedules.add(matched);
+                maybeComplete.run();
+                continue;
             }
-            if(scheduleFound) continue;
-
 
             try {
-                int finalI = i;
                 Room.getEmptyRoom(timeSlot.getStart(), timeSlot.getEnd(), dayOfWeek, new ObjectCallBack<>() {
                     @Override
                     public void onObjectRetrieved(Room room) {
-                        // Create schedule with the found room
-
                         Schedule schedule = new Schedule(timeSlot.getStart(),
                                 (int) (timeSlot.getTime().getSeconds() / 60),
                                 dayOfWeek,
                                 sq == ScheduleQuality.PRIVATE_ONLY, course.getID());
-                        // If room was found, set it on the schedule
                         if (room != null) {
-                            //save room to db
-                            Log.d("DEBUG", "Found room for schedule " + finalI + ": " + room.getID());
                             schedule.setRoom(room.getID());
-                        } else {
-                            Log.d("DEBUG", "No room found for schedule " + finalI);
                         }
                         schedule.setOfCourse(course.getID());
-
-
                         schedules.add(schedule);
-                        Log.d("DEBUG", "Schedule " + finalI + " created: " + schedule);
-
-                        // Check if all schedules have been created
-                        int completed = completedCount.incrementAndGet();
-                        if (completed == dowSelected.size()) {
-                            Log.d("DEBUG", "All schedules created, returning list of size: " + schedules.size());
-                            try {
-                                callBack.onObjectRetrieved(schedules);
-                            } catch (Exception e) {
-                                Log.e("DEBUG", "Error in final callback", e);
-                            }
-                        }
+                        existingSchedules.add(schedule);
+                        maybeComplete.run();
                     }
 
                     @Override
                     public void onError(DatabaseError error) {
-                        Log.e("DEBUG", "Error getting room for schedule " + finalI + ": " + error.getMessage());
-
-                        // Even if room finding fails, we should still create the schedule (maybe without room)
                         Schedule schedule = new Schedule(timeSlot.getStart(),
                                 (int) (timeSlot.getTime().getSeconds() / 60),
                                 dayOfWeek,
                                 sq == ScheduleQuality.PRIVATE_ONLY, course.getCourseID());
                         schedules.add(schedule);
-
-                        int completed = completedCount.incrementAndGet();
-                        if (completed == dowSelected.size()) {
-                            Log.d("DEBUG", "All schedules processed (some with errors), returning list");
-                            try {
-                                callBack.onObjectRetrieved(schedules);
-                            } catch (Exception e) {
-                                Log.e("DEBUG", "Error in error callback", e);
-                            }
-                        }
+                        existingSchedules.add(schedule);
+                        maybeComplete.run();
                     }
                 });
             } catch (ParseException | InvocationTargetException | NoSuchMethodException |
                      IllegalAccessException | InstantiationException e) {
-                Log.e("DEBUG", "Exception in Room.getEmptyRoom for schedule " + i, e);
-
-                // Handle exception - still create schedule but mark as problematic
+                Log.e("RegisterCourse", "Failed to resolve room for schedule", e);
                 Schedule schedule = new Schedule(timeSlot.getStart(),
                         (int) (timeSlot.getTime().getSeconds() / 60),
                         dayOfWeek,
                         sq == ScheduleQuality.PRIVATE_ONLY, course.getCourseID());
                 schedules.add(schedule);
-
-                int completed = completedCount.incrementAndGet();
-                if (completed == dowSelected.size()) {
-                    Log.d("DEBUG", "All schedules processed (some with exceptions), returning list");
-                    try {
-                        callBack.onObjectRetrieved(schedules);
-                    } catch (Exception ex) {
-                        Log.e("DEBUG", "Error in exception callback", ex);
-                    }
-                }
+                existingSchedules.add(schedule);
+                maybeComplete.run();
             }
         }
+    }
+
+    private Schedule findExactSchedule(ArrayList<Schedule> existingSchedules, DayOfWeek day, java.time.LocalTime start, java.time.LocalTime end) {
+        if (existingSchedules == null || existingSchedules.isEmpty()) {
+            return null;
+        }
+        for (Schedule existing : existingSchedules) {
+            if (existing == null || existing.getDay() == null || existing.getMeetingStart() == null || existing.getMeetingEnd() == null) {
+                continue;
+            }
+            if (existing.getDay() == day
+                    && start.equals(existing.getMeetingStart())
+                    && end.equals(existing.getMeetingEnd())) {
+                return existing;
+            }
+        }
+        return null;
     }
     private void initializeProgressBar(){
         pb_regisProgress.setMin(1);
         pb_regisProgress.setMax(amtOfRegisFrag);
         pb_regisProgress.setProgress(currentFragIndex+1);
+    }
+
+    private void ensureStudentLinkedToSchedules(ArrayList<Schedule> schedules) {
+        if (schedules == null || student == null || !Tool.boolOf(student.getID())) {
+            return;
+        }
+        for (Schedule schedule : schedules) {
+            if (schedule == null || !Tool.boolOf(schedule.getID())) {
+                continue;
+            }
+            if (schedule.students == null) {
+                schedule.students = new ArrayList<>();
+            }
+            if (!schedule.students.contains(student.getID())) {
+                schedule.students.add(student.getID());
+            }
+            ScheduleRepository scheduleRepository = new ScheduleRepository(schedule.getID());
+            scheduleRepository.addStringToArrayAsync("students", student.getID());
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -407,11 +462,16 @@ public class RegisterCourse extends AppCompatActivity {
             Log.d("RegisterCourse", "Prev button Clicked! Current Frag Index: " + currentFragIndex + "/" + (amtOfRegisFrag-1));
             updateCurrentFragment();
         }else{
-            Bundle bundle = new Bundle();
-            bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-            Tool.loadFragment(this, R.id.nhf_ss_FragContainer, new CourseExploreFullPage());
+            goBackToCourseFullPage();
         }
     }
+
+    private void goBackToCourseFullPage(){
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+        Tool.loadFragment(this, R.id.nhf_ss_FragContainer, new CourseExploreFullPage());
+    }
+
 
     @SuppressLint("SetTextI18n")
     public void updateCurrentFragment(){

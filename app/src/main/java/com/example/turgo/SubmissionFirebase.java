@@ -33,9 +33,7 @@ public class SubmissionFirebase implements FirebaseClass<Submission>{
             }
         }
 
-        // Assuming Dropbox and Student have getID() methods
-        Dropbox dropbox = Await.get(from::getDropbox);
-        this.dropbox = (dropbox != null) ? dropbox.getID() : null;
+        this.dropbox = from.getDropbox();
         this.of = (from.getOf() != null) ? from.getOf().getID() : null;
     }
 

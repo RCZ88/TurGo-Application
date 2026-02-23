@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -80,7 +81,7 @@ public class TaskDisplay extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_task_display, container, false);
-        StudentScreen activity = (StudentScreen) getActivity();
+        StudentScreen activity = (getActivity() instanceof StudentScreen) ? (StudentScreen) getActivity() : null;
 
         tv_date = view.findViewById(R.id.tv_ftd_dateSubmission);
         tv_month = view.findViewById(R.id.tv_ftd_monthSubmission);
@@ -88,17 +89,24 @@ public class TaskDisplay extends Fragment {
         tv_submissionTime = view.findViewById(R.id.tv_ftd_TimeSubmission);
         iv_submissionStatus =view.findViewById(R.id.iv_ftd_SubmissionStatus);
 
+
         if(getArguments()!= null) {
             task = (Task) getArguments().getSerializable(Task.SERIALIZE_KEY_CODE);
+            if (task == null || task.getDueDate() == null) {
+                return view;
+            }
             LocalDateTime submissionDate = task.getDueDate();
-            tv_date.setText(submissionDate.getDayOfMonth());
-            tv_month.setText(submissionDate.getMonth().toString());
+            tv_date.setText(String.valueOf(submissionDate.getDayOfMonth()));
+            tv_month.setText(submissionDate.getMonth().toString().substring(0, 3).toUpperCase(Locale.US));
             tv_taskTitle.setText(task.getTitle());
             String submissionTime = submissionDate.getHour() + " : " + submissionDate.getMinute();
             tv_submissionTime.setText(submissionTime);
-            Student s = activity.getStudent();
-
-            iv_submissionStatus.setImageResource(task.isComplete(s) ? R.drawable.checkbox : R.drawable.pending);
+            if (activity != null && activity.getStudent() != null) {
+                Student s = activity.getStudent();
+                iv_submissionStatus.setImageResource(task.isComplete(s) ? R.drawable.checkbox : R.drawable.pending);
+            } else {
+                iv_submissionStatus.setImageResource(R.drawable.pending);
+            }
         }
         return view;
     }

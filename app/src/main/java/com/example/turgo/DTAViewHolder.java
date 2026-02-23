@@ -21,8 +21,15 @@ public class DTAViewHolder extends RecyclerView.ViewHolder {
         tvTimeRange = itemView.findViewById(R.id.tv_DVH_TimeRange);
         tvMaxMeeting = itemView.findViewById(R.id.tv_DVH_MaxMeeting);
         btn_remove = itemView.findViewById(R.id.btn_DVH_RemoveDTA);
+        itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemLongClick(position);
+            }
+        });
         btn_remove.setOnClickListener(v -> {
-            listener.onItemClick(position);
+            if (listener != null) {
+                listener.onItemClick(position);
+            }
         });
     }
 }

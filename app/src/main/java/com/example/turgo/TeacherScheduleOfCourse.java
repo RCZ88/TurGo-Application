@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.widget.Spinner;
 
 import java.time.DayOfWeek;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
 /**
@@ -63,9 +65,6 @@ public class TeacherScheduleOfCourse extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            loadItems();
-        }
     }
 
     @Override
@@ -75,21 +74,28 @@ public class TeacherScheduleOfCourse extends Fragment{
         View view = inflater.inflate(R.layout.fragment_teacher_schedule_of_course, container, false);
         rv_schedules = view.findViewById(R.id.rv_TSOC_Schedules);
         sp_dayOptions = view.findViewById(R.id.sp_TSOC_FilterDay);
-        Teacher teacher =((TeacherScreen) getActivity()).getTeacher();
 
-        TeacherScheduleAdapter adapter = new TeacherScheduleAdapter(schedules, students, courses);
+        Bundle bundle=getArguments();
+
+        assert bundle != null;
+        Course course = (Course) bundle.getSerializable(Course.SERIALIZE_KEY_CODE);
+        assert course != null;
+        schedules = course.getSchedules();
+        Log.d(this.getClass().getSimpleName() , "Schedules size: " + schedules.size());
+
+
+        TeacherScheduleAdapter adapter = new TeacherScheduleAdapter(schedules);
+        rv_schedules.setLayoutManager(new LinearLayoutManager(requireContext()));
         rv_schedules.setAdapter(adapter);
 
-        ArrayList<DayOfWeek>days = new ArrayList<>();
-        for(DayTimeArrangement dta : teacher.getTimeArrangements()){
-            days.add(dta.getDay());
-        }
-        sp_dayOptions.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_dropdown_item, days));
+        ArrayList<DayOfWeek>days = new ArrayList<>(new LinkedHashSet<>(Tool.streamToArray(schedules.stream().map(Schedule::getDay))));
+
+        sp_dayOptions.setAdapter(new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, days));
         sp_dayOptions.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                adapter.scheduleList = teacher.getSchedulesOfDay(days.get(position));
+                adapter.scheduleList = Tool.streamToArray(schedules.stream().filter(schedule -> schedule.getDay().equals(days.get(position)))) ;
                 adapter.notifyDataSetChanged();
             }
 
@@ -102,18 +108,5 @@ public class TeacherScheduleOfCourse extends Fragment{
         return view;
     }
 
-    private void loadItems(){
-        Teacher teacher =((TeacherScreen) requireActivity()).getTeacher();
-        schedules = teacher.getAllSchedule();
-        for(Schedule schedule : schedules){
-            schedule.getStudents().addOnSuccessListener(students->{
-                this.students.add((ArrayList<Student>) students);
-            });
-        }
-        courses = new ArrayList<>();
-        for(Schedule schedule : schedules){
-            schedule.getScheduleOfCourse().addOnSuccessListener(course ->courses.add(course));
-        }
-    }
 
 }

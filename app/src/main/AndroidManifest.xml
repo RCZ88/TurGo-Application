@@ -29,8 +29,21 @@
         android:theme="@style/Theme.TurGo"
         tools:targetApi="31">
         <activity
+            android:name=".AdminCourseFullPage"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AdminViewAllCourses"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".AdminCreateRoom"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".NotifPageFull"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".DataLoading"
             android:exported="false"
@@ -62,7 +75,8 @@
             android:name=".ComposeMail"
             android:exported="false"
             android:fitsSystemWindows="true"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".TeacherScreen"
             android:exported="false"
@@ -123,8 +137,19 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" /> <!-- Optional: Preloaded Fonts -->
         <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="@string/fcm_default_channel_id" />
+        <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
+        <service
+            android:name=".TurgoFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

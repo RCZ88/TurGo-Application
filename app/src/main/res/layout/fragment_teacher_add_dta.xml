@@ -1,228 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/frameLayout8"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F8FAF9"
+    android:fillViewport="true"
     tools:context=".TeacherAddDTA">
 
-    <TextView
-        android:id="@+id/textView108"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add DTA"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="42dp" />
-
     <LinearLayout
-        android:id="@+id/linearLayout43"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout45">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView111"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Start Time" />
-
-            <Button
-                android:id="@+id/btn_TAD_SelectStartTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Time" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView134"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Selected:" />
-
-                <TextView
-                    android:id="@+id/tv_TAD_StartTimeSelected"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="10:00am" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView112"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="End Time" />
-
-            <Button
-                android:id="@+id/btn_TAD_SelectEndTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Time" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView129"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Selected:" />
-
-                <TextView
-                    android:id="@+id/tv_TAD_EndTimeSelected"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="10:00am" />
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout44"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout43">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout43"
-            tools:layout_editor_absoluteX="148dp">
-
-            <TextView
-                android:id="@+id/textView113"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Day of DTA" />
-
-            <Button
-                android:id="@+id/btn_TAD_SelectDayOfDTA"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Day" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView149"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Selected:" />
-
-                <TextView
-                    android:id="@+id/tv_TAD_DaySelected"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Monday" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            tools:layout_editor_absoluteX="148dp"
-            tools:layout_editor_absoluteY="425dp">
-
-            <TextView
-                android:id="@+id/textView109"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Max Meeting Per Day" />
-
-            <EditText
-                android:id="@+id/etn_TAD_SelectMaxMeeting"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_TAD_AddDTA"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="88dp"
-        android:text="Add DTA"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout44" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout45"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView108">
+        android:padding="24dp">
 
         <TextView
-            android:id="@+id/textView115"
+            android:id="@+id/textView108"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select Course" />
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Add DTA"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="32sp"
+            android:layout_marginBottom="8dp" />
 
-        <Spinner
-            android:id="@+id/sp_TAD_SelectCourse"
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/plus_jakarta_sans"
+            android:text="Configure your daily teaching availability."
+            android:textColor="#667085"
+            android:textSize="14sp"
+            android:layout_marginBottom="32dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:id="@+id/linearLayout45"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/textView115"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:text="Select Course"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1"
+                android:textColor="@color/brand_emerald"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E4E7EC"
+                app:strokeWidth="1dp">
+
+                <Spinner
+                    android:id="@+id/sp_TAD_SelectCourse"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:paddingHorizontal="12dp" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout43"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="24dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView111"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Start Time"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <Button
+                    android:id="@+id/btn_TAD_SelectStartTime"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Select Time"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/brand_emerald_pale"
+                    app:cornerRadius="12dp"
+                    app:icon="@android:drawable/ic_menu_recent_history"
+                    app:iconTint="@color/brand_emerald" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/textView134"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selected:"
+                        android:fontFamily="@font/plus_jakarta_sans"
+                        android:textSize="10sp"
+                        android:textColor="#98A2B3"/>
+                    <TextView
+                        android:id="@+id/tv_TAD_StartTimeSelected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/jetbrains_mono"
+                        android:text="10:00am"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView112"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="End Time"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <Button
+                    android:id="@+id/btn_TAD_SelectEndTime"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Select Time"
+                    android:textSize="12sp"
+                    app:backgroundTint="@color/brand_emerald_pale"
+                    app:cornerRadius="12dp"
+                    app:icon="@android:drawable/ic_menu_recent_history"
+                    app:iconTint="@color/brand_emerald" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/textView129"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selected:"
+                        android:fontFamily="@font/plus_jakarta_sans"
+                        android:textSize="10sp"
+                        android:textColor="#98A2B3"/>
+                    <TextView
+                        android:id="@+id/tv_TAD_EndTimeSelected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:fontFamily="@font/jetbrains_mono"
+                        android:text="11:30am"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="11sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E4E7EC"
+            app:strokeWidth="1dp"
+            android:layout_marginBottom="32dp">
+
+            <LinearLayout
+                android:id="@+id/linearLayout44"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/textView113"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Day of Week"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/btn_TAD_SelectDayOfDTA"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/plus_jakarta_sans"
+                        android:text="Select Day"
+                        android:textSize="12sp"
+                        app:strokeColor="@color/brand_emerald_pale" />
+                    <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1"/>
+                    <TextView
+                        android:id="@+id/textView149"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Selected:"
+                        android:fontFamily="@font/plus_jakarta_sans"
+                        android:textSize="11sp"
+                        android:textColor="#98A2B3"/>
+                    <TextView
+                        android:id="@+id/tv_TAD_DaySelected"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="Monday"
+                        android:fontFamily="@font/lexend"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="20dp"
+                    android:background="#F2F4F7"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/plus_jakarta_sans"
+                            android:text="Unlimited Students"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tv_TAD_LimitStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/jetbrains_mono"
+                            android:text="OFF"
+                            android:textColor="#98A2B3"
+                            android:textSize="10sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/sw_TAD_NoLimitToggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:visibility="visible"
+                        app:useMaterialThemeColors="true"
+                        app:thumbTint="@color/brand_emerald"
+                        app:trackTint="@color/brand_emerald_pale" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/textView109"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Max Meeting Per Day"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:textAllCaps="true" />
+
+                <EditText
+                    android:id="@+id/etn_TAD_SelectMaxMeeting"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_qr_button"
+                    android:backgroundTint="#F9FAFB"
+                    android:hint="5"
+                    android:inputType="number"
+                    android:paddingHorizontal="16dp"
+                    android:fontFamily="@font/jetbrains_mono"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <Button
+            android:id="@+id/btn_TAD_AddDTA"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:fontFamily="@font/lexend"
+            android:text="Confirm and Save"
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/brand_emerald"
+            app:cornerRadius="16dp"
+            app:elevation="8dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

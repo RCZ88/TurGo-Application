@@ -27,23 +27,49 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_mpf_FragmentTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/dela_gothic_one_regular"
-                android:text="INBOX"
-                android:textColor="@color/white_soft"
-                android:textSize="28sp" />
+            <LinearLayout
+                android:id="@+id/ll_mpf_goBack"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:alpha="0.8"
-                android:fontFamily="@font/bricolage_body"
-                android:text="TurGo Secure Mail"
-                android:textColor="@color/white_soft"
-                android:textSize="12sp" />
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@color/transparent"
+                    android:scaleType="center"
+                    app:srcCompat="@drawable/arrow_small_left"
+                    app:tint="@color/applogobackground" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tv_mpf_FragmentTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/dela_gothic_one_regular"
+                        android:text="INBOX"
+                        android:textColor="@color/white_soft"
+                        android:textSize="28sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.8"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="TurGo Secure Mail"
+                        android:textColor="@color/white_soft"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+            </LinearLayout>
+
         </LinearLayout>
 
     </androidx.appcompat.widget.Toolbar>
@@ -66,8 +92,9 @@
         android:layout_height="wrap_content"
         android:background="@color/white_soft"
         android:elevation="16dp"
-        app:itemIconTint="@color/brand_emerald_dark"
-        app:itemTextColor="@color/brand_emerald_dark"
+        app:itemBackground="@drawable/selector_bottom_nav_item_background"
+        app:itemIconTint="@color/bottom_nav_icon_selector"
+        app:itemTextColor="@color/bottom_nav_text_selector"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"

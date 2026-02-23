@@ -2,6 +2,11 @@ package com.example.turgo;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.firebase.database.DatabaseError;
+
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
 
 public class TaskRepository implements RepositoryClass<Task, TaskFirebase> {
 
@@ -21,6 +26,52 @@ public class TaskRepository implements RepositoryClass<Task, TaskFirebase> {
     @Override
     public Class<TaskFirebase> getFbClass() {
         return TaskFirebase.class;
+    }
+
+    @Override
+    public com.google.android.gms.tasks.Task<Task> loadAsNormal() {
+        TaskCompletionSource<Task> taskSource = new TaskCompletionSource<>();
+        String dbKey = taskRef.getKey();
+        if (!Tool.boolOf(dbKey)) {
+            taskSource.setResult(null);
+            return taskSource.getTask();
+        }
+
+        taskRef.get().addOnSuccessListener(snapshot -> {
+            if (!snapshot.exists()) {
+                taskSource.setResult(null);
+                return;
+            }
+
+            TaskFirebase firebaseObject = snapshot.getValue(TaskFirebase.class);
+            if (firebaseObject == null) {
+                taskSource.setResult(null);
+                return;
+            }
+
+            String resolvedId = Tool.boolOf(firebaseObject.getID()) ? firebaseObject.getID() : dbKey;
+            try {
+                firebaseObject.constructClass(Task.class, resolvedId, new ConstructClassCallback() {
+                    @Override
+                    public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                        Task loaded = (Task) object;
+                        if (!Tool.boolOf(loaded.getTaskID())) {
+                            loaded.setTaskID(resolvedId);
+                        }
+                        taskSource.setResult(loaded);
+                    }
+
+                    @Override
+                    public void onError(DatabaseError error) {
+                        taskSource.setException(error.toException());
+                    }
+                });
+            } catch (Exception e) {
+                taskSource.setException(e);
+            }
+        }).addOnFailureListener(taskSource::setException);
+
+        return taskSource.getTask();
     }
 
     /* =======================
@@ -61,6 +112,11 @@ public class TaskRepository implements RepositoryClass<Task, TaskFirebase> {
 
     public void updateDropbox(Dropbox dropbox) {
         taskRef.child("dropbox").setValue(dropbox.getID());
+        taskRef.child("manualCompletionRequired").setValue(false);
+    }
+
+    public void updateManualCompletionRequired(boolean manualCompletionRequired) {
+        taskRef.child("manualCompletionRequired").setValue(manualCompletionRequired);
     }
 
     /* =======================

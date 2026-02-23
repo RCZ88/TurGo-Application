@@ -5,13 +5,17 @@ import android.util.Log;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RTDBManager<T> {
     private static final String dbLink = "https://turg0-4pp-default-rtdb.asia-southeast1.firebasedatabase.app";
     public void storeUserType(User user){
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        dbRef.child(FirebaseNode.USERIDROLES.getPath()).child(user.getUid()).child("role").setValue(user.getUserType().type());
+        Map<String, Object> userTypeObject = new HashMap<>();
+        userTypeObject.put("role", user.getUserType().type());
+        dbRef.child(FirebaseNode.USER_ID_ROLES.getPath()).child(user.getUid()).setValue(userTypeObject);
     }
     public boolean storeData(String path, String child, T object, String tag, String msgSuccessful){
 

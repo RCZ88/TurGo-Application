@@ -5,214 +5,580 @@
     android:id="@+id/frameLayout7"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
     tools:context=".TaskFullPage">
 
-    <LinearLayout
-        android:id="@+id/linearLayout23"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20sp"
-            android:layout_marginTop="8sp"
-            android:layout_marginBottom="8sp"
-            android:gravity="center_horizontal|center_vertical"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tv_TaskTitle"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tv_tfp_monthTask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Month" />
-
-            <ImageView
-                android:id="@+id/imageView11"
-                android:layout_width="38dp"
-                android:layout_height="38dp"
-                app:srcCompat="@drawable/calendar" />
-
-            <TextView
-                android:id="@+id/tv_tfp_dateTask"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="date" />
-        </LinearLayout>
-
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20sp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tv_tfp_TaskTitle"
-                android:layout_width="300sp"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:maxWidth="140sp"
-                android:text="Task Title"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tv_tfp_TaskTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:fontFamily="@font/dela_gothic_one_regular"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toStartOf="@id/ll_tfp_date_badge"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Calculus II: Midterm Prep Assignment" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv_tfp_TaskTitle">
+
+                        <ImageView
+                            android:id="@+id/imageView21"
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:src="@drawable/clock_three"
+                            app:tint="#99A3A4" />
+
+                        <TextView
+                            android:id="@+id/tv_tfp_timeTask"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:fontFamily="@font/space_mono_regular"
+                            android:textColor="#667070"
+                            android:textSize="14sp"
+                            tools:text="11:59 PM" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/ll_tfp_date_badge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_emerald_input"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="10dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/imageView11"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                app:srcCompat="@drawable/calendar"
+                                app:tint="@color/brand_emerald" />
+
+                            <TextView
+                                android:id="@+id/tv_tfp_monthTask"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="4dp"
+                                android:fontFamily="@font/bricolage_condensed_semibold"
+                                android:textAllCaps="true"
+                                android:textColor="@color/brand_emerald_dark"
+                                android:textSize="12sp"
+                                tools:text="OCT" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_tfp_dateTask"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp"
+                            tools:text="24" />
+                    </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
-                android:layout_width="100sp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <ImageView
-                    android:id="@+id/imageView21"
-                    android:layout_width="28sp"
-                    android:layout_height="28sp"
-                    android:layout_weight="0"
-                    android:src="@drawable/clock_three" />
+                android:layout_marginTop="24dp"
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tv_tfp_timeTask"
+                    android:id="@+id/textView60"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:text="hh:mm" />
+                    android:fontFamily="@font/bricolage_grotesque_bold"
+                    android:text="Description"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/tv_tfp_taskDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/bricolage_body"
+                    android:lineSpacingExtra="6dp"
+                    android:maxLines="5"
+                    android:textColor="#667070"
+                    android:textSize="16sp"
+                    tools:text="@string/lorem_ipsum" />
+
+                <TextView
+                    android:id="@+id/tv_viewMore"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/bricolage_body"
+                    android:paddingVertical="4dp"
+                    android:text="View More"
+                    android:textColor="@color/brand_emerald"
+                    android:textStyle="bold" />
             </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_tfp_teacher_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FAFCFC"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Teacher Controls"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/et_tfp_teacher_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:hint="Task title"
+                        android:paddingHorizontal="12dp"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/et_tfp_teacher_description"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:gravity="start|top"
+                        android:hint="Task description"
+                        android:inputType="textMultiLine"
+                        android:minHeight="100dp"
+                        android:padding="12dp"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <EditText
+                            android:id="@+id/et_tfp_teacher_due_date"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_emerald_input"
+                            android:hint="yyyy-MM-dd"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+
+                        <EditText
+                            android:id="@+id/et_tfp_teacher_due_time"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_emerald_input"
+                            android:hint="HH:mm"
+                            android:paddingHorizontal="12dp"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Enable Dropbox"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="14sp" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/sw_tfp_teacher_dropbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_teacher_cancel"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_marginEnd="6dp"
+                            android:layout_weight="1"
+                            android:text="Cancel"
+                            android:textAllCaps="false"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="@color/brand_emerald_pale" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_teacher_save"
+                            android:layout_width="0dp"
+                            android:layout_height="50dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:text="Save"
+                            android:textAllCaps="false"
+                            app:backgroundTint="@color/brand_emerald"
+                            app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_tfp_teacher_submissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FAFCFC"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Student Submissions"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_tfp_teacher_submissions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        tools:listitem="@layout/item_teacher_task_submission" />
+
+                    <TextView
+                        android:id="@+id/tv_tfp_teacher_submissions_empty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center"
+                        android:text="No submissions yet."
+                        android:textColor="#99A3A4"
+                        android:visibility="gone" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_tfp_manualDecision"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FAFCFC"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tv_tfp_manual_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="This overdue task needs your status."
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_markDone"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:text="Mark Done"
+                            android:textAllCaps="false"
+                            app:backgroundTint="@color/brand_emerald"
+                            app:cornerRadius="12dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_markNotDone"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="52dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:text="Mark Not Done"
+                            android:textAllCaps="false"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="@color/brand_emerald_pale" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_tfp_dropboxNotOpen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:visibility="gone"
+                app:cardBackgroundColor="#FAFCFC"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="20dp">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/lock"
+                        app:tint="@color/brand_emerald_dark" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:text="Dropbox Not Open"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="17sp" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/bricolage_body"
+                            android:text="File submission is disabled for this task."
+                            android:textColor="#667070"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_tfp_dropboxSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="#FAFCFC"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/brand_emerald_pale"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/textView63"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="Dropbox"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="18sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:orientation="horizontal"
+                        android:weightSum="2">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_SelectFile"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Select File"
+                            android:textAllCaps="false"
+                            android:textColor="@color/brand_emerald_dark"
+                            app:cornerRadius="12dp"
+                            app:strokeColor="@color/brand_emerald_pale" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_tfp_SubmitFile"
+                            android:layout_width="0dp"
+                            android:layout_height="56dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:text="Submit Files"
+                            android:textAllCaps="false"
+                            app:backgroundTint="@color/brand_emerald"
+                            app:cornerRadius="12dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/textView52"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="Files ready to submit:"
+                        android:textColor="#99A3A4"
+                        android:textSize="13sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_FilesUploaded"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false"
+                        tools:itemCount="1" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="20dp"
+                        android:background="@color/brand_emerald_pale" />
+
+                    <TextView
+                        android:id="@+id/textView64"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="Previously Submitted Files:"
+                        android:textColor="#99A3A4"
+                        android:textSize="13sp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_FilesSubmitted"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:nestedScrollingEnabled="false"
+                        tools:itemCount="2" />
+
+                    <TextView
+                        android:id="@+id/tv_tfp_noSubmission"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:fontFamily="@font/bricolage_body"
+                        android:gravity="center"
+                        android:text="No files submitted yet."
+                        android:textColor="#99A3A4"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
         </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout24"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout23">
-
-        <TextView
-            android:id="@+id/textView60"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description:"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_tfp_taskDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:maxHeight="300sp"
-            android:maxLines="8"
-            android:text="@string/lorem_ipsum" />
-
-        <TextView
-            android:id="@+id/tv_viewMore"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="View More"
-            android:textColor="#1A1919"
-            android:textStyle="bold|italic" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout24">
-
-        <TextView
-            android:id="@+id/textView63"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Dropbox:"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/btn_tfp_SelectFile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="Select File" />
-
-            <Button
-                android:id="@+id/btn_tfp_SubmitFile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="Submit Files Uploaded" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView52"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Files Uploaded:" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_FilesUploaded"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:gravity="center_horizontal|center_vertical"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView64"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Files Submitted:"
-                android:textSize="16sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_FilesSubmitted"
-                android:layout_width="match_parent"
-                android:layout_height="250sp"
-                android:paddingTop="10sp">
-
-            </androidx.recyclerview.widget.RecyclerView>
-
-            <TextView
-                android:id="@+id/tv_tfp_noSubmission"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="20sp"
-                android:text="No Submissions"
-                android:textAlignment="center"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

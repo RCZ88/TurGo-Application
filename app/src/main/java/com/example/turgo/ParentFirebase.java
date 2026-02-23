@@ -24,9 +24,9 @@ public class ParentFirebase extends UserFirebase implements FirebaseClass<Parent
         setPhoneNumber(from.getPhoneNumber());
         setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
-        setInbox(convertToIdList(from.getInbox()));
-        setOutbox(convertToIdList(from.getOutbox()));
-        setNotifications(convertToIdList(from.getNotifications()));
+        setInbox(from.getInboxIds());
+        setOutbox(from.getOutboxIds());
+        setNotifications(from.getNotificationsIds());
         
         children = convertToIdList(from.getChildren());
     }

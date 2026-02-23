@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "785810247074-jatjjgv3pjo31851rn017345s8gmt01k.apps.googleusercontent.com",
+          "client_id": "785810247074-vvg8bj9ue9r0mate4t0bv5e7j319bg09.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.turgo",
-            "certificate_hash": "bc4c3d3fb30eb2b177a4ffcf1c1ac0495adfc832"
+            "certificate_hash": "fbd5af4a961637828d8548a093b9e4e16c92b378"
           }
         },
         {

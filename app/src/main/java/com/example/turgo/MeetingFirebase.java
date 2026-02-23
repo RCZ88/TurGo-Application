@@ -5,18 +5,21 @@ import com.google.firebase.database.DatabaseError;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MeetingFirebase implements FirebaseClass<Meeting> {
     private String meetingID;
     private String preScheduledBy;
+    private String preScheduledByType;
     private String dateOfMeeting; // Format: "yyyy-MM-dd"
     private String startTimeChange; // Optional
     private String endTimeChange;   // Optional
     private String roomChange;
     private boolean completed;
     private Map<String, String> studentsAttended; // studentID -> time string
+    private ArrayList<String> usersRelated;
     private boolean alarmAssigned;
     private String alarmAssignedAt;
     private String ofSchedule;
@@ -28,11 +31,13 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
         this.meetingID = from.getMeetingID();
 
         // ✅ Tool.boolOf() null-proof EVERYTHING
-        this.preScheduledBy = Tool.boolOf(from.getPreScheduledBy()) ? from.getPreScheduledBy().getUid() : "";
+        this.preScheduledBy = Tool.boolOf(from.getPreScheduledBy()) ? from.getPreScheduledBy() : "";
+        this.preScheduledByType = Tool.boolOf(from.getPreScheduledByType()) ? from.getPreScheduledByType() : "";
         this.dateOfMeeting = Tool.boolOf(from.getDateOfMeeting()) ? from.getDateOfMeeting().toString() : "";
 
         this.startTimeChange = Tool.boolOf(from.getStartTimeChange()) ? from.getStartTimeChange().toString() : "";
         this.endTimeChange = Tool.boolOf(from.getEndTimeChange()) ? from.getEndTimeChange().toString() : "";
+        this.usersRelated = Tool.boolOf(from.getUsersRelated()) ? from.getUsersRelated() : new ArrayList<>();
 
         this.roomChange = Tool.boolOf(from.getRoomChange()) ? from.getRoomChange().getID() : "";
         this.completed = Tool.boolOf(from.isCompleted());
@@ -53,6 +58,14 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
         this.ofSchedule = Tool.boolOf(from.getOfSchedule()) ? from.getOfSchedule() : "";
     }
 
+    public ArrayList<String> getUsersRelated() {
+        return usersRelated;
+    }
+
+    public void setUsersRelated(ArrayList<String> usersRelated) {
+        this.usersRelated = usersRelated;
+    }
+
     @Override
     public String getID() {
         return meetingID;
@@ -60,7 +73,7 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
 
     @Override
     public void convertToNormal(ObjectCallBack<Meeting> objectCallBack) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        constructClass(Mail.class, getID(), new ConstructClassCallback() {
+        constructClass(Meeting.class, getID(), new ConstructClassCallback() {
             @Override
             public void onSuccess(Object object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                 objectCallBack.onObjectRetrieved((Meeting) object);
@@ -111,6 +124,14 @@ public class MeetingFirebase implements FirebaseClass<Meeting> {
 
     public void setPreScheduledBy(String preScheduledBy) {
         this.preScheduledBy = preScheduledBy;
+    }
+
+    public String getPreScheduledByType() {
+        return preScheduledByType;
+    }
+
+    public void setPreScheduledByType(String preScheduledByType) {
+        this.preScheduledByType = preScheduledByType;
     }
 
     public String getDateOfMeeting() {

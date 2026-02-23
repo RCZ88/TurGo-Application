@@ -24,9 +24,9 @@ public class AdminFirebase extends UserFirebase implements FirebaseClass<Admin>{
         setPhoneNumber(from.getPhoneNumber());
         setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
-        setInbox(convertToIdList(from.getInbox()));
-        setOutbox(convertToIdList(from.getOutbox()));
-        setNotifications(convertToIdList(from.getNotifications()));
+        setInbox(from.getInboxIds());
+        setOutbox(from.getOutboxIds());
+        setNotifications(from.getNotificationsIds());
     }
 
     @Override

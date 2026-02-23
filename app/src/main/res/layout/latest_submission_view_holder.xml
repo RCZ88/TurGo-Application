@@ -1,130 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="24dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeColor="#E4E7EC"
+    app:strokeWidth="1dp"
+    app:cardBackgroundColor="@color/white">
 
-    <TextView
-        android:id="@+id/tv_SVH_StudentName"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:text="Student Name"
-        android:textSize="16dp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="16dp">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_SVH_StudentName">
+        <View
+            android:id="@+id/v_SVH_AvatarBg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_qr_button"
+            android:backgroundTint="@color/brand_emerald_pale"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_SVH_Initial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:orientation="vertical">
+            android:fontFamily="@font/lexend"
+            android:text="S"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/v_SVH_AvatarBg"
+            app:layout_constraintEnd_toEndOf="@id/v_SVH_AvatarBg"
+            app:layout_constraintStart_toStartOf="@id/v_SVH_AvatarBg"
+            app:layout_constraintTop_toTopOf="@id/v_SVH_AvatarBg" />
+
+        <TextView
+            android:id="@+id/tv_SVH_StudentName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:fontFamily="@font/lexend"
+            android:text="Student Name"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/iv_SVH_More"
+            app:layout_constraintStart_toEndOf="@id/v_SVH_AvatarBg"
+            app:layout_constraintTop_toTopOf="@id/v_SVH_AvatarBg" />
+
+        <TextView
+            android:id="@+id/tv_SVH_SubmittedDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/jetbrains_mono"
+            android:text="Nov 6, 2025"
+            android:textColor="#98A2B3"
+            android:textSize="11sp"
+            app:layout_constraintStart_toStartOf="@id/tv_SVH_StudentName"
+            app:layout_constraintTop_toBottomOf="@id/tv_SVH_StudentName" />
+
+        <ImageView
+            android:id="@+id/iv_SVH_More"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_more"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="#D0D5DD" />
+
+        <View
+            android:id="@+id/v_SVH_Divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="#F2F4F7"
+            app:layout_constraintTop_toBottomOf="@id/v_SVH_AvatarBg" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/v_SVH_Divider">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:layout_weight="1"
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/textView117"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:text="Task:" />
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="TASK"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"/>
 
                 <TextView
                     android:id="@+id/tv_SVH_TaskName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="A Hard Task" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Q4 Analysis"
+                    android:textColor="#344054"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
 
                 <TextView
                     android:id="@+id/textView119"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:text="Course:" />
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="COURSE"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.1"/>
 
                 <TextView
                     android:id="@+id/tv_SVH_OfCourse"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Mathematics" />
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Mathematics"
+                    android:textColor="#344054"
+                    android:textSize="14sp" />
             </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:orientation="horizontal"
-                android:padding="5dp">
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/bg_qr_button"
+                android:backgroundTint="#F9FAFB"
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/textView124"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:text="Files:" />
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="ATTACHMENTS"
+                    android:textColor="#667085"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"/>
 
                 <TextView
                     android:id="@+id/tv_SVH_FileNames"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="File1.txt, File2.pdf" />
+                    android:layout_marginTop="4dp"
+                    android:fontFamily="@font/jetbrains_mono"
+                    android:text="report_final.pdf"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="11sp"
+                    android:lineSpacingExtra="2dp"/>
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:orientation="horizontal"
-                android:padding="5dp">
-
-                <TextView
-                    android:id="@+id/textView122"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:text="Submitted:" />
-
-                <TextView
-                    android:id="@+id/tv_SVH_SubmittedDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="November 6th 2025" />
-            </LinearLayout>
-
         </LinearLayout>
 
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

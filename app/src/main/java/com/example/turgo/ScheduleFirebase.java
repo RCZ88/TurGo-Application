@@ -17,10 +17,13 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
     private String day; // e.g., "MONDAY"
     private String ofCourse;
     private String room;
+    private ArrayList<String> students;
 
     public ScheduleFirebase(String scheduleID, String scheduleOfCourse, int numberOfStudents, ArrayList<String> students, boolean isPrivate, boolean hasScheduled, String scheduler, String meetingStart, String meetingEnd, int duration, String day, String room) {
         this.scheduleID = scheduleID;
+        this.ofCourse = scheduleOfCourse;
         this.numberOfStudents = numberOfStudents;
+        this.students = students;
         this.isPrivate = isPrivate;
         this.hasScheduled = hasScheduled;
         this.scheduler = scheduler;
@@ -28,6 +31,7 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
         this.meetingEnd = meetingEnd;
         this.duration = duration;
         this.day = day;
+        this.room = room;
     }
     public ScheduleFirebase(){}
 
@@ -52,6 +56,7 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
         this.day = Tool.boolOf(from.getDay()) ? from.getDay().toString() : "MONDAY";
         this.ofCourse = Tool.boolOf(from.getOfCourse()) ? from.getOfCourse() :  "";
         this.room = Tool.boolOf(from.getRoomId()) ? from.getRoomId() : "";
+        this.students = Tool.boolOf(from.students) ? new ArrayList<>(from.students) : new ArrayList<>();
     }
 
 
@@ -72,6 +77,31 @@ public class ScheduleFirebase implements FirebaseClass<Schedule>{
 
             }
         });
+    }
+
+
+    public String getOfCourse() {
+        return ofCourse;
+    }
+
+    public void setOfCourse(String ofCourse) {
+        this.ofCourse = ofCourse;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
+    }
+
+    public ArrayList<String> getStudents() {
+        return students;
+    }
+
+    public void setStudents(ArrayList<String> students) {
+        this.students = students;
     }
 
     public String getScheduleID() {

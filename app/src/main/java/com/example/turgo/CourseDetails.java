@@ -18,6 +18,13 @@ import android.widget.TextView;
 public class CourseDetails extends Fragment {
     TextView tv_courseTitle, tv_teacherName, tv_nextMeetingDate, tv_dayOfWeek, tv_duration, tv_room;
     ImageView iv_courseLogo;
+    private static final String ARG_COURSE_TITLE = "course_title";
+    private static final String ARG_TEACHER_NAME = "teacher_name";
+    private static final String ARG_NEXT_MEETING = "next_meeting";
+    private static final String ARG_DAY_OF_WEEK = "day_of_week";
+    private static final String ARG_DURATION = "duration";
+    private static final String ARG_ROOM = "room";
+    private static final String ARG_LOGO_URL = "logo_url";
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -69,8 +76,44 @@ public class CourseDetails extends Fragment {
         tv_duration = view.findViewById(R.id.tv_cd_Duration);
         tv_room = view.findViewById(R.id.tv_cd_RoomID);
         tv_teacherName = view.findViewById(R.id.tv_cd_TeacherName);
-        iv_courseLogo = view.findViewById(R.id.iv_cdnf_CourseIcon);
+        tv_nextMeetingDate = view.findViewById(R.id.tv_cd_MeetingDate);
+        iv_courseLogo = view.findViewById(R.id.iv_cd_CourseIcon);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            tv_courseTitle.setText(args.getString(ARG_COURSE_TITLE, "Course Title"));
+            tv_teacherName.setText(args.getString(ARG_TEACHER_NAME, "Teacher"));
+            tv_dayOfWeek.setText(args.getString(ARG_DAY_OF_WEEK, "-"));
+            tv_duration.setText(args.getString(ARG_DURATION, "-"));
+            tv_room.setText(args.getString(ARG_ROOM, "-"));
+            tv_nextMeetingDate.setText(args.getString(ARG_NEXT_MEETING, "No Meeting Found!"));
+
+            String logoUrl = args.getString(ARG_LOGO_URL, "");
+            if (Tool.boolOf(logoUrl)) {
+                Tool.setImageCloudinary(requireContext(), logoUrl, iv_courseLogo);
+            }
+        }
 
         return view;
+    }
+
+    public static Bundle createArgs(
+            String courseTitle,
+            String teacherName,
+            String nextMeeting,
+            String dayOfWeek,
+            String duration,
+            String room,
+            String logoUrl
+    ) {
+        Bundle args = new Bundle();
+        args.putString(ARG_COURSE_TITLE, courseTitle);
+        args.putString(ARG_TEACHER_NAME, teacherName);
+        args.putString(ARG_NEXT_MEETING, nextMeeting);
+        args.putString(ARG_DAY_OF_WEEK, dayOfWeek);
+        args.putString(ARG_DURATION, duration);
+        args.putString(ARG_ROOM, room);
+        args.putString(ARG_LOGO_URL, logoUrl);
+        return args;
     }
 }

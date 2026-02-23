@@ -22,7 +22,11 @@ public class NotificationFirebase implements FirebaseClass<Notification<?>> {
         content = from.getContent();
         timeSent = from.getTimeSent().toString();
         this.from = ((RequireUpdate<?, ?, ?>) from.getFrom()).getID();
-        to = from.getTo().getUid();
+        String toUid = from.getTo() != null ? from.getTo().getUid() : null;
+        if (!Tool.boolOf(toUid) && from.getTo() instanceof RequireUpdate<?, ?, ?>) {
+            toUid = ((RequireUpdate<?, ?, ?>) from.getTo()).getID();
+        }
+        to = toUid;
     }
 
     @Override

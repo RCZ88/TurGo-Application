@@ -3,6 +3,8 @@ package com.example.turgo;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,7 +17,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.firebase.database.DatabaseError;
@@ -23,7 +24,6 @@ import com.google.firebase.database.DatabaseError;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,6 +43,8 @@ public class CourseJoinedFullPage extends Fragment {
     TaskAdapter taskAdapter;
     ArrayList<Task> tasks = new ArrayList<>();
     Teacher teacher;
+    private ViewGroup contentContainer;
+    private LinearLayout llEmptyState;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -105,15 +107,15 @@ public class CourseJoinedFullPage extends Fragment {
         iv_courseBackgroundImage = view.findViewById(R.id.iv_cfp_courseWallpaper);
         tv_noAgendaMessage = view.findViewById(R.id.tv_cfp_NoAgenda);
         btn_viewScheduleDetailed = view.findViewById(R.id.btn_cfp_fullScheduleView);
-        LinearLayout llEmptyState = view.findViewById(R.id.ll_cfp_empty_state);
-        ViewGroup contentContainer = view.findViewById(R.id.nsv_cfp_content);
+        llEmptyState = view.findViewById(R.id.ll_cfp_empty_state);
+        contentContainer = view.findViewById(R.id.nsv_cfp_content);
 
         rv_listOfTasks = view.findViewById(R.id.rv_cfp_ListOfTasks);
         rv_latestAgenda = view.findViewById(R.id.rv_cfp_ListOFAgenda);
         btn_viewAllAgenda = view.findViewById(R.id.btn_ViewAllAgendaOfCourse);
         tb_topBar = view.findViewById(R.id.tb_cfp_backButton);
 
-        tb_topBar.setNavigationOnClickListener(v-> requireActivity().getOnBackPressedDispatcher().onBackPressed());
+        tb_topBar.setNavigationOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
 
         boolean empty = course == null || student == null;
         Tool.handleEmpty(empty, contentContainer, llEmptyState);
@@ -121,16 +123,34 @@ public class CourseJoinedFullPage extends Fragment {
             return view;
         }
 
+
         tasks = student.getAllTaskOfCourse(course);
         if (course != null) {
             ct_courseTitle.setTitle(course.getCourseName());
+            student.getClosestMeetingOfCourse(course).addOnSuccessListener(meetingDate ->{
+               if (!isUiReady()) {
+                   return;
+               }
+               if(meetingDate != null){
+                   tv_nextMeetingDate.setText(meetingDate.toString());
+               }else{
+                   Log.d("CJFP", "meeting is null!");
+               }
+            });
         }
         //async - completed
         if (teacher != null) {
             tv_courseTeacher.setText(teacher.getFullName());
         }
+        if(course == null){
+            Log.d("CJFP", "course is null");
+
+        }
+        if(student == null){
+            Log.d("CJFP", "student is null");
+        }
         if (course != null && student != null) {
-            course.getDaysOfSchedule(student).addOnSuccessListener(days -> tv_courseDays.setText(days));
+            tv_courseDays.setText(course.getDaysOfSchedule(student));
         }
 
         tv_noTaskMessage.setText("Yay you're Free! No Task Found!");
@@ -142,77 +162,82 @@ public class CourseJoinedFullPage extends Fragment {
             Log.d("CourseJoinedFullPage", "iv_courseBackgroundImage is null");
         }
 
-        loadTasks();
-        //async - completed
-        setLatestAgenda(new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(Void object) {
-                btn_viewAllAgenda.setOnClickListener(view1 -> {
-                    assert getActivity() != null;
-                    AtomicReference<ArrayList<Agenda>> agendas = new AtomicReference<>();
-                    //async - completed
-                    student.getAgendaOfCourse(course, new ObjectCallBack<>() {
-                        @Override
-                        public void onObjectRetrieved(ArrayList<Agenda> object) {
-                            agendas.set(object);
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable(Agenda.SERIALIZE_KEY_CODE, agendas.get());
-                            Tool.loadFragment(requireActivity(), StudentScreen.getContainer(), new AllAgendaPage(), bundle);
-                        }
-
-                        @Override
-                        public void onError(DatabaseError error) {
-
-                        }
-                    });
-                });
-                btn_viewScheduleDetailed.setOnClickListener(view12 -> {
-                    StudentMeetings studentMeetings = new StudentMeetings();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
-                    bundle.putSerializable(Student.SERIALIZE_KEY_CODE, student);
-                    studentMeetings.setArguments(bundle);
-
-                    requireActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(StudentScreen.getContainer(), studentMeetings)
-                            .addToBackStack(null)
-                            .commit();
-                });
-            }
-
-            @Override
-            public void onError(DatabaseError error) {
-
-            }
+        btn_viewAllAgenda.setOnClickListener(v -> openAllAgendaPage());
+        btn_viewScheduleDetailed.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(Course.SERIALIZE_KEY_CODE, course);
+            Tool.loadFragment(requireActivity(), StudentScreen.getContainer(), new StudentMeetings(), bundle);
         });
+
+        loadTasks();
+        setLatestAgenda();
 
         return view;
     }
-    private void setLatestAgenda(ObjectCallBack<Void>cb){
+    private void setLatestAgenda(){
         ArrayList<Agenda>theAgenda = new ArrayList<>();
         student.getLatestAgendaOfCourse(course, new ObjectCallBack<>() {
             @Override
             public void onObjectRetrieved(Agenda object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, java.lang.InstantiationException {
+                if (!isUiReady()) {
+                    return;
+                }
                 if (object != null) {
                     theAgenda.add(object);
                 }
                 AgendaAdapter agendaAdapter = new AgendaAdapter(theAgenda);
-                rv_latestAgenda.setLayoutManager(new LinearLayoutManager(requireContext()));
+                rv_latestAgenda.setLayoutManager(new LinearLayoutManager(getContext()));
                 rv_latestAgenda.setAdapter(agendaAdapter);
                 Tool.handleEmpty(theAgenda.isEmpty(), rv_latestAgenda, tv_noAgendaMessage);
                 Log.d("CourseJoinedFullPage", "Agenda Empty?: "  + theAgenda.isEmpty());
-
-                cb.onObjectRetrieved(null);
             }
 
             @Override
             public void onError(DatabaseError error) {
-
+                if (!isUiReady()) {
+                    return;
+                }
+                rv_latestAgenda.setLayoutManager(new LinearLayoutManager(getContext()));
+                rv_latestAgenda.setAdapter(new AgendaAdapter(new ArrayList<>()));
+                Tool.handleEmpty(true, rv_latestAgenda, tv_noAgendaMessage);
+                Log.e("CourseJoinedFullPage", "Failed loading latest agenda", error.toException());
             }
         });
 
     }
+
+    private void openAllAgendaPage() {
+        if (student == null || course == null || !isAdded()) {
+            return;
+        }
+        student.getAgendaOfCourse(course, new ObjectCallBack<>() {
+            @Override
+            public void onObjectRetrieved(ArrayList<Agenda> object) {
+                if (!isAdded()) {
+                    return;
+                }
+                ArrayList<Agenda> agendas = object != null ? object : new ArrayList<>();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Agenda.SERIALIZE_KEY_CODE, agendas);
+                Tool.loadFragment(requireActivity(), StudentScreen.getContainer(), new AllAgendaPage(), bundle);
+            }
+
+            @Override
+            public void onError(DatabaseError error) {
+                if (!isAdded()) {
+                    return;
+                }
+                Log.e("CourseJoinedFullPage", "Failed loading agendas for full page", error.toException());
+                Bundle bundle = new Bundle();
+                bundle.putSerializable(Agenda.SERIALIZE_KEY_CODE, new ArrayList<Agenda>());
+                Tool.loadFragment(requireActivity(), StudentScreen.getContainer(), new AllAgendaPage(), bundle);
+            }
+        });
+    }
     private void loadTasks() {
+        if (!isUiReady()) {
+            return;
+        }
         tasks = student.getAllTaskOfCourse(course); // Assume this method fetches tasks
         Tool.handleEmpty(tasks.isEmpty(), rv_listOfTasks, tv_noTaskMessage);
         if (!tasks.isEmpty()) {
@@ -237,13 +262,43 @@ public class CourseJoinedFullPage extends Fragment {
                 public void onItemLongClick(Task item) {
 
                 }
-            });
+            }, TaskItemMode.RECYCLER);
             rv_listOfTasks.setAdapter(taskAdapter);
         }
     }
     private void loadItems(Bundle input){
         course = (Course)input.getSerializable(Course.SERIALIZE_KEY_CODE);
         teacher = (Teacher)input.getSerializable(Teacher.SERIALIZE_KEY_CODE);
+    }
+
+    private boolean isUiReady() {
+        return isAdded()
+                && getContext() != null
+                && tv_nextMeetingDate != null
+                && rv_listOfTasks != null
+                && rv_latestAgenda != null
+                && contentContainer != null
+                && llEmptyState != null;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        tv_courseTeacher = null;
+        tv_courseDays = null;
+        tv_nextMeetingDate = null;
+        tv_noTaskMessage = null;
+        ct_courseTitle = null;
+        tv_noAgendaMessage = null;
+        iv_courseBackgroundImage = null;
+        rv_listOfTasks = null;
+        rv_latestAgenda = null;
+        btn_viewAllAgenda = null;
+        btn_viewScheduleDetailed = null;
+        tb_topBar = null;
+        taskAdapter = null;
+        contentContainer = null;
+        llEmptyState = null;
     }
 }
 

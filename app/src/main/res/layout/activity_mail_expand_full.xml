@@ -1,58 +1,161 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/nsv_MEF_Root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MailExpandFull">
-
-    <TextView
-        android:id="@+id/textView53"
-        android:layout_width="380dp"
-        android:layout_height="66dp"
-        android:layout_marginTop="28dp"
-        android:text="MAIL HEADER TITLE MAIL HEADER TITLE"
-        android:textSize="24dp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="#FAFEFD"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:id="@+id/linearLayout22"
-        android:layout_width="wrap_content"
+        android:id="@+id/ll_MEF_Container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView53">
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:id="@+id/ll_MEF_TopBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <ImageButton
+                android:id="@+id/ib_MEF_Back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_qr_button"
+                android:backgroundTint="@color/brand_emerald_pale"
+                android:src="@android:drawable/ic_menu_revert"
+                app:tint="@color/brand_emerald_dark" />
+
+            <View
+                android:id="@+id/v_MEF_Spacer"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/tv_MEF_TagImportant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="IMPORTANT"
+                android:textSize="10sp"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:textColor="@color/brand_emerald"
+                android:background="@drawable/bg_qr_button"
+                android:backgroundTint="#E0F2F1"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"/>
+        </LinearLayout>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_MEF_FullMailHeader"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="From:"
-            android:textSize="18sp" />
+            android:fontFamily="@font/bricolage_grotesque_bold"
+            android:text="Q4 Revenue Report &amp; Future Growth Strategy"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp"
+            android:lineHeight="34sp" />
+
+        <LinearLayout
+            android:id="@+id/ll_MEF_SenderInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="24dp"
+            android:padding="4dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_MEF_SenderAvatar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@android:drawable/sym_def_app_icon"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                android:background="@color/brand_emerald_pale"
+                android:padding="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/ll_MEF_SenderTextContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_MEF_SenderNameLarge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bricolage_grotesque_bold"
+                    android:text="Alex Sterling"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tv_MEF_MailSentTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/bricolage_body"
+                    android:text="to me (10 mins ago)"
+                    android:textColor="@color/brand_emerald"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_MEF_Divider"
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/brand_emerald_pale" />
 
         <TextView
-            android:id="@+id/textView56"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_MEF_FullMailBody"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="TextView"
-            android:textSize="20sp" />
+            android:layout_marginTop="24dp"
+            android:fontFamily="@font/bricolage_body"
+            android:lineSpacingExtra="8dp"
+            android:text="Email content placeholder..."
+            android:textColor="#333333"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:id="@+id/ll_MEF_AttachmentSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_MEF_AttachmentLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="Files Attached (3)"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="13sp"
+                android:alpha="0.6"
+                android:textAllCaps="true"
+                android:letterSpacing="0.1" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_MEF_Attachments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/submission_display"
+                tools:spanCount="2" />
+        </LinearLayout>
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/textView57"
-        android:layout_width="367dp"
-        android:layout_height="344dp"
-        android:layout_marginTop="41dp"
-        android:text="TextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout22" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

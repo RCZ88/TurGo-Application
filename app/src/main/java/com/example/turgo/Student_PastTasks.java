@@ -1,18 +1,23 @@
 package com.example.turgo;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 
-import com.google.firebase.database.DatabaseError;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,6 +26,9 @@ import java.text.ParseException;
  */
 public class Student_PastTasks extends Fragment {
     RecyclerView rv_pastTasks;
+    ImageButton btn_back;
+    LinearLayout ll_noTasks;
+    Spinner sp_filter;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -62,36 +70,108 @@ public class Student_PastTasks extends Fragment {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_student__past_tasks, container, false);
         StudentScreen ss = (StudentScreen) requireActivity();
-        Student student = ss.getStudent();
         rv_pastTasks = view.findViewById(R.id.rv_SPT_PastTasks);
-
-        TaskAdapter taskAdapter = new TaskAdapter(student.getCompletedTask(), student, new OnItemClickListener<Task>() {
-            @Override
-            public void onItemClick(Task item) {
-                TaskFullPage taskFullPage = new TaskFullPage();
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
-                taskFullPage.setArguments(bundle);
-                requireActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.nhf_ss_FragContainer, taskFullPage)
-                        .addToBackStack(null)
-                        .commit();
-            }
-
-            @Override
-            public void onItemLongClick(Task item) {
-
-            }
-        });
-        rv_pastTasks.setAdapter(taskAdapter);
+        btn_back = view.findViewById(R.id.btn_spt_back);
+        ll_noTasks = view.findViewById(R.id.ll_spt_emptyState);
+        sp_filter = view.findViewById(R.id.sp_spt_filter);
+        btn_back.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        loadLatestCompletedTasks(ss);
 
         return view;
+    }
+
+    private void loadLatestCompletedTasks(StudentScreen ss) {
+        Student current = ss.getStudent();
+        if (current == null || !Tool.boolOf(current.getID())) {
+            Tool.handleEmpty(true, rv_pastTasks, ll_noTasks);
+            return;
+        }
+
+        StudentRepository studentRepository = new StudentRepository(current.getID());
+        TaskDeadlineService.processOverdueNonDropboxTasks().onSuccessTask(unused -> Tool.prepareUserObjectForScreen(studentRepository))
+                .addOnSuccessListener(freshStudent -> {
+                    ss.setStudent(freshStudent);
+                    ArrayList<Task> pastTasks = freshStudent.getPastTasks();
+                    TaskAdapter taskAdapter = new TaskAdapter(pastTasks, freshStudent, new OnItemClickListener<Task>() {
+                        @Override
+                        public void onItemClick(Task item) {
+                            TaskFullPage taskFullPage = new TaskFullPage();
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
+                            taskFullPage.setArguments(bundle);
+                            requireActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.nhf_ss_FragContainer, taskFullPage)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+
+                        @Override
+                        public void onItemLongClick(Task item) {
+                        }
+                    }, TaskItemMode.RECYCLER);
+                    rv_pastTasks.setLayoutManager(new LinearLayoutManager(requireContext()));
+                    rv_pastTasks.setAdapter(taskAdapter);
+                    setupFilterSpinner(freshStudent, pastTasks, taskAdapter);
+                    Tool.handleEmpty(taskAdapter.getItemCount() == 0, rv_pastTasks, ll_noTasks);
+                })
+                .addOnFailureListener(e -> Tool.handleEmpty(true, rv_pastTasks, ll_noTasks));
+    }
+
+    private void setupFilterSpinner(Student student, ArrayList<Task> source, TaskAdapter adapter) {
+        ArrayList<String> filters = new ArrayList<>();
+        filters.add("All");
+        filters.add("Completed");
+        filters.add("Uncompleted");
+        filters.add("Unmarked");
+
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_item,
+                filters
+        );
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_filter.setAdapter(spinnerAdapter);
+
+        sp_filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = filters.get(position);
+                applyFilter(student, source, adapter, selected);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void applyFilter(Student student, ArrayList<Task> source, TaskAdapter adapter, String selected) {
+        ArrayList<Task> filtered = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        for (Task task : source) {
+            if (task == null) {
+                continue;
+            }
+            TaskStatus status = student.resolveTaskStatus(task, now);
+            if ("Completed".equals(selected) && status != TaskStatus.COMPLETED) {
+                continue;
+            }
+            if ("Uncompleted".equals(selected) && status != TaskStatus.UNCOMPLETED) {
+                continue;
+            }
+            if ("Unmarked".equals(selected) && status != TaskStatus.UNMARKED) {
+                continue;
+            }
+            filtered.add(task);
+        }
+        adapter.replaceTasks(filtered);
+        Tool.handleEmpty(adapter.getItemCount() == 0, rv_pastTasks, ll_noTasks);
     }
 }

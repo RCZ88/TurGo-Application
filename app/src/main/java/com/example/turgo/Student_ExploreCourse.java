@@ -1,11 +1,15 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,18 +58,55 @@ public class Student_ExploreCourse extends Fragment {
         rv_courses = view.findViewById(R.id.rv_exploreCourses);
         tv_emptyCourses = view.findViewById(R.id.tv_exploreCourseEmpty);
 
-        StudentScreen sc = (StudentScreen) requireActivity();
-        student = sc.getStudent();
-
-        loadExploreCourses();
+        loadActiveStudentAndExploreCourses();
 
         return view;
+    }
+
+    private void loadActiveStudentAndExploreCourses() {
+        if (!isAdded()) {
+            return;
+        }
+        FirebaseUser fbUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (fbUser == null || !Tool.boolOf(fbUser.getUid())) {
+            Tool.handleEmpty(true, rv_courses, tv_emptyCourses);
+            return;
+        }
+        String activeUid = fbUser.getUid();
+
+        StudentScreen sc = (StudentScreen) requireActivity();
+        Student current = sc.getStudent();
+        if (current != null && Tool.boolOf(current.getID()) && current.getID().equals(activeUid)) {
+            student = current;
+            loadExploreCourses();
+            return;
+        }
+
+        new StudentRepository(activeUid).loadAsNormal()
+                .addOnSuccessListener(freshStudent -> {
+                    if (!isUiAlive() || freshStudent == null) {
+                        return;
+                    }
+                    student = freshStudent;
+                    sc.setStudent(freshStudent);
+                    loadExploreCourses();
+                })
+                .addOnFailureListener(e -> {
+                    if (!isUiAlive()) {
+                        return;
+                    }
+                    Log.e("StudentExploreCourse", "Failed to refresh active student", e);
+                    Tool.handleEmpty(true, rv_courses, tv_emptyCourses);
+                });
     }
 
     private void loadExploreCourses() {
         Log.d("StudentExploreCourse", "Fetching Student's Explore Courses...");
 
         student.getExploreCourse().addOnSuccessListener(courses -> {
+            if (!isUiAlive()) {
+                return;
+            }
             exploreCourses = courses;
             Log.d("StudentExploreCourse", "Retrieved " + exploreCourses.size() + " Courses");
 
@@ -76,6 +117,9 @@ public class Student_ExploreCourse extends Fragment {
 
             loadTeachersForCourses();
         }).addOnFailureListener(e -> {
+            if (!isUiAlive()) {
+                return;
+            }
             Log.e("StudentExploreCourse", "Failed to load explore courses", e);
             Tool.handleEmpty(true, rv_courses, tv_emptyCourses);
         });
@@ -86,16 +130,27 @@ public class Student_ExploreCourse extends Fragment {
 
         final int total = exploreCourses.size();
         final int[] completed = {0};
+        for (int i = 0; i < total; i++) {
+            teachers.add(null);
+        }
 
-        for (Course course : exploreCourses) {
+        for (int i = 0; i < total; i++) {
+            final int index = i;
+            Course course = exploreCourses.get(i);
             course.getTeacher().addOnSuccessListener(teacher -> {
-                teachers.add(teacher);
+                if (!isUiAlive()) {
+                    return;
+                }
+                teachers.set(index, teacher);
                 completed[0]++;
 
                 if (completed[0] == total) {
                     onAllDataLoaded();
                 }
             }).addOnFailureListener(e -> {
+                if (!isUiAlive()) {
+                    return;
+                }
                 Log.e("StudentExploreCourse", "Failed to load teacher for course: " + course, e);
                 completed[0]++;
                 if (completed[0] == total) {
@@ -107,6 +162,13 @@ public class Student_ExploreCourse extends Fragment {
 
     @SuppressLint("SetTextI18n")
     private void onAllDataLoaded() {
+        if (!isUiAlive()) {
+            return;
+        }
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
         Tool.handleEmpty(exploreCourses.isEmpty(), rv_courses, tv_emptyCourses);
 
         CourseAdapter courseAdapter = new CourseAdapter(
@@ -115,6 +177,9 @@ public class Student_ExploreCourse extends Fragment {
                 new OnItemClickListener<>() {
                     @Override
                     public void onItemClick(Course item) {
+                        if (!isAdded()) {
+                            return;
+                        }
                         Log.d("selectedBottomNav", "on Student_ExploreCourse: " + Student_ExploreCourse.class.getSimpleName());
                         CourseExploreFullPage page = new CourseExploreFullPage();
                         Bundle bundle = new Bundle();
@@ -126,10 +191,15 @@ public class Student_ExploreCourse extends Fragment {
                     public void onItemLongClick(Course item) {}
                 },
                 teachers,
-                requireContext()
+                context,
+                false
         );
 
         rv_courses.setLayoutManager(new LinearLayoutManager(getContext()));
         rv_courses.setAdapter(courseAdapter);
+    }
+
+    private boolean isUiAlive() {
+        return isAdded() && getView() != null && rv_courses != null && tv_emptyCourses != null;
     }
 }

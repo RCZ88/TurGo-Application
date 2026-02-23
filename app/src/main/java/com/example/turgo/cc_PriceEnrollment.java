@@ -1,6 +1,5 @@
 package com.example.turgo;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -11,10 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Switch;
 import android.widget.Toast;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,9 +22,7 @@ import android.widget.Toast;
  */
 public class cc_PriceEnrollment extends Fragment implements checkFragmentCompletion{
     EditText et_hourlyCost, et_baseCost, et_monthlyDiscount;
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
-    Switch sw_group, sw_private, sw_month, sw_meeting;
-    CheckBox cb_autoAcceptStudent;
+    SwitchMaterial sw_group, sw_private, sw_month, sw_meeting, cb_autoAcceptStudent;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

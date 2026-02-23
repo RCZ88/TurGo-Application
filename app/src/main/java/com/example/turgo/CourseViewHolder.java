@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class CourseViewHolder extends RecyclerView.ViewHolder{
-    ImageView iv_courseIcon;
+    ImageView iv_courseIcon, iv_meetingIcon;
     TextView tv_CourseName, tv_courseTeacher, tv_nextMeeting;
     CourseAdapter courseAdapter;
     public CourseViewHolder(@NonNull View itemView, OnItemClickListener<Course> listener, CourseAdapter adapter) {
@@ -18,6 +18,7 @@ public class CourseViewHolder extends RecyclerView.ViewHolder{
         tv_CourseName = itemView.findViewById(R.id.tv_cdnf_CourseTitle);
         tv_courseTeacher = itemView.findViewById(R.id.tv_cdnf_TeacherName);
         tv_nextMeeting = itemView.findViewById(R.id.tv_cdnf_MeetingDates);
+        iv_meetingIcon = itemView.findViewById(R.id.iv_cdnf_dateIcon);
 
         itemView.setOnClickListener(v -> {
             int position = getAdapterPosition();

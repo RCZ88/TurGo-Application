@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -15,7 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.navigation.ui.AppBarConfiguration;
+import androidx.fragment.app.Fragment;
 
 import com.example.turgo.databinding.ActivityMailPageFullBinding;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -28,6 +30,7 @@ public class MailPageFull extends AppCompatActivity {
     private ActivityMailPageFullBinding binding;
     private User user;
     private Toolbar toolbar;
+    private LinearLayout ll_back;
     boolean inSelectionMode;
     MailSmallAdapter adapter;
 
@@ -48,18 +51,15 @@ public class MailPageFull extends AppCompatActivity {
         setSupportActionBar(toolbar);
         toolbar.setTitle("");
         setSelectionMode(false);
-
+        ll_back = findViewById(R.id.ll_mpf_goBack);
         tv_pageTitle = findViewById(R.id.tv_mpf_FragmentTitle);
 
         nv_MailPage = findViewById(R.id.nv_MailPage);
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.dest_mailInbox, R.id.dest_mailOutbox, R.id.dest_mailDrafts)
-                .build();
 
         Intent intent = getIntent();
         this.user = (User) intent.getSerializableExtra(User.SERIALIZE_KEY_CODE);
+        MailType whichPage = (MailType) intent.getSerializableExtra("PageToOpen");
+
         fab_WriteMail = findViewById(R.id.fab_WriteMail);
         fab_WriteMail.setOnClickListener(view -> {
             Intent intent1 = new Intent(MailPageFull.this, ComposeMail.class);
@@ -67,10 +67,38 @@ public class MailPageFull extends AppCompatActivity {
             startActivity(intent1);
         });
 
+        ll_back.setOnClickListener(v -> {
+            Intent i = null;
+            if(user instanceof Student){
+                i = new Intent(this, StudentScreen.class);
+            }else if(user instanceof Teacher){
+                i = new Intent(this, TeacherScreen.class);
+            }
+            if (i != null) {
+                startActivity(i);
+            } else {
+                getOnBackPressedDispatcher().onBackPressed();
+            }
+        });
+
         setupBottomNavigation(nv_MailPage);
+
+        if (whichPage != null) {
+            Log.d("MailPageFull", "Which page: " + whichPage.getMailType());
+            Bundle bundle = new Bundle();
+            bundle.putSerializable(MailType.MAIL_TYPE.getMailType(), whichPage);
+            Tool.loadFragment(this, R.id.fcv_MPF_Container, new MailListPage(), bundle);
+            if (whichPage == MailType.DRAFT) {
+                nv_MailPage.setSelectedItemId(R.id.dest_mailDrafts);
+            } else if (whichPage == MailType.OUTBOX) {
+                nv_MailPage.setSelectedItemId(R.id.dest_mailOutbox);
+            } else {
+                nv_MailPage.setSelectedItemId(R.id.dest_mailInbox);
+            }
+            return;
+        }
         nv_MailPage.setSelectedItemId(R.id.dest_mailInbox);
     }
-
 
     private void setupBottomNavigation(BottomNavigationView bnv){
         bnv.setOnItemSelectedListener(item -> {
@@ -90,7 +118,13 @@ public class MailPageFull extends AppCompatActivity {
                 return false;
             }
 
-            Tool.loadFragment(this, getContainer(), new MailListPage(), bundle);
+            MailListPage page = new MailListPage();
+            page.setArguments(bundle);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(getContainer(), page)
+                    .setReorderingAllowed(true)
+                    .commit();
 
             return true;
         });
@@ -118,11 +152,15 @@ public class MailPageFull extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.mi_MTM_Back){
-            adapter.exitSelectMode();
+            if (adapter != null) {
+                adapter.exitSelectMode();
+            }
             setSelectionMode(false);
             return true;
         }else if(item.getItemId() == R.id.mi_MTM_Delete){
-            adapter.deleteSelectedMails();
+            if (adapter != null) {
+                adapter.deleteSelectedMails();
+            }
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -152,5 +190,9 @@ public class MailPageFull extends AppCompatActivity {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public void setAdapter(MailSmallAdapter adapter) {
+        this.adapter = adapter;
     }
 }

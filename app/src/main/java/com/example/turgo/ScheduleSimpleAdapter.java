@@ -36,9 +36,11 @@ public class ScheduleSimpleAdapter extends RecyclerView.Adapter<ScheduleSimpleVi
     @Override
     public void onBindViewHolder(@NonNull ScheduleSimpleViewHolder holder, int position) {
         Schedule schedule = schedules.get(position);
-        Course course = Await.get(schedule::getScheduleOfCourse);
-        holder.tv_CourseName.setText(course.getCourseName());
-        holder.tv_timeRange.setText(schedule.getMeetingStart().toString() + "-" + schedule.getMeetingEnd().toString());
+        holder.tv_dateMonth.setVisibility(View.GONE);
+        schedule.getScheduleOfCourse().addOnSuccessListener(course ->{
+            holder.tv_CourseName.setText(course.getCourseName());
+            holder.tv_timeRange.setText(schedule.getMeetingStart().toString() + "-" + schedule.getMeetingEnd().toString());
+        });
     }
 
     @Override

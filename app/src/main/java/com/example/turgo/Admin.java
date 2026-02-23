@@ -32,13 +32,6 @@ public class Admin extends User implements Serializable, RequireUpdate<Admin, Ad
     public String getID() {
         return super.getUid();
     }
-
-    @Override
-    public void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        updateDB();
-    }
-
-
     public Admin(){}
 
     @Override

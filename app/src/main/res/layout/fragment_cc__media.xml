@@ -1,162 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/surface_inner_panel"
     tools:context=".cc_Media">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textView72"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/delagothicone_regular"
+            android:text="Course Media"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Upload visuals to make your course stand out in the marketplace."
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/textView72"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="36dp"
-                android:text="Select Media"
-                android:textAlignment="center"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
-                android:id="@+id/linearLayout30"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:gravity="center_horizontal"
-                android:orientation="horizontal">
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10sp"
-                    android:layout_marginVertical="20sp"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    tools:layout_editor_absoluteX="16dp"
-                    tools:layout_editor_absoluteY="141dp">
-
-                    <TextView
-                        android:id="@+id/textView82"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Course Logo"
-                        android:textAlignment="center"
-                        android:textSize="18sp" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_CC_courseLogoOptions"
-                        android:layout_width="167dp"
-                        android:layout_height="170dp"
-                        android:layout_margin="10sp"
-                        android:background="@drawable/recycler_view_border" />
-
-                    <Button
-                        android:id="@+id/btn_CC_uploadLogo"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Upload Own Logo" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="10sp"
-                    android:layout_marginVertical="20sp"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    tools:layout_editor_absoluteX="220dp"
-                    tools:layout_editor_absoluteY="141dp">
-
-                    <TextView
-                        android:id="@+id/textView79"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Course Banner"
-                        android:textSize="18sp" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rv_CC_courseBannerOptions"
-                        android:layout_width="155dp"
-                        android:layout_height="170dp"
-                        android:layout_margin="10sp"
-                        android:background="@drawable/recycler_view_border">
-
-                    </androidx.recyclerview.widget.RecyclerView>
-
-                    <Button
-                        android:id="@+id/btn_CC_uploadBanner"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Upload Own banner" />
-                </LinearLayout>
-            </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearLayout30"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12sp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="12sp"
-                android:gravity="center_horizontal"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView81"
+                    android:id="@+id/textView82"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10sp"
-                    android:text="Course Preview Images"
-                    android:textSize="18sp"
-                    tools:layout_editor_absoluteY="413dp" />
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.05"
+                    android:text="COURSE LOGO"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp" />
 
-                <Button
-                    android:id="@+id/btn_CC_uploadPreviewImage"
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:background="@drawable/bg_emerald_input">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_CC_courseLogoOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="4dp"
+                        android:clipToPadding="false"
+                        tools:listitem="@android:layout/activity_list_item" />
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_CC_uploadLogo"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Upload Logo"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp"
+                    app:icon="@android:drawable/ic_menu_upload"
+                    app:iconTint="@color/brand_emerald"
+                    app:strokeColor="@color/brand_emerald" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView79"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10sp"
-                    android:text="Upload Images"
-                    tools:layout_editor_absoluteX="133dp"
-                    tools:layout_editor_absoluteY="449dp" />
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.05"
+                    android:text="COURSE BANNER"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:background="@drawable/bg_emerald_input">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rv_CC_courseBannerOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="4dp"
+                        android:clipToPadding="false" />
+                </FrameLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_CC_uploadBanner"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="8dp"
+                    android:text="Upload Banner"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="12sp"
+                    app:icon="@android:drawable/ic_menu_upload"
+                    app:iconTint="@color/brand_emerald"
+                    app:strokeColor="@color/brand_emerald" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="80dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/brand_emerald_pale"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView81"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:text="Gallery Images"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="18sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Screenshots or promotional photos"
+                            android:textColor="@color/brand_emerald"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_CC_uploadPreviewImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="Add New"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="12sp"
+                        app:backgroundTint="@color/brand_emerald_pale"
+                    app:cornerRadius="20dp"
+                    app:elevation="0dp"
+                    app:icon="@android:drawable/ic_input_add"
+                    app:iconTint="@color/brand_emerald_dark" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="16dp"
+                    android:background="#F0F2F2" />
 
                 <TextView
                     android:id="@+id/tv_CC_MediaUploadEmpty"
                     android:layout_width="match_parent"
-                    android:layout_height="90dp"
-                    android:background="@drawable/recycler_view_border"
+                    android:layout_height="100dp"
+                    android:background="@drawable/bg_emerald_input"
                     android:gravity="center"
-                    android:text="No Course Image Uploaded"
-                    android:textAlignment="gravity"
+                    android:fontFamily="@font/space_mono_regular"
+                    android:text="No images uploaded yet"
+                    android:textColor="#A0A0A0"
+                    android:textSize="12sp"
                     android:visibility="gone" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rv_uploadedPreviewImage"
                     android:layout_width="match_parent"
-                    android:layout_height="80dp"
-                    android:background="@drawable/recycler_view_border"
-                    android:scrollbars="horizontal"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/btn_CC_uploadPreviewImage" />
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dp"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@android:layout/simple_list_item_1" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_CC_removeAllImage"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Remove All" />
+                    android:layout_gravity="end"
+                    android:layout_marginTop="8dp"
+                    android:text="Clear Gallery"
+                    android:textColor="#D32F2F"
+                    android:textSize="12sp"
+                    app:icon="@android:drawable/ic_menu_delete"
+                    app:iconTint="#D32F2F" />
 
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
+        </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

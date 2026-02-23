@@ -4,12 +4,11 @@ import com.google.firebase.database.DatabaseError;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class StudentCourse implements Serializable, RequireUpdate<StudentCourse, StudentCourseFirebase, StudentCourseRepository> {
-    private final FirebaseNode fbn = FirebaseNode.STUDENTCOURSE;
+    private final FirebaseNode fbn = FirebaseNode.STUDENT_COURSE;
     private final Class<StudentCourseFirebase>fbc = StudentCourseFirebase.class;
     private final String sc_ID;
     private ArrayList<Schedule> schedulesOfCourse;
@@ -18,6 +17,7 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
     private ArrayList<Task> tasks;
     private ArrayList<Agenda> agendas;
     private ArrayList<TimeSlot>timeSlots;
+    private String student;
     private int pricePer;
     public StudentCourse(boolean paymentPreferences, boolean privateOrGroup, int pricePer, ArrayList<TimeSlot>timeSlots){
         schedulesOfCourse = new ArrayList<>();
@@ -27,6 +27,7 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
         this.timeSlots = timeSlots;
         agendas = new ArrayList<>();
         this.pricePer = pricePer;
+        student = "";
         sc_ID = UUID.randomUUID().toString();
     }
     public void assignTask(Task task){
@@ -63,6 +64,20 @@ public class StudentCourse implements Serializable, RequireUpdate<StudentCourse,
             }
         });
     }
+
+    public String getStudentId() {
+        return student;
+    }
+    public com.google.android.gms.tasks.Task<Student> getStudent(){
+        StudentRepository sr = new StudentRepository(student);
+        return sr.loadAsNormal();
+    }
+
+
+    public void setStudent(String student) {
+        this.student = student;
+    }
+
 
     public ArrayList<TimeSlot> getTimeSlots() {
         return timeSlots;

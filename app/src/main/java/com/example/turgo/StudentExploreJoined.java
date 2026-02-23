@@ -1,15 +1,19 @@
 package com.example.turgo;
 
 import android.annotation.SuppressLint;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,7 +32,11 @@ public class StudentExploreJoined extends Fragment {
     private String mParam2;
 
     FragmentContainerView fcv_ExploreJoined;
-    Button btn_Explore, btn_MyCourse;
+    MaterialButton btn_Explore, btn_MyCourse;
+    MaterialButtonToggleGroup tg_tab;
+    private static final String TAB_EXPLORE = "explore";
+    private static final String TAB_MY_COURSES = "my_courses";
+    private String currentTab = TAB_MY_COURSES;
 
     public StudentExploreJoined() {
         // Required empty public constructor
@@ -65,14 +73,79 @@ public class StudentExploreJoined extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_student_explore_joined, container, false);
+        if (savedInstanceState != null) {
+            currentTab = savedInstanceState.getString("currentTab", TAB_MY_COURSES);
+        }
+
         fcv_ExploreJoined = view.findViewById(R.id.fcv_SEJ_Container);
-        getChildFragmentManager().beginTransaction().replace(R.id.fcv_SEJ_Container, new CourseJoinedFullPage()).commit();
+        tg_tab = view.findViewById(R.id.tg_SEJ_Tab);
         btn_Explore = view.findViewById(R.id.btn_SEJ_Explore);
         btn_MyCourse = view.findViewById(R.id.btn_SEJ_MyCourse);
-        btn_Explore.setOnClickListener(view2 -> getChildFragmentManager().beginTransaction().replace(R.id.fcv_SEJ_Container, new CourseExploreFullPage()).commit());
-        btn_MyCourse.setOnClickListener(view1 -> getChildFragmentManager().beginTransaction().replace(R.id.fcv_SEJ_Container, new CourseJoinedFullPage()).commit());
+
+        tg_tab.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (!isChecked) {
+                return;
+            }
+            if (checkedId == R.id.btn_SEJ_Explore) {
+                showExploreTab();
+            } else if (checkedId == R.id.btn_SEJ_MyCourse) {
+                showMyCoursesTab();
+            }
+        });
+
+        if (TAB_MY_COURSES.equals(currentTab)) {
+            tg_tab.check(R.id.btn_SEJ_MyCourse);
+        } else {
+            tg_tab.check(R.id.btn_SEJ_Explore);
+        }
+
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentTab", currentTab);
+    }
+
+    public void showExploreTab() {
+        currentTab = TAB_EXPLORE;
+        updateTabUi();
+        if (isAdded()) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fcv_SEJ_Container, new Student_ExploreCourse())
+                    .commit();
+        }
+    }
+
+    public void showMyCoursesTab() {
+        currentTab = TAB_MY_COURSES;
+        updateTabUi();
+        if (isAdded()) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fcv_SEJ_Container, new Student_MyCourses())
+                    .commit();
+        }
+    }
+
+    private void updateTabUi() {
+        if (!isAdded() || getContext() == null || btn_Explore == null || btn_MyCourse == null) {
+            return;
+        }
+        int activeBg = ContextCompat.getColor(requireContext(), R.color.brand_emerald);
+        int inactiveBg = ContextCompat.getColor(requireContext(), R.color.transparent);
+        int activeText = ContextCompat.getColor(requireContext(), R.color.white_soft);
+        int inactiveText = ContextCompat.getColor(requireContext(), R.color.brand_emerald_dark);
+
+        boolean exploreActive = TAB_EXPLORE.equals(currentTab);
+        btn_Explore.setBackgroundTintList(ColorStateList.valueOf(exploreActive ? activeBg : inactiveBg));
+        btn_Explore.setTextColor(exploreActive ? activeText : inactiveText);
+
+        boolean myCoursesActive = TAB_MY_COURSES.equals(currentTab);
+        btn_MyCourse.setBackgroundTintList(ColorStateList.valueOf(myCoursesActive ? activeBg : inactiveBg));
+        btn_MyCourse.setTextColor(myCoursesActive ? activeText : inactiveText);
     }
 }

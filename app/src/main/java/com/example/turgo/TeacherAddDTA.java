@@ -3,26 +3,27 @@ package com.example.turgo;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,8 +34,12 @@ public class TeacherAddDTA extends Fragment {
     Button btn_selectStart, btn_selectEnd, btn_selectDay, btn_addDTA;
     EditText et_maxMeeting;
     Spinner sp_selectCourse;
-    TextView tv_start, tv_end, tv_day;
+    TextView tv_start, tv_end, tv_day, tv_limitStatus;
+    SwitchMaterial sw_noLimit;
     Teacher teacher;
+    private LocalTime selectedStartTime;
+    private LocalTime selectedEndTime;
+    private DayOfWeek selectedDay;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -91,12 +96,36 @@ public class TeacherAddDTA extends Fragment {
         tv_start = view.findViewById(R.id.tv_TAD_StartTimeSelected);
         tv_end = view.findViewById(R.id.tv_TAD_EndTimeSelected);
         tv_day = view.findViewById(R.id.tv_TAD_DaySelected);
+        tv_limitStatus = view.findViewById(R.id.tv_TAD_LimitStatus);
+        sw_noLimit = view.findViewById(R.id.sw_TAD_NoLimitToggle);
         final Course[] courseSelected = new Course[1];
-        sp_selectCourse.setAdapter(new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_dropdown_item, teacher.getCoursesTeach()));
+        teacher = ((TeacherScreen)requireActivity()).getTeacher();
+        selectedStartTime = null;
+        selectedEndTime = null;
+        selectedDay = null;
+        tv_start.setText("--:--");
+        tv_end.setText("--:--");
+        tv_day.setText("Not selected");
+        updateMaxMeetingUi(false);
+
+        ArrayList<Course> teacherCourses = teacher != null && teacher.getCoursesTeach() != null
+                ? teacher.getCoursesTeach()
+                : new ArrayList<>();
+        SimpleSpinnerAdapter<Course> courseAdapter = new SimpleSpinnerAdapter<>(
+                requireContext(),
+                teacherCourses,
+                course -> {
+                    if (course == null || !Tool.boolOf(course.getCourseName())) {
+                        return "Unnamed Course";
+                    }
+                    return course.getCourseName();
+                }
+        );
+        sp_selectCourse.setAdapter(courseAdapter);
         sp_selectCourse.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                courseSelected[0] = teacher.getCoursesTeach().get(position);
+                courseSelected[0] = (Course) parent.getSelectedItem();
             }
 
             @Override
@@ -116,8 +145,10 @@ public class TeacherAddDTA extends Fragment {
                 int hour = picker.getHour();
                 int minute = picker.getMinute();
                 String formattedTime = String.format("%02d:%02d", hour, minute);
+                selectedStartTime = LocalTime.of(hour, minute);
                 tv_start.setText(formattedTime);
             });
+            picker.show(getParentFragmentManager(), "start_time_picker");
         });
         btn_selectEnd.setOnClickListener(view13 -> {
             MaterialTimePicker picker = new MaterialTimePicker.Builder()
@@ -130,39 +161,87 @@ public class TeacherAddDTA extends Fragment {
                 int hour = picker.getHour();
                 int minute = picker.getMinute();
                 String formattedTime = String.format("%02d:%02d", hour, minute);
+                selectedEndTime = LocalTime.of(hour, minute);
                 tv_end.setText(formattedTime);
             });
+            picker.show(getParentFragmentManager(), "end_time_picker");
         });
 
         btn_selectDay.setOnClickListener(view15 -> {
-            MaterialDatePicker<Long> datePicker = MaterialDatePicker.Builder.datePicker()
-                    .setTitleText("Select Day")
-                    .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
-                    .build();
-            datePicker.addOnPositiveButtonClickListener(selection -> {
-                tv_day.setText(datePicker.getHeaderText());
-            });
-            datePicker.show(getParentFragmentManager(), "tag");
+            DayOfWeek[] days = DayOfWeek.values();
+            String[] labels = new String[days.length];
+            for (int i = 0; i < days.length; i++) {
+                String raw = days[i].name().toLowerCase();
+                labels[i] = Character.toUpperCase(raw.charAt(0)) + raw.substring(1);
+            }
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Select Day")
+                    .setItems(labels, (dialog, which) -> {
+                        selectedDay = days[which];
+                        tv_day.setText(labels[which]);
+                    })
+                    .show();
         });
         btn_addDTA.setOnClickListener(view16 -> {
-            if(tv_start.getText().toString().equals("") || tv_end.getText().toString().equals("") || tv_day.getText().toString().equals("")){
-                //show error
+            if (courseSelected[0] == null || selectedStartTime == null || selectedEndTime == null || selectedDay == null) {
                 Toast.makeText(getContext(), "Please fill all the fields", Toast.LENGTH_SHORT).show();
-            }else{
-                //add DTA
-                DayTimeArrangement dta = new DayTimeArrangement(courseSelected[0], DayOfWeek.valueOf(tv_day.getText().toString()), LocalTime.parse(tv_start.getText().toString()), LocalTime.parse(tv_end.getText().toString()), Integer.parseInt(et_maxMeeting.getText().toString()));
-                courseSelected[0].addNewDayTimeArr(dta);
-                try {
-                    teacher.addDTA(dta);
-                    dta.updateDB();
-                } catch (InvocationTargetException | NoSuchMethodException |
-                         IllegalAccessException | java.lang.InstantiationException e) {
-                    throw new RuntimeException(e);
-                }
+                return;
+            }
+            if (!selectedEndTime.isAfter(selectedStartTime)) {
+                Toast.makeText(getContext(), "End time must be after start time", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            int maxMeeting = Integer.MAX_VALUE;
+            if (!sw_noLimit.isChecked()) {
+                if (!Tool.boolOf(et_maxMeeting.getText().toString().trim())) {
+                    Toast.makeText(getContext(), "Please fill all the fields", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                try {
+                    maxMeeting = Integer.parseInt(et_maxMeeting.getText().toString().trim());
+                } catch (NumberFormatException e) {
+                    Toast.makeText(getContext(), "Max meeting must be a valid number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (maxMeeting <= 0) {
+                    Toast.makeText(getContext(), "Max meeting must be greater than 0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            DayTimeArrangement dta = new DayTimeArrangement(courseSelected[0], selectedDay, selectedStartTime, selectedEndTime, maxMeeting);
+            courseSelected[0].addNewDayTimeArr(dta);
+            try {
+                teacher.addDTA(dta);
+                dta.updateDB();
+                Toast.makeText(getContext(), "DTA added successfully", Toast.LENGTH_SHORT).show();
+            } catch (InvocationTargetException | NoSuchMethodException |
+                     IllegalAccessException | java.lang.InstantiationException e) {
+                throw new RuntimeException(e);
             }
         });
 
+        sw_noLimit.setOnCheckedChangeListener((buttonView, isChecked) -> updateMaxMeetingUi(isChecked));
+
         return view;
+    }
+
+    private void updateMaxMeetingUi(boolean unlimited) {
+        if (tv_limitStatus != null) {
+            tv_limitStatus.setText(unlimited ? "ON" : "OFF");
+        }
+        if (et_maxMeeting != null) {
+            et_maxMeeting.setEnabled(!unlimited);
+            et_maxMeeting.setFocusable(!unlimited);
+            et_maxMeeting.setFocusableInTouchMode(!unlimited);
+            et_maxMeeting.setAlpha(unlimited ? 0.5f : 1.0f);
+            if (unlimited) {
+                et_maxMeeting.setText("");
+                et_maxMeeting.setHint("Unlimited");
+            } else {
+                et_maxMeeting.setHint("5");
+            }
+        }
     }
 }

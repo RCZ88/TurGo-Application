@@ -1,236 +1,417 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".TeacherCreateTask">
 
-    <Button
-        android:id="@+id/btn_TCT_CreateTask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="Create Task"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout38" />
-
-    <TextView
-        android:id="@+id/textView90"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Create Task"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <LinearLayout
-        android:id="@+id/linearLayout54"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout37">
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="40dp">
 
         <LinearLayout
-            android:layout_width="180dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="24dp">
 
             <TextView
-                android:id="@+id/textView100"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task of Course?" />
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:text="NEW ASSIGNMENT"
+                android:letterSpacing="0.1"
+                android:textSize="12sp"
+                android:textColor="@color/brand_emerald" />
 
-            <TextView
-                android:id="@+id/tv_TCK_PresetCourse"
+            <EditText
+                android:id="@+id/et_TCT_TaskTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView"
-                android:visibility="gone" />
+                android:background="@null"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:hint="Enter Task Title..."
+                android:inputType="textCapSentences"
+                android:textColor="@color/brand_emerald_dark"
+                android:textColorHint="#B0BDBD"
+                android:textSize="32sp"
+                android:paddingVertical="8dp"/>
 
-            <Spinner
-                android:id="@+id/sp_TCT_TaskOfCourse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+            <View
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:background="@drawable/bg_emerald_btn_primary"
+                android:backgroundTint="@color/brand_emerald"/>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="180dp"
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:layout_marginHorizontal="10dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView101"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Select Student (To Asign to)" />
-
-            <TextView
-                android:id="@+id/tv_TCK_PresetStudent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="bla bla, blabla"
-                android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/sp_TCT_SelectStudent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout38"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout54">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView97"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Submission Date"
-                android:textAlignment="center"
-                tools:layout_editor_absoluteX="192dp"
-                tools:layout_editor_absoluteY="554dp" />
-
-            <Button
-                android:id="@+id/btn_TCT_SelectDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:text="Select Date"
-                tools:layout_editor_absoluteX="186dp"
-                tools:layout_editor_absoluteY="605dp" />
+            android:layout_marginBottom="12dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/brand_emerald_pale"
+            app:strokeWidth="1dp">
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/book"
+                        app:tint="@color/brand_emerald"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="COURSE"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:textSize="10sp"
+                        android:textColor="#99A3A4"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_TCK_PresetCourse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Advanced Calculus"
+                    android:fontFamily="@font/bricolage_body"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="8dp"
+                    android:visibility="gone"/>
+
+                <Spinner
+                    android:id="@+id/sp_TCT_TaskOfCourse"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/brand_emerald_pale"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_marginEnd="8dp"
+                        android:src="@drawable/user"
+                        app:tint="@color/brand_emerald" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ASSIGN TO STUDENTS"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:textSize="10sp"
+                        android:textColor="#99A3A4"/>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_TCK_PresetStudent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="John Doe"
+                    android:fontFamily="@font/bricolage_body"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp"
+                    android:paddingHorizontal="4dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/tv_TCT_StudentsEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/space_mono_bold"
+                    android:text="Course has no Student." />
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/cg_TCT_SelectStudent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="100dp"
+                    app:singleSelection="false" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/brand_emerald_pale"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/textView96"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="TASK BRIEF"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:textSize="12sp"
+                        android:letterSpacing="0.05"
+                        android:textColor="#99A3A4"/>
+
+                    <TextView
+                        android:id="@+id/textView99"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Dropbox"
+                        android:textSize="12sp"
+                        android:textColor="@color/brand_emerald"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:layout_marginEnd="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/cb_TCT_OpenDropbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/brand_emerald"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Notify students"
+                        android:textSize="12sp"
+                        android:textColor="@color/brand_emerald"
+                        android:fontFamily="@font/bricolage_condensed_semibold" />
+
+                    <CheckBox
+                        android:id="@+id/cb_TCT_NotifyStudents"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/brand_emerald"
+                        android:checked="true"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp" />
+                </LinearLayout>
+
+                <EditText
+                    android:id="@+id/etml_TCT_TaskDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@null"
+                    android:fontFamily="@font/bricolage_body"
+                    android:hint="Write the instructions and requirements here..."
+                    android:inputType="textMultiLine"
+                    android:minLines="6"
+                    android:gravity="top|start"
+                    android:textSize="16sp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textColorHint="#B0BDBD"/>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:orientation="vertical">
+
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:text="SUBMISSION DEADLINE"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:textSize="12sp"
+                android:letterSpacing="0.05"
+                android:textColor="#99A3A4"
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"/>
 
-                <TextView
-                    android:id="@+id/textView102"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="5dp"
-                    android:layout_weight="1"
-                    android:text="Date Selected:" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <TextView
-                    android:id="@+id/tv_TCT_SelectedDate"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_TCT_SelectDate"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="mm/dd/yyyy" />
+                    android:layout_marginEnd="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#E6F4F1"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/brand_emerald_pale"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_my_calendar"
+                            app:tint="@color/brand_emerald"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="DATE"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textSize="10sp"
+                            android:textColor="#99A3A4"/>
+
+                        <TextView
+                            android:id="@+id/tv_TCT_SelectedDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Select Date"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:textSize="14sp"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:layout_marginTop="4dp"
+                            android:gravity="center"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_TCT_SelectTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    app:cardBackgroundColor="#E6F4F1"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/brand_emerald_pale"
+                    app:strokeWidth="1dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@android:drawable/ic_menu_recent_history"
+                            app:tint="@color/brand_emerald"
+                            android:layout_marginBottom="8dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="TIME"
+                            android:fontFamily="@font/bricolage_condensed_semibold"
+                            android:textSize="10sp"
+                            android:textColor="#99A3A4"/>
+
+                        <TextView
+                            android:id="@+id/tv_TCT_SelectedTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/space_mono_bold"
+                            android:gravity="center"
+                            android:text="Select Time"
+                            android:textColor="@color/brand_emerald_dark"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="15dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+        <Button
+            android:id="@+id/btn_TCT_CreateTask"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_emerald_btn_primary"
+            app:backgroundTint="@null"
+            android:text="Publish Assignment"
+            android:fontFamily="@font/bricolage_grotesque_bold"
+            android:textSize="18sp"
+            android:textColor="@color/white"
+            android:textAllCaps="false"
+            android:elevation="8dp"/>
 
-            <TextView
-                android:id="@+id/textView99"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dropbox" />
-
-            <CheckBox
-                android:id="@+id/cb_TCT_OpenDropbox"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Open Dropbox" />
-
-        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout36"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:padding="5dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView90">
-
-        <TextView
-            android:id="@+id/textView95"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Task Title:" />
-
-        <EditText
-            android:id="@+id/et_TCT_TaskTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="text" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout37"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout36">
-
-        <TextView
-            android:id="@+id/textView96"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description" />
-
-        <EditText
-            android:id="@+id/etml_TCT_TaskDescription"
-            android:layout_width="281dp"
-            android:layout_height="93dp"
-            android:ems="10"
-            android:gravity="start|top"
-            android:inputType="textMultiLine" />
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

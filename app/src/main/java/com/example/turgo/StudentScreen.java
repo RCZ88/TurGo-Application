@@ -70,6 +70,7 @@ public class StudentScreen extends AppCompatActivity{
         binding = ActivityStudentScreenBinding.inflate(getLayoutInflater());
         EdgeToEdge.enable(this);
         setContentView(binding.getRoot());
+        NotificationPermissionHelper.requestIfNeeded(this);
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -80,6 +81,7 @@ public class StudentScreen extends AppCompatActivity{
         ll_mailEmpty = findViewById(R.id.ll_MDD_EmptyState);
         ll_notifEmpty = findViewById(R.id.ll_NDD_EmptyState);
         bottomNav = findViewById(R.id.nv_ss_BottomNavigation);
+        setScreenInteractionEnabled(false);
 
         FirebaseAuth  auth = FirebaseAuth.getInstance();
         fbUser = auth.getCurrentUser();
@@ -93,27 +95,79 @@ public class StudentScreen extends AppCompatActivity{
             continueAfterStudentNotNull();
             return;
         }
-        Tool.prepareUserObjectForScreen(this, dummy, new ObjectCallBack<>() {
-            @Override
-            public void onObjectRetrieved(User object) {
-                student = (Student) object;
-                Log.d("StudentScreen", "Student Normal Object retrieved: " + student);
-                if (student != null) {
+        if (fbUser == null) {
+            Log.e("StudentScreen", "Firebase user is null");
+            finish();
+            return;
+        }
+        StudentRepository sr = new StudentRepository(fbUser.getUid());
+        Tool.prepareUserObjectForScreen(sr)
+                .addOnSuccessListener(studentObj -> {
+                    student = studentObj;
+                    if (Tool.boolOf(student.getID())) {
+                        PushTokenManager.syncKnownRoleWithLatestToken(student.getID(), "STUDENT");
+                    }
+                    Log.d("StudentScreen", "Student Prescheduled Meetings:" + student.getPreScheduledMeetings());
                     continueAfterStudentNotNull();
-                }else{
-                    loadDashboard();
-                }
-            }
 
-            @Override
-            public void onError(DatabaseError error) {
+                    String currentWeekKey = Student.getCurrentWeekKey();
+                    sr.resetWeeklyMeetingCompletionIfNeeded(currentWeekKey)
+                            .addOnSuccessListener(changed -> {
+                                if (Boolean.TRUE.equals(changed)) {
+                                    student.setScheduleCompletedThisWeek(new ArrayList<>());
+                                    student.setPercentageCompleted(0);
+                                    student.setCompletionWeekKey(currentWeekKey);
+                                    Log.d("StudentScreen", "Weekly meeting completion reset for week=" + currentWeekKey);
+                                } else if (!Tool.boolOf(student.getCompletionWeekKey())) {
+                                    student.setCompletionWeekKey(currentWeekKey);
+                                }
+                                ArrayList<String> completedIdsThisWeek = student.getCompletedScheduleIdsThisWeekList();
+                                int totalSchedules = student.getAllSchedules() != null ? student.getAllSchedules().size() : 0;
+                                double percentage = totalSchedules <= 0
+                                        ? 0d
+                                        : ((double) completedIdsThisWeek.size() / totalSchedules) * 100d;
 
-            }
-        });
+                                sr.upsertWeeklyCompletionSnapshot(currentWeekKey, completedIdsThisWeek, percentage)
+                                        .addOnSuccessListener(unused -> {
+                                            student.setCompletionWeekKey(currentWeekKey);
+                                            student.setPercentageCompleted(percentage);
+                                            student.getScheduleCompletedThisWeek();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Log.e("StudentScreen", "Failed weekly completion snapshot sync", e);
+                                        });
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("StudentScreen", "Failed weekly completion reset check", e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("StudentScreen", "Failed to prepare Student object", e);
+                    student = createFallbackStudent();
+                    continueAfterStudentNotNull();
+                });
 
     }
 
+    private Student createFallbackStudent() {
+        Student fallback = new Student();
+        fallback.setUserType(UserType.STUDENT);
+        if (fbUser != null) {
+            fallback.setUid(fbUser.getUid());
+            fallback.setEmail(fbUser.getEmail());
+            String displayName = fbUser.getDisplayName();
+            if (!Tool.boolOf(displayName)) {
+                displayName = "Student";
+            }
+            fallback.setFullName(displayName);
+        } else {
+            fallback.setFullName("Student");
+        }
+        return fallback;
+    }
+
     private void continueAfterStudentNotNull(){
+        setScreenInteractionEnabled(true);
         prepareActivityUI();
         Intent intent = getIntent();
         if(intent.getBooleanExtra("showCourseJoined", false)){
@@ -122,6 +176,13 @@ public class StudentScreen extends AppCompatActivity{
             return;
         }
         loadDashboard();
+    }
+
+    private void setScreenInteractionEnabled(boolean enabled) {
+        if (bottomNav != null) {
+            bottomNav.setEnabled(enabled);
+            bottomNav.setVisibility(enabled ? View.VISIBLE : View.INVISIBLE);
+        }
     }
     private void prepareActivityUI() {
         initializeUI();
@@ -143,8 +204,8 @@ public class StudentScreen extends AppCompatActivity{
         String className = fragmentClassName.substring(fragmentClassName.lastIndexOf(".") + 1);
         switch (className) {
             case "Student_Dashboard": return R.id.dest_studentDashboard;
-            case "Student_ExploreCourse": return R.id.dest_studentExploreCourses;
-            case "Student_MyCourses": return R.id.dest_studentMyCourses;
+            case "StudentExploreJoined": return R.id.dest_studentMyCourses;
+            case "Student_ScheduleMeetings": return R.id.dest_studentExploreCourses;
             case "Student_TaskList": return R.id.dest_studentTaskList;
             case "Profile": return R.id.dest_studentProfile;
             default: return -1;
@@ -173,7 +234,7 @@ public class StudentScreen extends AppCompatActivity{
         bnv.setOnItemSelectedListener(item ->{
             int itemId = item.getItemId();
             if(itemId == R.id.dest_studentExploreCourses){
-                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_ExploreCourse());
+                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_ScheduleMeetings());
                 return true;
             }
             if(itemId == R.id.dest_studentDashboard){
@@ -182,11 +243,15 @@ public class StudentScreen extends AppCompatActivity{
                 return true;
             }
             if(itemId == R.id.dest_studentMyCourses){
-                Tool.loadFragment(this, StudentScreen.getContainer(), new Student_MyCourses());
+                Tool.loadFragment(this, StudentScreen.getContainer(), new StudentExploreJoined());
                 return true;
             }
             if(itemId == R.id.dest_studentTaskList){
                 Tool.loadFragment(this, StudentScreen.getContainer(), new Student_TaskList());
+                return true;
+            }
+            if(itemId == R.id.dest_studentProfile){
+                Tool.loadFragment(this, StudentScreen.getContainer(), new Profile(student));
                 return true;
             }
             return false;
@@ -217,7 +282,7 @@ public class StudentScreen extends AppCompatActivity{
 
             // Create mail popup ✅ FIXED SIZING
             View mailView = getLayoutInflater().inflate(R.layout.mail_drop_down, null);
-            rv_MailDropDown = mailView.findViewById(R.id.rv_MailDropDown);
+            rv_MailDropDown = mailView.findViewById(R.id.rv_MDD_MailDropDown);
             mailSmallAdapter = new MailSmallAdapter(fbUser.getUid(), inbox, false);
             rv_MailDropDown.setLayoutManager(new LinearLayoutManager(this));
             rv_MailDropDown.setAdapter(mailSmallAdapter);
@@ -249,8 +314,9 @@ public class StudentScreen extends AppCompatActivity{
             rv_NotifDropdown.setLayoutManager(new LinearLayoutManager(this));
             rv_NotifDropdown.setAdapter(notifAdapter);
 
-            LinearLayout ll_notifEmpty = notifView.findViewById(R.id.ll_NDD_EmptyState);
+            ll_notifEmpty = notifView.findViewById(R.id.ll_NDD_EmptyState);
             Tool.handleEmpty(notifs.isEmpty(), rv_NotifDropdown, ll_notifEmpty);
+            setupNotifSeeAll(notifView);
 
             notifPopupWindow = createPopupWindow(notifView, R.id.action_notifications, "Notifications");
 
@@ -293,7 +359,7 @@ public class StudentScreen extends AppCompatActivity{
     }
 
     private void setupMailSeeAll(View mailView) {
-        Button seeAll = mailView.findViewById(R.id.btn_ViewAllMail);
+        Button seeAll = mailView.findViewById(R.id.btn_MDD_ViewAllMail);
         if (seeAll != null) {
             seeAll.setOnClickListener(v -> {
                 Intent intent = new Intent(StudentScreen.this, MailPageFull.class);
@@ -322,35 +388,36 @@ public class StudentScreen extends AppCompatActivity{
 
     public void prepareObjects(){
         DatabaseReference studentRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath()).child(student.getID());
-        studentRef.child("inboxIDs").addChildEventListener(new ChildEventListener() {
+        studentRef.child("inbox").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String mailID = snapshot.getValue(String.class);
+                if (!Tool.boolOf(mailID)) {
+                    Log.w("StudentScreen", "Skipping inbox child with empty mailID. key=" + snapshot.getKey());
+                    return;
+                }
                 Mail m = new Mail();
                 m.retrieveOnce(new ObjectCallBack<>() {
                     @Override
                     public void onObjectRetrieved(MailFirebase object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
                         inboxFirebase.add(object);
                         //updates the UI and the adapter in general
-                        final Mail[] mail = new Mail[1];
                         object.convertToNormal(new ObjectCallBack<>() {
                             @Override
                             public void onObjectRetrieved(Mail object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                                mail[0] = object;
+                                addMailToInbox(object);
                             }
 
                             @Override
                             public void onError(DatabaseError error) {
-
+                                Log.e("StudentScreen", "Mail convertToNormal failed for mailID=" + mailID + ": " + error.getMessage());
                             }
                         });
-                        inbox.add(mail[0]);
-                        mailSmallAdapter.addMail(mail[0]);
                     }
 
                     @Override
                     public void onError(DatabaseError error) {
-
+                        Log.e("StudentScreen", "retrieveOnce failed for mailID=" + mailID + ": " + error.getMessage());
                     }
                 }, mailID);
             }
@@ -376,21 +443,30 @@ public class StudentScreen extends AppCompatActivity{
             }
         });
 
-        studentRef.child("notitficationIDs").addChildEventListener(new ChildEventListener() {
+        attachNotificationListener(studentRef, "notitficationIDs");
+        attachNotificationListener(studentRef, "notificationIDs");
+        attachNotificationListener(studentRef, "notifications");
+    }
+
+    private void attachNotificationListener(DatabaseReference studentRef, String childPath) {
+        studentRef.child(childPath).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 String notifID = snapshot.getValue(String.class);
+                if (!Tool.boolOf(notifID)) {
+                    return;
+                }
                 Notification<?> n = new Notification<>();
                 n.retrieveOnce(new ObjectCallBack<>() {
                     @Override
                     public void onObjectRetrieved(NotificationFirebase object) {
-                        notifs.add(object);
-                        notifAdapter.addNotification(object);
+                        addNotification(object);
+                        LocalNotificationBridge.notifyIfNew(StudentScreen.this, object);
                     }
 
                     @Override
                     public void onError(DatabaseError error) {
-
+                        Log.e("StudentScreen", "Failed loading notification id=" + notifID + ": " + error.getMessage());
                     }
                 }, notifID);
             }
@@ -412,7 +488,7 @@ public class StudentScreen extends AppCompatActivity{
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                Log.e("StudentScreen", "Notification listener cancelled for path=" + childPath + ": " + error.getMessage());
             }
         });
     }
@@ -433,7 +509,6 @@ public class StudentScreen extends AppCompatActivity{
 
 
     public Student getStudent() {
-        Log.d("StudentScreen(getStudent)", "Returning Student: " + student);
         return student;
     }
 
@@ -520,5 +595,82 @@ public class StudentScreen extends AppCompatActivity{
 
     public void setNotifAdapter(NotifAdapter notifAdapter) {
         this.notifAdapter = notifAdapter;
+    }
+
+    private void addMailToInbox(Mail mail) {
+        if (mail == null) {
+            return;
+        }
+        if (containsMail(mail.getMailID())) {
+            return;
+        }
+        inbox.add(mail);
+        if (mailSmallAdapter != null) {
+            mailSmallAdapter.notifyItemInserted(inbox.size() - 1);
+        }
+        if (rv_MailDropDown != null && ll_mailEmpty != null) {
+            Tool.handleEmpty(inbox.isEmpty(), rv_MailDropDown, ll_mailEmpty);
+        }
+    }
+
+    private void setupNotifSeeAll(View notifView) {
+        View notifSeeAll = notifView.findViewById(R.id.ib_NotifViewAll);
+        if (notifSeeAll != null) {
+            notifSeeAll.setOnClickListener(v -> {
+                Intent intent = new Intent(StudentScreen.this, NotifPageFull.class);
+                startActivity(intent);
+                if (notifPopupWindow != null) {
+                    notifPopupWindow.dismiss();
+                }
+            });
+        }
+    }
+
+    private boolean containsMail(String mailId) {
+        if (!Tool.boolOf(mailId)) {
+            return false;
+        }
+        for (Mail existing : inbox) {
+            if (existing != null && mailId.equals(existing.getMailID())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void addNotification(NotificationFirebase notification) {
+        if (notification == null) {
+            return;
+        }
+        if (containsNotification(notification.getID())) {
+            return;
+        }
+        notifs.add(notification);
+        if (notifAdapter != null) {
+            notifAdapter.notifyItemInserted(notifs.size() - 1);
+        }
+        if (rv_NotifDropdown != null && ll_notifEmpty != null) {
+            Tool.handleEmpty(notifs.isEmpty(), rv_NotifDropdown, ll_notifEmpty);
+        }
+    }
+
+    private boolean containsNotification(String notificationId) {
+        if (!Tool.boolOf(notificationId)) {
+            return false;
+        }
+        for (NotificationFirebase existing : notifs) {
+            if (existing != null && notificationId.equals(existing.getID())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isInLoading() {
+        return inLoading;
+    }
+
+    public void setInLoading(boolean inLoading) {
+        this.inLoading = inLoading;
     }
 }

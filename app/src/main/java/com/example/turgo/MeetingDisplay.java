@@ -2,8 +2,10 @@ package com.example.turgo;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.content.res.ColorStateList;
 
 import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,12 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
-import com.google.firebase.database.DatabaseError;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +23,10 @@ public class MeetingDisplay extends Fragment{
 
     ImageView iv_courseLogo;
     TextView tv_courseTitle, tv_courseTime, tv_courseDateDay;
+    private static final String ARG_COURSE_TITLE = "course_title";
+    private static final String ARG_COURSE_TIME = "course_time";
+    private static final String ARG_COURSE_DATE = "course_date";
+    private static final String ARG_LOGO_URL = "logo_url";
     Schedule schedule;
     Course course;
     // TODO: Rename parameter arguments, choose names that match
@@ -77,25 +77,53 @@ public class MeetingDisplay extends Fragment{
         tv_courseTime = view.findViewById(R.id.tv_StartTime);
         tv_courseTitle = view.findViewById(R.id.tv_mdf_CourseTitle);
 
-        Student student = (Student) getArguments().getSerializable(Student.SERIALIZE_KEY_CODE);
+        Bundle args = getArguments();
+        Student student = args == null ? null : (Student) args.getSerializable(Student.SERIALIZE_KEY_CODE);
+        if (args != null && args.containsKey(ARG_COURSE_TITLE)) {
+            tv_courseTitle.setText(args.getString(ARG_COURSE_TITLE, "Course"));
+            tv_courseTime.setText(args.getString(ARG_COURSE_TIME, "-"));
+            tv_courseDateDay.setText(args.getString(ARG_COURSE_DATE, "-"));
+
+            String logoUrl = args.getString(ARG_LOGO_URL, "");
+            if (Tool.boolOf(logoUrl)) {
+                iv_courseLogo.setImageTintList(null);
+                Tool.setImageCloudinary(requireContext(), logoUrl, iv_courseLogo);
+            } else {
+                iv_courseLogo.setImageResource(R.drawable.piano);
+                iv_courseLogo.setImageTintList(ColorStateList.valueOf(
+                        ContextCompat.getColor(requireContext(), R.color.brand_emerald)));
+            }
+            return view;
+        }
 
         if(student == null){
             Log.e("MeetingDisplay", "Student is Null!");
             return view;
         }
+
         student.getNextMeeting().getMeetingOfSchedule()
                 .continueWithTask(task -> task.getResult().getScheduleOfCourse())
                 .addOnSuccessListener(c ->{
                     course = c;
                     if(course != null){
-                        Glide.with(requireContext()).load(course.getLogo()).into(iv_courseLogo);
+                        iv_courseLogo.setImageTintList(null);
+                        Tool.setImageCloudinary(requireContext(), course.getLogo(), iv_courseLogo);
                         tv_courseTitle.setText(course.getCourseName());
                         tv_courseTime.setText(student.getNextMeeting().getStartTimeChange().toString());
                         tv_courseDateDay.setText(student.getNextMeeting().getDateOfMeeting().toString());
                     }
-                });
+                })
+                .addOnFailureListener(e -> Log.e("MeetingDisplay", "Failed to load meeting display data", e));
 
         return view;
     }
 
+    public static Bundle createArgs(String title, String time, String date, String logoUrl) {
+        Bundle args = new Bundle();
+        args.putString(ARG_COURSE_TITLE, title);
+        args.putString(ARG_COURSE_TIME, time);
+        args.putString(ARG_COURSE_DATE, date);
+        args.putString(ARG_LOGO_URL, logoUrl);
+        return args;
+    }
 }

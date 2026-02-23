@@ -8,7 +8,7 @@
     <item
         android:id="@+id/dest_studentMyCourses"
         android:icon="@drawable/book_open_cover"
-        android:title="@string/my_courses" />
+        android:title="@string/courses" />
 
     <item
         android:id="@+id/dest_studentTaskList"
@@ -17,8 +17,8 @@
 
     <item
         android:id="@+id/dest_studentExploreCourses"
-        android:icon="@drawable/compass"
-        android:title="@string/explore_courses" />
+        android:icon="@drawable/calendar_week"
+        android:title="@string/schedules" />
 
     <item
         android:id="@+id/dest_studentProfile"

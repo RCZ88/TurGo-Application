@@ -16,6 +16,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
@@ -47,7 +51,7 @@ public class ActivityLauncher extends AppCompatActivity {
         tv_loadingText = findViewById(R.id.tv_AL_LoadingText);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
-//        auth.signOut();
+
 
         if (currentUser == null) {
             // Not signed in → go to MainActivity (Sign In/Sign Up)
@@ -92,11 +96,15 @@ public class ActivityLauncher extends AppCompatActivity {
     }
     public void handleActivityTransfer(UserFirebase userFirebase){
         Intent intent = null;
+        String uid = FirebaseAuth.getInstance().getUid();
+        if (Tool.boolOf(uid) && userFirebase != null && Tool.boolOf(userFirebase.getUserType())) {
+            PushTokenManager.syncKnownRoleWithLatestToken(uid, userFirebase.getUserType());
+        }
 
         if (userFirebase instanceof TeacherFirebase) {
             TeacherFirebase teacherFB = (TeacherFirebase) userFirebase;
             intent = new Intent(ActivityLauncher.this, TeacherScreen.class);
-            intent.putExtra(Teacher.SERIALIZE_KEY_CODE, userFirebase);
+            intent.putExtra(Teacher.SERIALIZE_KEY_CODE, teacherFB);
             Log.d("ActivityLauncher", "Navigating to TeacherScreen");
 
         } else if (userFirebase instanceof StudentFirebase) {

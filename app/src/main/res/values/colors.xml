@@ -64,5 +64,15 @@
     <color name="qr_button_bg">#0B6E4F</color>
     <color name="carousel_bg">#DFF3EF</color>
 
+    <!-- Stitch-faithful dashboard colors -->
+    <color name="stitch_bg_ios">#F8FAF9</color>
+    <color name="stitch_surface_light">#EAF6F3</color>
+    <color name="stitch_surface_mid">#D1F2EB</color>
+    <color name="stitch_hero_glow">#330B6E4F</color>
+    <color name="stitch_white_90">#E6FFFFFF</color>
+    <color name="stitch_border_soft">#0D000000</color>
+    <color name="stitch_text_muted">#99013220</color>
+    <color name="stitch_due_urgent_bg">#FFF1F2</color>
+    <color name="stitch_due_urgent_text">#DC2626</color>
 
 </resources>

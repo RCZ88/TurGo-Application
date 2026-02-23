@@ -13,6 +13,8 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
     private boolean privateOrGroup;
     private ArrayList<String>tasks;
     private ArrayList<String>agendas;
+    private ArrayList<String> timeSlots;
+    private String student;
     private int pricePer;
 
     public StudentCourseFirebase(){}
@@ -27,7 +29,9 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
         this.privateOrGroup = from.isPrivateOrGroup();
         this.tasks = Tool.boolOf(from.getTasks()) ? convertToIdList(from.getTasks()) : new ArrayList<>();
         this.agendas = Tool.boolOf(from.getAgendas()) ? convertToIdList(from.getAgendas()) : new ArrayList<>();
+        this.timeSlots = Tool.boolOf(from.getTimeSlots()) ? convertToIdList(from.getTimeSlots()) : new ArrayList<>();
         this.pricePer = from.getPricePer();
+        this.student = from.getStudentId();
     }
 
     @Override
@@ -105,6 +109,14 @@ public class StudentCourseFirebase implements FirebaseClass<StudentCourse> {
 
     public void setPricePer(int pricePer) {
         this.pricePer = pricePer;
+    }
+
+    public ArrayList<String> getTimeSlots() {
+        return timeSlots;
+    }
+
+    public void setTimeSlots(ArrayList<String> timeSlots) {
+        this.timeSlots = timeSlots;
     }
 
 

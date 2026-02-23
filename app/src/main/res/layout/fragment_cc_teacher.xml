@@ -1,99 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".cc_SetTeacher">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/textView66"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Assign Teachers"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="32dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Manage the teaching staff for this course. Assign lead instructors and assistants."
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView84"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:letterSpacing="0.05"
+            android:text="SELECTED INSTRUCTORS"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="12sp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp">
+
+            <TextView
+                android:id="@+id/tv_CC_NoTeacherSelected"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@drawable/bg_emerald_input"
+                android:fontFamily="@font/bricolage_body"
+                android:gravity="center"
+                android:text="No instructors assigned yet."
+                android:textColor="#A0A0A0"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/container_selected"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_CC_TeacherSelected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="1"
+                    tools:listitem="@layout/teacher_display" />
+            </LinearLayout>
+        </FrameLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:background="@drawable/bg_card_surface"
+            android:orientation="vertical"
+            android:padding="20dp">
 
             <TextView
-                android:id="@+id/textView66"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="Teacher Selection"
-                android:textSize="26sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:letterSpacing="0.05"
+                android:text="TEACHER DIRECTORY"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp" />
 
             <SearchView
                 android:id="@+id/sv_CC_SearchTeacher"
-                android:layout_width="214dp"
-                android:layout_height="37dp"
-                android:layout_marginTop="32dp"
-                android:background="@drawable/edittext_border"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.497"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView66" >
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_emerald_input"
+                android:drawableStart="@android:drawable/ic_menu_search"
+                android:drawablePadding="12dp"
+                android:drawableTint="@color/brand_emerald"
+                android:fontFamily="@font/bricolage_body"
+                android:hint="Search by name..."
+                android:inputType="textPersonName"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/brand_emerald_dark"
+                android:textColorHint="#99A3A4"
+                android:textSize="16sp" />
 
-            </SearchView>
-
-            <TextView
-                android:id="@+id/tv_CC_NoTeacherAvailable"
-                android:layout_width="324dp"
-                android:layout_height="263dp"
-                android:layout_marginTop="28dp"
-                android:layout_weight="1"
-                android:background="@drawable/recycler_view_border"
-                android:gravity="center"
-                android:text="No Teacher Available!"
-                android:textAlignment="gravity"
-                android:visibility="gone" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_CC_SelectTeacher"
-                android:layout_width="324dp"
-                android:layout_height="263dp"
-                android:layout_marginTop="28dp"
-                android:background="@drawable/recycler_view_border"
-                android:scrollbarStyle="insideInset"
-                android:scrollbars="vertical" />
-
-            <TextView
-                android:id="@+id/textView84"
-                android:layout_width="wrap_content"
+            <FrameLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:text="Teacher Selected"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.498"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rv_CC_SelectTeacher" />
+                android:minHeight="200dp">
 
-            <TextView
-                android:id="@+id/tv_CC_NoTeacherSelected"
-                android:layout_width="315dp"
-                android:layout_height="122dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/recycler_view_border"
-                android:gravity="center"
-                android:text="No Teacher Selected Yet!"
-                android:visibility="gone" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_CC_TeacherSelected"
-                android:layout_width="315dp"
-                android:layout_height="122dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/recycler_view_border"
-                android:scrollbars="vertical" />
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginBottom="8dp"
+                        android:alpha="0.3"
+                        android:src="@android:drawable/ic_menu_search"
+                        app:tint="@color/brand_emerald" />
+
+                    <TextView
+                        android:id="@+id/tv_CC_NoTeacherAvailable"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No teachers found"
+                        android:textColor="#A0A0A0" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_CC_SelectTeacher"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@android:layout/simple_list_item_2" />
+
+            </FrameLayout>
+
         </LinearLayout>
-    </ScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

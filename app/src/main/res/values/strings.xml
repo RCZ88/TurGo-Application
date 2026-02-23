@@ -92,6 +92,9 @@
     <string name="mycourses">myCourses</string>
     <string name="profile">Profile</string>
     <string name="my_courses">My Courses</string>
+    <string name="courses">Courses</string>
+    <string name="meetings">Meetings</string>
+    <string name="schedules">Schedules</string>
     <string name="task_list">Task List</string>
     <string name="explore_courses">Explore Courses</string>
     <!-- Preference Titles -->
@@ -109,4 +112,7 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="title_activity_mail_page_full">MailPageFull</string>
+    <string name="fcm_default_channel_id">turgo_general_channel</string>
+    <string name="fcm_default_channel_name">TurGo Notifications</string>
+    <string name="fcm_default_channel_desc">Task, agenda, and submission notifications</string>
 </resources>

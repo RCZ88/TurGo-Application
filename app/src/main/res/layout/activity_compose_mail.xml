@@ -5,207 +5,309 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:padding="10dp"
     tools:context=".ComposeMail">
 
     <LinearLayout
+        android:id="@+id/ll_header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textView114"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="20dp"
-            android:text="Compose Mail"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="New Message"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Draft your email to students or faculty"
+            android:textColor="@color/brand_emerald"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="12dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/ll_bottom_actions"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_header">
 
         <LinearLayout
-            android:layout_width="409dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="25dp"
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/group_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:background="@drawable/bg_emerald_input"
+                android:backgroundTint="#F2F7F6"
+                android:orientation="vertical"
+                android:padding="12dp">
 
                 <TextView
-                    android:id="@+id/textView130"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="To" />
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:letterSpacing="0.1"
+                    android:text="RECIPIENTS"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="11sp" />
 
                 <AutoCompleteTextView
                     android:id="@+id/actv_CM_To"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_body"
+                    android:hint="Search name or ID..."
+                    android:paddingHorizontal="12dp"
+                    android:textSize="14sp" />
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_CM_RecipientResults"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_inner_panel"
+                    android:maxHeight="120dp"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/item_compose_recipient" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="10dp"
+                    android:background="@color/brand_emerald_pale" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_CM_SelectedRecipients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_surface"
+                    android:orientation="horizontal"
+                    android:padding="10dp"
+                    android:paddingBottom="0dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/item_compose_recipient"
+                    tools:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/ll_CM_NoRecipientsSelected"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_card_surface"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="No recipients selected."
+                        android:textColor="#667070"
+                        android:textSize="13sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/group_content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView127"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_weight="1"
-                    android:text="Subject" />
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
 
                 <EditText
                     android:id="@+id/et_CM_Subject"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:ems="10"
-                    android:inputType="text" />
-
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textView133"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_weight="1"
-                    android:text="Body"
-                    android:textSize="20sp" />
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_condensed_semibold"
+                    android:hint="Subject Line"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="16sp" />
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <ImageButton
-                        android:id="@+id/ib_CM_Bold"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:contentDescription="Bold"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1"
-                        android:scaleY="1"
-                        app:srcCompat="@drawable/bold" />
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="Message Body"
+                        android:textColor="#667070"
+                        android:textSize="12sp" />
 
-                    <ImageButton
-                        android:id="@+id/ib_CM_Italic"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:contentDescription="Italic"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1"
-                        android:scaleY="1"
-                        app:srcCompat="@drawable/italic" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_emerald_input"
+                        android:padding="2dp">
 
-                    <ImageButton
-                        android:id="@+id/ib_CM_Underline"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:contentDescription="Underline"
-                        android:scaleType="fitCenter"
-                        android:scaleX="1"
-                        android:scaleY="1"
-                        app:srcCompat="@drawable/underline" />
+                        <ImageButton
+                            android:id="@+id/ib_CM_Bold"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/bg_card_surface"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:padding="6dp"
+                            android:scaleType="fitCenter"
+                            app:srcCompat="@drawable/bold"
+                            app:tint="@color/brand_emerald_dark" />
 
+                        <ImageButton
+                            android:id="@+id/ib_CM_Italic"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/bg_card_surface"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:padding="6dp"
+                            android:scaleType="fitCenter"
+                            app:srcCompat="@drawable/italic"
+                            app:tint="@color/brand_emerald_dark" />
+
+                        <ImageButton
+                            android:id="@+id/ib_CM_Underline"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_marginHorizontal="4dp"
+                            android:background="@drawable/bg_card_surface"
+                            android:focusable="false"
+                            android:focusableInTouchMode="false"
+                            android:padding="6dp"
+                            android:scaleType="fitCenter"
+                            app:srcCompat="@drawable/underline"
+                            app:tint="@color/brand_emerald_dark" />
+                    </LinearLayout>
                 </LinearLayout>
 
+                <EditText
+                    android:id="@+id/etml_CM_Body"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:fontFamily="@font/bricolage_body"
+                    android:gravity="start|top"
+                    android:hint="Type your message here..."
+                    android:inputType="textMultiLine"
+                    android:minHeight="200dp"
+                    android:padding="16dp"
+                    android:textSize="14sp" />
             </LinearLayout>
 
-            <EditText
-                android:id="@+id/etml_CM_Body"
-                android:layout_width="match_parent"
-                android:layout_height="207dp"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginVertical="5dp"
-                android:background="@drawable/edittext_border"
-                android:ems="10"
-                android:gravity="start|top"
-                android:inputType="textMultiLine" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textView132"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginRight="15dp"
-                android:text="Attachments:" />
-
-            <Button
-                android:id="@+id/btn_CM_AddAttachment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Add Attachements" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <TextView
-                android:id="@+id/textView138"
+            <LinearLayout
+                android:id="@+id/group_attachments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:text="Uploaded File:"
-                android:textSize="18dp" />
+                android:layout_marginTop="16dp"
+                android:background="@drawable/bg_emerald_input"
+                android:backgroundTint="#F2F7F6"
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_CM_UploadedFiles"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:scrollbars="vertical" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_condensed_semibold"
+                        android:letterSpacing="0.1"
+                        android:text="ATTACHMENTS"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/btn_CM_AddAttachment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:text="+ Add"
+                        android:textColor="@color/brand_emerald"
+                        android:textSize="12sp" />
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_CM_UploadedFiles"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/submission_display" />
+            </LinearLayout>
+
         </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end"
-            android:orientation="horizontal">
+    <LinearLayout
+        android:id="@+id/ll_bottom_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-            <Button
-                android:id="@+id/btn_CM_Draft"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Draft" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_CM_Draft"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_marginEnd="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_emerald_input"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:text="Draft"
+            android:textAllCaps="false"
+            android:textColor="@color/brand_emerald_dark" />
 
-            <Button
-                android:id="@+id/btn_CM_Send"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="Send" />
-
-        </LinearLayout>
-
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_CM_Send"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="2"
+            android:background="@drawable/bg_emerald_btn_primary"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Send Mail"
+            android:textAllCaps="false"
+            android:textColor="@color/white_soft" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,8 +1,5 @@
 package com.example.turgo;
 
-import static com.example.turgo.UserType.STUDENT;
-import static com.example.turgo.UserType.TEACHER;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -42,10 +39,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 
 
 public class SignInPage extends AppCompatActivity {
@@ -53,6 +46,7 @@ public class SignInPage extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
     private static final int RC_SIGN_IN = 892;
     private static final String TAG = "SIGNINPAGE";
+    private boolean isGoogleSignInInProgress = false;
 
     EditText et_emailOrUsername, et_password;
 
@@ -83,10 +77,15 @@ public class SignInPage extends AppCompatActivity {
         });
     }
     public void signInWGoogle(View view){
+        if (isGoogleSignInInProgress) {
+            Toast.makeText(this, "Google sign-in already in progress.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if (!isGooglePlayServicesAvailable()) {
             Toast.makeText(this, "Google Play Services not available", Toast.LENGTH_SHORT).show();
             return;
         }
+        isGoogleSignInInProgress = true;
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -95,14 +94,45 @@ public class SignInPage extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
+            isGoogleSignInInProgress = false;
+            Log.d(TAG, "Google SignIn activity returned. resultCode=" + resultCode + ", hasData=" + (data != null));
+            if (data == null) {
+                Log.w(TAG, "Google sign-in returned no data.");
+                Toast.makeText(this, "Google sign-in cancelled.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
+                if (account == null || account.getIdToken() == null) {
+                    Log.e(TAG, "Google account/idToken is null. account=" + account);
+                    Toast.makeText(this, "Google sign-in failed: invalid token.", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                Log.w("Google Sign-In", "Google sign in failed", e);
+                int code = e.getStatusCode();
+                Log.w(TAG, "Google sign in failed. code=" + code, e);
+                handleGoogleSignInError(code);
             }
         }
+    }
+
+    private void handleGoogleSignInError(int code) {
+        if (code == 12501) {
+            Toast.makeText(this, "Google sign-in cancelled.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (code == 12502) {
+            Toast.makeText(this, "Google sign-in is already running. Please wait and try again.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (code == 10) {
+            Toast.makeText(this, "Google configuration error (code 10). Check SHA keys and google-services.json.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "DEVELOPER_ERROR (10). Verify package name + SHA-1/SHA-256 in Firebase and download updated google-services.json.");
+            return;
+        }
+        Toast.makeText(this, "Google sign-in failed (" + code + ").", Toast.LENGTH_LONG).show();
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
@@ -112,10 +142,17 @@ public class SignInPage extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success
                         FirebaseUser user = mAuth.getCurrentUser();
+                        if (user == null) {
+                            Log.e(TAG, "Firebase auth success but current user is null");
+                            Toast.makeText(this, "Sign-in failed: user session missing.", Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         checkIfUserExists(user); // Check if user exists in the database
                     } else {
                         // Sign in failed
-                        Log.w("Firebase", "signInWithCredential:failure", task.getException());
+                        Exception e = task.getException();
+                        Log.w(TAG, "signInWithCredential:failure", e);
+                        Toast.makeText(this, "Firebase login failed: " + (e != null ? e.getMessage() : "Unknown error"), Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -141,39 +178,40 @@ public class SignInPage extends AppCompatActivity {
             Toast.makeText(this, "No internet connection. Please try again.", Toast.LENGTH_SHORT).show();
             return;
         }
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String uid = firebaseUser.getUid();
+        DatabaseReference roleRef = FirebaseDatabase.getInstance()
+                .getReference(FirebaseNode.USER_ID_ROLES.getPath())
+                .child(uid);
 
-        db.enableNetwork().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                try{
-                    Log.d("Firestore", "Network enabled.");
-                    db.collection("Users").document(firebaseUser.getUid())
-                            .get()
-                            .addOnSuccessListener(documentSnapshot -> {
-                                if (documentSnapshot.exists()) {
-                                    // User already exists
-                                    FirebaseUser user = mAuth.getCurrentUser();
-                                    assert user != null;
-                                    String uid = user.getUid();
-                                    Log.d("Firestore", "User UID from checkIfUserExist: "+uid);
-                                    selectUserFromDB(uid, user);
-                                } else {
-                                    // User does not exist
-                                    Intent intent = new Intent(SignInPage.this, SignUpPage.class);
-                                    intent.putExtra("userId", firebaseUser.getUid());
-                                    intent.putExtra("email", firebaseUser.getEmail());
-                                    intent.putExtra("name", firebaseUser.getDisplayName());
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            })
-                            .addOnFailureListener(e -> Log.w("Firestore", "Error checking user existence", e));
-                }catch(SecurityException se){
-                    Log.e("SecurityException", "Error communicating with Google Play Services", se);
+        roleRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String role = null;
+                Object rawRoleNode = snapshot.getValue();
+                if (rawRoleNode instanceof String) {
+                    role = (String) rawRoleNode;
                 }
-            } else {
-                Log.e("Firestore", "Failed to enable network", task.getException());
-                Toast.makeText(this, "Unable to connect to Firestore. Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                if (!Tool.boolOf(role) && snapshot.hasChild("role")) {
+                    role = snapshot.child("role").getValue(String.class);
+                }
+                if (Tool.boolOf(role)) {
+                    Log.d(TAG, "User role found for uid=" + uid + ", role=" + role);
+                    selectUserFromDB(uid, firebaseUser);
+                } else {
+                    Log.d(TAG, "No existing user role found for uid=" + uid + ". Redirecting to sign-up.");
+                    Intent intent = new Intent(SignInPage.this, SignUpPage.class);
+                    intent.putExtra("userId", uid);
+                    intent.putExtra("email", firebaseUser.getEmail());
+                    intent.putExtra("name", firebaseUser.getDisplayName());
+                    startActivity(intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Failed checking role in RTDB: " + error.getMessage(), error.toException());
+                Toast.makeText(SignInPage.this, "Failed to validate account. Please try again.", Toast.LENGTH_LONG).show();
             }
         });
     }

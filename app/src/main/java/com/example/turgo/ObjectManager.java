@@ -11,7 +11,15 @@ public class ObjectManager {
 
     public static void ADD_USER(User user) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         USERS.add(user);
-        user.updateUserDB();
+        if (user instanceof Student) {
+            ((Student) user).getRepositoryInstance().save((Student) user);
+        } else if (user instanceof Teacher) {
+            ((Teacher) user).getRepositoryInstance().save((Teacher) user);
+        } else if (user instanceof Parent) {
+            ((Parent) user).getRepositoryInstance().save((Parent) user);
+        } else if (user instanceof Admin) {
+            ((Admin) user).getRepositoryInstance().save((Admin) user);
+        }
     }
 
     public static void ADD_COURSE(Course course){

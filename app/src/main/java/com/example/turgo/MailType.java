@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public enum MailType implements Serializable {
     MAIL_TYPE("mailType"),
-    DRAFT("draft"),
+    DRAFT("drafts"),
     INBOX("inbox"),
     OUTBOX("outbox");
 

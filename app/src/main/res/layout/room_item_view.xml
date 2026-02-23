@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/brand_emerald_light"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:background="@color/white">
+
+        <View
+            android:id="@+id/v_room_icon_bg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_task_carousel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_menu_directions"
+            app:layout_constraintBottom_toBottomOf="@id/v_room_icon_bg"
+            app:layout_constraintEnd_toEndOf="@id/v_room_icon_bg"
+            app:layout_constraintStart_toStartOf="@id/v_room_icon_bg"
+            app:layout_constraintTop_toTopOf="@id/v_room_icon_bg"
+            app:tint="@color/brand_emerald_dark" />
+
+        <TextView
+            android:id="@+id/tv_RIV_roomTag"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:fontFamily="@font/bricolage_grotesque_bold"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18sp"
+            tools:text="Lab 402"
+            app:layout_constraintEnd_toStartOf="@+id/ib_RIV_RemoveRoom"
+            app:layout_constraintStart_toEndOf="@id/v_room_icon_bg"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/ll_capacity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_emerald_input"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            app:layout_constraintStart_toStartOf="@id/tv_RIV_roomTag"
+            app:layout_constraintTop_toBottomOf="@id/tv_RIV_roomTag">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@drawable/user"
+                app:tint="@color/brand_emerald" />
+
+            <TextView
+                android:id="@+id/tv_RIV_RoomCapacity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:fontFamily="@font/space_mono_regular"
+                android:textColor="@color/brand_emerald"
+                android:textSize="12sp"
+                tools:text="1 person" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_RIV_courseCompat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:alpha="0.7"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:textColor="@color/black_soft"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="@id/tv_RIV_roomTag"
+            app:layout_constraintTop_toBottomOf="@id/ll_capacity"
+            tools:text="• Computer Science" />
+
+        <ImageButton
+            android:id="@+id/ib_RIV_RemoveRoom"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Remove Room"
+            android:padding="6dp"
+            android:scaleType="centerInside"
+            android:src="@android:drawable/ic_menu_delete"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/brand_emerald" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

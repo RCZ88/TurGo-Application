@@ -9,7 +9,7 @@ public class CourseTypeRepository implements RepositoryClass<CourseType, CourseT
 
     public CourseTypeRepository(String courseTypeId) {
         courseTypeRef = FirebaseDatabase.getInstance()
-                .getReference(FirebaseNode.COURSETYPE.getPath())
+                .getReference(FirebaseNode.COURSE_TYPE.getPath())
                 .child(courseTypeId);
     }
 

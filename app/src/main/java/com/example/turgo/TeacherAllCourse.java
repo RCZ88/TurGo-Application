@@ -92,7 +92,9 @@ public class TeacherAllCourse extends Fragment {
                     new OnItemClickListener<>() {
                         @Override
                         public void onItemClick(Course item) {
-                            Tool.loadFragment(requireActivity(), TeacherScreen.getContainerId(), new TeacherCourseScreen());
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable(Course.SERIALIZE_KEY_CODE,item);
+                            Tool.loadFragment(requireActivity(), TeacherScreen.getContainerId(), new TeacherCourseScreen(), bundle);
                         }
 
                         @Override

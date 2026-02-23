@@ -15,8 +15,10 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
     private ArrayList<String> coursesTeach; // Store course IDs instead of Course objects
     private ArrayList<String> courseTypeTeach; // Already strings, keep as is
     private ArrayList<String> scheduledMeetings; // Store meeting IDs instead of Meeting objects
+    private ArrayList<String> completedMeetings;
     private ArrayList<String> agendas; // Store agenda IDs instead of Agenda objects
     private ArrayList<String> timeArrangements; // Store arrangement IDs instead of DayTimeArrangement objects
+    private ArrayList<String> latestSubmission;
     private String teacherResume;
     private int teachYearExperience;
 
@@ -27,8 +29,10 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
         coursesTeach = new ArrayList<>();
         courseTypeTeach = new ArrayList<>();
         scheduledMeetings = new ArrayList<>();
+        completedMeetings = new ArrayList<>();
         agendas = new ArrayList<>();
         timeArrangements = new ArrayList<>();
+        latestSubmission = new ArrayList<>();
     }
 
     @Override
@@ -43,6 +47,9 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
         setPhoneNumber(from.getPhoneNumber());
         setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
+        setInbox(from.getInboxIds());
+        setOutbox(from.getOutboxIds());
+        setNotifications(from.getNotificationsIds());
 
         if (from.getProfileImage() != null) {
             profileImageCloudinary = from.getProfileImage();
@@ -50,8 +57,8 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
             profileImageCloudinary = ""; // or default placeholder path
         }
 
-        if (from.getCoursesTeach() != null) {
-            coursesTeach = convertToIdList(from.getCoursesTeach());
+        if (from.getCoursesTeachIds() != null) {
+            coursesTeach = from.getCoursesTeachIds();
         } else {
             coursesTeach = new ArrayList<>();
         }
@@ -62,20 +69,26 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
             courseTypeTeach = new ArrayList<>();
         }
 
-        if (from.getScheduledMeetings() != null) {
-            scheduledMeetings = convertToIdList(from.getScheduledMeetings());
+        if (from.getScheduledMeetingsIds() != null) {
+            scheduledMeetings = from.getScheduledMeetingsIds();
         } else {
             scheduledMeetings = new ArrayList<>();
         }
 
-        if (from.getAgendas() != null) {
-            agendas = convertToIdList(from.getAgendas());
+        if (from.getCompletedMeetingsIds() != null) {
+            completedMeetings = from.getCompletedMeetingsIds();
+        } else {
+            completedMeetings = new ArrayList<>();
+        }
+
+        if (from.getAgendasIds() != null) {
+            agendas = from.getAgendasIds();
         } else {
             agendas = new ArrayList<>();
         }
 
-        if (from.getTimeArrangements() != null) {
-            timeArrangements = convertToIdList(from.getTimeArrangements());
+        if (from.getTimeArrangementsIds() != null) {
+            timeArrangements = from.getTimeArrangementsIds();
         } else {
             timeArrangements = new ArrayList<>();
         }
@@ -84,6 +97,12 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
             teacherResume = from.getTeacherResume();
         } else {
             teacherResume = "";
+        }
+
+        if (from.getLatestSubmissionIds() != null) {
+            latestSubmission = from.getLatestSubmissionIds();
+        } else {
+            latestSubmission = new ArrayList<>();
         }
 
         teachYearExperience = from.getTeachYearExperience();
@@ -112,7 +131,8 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
 
             @Override
             public void onError(DatabaseError error) {
-                Log.e("Error", error.getMessage());
+                Log.e("TeacherFirebase", "convertToNormal failed for id=" + getID() + ": " + error.getMessage());
+                objectCallBack.onError(error);
             }
         });
     }
@@ -151,6 +171,14 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
         this.scheduledMeetings = scheduledMeetings;
     }
 
+    public ArrayList<String> getCompletedMeetings() {
+        return completedMeetings;
+    }
+
+    public void setCompletedMeetings(ArrayList<String> completedMeetings) {
+        this.completedMeetings = completedMeetings;
+    }
+
     public ArrayList<String> getAgendas() {
         return agendas;
     }
@@ -165,6 +193,14 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
 
     public void setTimeArrangements(ArrayList<String> timeArrangements) {
         this.timeArrangements = timeArrangements;
+    }
+
+    public ArrayList<String> getLatestSubmission() {
+        return latestSubmission;
+    }
+
+    public void setLatestSubmission(ArrayList<String> latestSubmission) {
+        this.latestSubmission = latestSubmission;
     }
 
     public String getTeacherResume() {

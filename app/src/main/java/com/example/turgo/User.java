@@ -4,6 +4,9 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,8 +42,12 @@ public abstract class User implements Serializable{
     private Theme theme;
     private ArrayList<Mail> inbox;
     private ArrayList<Mail> outbox;
-    private ArrayList<Mail> draftMails;
+    private ArrayList<Mail> drafts;
     private ArrayList<Notification<?>> notifications;
+    private ArrayList<String> inboxIds;
+    private ArrayList<String> outboxIds;
+    private ArrayList<String> draftsIds;
+    private ArrayList<String> notificationsIds;
     private String pfpCloudinary;
     public User(UserType userType, String gender, String fullName, String birthDate,  String nickname, String email, String phoneNumber) throws ParseException {
         this.userType = userType;
@@ -55,11 +62,14 @@ public abstract class User implements Serializable{
         this.theme = Theme.SYSTEM;
         this.inbox = new ArrayList<>();
         this.outbox = new ArrayList<>();
-        this.draftMails = new ArrayList<>();
+        this.drafts = new ArrayList<>();
         this.notifications = new ArrayList<>();
+        this.inboxIds = new ArrayList<>();
+        this.outboxIds = new ArrayList<>();
+        this.draftsIds = new ArrayList<>();
+        this.notificationsIds = new ArrayList<>();
     }
     public abstract FirebaseNode getFirebaseNode();
-    public abstract void updateUserDB() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException;
     public static String getSerializeKeyCode() {
         return SERIALIZE_KEY_CODE;
     }
@@ -71,38 +81,135 @@ public abstract class User implements Serializable{
     public User(){
         this.inbox = new ArrayList<>();
         this.outbox = new ArrayList<>();
-        this.draftMails = new ArrayList<>();
+        this.drafts = new ArrayList<>();
         this.notifications = new ArrayList<>();
+        this.inboxIds = new ArrayList<>();
+        this.outboxIds = new ArrayList<>();
+        this.draftsIds = new ArrayList<>();
+        this.notificationsIds = new ArrayList<>();
     }
     public UserStatus getUserStatus(){
         return UserPresenceManager.getUserStatus(this);
+    }
+
+    private <T extends RequireUpdate<?, ?, ?>> ArrayList<String> syncIdsFromObjects(ArrayList<String> ids, ArrayList<T> objects) {
+        if (ids == null) {
+            ids = new ArrayList<>();
+        }
+        if (objects != null) {
+            for (T object : objects) {
+                if (object == null || !Tool.boolOf(object.getID())) {
+                    continue;
+                }
+                if (!ids.contains(object.getID())) {
+                    ids.add(object.getID());
+                }
+            }
+        }
+        return ids;
+    }
+
+    private <T> Task<ArrayList<T>> loadByIds(ArrayList<String> ids, Loader<T> loader) {
+        TaskCompletionSource<ArrayList<T>> tcs = new TaskCompletionSource<>();
+        if (!Tool.boolOf(ids)) {
+            tcs.setResult(new ArrayList<>());
+            return tcs.getTask();
+        }
+        ArrayList<Task<T>> tasks = new ArrayList<>();
+        for (String id : ids) {
+            if (!Tool.boolOf(id)) {
+                continue;
+            }
+            tasks.add(loader.load(id).continueWith(task -> task.isSuccessful() ? task.getResult() : null));
+        }
+        if (tasks.isEmpty()) {
+            tcs.setResult(new ArrayList<>());
+            return tcs.getTask();
+        }
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(done -> {
+            ArrayList<T> result = new ArrayList<>();
+            for (Task<T> task : tasks) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    result.add(task.getResult());
+                }
+            }
+            tcs.setResult(result);
+        });
+        return tcs.getTask();
+    }
+
+    private interface Loader<T> {
+        Task<T> load(String id);
     }
 
     public ArrayList<Mail> getOutbox() {
         return outbox;
     }
 
-    public ArrayList<Mail> getDraftMails() {
-        return draftMails;
+    public ArrayList<String> getOutboxIds() {
+        outboxIds = syncIdsFromObjects(outboxIds, outbox);
+        return outboxIds;
     }
-    public void addDraftMail(Mail draftMail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        draftMails.add(draftMail);
-        updateUserDB();
+
+    public Task<ArrayList<Mail>> getOutboxTask() {
+        return loadByIds(getOutboxIds(), id -> new MailRepository(id).loadAsNormal());
     }
-    public void setDraftMails(ArrayList<Mail> draftMails) {
-        this.draftMails = draftMails;
+
+    public ArrayList<Mail> getDrafts() {
+        return drafts;
+    }
+
+    public ArrayList<String> getDraftMailsIds() {
+        draftsIds = syncIdsFromObjects(draftsIds, drafts);
+        return draftsIds;
+    }
+
+    public Task<ArrayList<Mail>> getDraftsTask() {
+        return loadByIds(getDraftMailsIds(), id -> new MailRepository(id).loadAsNormal());
+    }
+    public void addDraftMail(Mail draftMail) throws IllegalAccessException, InstantiationException {
+        drafts.add(draftMail);
+        if (draftMail != null && Tool.boolOf(draftMail.getID()) && !getDraftMailsIds().contains(draftMail.getID())) {
+            getDraftMailsIds().add(draftMail.getID());
+        }
+        ((UserRepositoryClass) ((RequireUpdate<?, ?, ?>) this).getRepositoryInstance()).draftMail(draftMail);
+
+    }
+    public void setDrafts(ArrayList<Mail> drafts) {
+        this.drafts = drafts;
+    }
+
+    public void setDraftMailsIds(ArrayList<String> draftMailsIds) {
+        this.draftsIds = draftMailsIds;
     }
 
     public void setOutbox(ArrayList<Mail> outbox) {
         this.outbox = outbox;
     }
 
+    public void setOutboxIds(ArrayList<String> outboxIds) {
+        this.outboxIds = outboxIds;
+    }
+
     public ArrayList<Notification<?>> getNotifications() {
         return notifications;
     }
 
+    public ArrayList<String> getNotificationsIds() {
+        notificationsIds = syncIdsFromObjects(notificationsIds, notifications);
+        return notificationsIds;
+    }
+
+    public Task<ArrayList<Notification<?>>> getNotificationsTask() {
+        return this.<Notification<?>>loadByIds(getNotificationsIds(), id -> new NotificationRepository(id).loadAsNormal());
+    }
+
     public void setNotifications(ArrayList<Notification<?>> notifications) {
         this.notifications = notifications;
+    }
+
+    public void setNotificationsIds(ArrayList<String> notificationsIds) {
+        this.notificationsIds = notificationsIds;
     }
     public abstract String getSerializeCode();
 
@@ -185,8 +292,21 @@ public abstract class User implements Serializable{
         return inbox;
     }
 
+    public ArrayList<String> getInboxIds() {
+        inboxIds = syncIdsFromObjects(inboxIds, inbox);
+        return inboxIds;
+    }
+
+    public Task<ArrayList<Mail>> getInboxTask() {
+        return loadByIds(getInboxIds(), id -> new MailRepository(id).loadAsNormal());
+    }
+
     public void setInbox(ArrayList<Mail> inbox) {
         this.inbox = inbox;
+    }
+
+    public void setInboxIds(ArrayList<String> inboxIds) {
+        this.inboxIds = inboxIds;
     }
 
     public String getGender() {
@@ -230,19 +350,37 @@ public abstract class User implements Serializable{
                 ", theme=" + theme +
                 ", inbox=" + inbox +
                 ", outbox=" + outbox +
-                ", draftMails=" + draftMails +
+                ", draftMails=" + drafts +
                 ", notifications=" + notifications +
                 ", pfpCloudinary='" + pfpCloudinary + '\'' +
                 '}';
     }
 
-    public static void sendMail(Mail mail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-        User to = mail.getTo();
+    public static void sendMail(Mail mail, User from, User to) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        if (mail == null || from == null || to == null) return;
+        mail.setFrom(from);
+        mail.setTo(to);
+
         to.inbox.add(mail);
-        ((UserRepositoryClass)(((RequireUpdate)to).getRepositoryClass().newInstance())).recieveMail(mail);
-        User from = mail.getFrom();
+        if (Tool.boolOf(mail.getID()) && !to.getInboxIds().contains(mail.getID())) {
+            to.getInboxIds().add(mail.getID());
+        }
+        ((UserRepositoryClass) ((RequireUpdate<?, ?, ?>) to).getRepositoryInstance()).recieveMail(mail);
+
         from.outbox.add(mail);
-        ((UserRepositoryClass)(((RequireUpdate)from).getRepositoryClass().newInstance())).sendMail(mail);
+        if (Tool.boolOf(mail.getID()) && !from.getOutboxIds().contains(mail.getID())) {
+            from.getOutboxIds().add(mail.getID());
+        }
+        ((UserRepositoryClass) ((RequireUpdate<?, ?, ?>) from).getRepositoryInstance()).sendMail(mail);
+    }
+
+    public static void sendMail(Mail mail) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+        User from = mail != null ? mail.getFromCached() : null;
+        User to = mail != null ? mail.getToCached() : null;
+        if (from == null || to == null) {
+            throw new IllegalStateException("Mail sender/recipient must be resolved before sendMail(mail). Use sendMail(mail, from, to).");
+        }
+        sendMail(mail, from, to);
     }
 
 
@@ -297,6 +435,9 @@ public abstract class User implements Serializable{
 
     public void recieveNotification(Notification<?>notification){
         this.notifications.add(notification);
+        if (notification != null && Tool.boolOf(notification.getID()) && !getNotificationsIds().contains(notification.getID())) {
+            getNotificationsIds().add(notification.getID());
+        }
     }
 
     public String getPfpCloudinary() {

@@ -1,8 +1,6 @@
 package com.example.turgo;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -12,42 +10,31 @@ import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.OpenableColumns;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.cloudinary.android.MediaManager;
 import com.cloudinary.android.callback.ErrorInfo;
 import com.cloudinary.android.callback.UploadCallback;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.Firebase;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -61,7 +48,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -73,17 +63,9 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -196,6 +178,14 @@ public class Tool {
             }
         }).start();
     }
+    public static  void doBackPress(AppCompatActivity activity){
+        activity.getOnBackPressedDispatcher().onBackPressed();
+    }
+
+    public static int dpToPx(int i, AppCompatActivity aca) {
+        return (int) (i* aca.getResources().getDisplayMetrics().density);
+    }
+
     @FunctionalInterface
     public interface ThrowingRunnable {
         void run() throws Exception;
@@ -221,6 +211,15 @@ public class Tool {
                 .show();
         return true;
     }
+
+    public static void warn(Activity activity, String title, String message, String positiveButtonText, String negativeButtonText, Runnable onPositive){
+        new AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(positiveButtonText, (dialog, which) -> onPositive.run())
+                .setNegativeButton(negativeButtonText, (dialog, which) -> dialog.cancel())
+                .show();
+    }
     private static void signOut(Activity activity, FirebaseUser fbUser) {
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -242,41 +241,41 @@ public class Tool {
         }
         return value;
     }
-    public static void prepareUserObjectForScreen(Activity activity, User userInstance, ObjectCallBack<User>callBack){
-        UserFirebase fbUser;
-        String userType = userInstance.getUserType().toString();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            fbUser = activity.getIntent().getSerializableExtra(userInstance.getSerializeCode(), UserFirebase.class);
-        } else {
-            fbUser = (UserFirebase) activity.getIntent().getSerializableExtra(userInstance.getSerializeCode());
+    public static <U extends User & RequireUpdate<U, ?, R>, R extends RepositoryClass<U, ?>> Task<U> prepareUserObjectForScreen(R repositoryObject){
+        TaskCompletionSource<U> tcs = new TaskCompletionSource<>();
+        if (repositoryObject == null) {
+            tcs.setException(new IllegalArgumentException("Repository object cannot be null"));
+            return tcs.getTask();
         }
-        if(fbUser == null){
-            Log.e(activity.toString(), "Retrieved " + userType + " is null");
-            Toast.makeText(activity, "Error loading " + userType + " data", Toast.LENGTH_SHORT).show();
-            FirebaseAuth auth = FirebaseAuth.getInstance();
-            FirebaseUser currentUser = auth.getCurrentUser();
-        }else{
-            Log.d(activity.toString(), "Retrieved " + userType + ": " + fbUser);
-        }
+        AtomicBoolean completed = new AtomicBoolean(false);
+        Handler timeoutHandler = new Handler(Looper.getMainLooper());
+        Runnable timeoutRunnable = () -> {
+            if (completed.compareAndSet(false, true)) {
+                tcs.setException(new TimeoutException("Timed out while preparing user object"));
+            }
+        };
+        timeoutHandler.postDelayed(timeoutRunnable, 15000);
 
-        try{
-            assert fbUser != null;
-            ((FirebaseClass<User>)fbUser).convertToNormal(new ObjectCallBack<>() {
-                @Override
-                public void onObjectRetrieved(User object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
-                    callBack.onObjectRetrieved(object);
-                }
-
-                @Override
-                public void onError(DatabaseError error) {
-                    Log.e(activity.toString(), "Error converting " +  userType + ": " + error.getMessage());
-                }
-            });
-        } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                 IllegalAccessException | InstantiationException e) {
-            throw new RuntimeException(e);
-        }
-
+        repositoryObject.loadAsNormal()
+                .addOnSuccessListener(user -> {
+                    if (!completed.compareAndSet(false, true)) {
+                        return;
+                    }
+                    timeoutHandler.removeCallbacks(timeoutRunnable);
+                    if (user == null) {
+                        tcs.setException(new IllegalStateException("Loaded user is null"));
+                        return;
+                    }
+                    tcs.setResult(user);
+                })
+                .addOnFailureListener(error -> {
+                    if (!completed.compareAndSet(false, true)) {
+                        return;
+                    }
+                    timeoutHandler.removeCallbacks(timeoutRunnable);
+                    tcs.setException(error);
+                });
+        return tcs.getTask();
     }
     public static FirebaseNode getNodeOfID(String objectID){
         final Class<?>[] clazz = new Class[1];
@@ -311,17 +310,38 @@ public class Tool {
 
 
     public static File uriToFile(Uri uri, Context context) throws IOException {
-        InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        File tempFile = File.createTempFile("upload", ".jpg", context.getCacheDir());
-        OutputStream outputStream = new FileOutputStream(tempFile);
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = inputStream.read(buffer)) > 0) {
-            outputStream.write(buffer, 0, length);
+        String extension = ".bin";
+        String displayName = getFileName(context, uri);
+        if (Tool.boolOf(displayName) && displayName.contains(".")) {
+            String fromName = displayName.substring(displayName.lastIndexOf('.')).trim();
+            if (fromName.length() > 1 && fromName.length() <= 10) {
+                extension = fromName;
+            }
+        } else {
+            String mime = context.getContentResolver().getType(uri);
+            if (Tool.boolOf(mime)) {
+                String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
+                if (Tool.boolOf(ext)) {
+                    extension = "." + ext;
+                }
+            }
         }
-        outputStream.close();
-        inputStream.close();
-        return tempFile;
+
+        try (InputStream inputStream = context.getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) {
+                throw new IOException("Unable to open URI input stream: " + uri);
+            }
+            File tempFile = File.createTempFile("upload", extension, context.getCacheDir());
+            try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    outputStream.write(buffer, 0, length);
+                }
+                outputStream.flush();
+            }
+            return tempFile;
+        }
     }
     public static String getFileName(Context context, Uri uri) {
         String result = null;
@@ -546,47 +566,111 @@ public class Tool {
         }
         return Object.class;  // Fallback
     }
-    public static void uploadToCloudinary(File file, ObjectCallBack<String>secureUrl){
+    public static void uploadToCloudinary(File file, ObjectCallBack<String> secureUrl){
+
         Log.d("Tool(UploadToCloudinary)", "File Path being Uploaded: " + file.getAbsolutePath());
 
-//        AlertDialog builder = new AlertDialog.Builder(activity);
+        MediaManager.get()
+                .upload(file.getAbsolutePath())
+                .option("resource_type", "raw")   // 🔥 THIS IS THE FIX
+                .callback(new UploadCallback() {
 
-        MediaManager.get().upload(file.getAbsolutePath()).callback((new UploadCallback() {
-            @Override
-            public void onStart(String requestId) {
-                Log.d("Tool(UploadToCloudinary)", "Starting to Upload: " + requestId);
-            }
+                    @Override
+                    public void onStart(String requestId) {
+                        Log.d("Tool(UploadToCloudinary)", "Starting to Upload: " + requestId);
+                    }
 
-            @Override
-            public void onProgress(String requestId, long bytes, long totalBytes) {
+                    @Override
+                    public void onProgress(String requestId, long bytes, long totalBytes) {
+                    }
 
-            }
+                    @Override
+                    public void onSuccess(String requestId, Map resultData) {
+                        Log.d("Tool(UploadToCloudinary)", "Upload Successful!");
 
-            @Override
-            public void onSuccess(String requestId, Map resultData) {
-                try {
-                    Log.d("Tool(UploadToCloudinary)", "Upload Successfull!");
-                    secureUrl.onObjectRetrieved((String)resultData.get("secure_url"));
-                } catch (ParseException | InvocationTargetException | NoSuchMethodException |
-                         IllegalAccessException | InstantiationException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+                        try {
+                            secureUrl.onObjectRetrieved(
+                                    (String) resultData.get("secure_url")
+                            );
+                        } catch (ParseException | InvocationTargetException |
+                                 NoSuchMethodException | IllegalAccessException |
+                                 InstantiationException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
 
-            @Override
-            public void onError(String requestId, ErrorInfo error) {
+                    @Override
+                    public void onError(String requestId, ErrorInfo error) {
+                        String description = error != null ? error.getDescription() : "unknown error";
+                        Exception wrapped = new Exception("Cloudinary upload failed: " + description);
+                        secureUrl.onError(DatabaseError.fromException(
+                                wrapped
+                        ));
+                    }
 
-            }
-
-            @Override
-            public void onReschedule(String requestId, ErrorInfo error) {
-
-            }
-        })).dispatch();
-
+                    @Override
+                    public void onReschedule(String requestId, ErrorInfo error) {
+                        secureUrl.onError(DatabaseError.fromException(
+                                new Exception("Cloudinary upload rescheduled: " +
+                                        (error != null ? error.getDescription() : "unknown reason"))
+                        ));
+                    }
+                })
+                .dispatch();
     }
+
     public static void uploadToCloudinary(String path){
         MediaManager.get().upload(path).dispatch();
+    }
+
+    public static boolean isConnectivityIssue(Throwable throwable) {
+        if (throwable == null) {
+            return false;
+        }
+        Throwable current = throwable;
+        while (current != null) {
+            if (current instanceof SocketException
+                    || current instanceof SocketTimeoutException
+                    || current instanceof ConnectException
+                    || current instanceof UnknownHostException) {
+                return true;
+            }
+            String message = current.getMessage();
+            if (boolOf(message)) {
+                String lower = message.toLowerCase();
+                if (lower.contains("connection abort")
+                        || lower.contains("software caused connection abort")
+                        || lower.contains("failed to connect")
+                        || lower.contains("unable to resolve host")
+                        || lower.contains("network is unreachable")
+                        || lower.contains("timeout")
+                        || lower.contains("econn")
+                        || lower.contains("no route to host")) {
+                    return true;
+                }
+            }
+            current = current.getCause();
+        }
+        return false;
+    }
+
+    public static boolean isConnectivityIssue(DatabaseError error) {
+        if (error == null) {
+            return false;
+        }
+        if (isConnectivityIssue(error.toException())) {
+            return true;
+        }
+        String msg = error.getMessage();
+        if (boolOf(msg)) {
+            String lower = msg.toLowerCase();
+            return lower.contains("connection abort")
+                    || lower.contains("failed to connect")
+                    || lower.contains("unable to resolve host")
+                    || lower.contains("network is unreachable")
+                    || lower.contains("timeout");
+        }
+        return false;
     }
     public static void setImageCloudinary(Context context, String imageURL, ImageView imageView){
         Glide.with(context)

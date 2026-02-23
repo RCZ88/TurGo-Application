@@ -1,0 +1,1572 @@
+{
+  "agendas": {
+    "650c919e-3cbf-451d-98b6-c09ca2f5e78f": {
+      "agendaImage": "",
+      "agenda_ID": "650c919e-3cbf-451d-98b6-c09ca2f5e78f",
+      "contents": "civic ddkbb",
+      "date": "2026-02-23",
+      "id": "650c919e-3cbf-451d-98b6-c09ca2f5e78f",
+      "ofCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "student": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "teacher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    }
+  },
+  "course-images": {
+    "07ded679-f561-4250-8b7f-5b966c72320a": {
+      "fileCreateDate": "2025-11-27T21:11:29.391332",
+      "fileID": "07ded679-f561-4250-8b7f-5b966c72320a",
+      "id": "07ded679-f561-4250-8b7f-5b966c72320a",
+      "ofTask": "",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/image/upload/v1764252688/gsgbwlvinhqqoi0ua3vh.jpg",
+      "uploader": "8zN32OOyWaOcJdnTj8fnNYHo1bn1"
+    },
+    "81d39320-8a8e-42da-8bd5-4f08a019e859": {
+      "fileCreateDate": "2025-11-27T19:40:44.682350",
+      "fileID": "81d39320-8a8e-42da-8bd5-4f08a019e859",
+      "id": "81d39320-8a8e-42da-8bd5-4f08a019e859",
+      "ofTask": "",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/image/upload/v1764247244/fmyghgjjk6fsw0pryix1.jpg",
+      "uploader": "8zN32OOyWaOcJdnTj8fnNYHo1bn1"
+    }
+  },
+  "course-types": {
+    "08aab967-43fe-4eb0-9ffe-7713e8c3c204": {
+      "courseType": "Guitar",
+      "courseType_ID": "08aab967-43fe-4eb0-9ffe-7713e8c3c204",
+      "id": "08aab967-43fe-4eb0-9ffe-7713e8c3c204"
+    },
+    "14f7e21a-b48d-4427-a59e-06e2f9379e1c": {
+      "courseType": "English",
+      "courseType_ID": "14f7e21a-b48d-4427-a59e-06e2f9379e1c",
+      "id": "14f7e21a-b48d-4427-a59e-06e2f9379e1c"
+    },
+    "34e17fad-7716-41a4-b960-10240404556d": {
+      "courseType": "Keyboard",
+      "courseType_ID": "34e17fad-7716-41a4-b960-10240404556d",
+      "id": "34e17fad-7716-41a4-b960-10240404556d"
+    },
+    "594537b4-b1f1-4b1a-bffd-75b38133ed1d": {
+      "courseType": "Drum",
+      "courseType_ID": "594537b4-b1f1-4b1a-bffd-75b38133ed1d",
+      "id": "594537b4-b1f1-4b1a-bffd-75b38133ed1d"
+    },
+    "64afc8e3-35a0-4d94-9bdd-e492b97ecf26": {
+      "courseType": "Math",
+      "courseType_ID": "64afc8e3-35a0-4d94-9bdd-e492b97ecf26",
+      "id": "64afc8e3-35a0-4d94-9bdd-e492b97ecf26"
+    },
+    "7f9aba58-d2af-4559-8f65-3c3c776ffcae": {
+      "courseType": "Piano",
+      "courseType_ID": "7f9aba58-d2af-4559-8f65-3c3c776ffcae",
+      "id": "7f9aba58-d2af-4559-8f65-3c3c776ffcae"
+    },
+    "8e2a700b-7eb5-4848-a510-4701a033cec8": {
+      "courseType": "Vocal",
+      "courseType_ID": "8e2a700b-7eb5-4848-a510-4701a033cec8",
+      "id": "8e2a700b-7eb5-4848-a510-4701a033cec8"
+    },
+    "b4ee4e0d-fce7-415b-9856-001e5c4dc1eb": {
+      "courseType": "Bimbel",
+      "courseType_ID": "b4ee4e0d-fce7-415b-9856-001e5c4dc1eb",
+      "id": "b4ee4e0d-fce7-415b-9856-001e5c4dc1eb"
+    },
+    "c937b7e1-b001-4c36-b76d-9d69596c0905": {
+      "courseType": "Chinese",
+      "courseType_ID": "c937b7e1-b001-4c36-b76d-9d69596c0905",
+      "id": "c937b7e1-b001-4c36-b76d-9d69596c0905"
+    },
+    "d5b04c65-15cb-48bd-8e15-e89f07e9e4d5": {
+      "courseType": "Violin",
+      "courseType_ID": "d5b04c65-15cb-48bd-8e15-e89f07e9e4d5",
+      "id": "d5b04c65-15cb-48bd-8e15-e89f07e9e4d5"
+    }
+  },
+  "courses": {
+    "ac62408d-748a-4a8a-97aa-59d7aa94118e": {
+      "autoAcceptStudent": false,
+      "backgroundCloudinary": "https://res.cloudinary.com/daccry0jr/image/upload/v1760587847/fekyq44pgqymklluoaoi.png",
+      "baseCost": 20,
+      "courseID": "ac62408d-748a-4a8a-97aa-59d7aa94118e",
+      "courseName": "pianooo",
+      "courseType": "7f9aba58-d2af-4559-8f65-3c3c776ffcae",
+      "hourlyCost": 14,
+      "id": "ac62408d-748a-4a8a-97aa-59d7aa94118e",
+      "imagesCloudinary": [
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1771159846/nrydyonsp5tk5iinkbjx.jpg",
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1771159851/n9rxzjrlfttkwvcyrabg.jpg"
+      ],
+      "logoCloudinary": "https://res.cloudinary.com/daccry0jr/image/upload/v1764169228/music_course_icon_iitknr.png",
+      "maxStudentPerMeeting": 0,
+      "monthlyDiscountPercentage": 5,
+      "paymentPer": [
+        1,
+        1
+      ],
+      "privateGroup": [
+        1,
+        1
+      ],
+      "teacher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "bac0bbe6-022b-4e9f-9a06-2025bbd41d33": {
+      "autoAcceptStudent": true,
+      "backgroundCloudinary": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771779104/ovrn8m2yeotkpjciybjw.jpg",
+      "baseCost": 10,
+      "courseID": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "courseName": "Mandarin fun",
+      "courseType": "c937b7e1-b001-4c36-b76d-9d69596c0905",
+      "dayTimeArrangement": [
+        "a2f44f9f-f6fc-45f0-b110-ec8d1adf1242",
+        "28342d9d-12f9-4d78-b3bc-ae5690b5f74a",
+        "12607ca8-701d-4c0a-ba5d-6dc95c9c15d5",
+        "fe4ec27e-891c-4995-b1ef-1e00f5d559fd"
+      ],
+      "hourlyCost": 5,
+      "id": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "imagesCloudinary": [
+        "https://res.cloudinary.com/daccry0jr/raw/upload/v1771779106/oimrt6ijxbbngoqjwjpy.jpg"
+      ],
+      "logoCloudinary": "https://res.cloudinary.com/daccry0jr/image/upload/v1764169229/langaunge_course_icon_hdyza5.png",
+      "maxStudentPerMeeting": 0,
+      "monthlyDiscountPercentage": 23,
+      "paymentPer": [
+        1,
+        0
+      ],
+      "privateGroup": [
+        1,
+        1
+      ],
+      "schedules": [
+        "dc008c36-8b51-46ed-b451-9003cff14024",
+        "d498652c-a85d-4256-8176-5836a9d37fc5"
+      ],
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "studentsCourse": [
+        "12f31eef-150b-4696-a1c0-5048575c61d9"
+      ],
+      "teacher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "c34c7e01-94df-425b-92df-064e7ad49fcd": {
+      "autoAcceptStudent": true,
+      "backgroundCloudinary": "https://res.cloudinary.com/daccry0jr/image/upload/v1760587817/hyncdevsv92vkf4xl5te.png",
+      "baseCost": 7,
+      "courseDescription": "This is a description. lorem ipsum ",
+      "courseID": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "courseName": "Math",
+      "courseType": "64afc8e3-35a0-4d94-9bdd-e492b97ecf26",
+      "dayTimeArrangement": [
+        "70d30a4b-26fa-408a-864b-2b42c5ddd71e",
+        "e99306fe-a791-46f4-8901-57d5d8b614c9"
+      ],
+      "hourlyCost": 10,
+      "id": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "imagesCloudinary": [
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1765104050/dhl82m1ahp6wyg8ftbzm.jpg",
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1765104052/pgjdanxbphkxpqibvgg3.jpg",
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1765104055/isxaxkjoczcqtpxr1zq6.jpg",
+        "https://res.cloudinary.com/daccry0jr/image/upload/v1765104057/vngby9qejebcjfprazs6.jpg"
+      ],
+      "logoCloudinary": "https://res.cloudinary.com/daccry0jr/image/upload/v1764169229/langaunge_course_icon_hdyza5.png",
+      "maxStudentPerMeeting": 0,
+      "monthlyDiscountPercentage": 0,
+      "paymentPer": [
+        1,
+        1
+      ],
+      "privateGroup": [
+        1,
+        1
+      ],
+      "schedules": [
+        "efb6d381-a8df-41c0-b45b-808d881f0a55",
+        "97905b92-ef7c-4d4d-bb04-945928af6e10"
+      ],
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "studentsCourse": [
+        "0fe557c6-1242-4bcf-8fdf-8d5695d616d4"
+      ],
+      "teacher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    }
+  },
+  "day-time-arrangement": {
+    "12607ca8-701d-4c0a-ba5d-6dc95c9c15d5": {
+      "DTA_ID": "12607ca8-701d-4c0a-ba5d-6dc95c9c15d5",
+      "atCourse": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "day": "WEDNESDAY",
+      "end": "18:00",
+      "id": "12607ca8-701d-4c0a-ba5d-6dc95c9c15d5",
+      "maxMeeting": 8,
+      "occupied": [
+        "dc008c36-8b51-46ed-b451-9003cff14024"
+      ],
+      "start": "15:50"
+    },
+    "28342d9d-12f9-4d78-b3bc-ae5690b5f74a": {
+      "day": "THURSDAY",
+      "dta_ID": "28342d9d-12f9-4d78-b3bc-ae5690b5f74a",
+      "end": "19:50",
+      "id": "28342d9d-12f9-4d78-b3bc-ae5690b5f74a",
+      "maxMeeting": 8,
+      "start": "02:50"
+    },
+    "70d30a4b-26fa-408a-864b-2b42c5ddd71e": {
+      "DTA_ID": "70d30a4b-26fa-408a-864b-2b42c5ddd71e",
+      "atCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "day": "THURSDAY",
+      "dta_ID": "70d30a4b-26fa-408a-864b-2b42c5ddd71e",
+      "end": "17:30",
+      "id": "70d30a4b-26fa-408a-864b-2b42c5ddd71e",
+      "maxMeeting": 3,
+      "occupied": [
+        "97905b92-ef7c-4d4d-bb04-945928af6e10"
+      ],
+      "start": "16:30"
+    },
+    "a2f44f9f-f6fc-45f0-b110-ec8d1adf1242": {
+      "day": "WEDNESDAY",
+      "dta_ID": "a2f44f9f-f6fc-45f0-b110-ec8d1adf1242",
+      "end": "18:00",
+      "id": "a2f44f9f-f6fc-45f0-b110-ec8d1adf1242",
+      "maxMeeting": 8,
+      "start": "15:50"
+    },
+    "e99306fe-a791-46f4-8901-57d5d8b614c9": {
+      "DTA_ID": "e99306fe-a791-46f4-8901-57d5d8b614c9",
+      "atCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "day": "MONDAY",
+      "dta_ID": "e99306fe-a791-46f4-8901-57d5d8b614c9",
+      "end": "19:34",
+      "id": "e99306fe-a791-46f4-8901-57d5d8b614c9",
+      "maxMeeting": 3,
+      "occupied": [
+        "efb6d381-a8df-41c0-b45b-808d881f0a55"
+      ],
+      "start": "15:25"
+    },
+    "fe4ec27e-891c-4995-b1ef-1e00f5d559fd": {
+      "DTA_ID": "fe4ec27e-891c-4995-b1ef-1e00f5d559fd",
+      "atCourse": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "day": "THURSDAY",
+      "end": "19:50",
+      "id": "fe4ec27e-891c-4995-b1ef-1e00f5d559fd",
+      "maxMeeting": 8,
+      "occupied": [
+        "d498652c-a85d-4256-8176-5836a9d37fc5"
+      ],
+      "start": "02:50"
+    }
+  },
+  "dropboxes": {
+    "081ea9e0-404f-4645-9004-263b4bafc957": {
+      "dropboxID": "081ea9e0-404f-4645-9004-263b4bafc957",
+      "id": "081ea9e0-404f-4645-9004-263b4bafc957",
+      "ofTask": "fc30fbba-f94a-4897-91d9-26b27329a08d",
+      "submissions": [
+        "15fb50f7-853d-4b37-8249-a53169131cb7"
+      ],
+      "uid": "081ea9e0-404f-4645-9004-263b4bafc957"
+    },
+    "209c483e-bc87-4b62-999e-dff81ecea462": {
+      "dropboxID": "209c483e-bc87-4b62-999e-dff81ecea462",
+      "id": "209c483e-bc87-4b62-999e-dff81ecea462",
+      "ofTask": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "submissions": [
+        "10330450-5b58-4be5-85a9-7efeb43bfc9b"
+      ],
+      "uid": "209c483e-bc87-4b62-999e-dff81ecea462"
+    },
+    "e3181366-aea1-4169-9f37-75b84165178c": {
+      "dropboxID": "e3181366-aea1-4169-9f37-75b84165178c",
+      "id": "e3181366-aea1-4169-9f37-75b84165178c",
+      "ofTask": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "submissions": [
+        "5a888a1a-6f59-4134-874f-e78f3c59ba1d"
+      ],
+      "uid": "e3181366-aea1-4169-9f37-75b84165178c"
+    }
+  },
+  "files": {
+    "1a5b0528-b83b-4310-8e99-18ee14dc54a6": {
+      "fileCreateDate": "2026-02-21T19:55:20.569509",
+      "fileID": "1a5b0528-b83b-4310-8e99-18ee14dc54a6",
+      "fileName": "IMG-20260220-WA0012.jpg",
+      "id": "1a5b0528-b83b-4310-8e99-18ee14dc54a6",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771678520/n367shfkv2k6c0qsstd1.jpg",
+      "uploader": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "53ba8fce-16ed-4585-ae31-6a21a0e8cb12": {
+      "fileCreateDate": "2026-02-22T20:19:42.035572",
+      "fileID": "53ba8fce-16ed-4585-ae31-6a21a0e8cb12",
+      "fileName": "May2026-002606 -0049-Business Mnagement-IA-HL.docx FEEDBACK.pdf",
+      "id": "53ba8fce-16ed-4585-ae31-6a21a0e8cb12",
+      "ofTask": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771766388/n0uqmwk8t3cvaclupizt.pdf",
+      "submitTime": "2026-02-22T20:19:48.741441",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "61f3ebaa-4fdc-471b-a6ba-71b657c11cae": {
+      "fileCreateDate": "2026-02-19T11:33:52.072723",
+      "fileID": "61f3ebaa-4fdc-471b-a6ba-71b657c11cae",
+      "fileName": "upload1069764844224913723.jpg",
+      "id": "61f3ebaa-4fdc-471b-a6ba-71b657c11cae",
+      "ofTask": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771475656/hufjuwznfcyekyptlweb.jpg",
+      "submitTime": "2026-02-19T11:34:16.255358",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "679b2ac3-244d-42b8-92d3-ab7fc0bb23ce": {
+      "fileCreateDate": "2026-02-19T09:33:53.834301",
+      "fileID": "679b2ac3-244d-42b8-92d3-ab7fc0bb23ce",
+      "fileName": "upload185642792420894551.jpg",
+      "id": "679b2ac3-244d-42b8-92d3-ab7fc0bb23ce",
+      "ofTask": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/image/upload/v1771469256/rbmdvprvlzzffmvkxhpf.jpg",
+      "submitTime": "2026-02-19T09:47:37.132092",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "69613158-b8c1-4f22-89aa-efc5e0d48dc4": {
+      "fileCreateDate": "2026-02-23T00:09:02.320092",
+      "fileID": "69613158-b8c1-4f22-89aa-efc5e0d48dc4",
+      "fileName": "IMG-20260222-WA0007.jpg",
+      "id": "69613158-b8c1-4f22-89aa-efc5e0d48dc4",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771780142/cwut0c2vgawuozw2wqdz.jpg",
+      "uploader": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "718eb8be-2263-4812-a8c1-f3db018d398c": {
+      "fileCreateDate": "2026-02-22T20:38:12.779198",
+      "fileID": "718eb8be-2263-4812-a8c1-f3db018d398c",
+      "fileName": "VID-20260222-WA0002.mp4",
+      "id": "718eb8be-2263-4812-a8c1-f3db018d398c",
+      "ofTask": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771767511/xgdunzgq3jfmlkuk3db8.mp4",
+      "submitTime": "2026-02-22T20:38:31.242985",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "86659776-c532-4007-bbf4-98f60f2e6da4": {
+      "fileCreateDate": "2026-02-23T00:09:49.934624",
+      "fileID": "86659776-c532-4007-bbf4-98f60f2e6da4",
+      "fileName": "IMG-20260222-WA0007.jpg",
+      "id": "86659776-c532-4007-bbf4-98f60f2e6da4",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771780190/px5swjgm2r65cmraqfyd.jpg",
+      "uploader": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "9025e7b9-71a0-4318-83e5-6a3ca46b75e4": {
+      "fileCreateDate": "2026-02-22T20:29:03.403957",
+      "fileID": "9025e7b9-71a0-4318-83e5-6a3ca46b75e4",
+      "fileName": "IMG-20260221-WA0009.jpg",
+      "id": "9025e7b9-71a0-4318-83e5-6a3ca46b75e4",
+      "ofTask": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771766948/pcdbvztdhpuwlieb1eqj.jpg",
+      "submitTime": "2026-02-22T20:29:08.603114",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "99ca7e3d-96fc-490f-91da-14cbb196f7ab": {
+      "fileCreateDate": "2026-02-22T20:26:15.972474",
+      "fileID": "99ca7e3d-96fc-490f-91da-14cbb196f7ab",
+      "fileName": "CS Case study An ethical approach to hacking May 2026.pdf",
+      "id": "99ca7e3d-96fc-490f-91da-14cbb196f7ab",
+      "ofTask": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771766785/klbpslhu0p76qhpsbb8z.pdf",
+      "submitTime": "2026-02-22T20:26:25.228571",
+      "uploader": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "e58deae6-85f3-474d-9de9-a23f4fdd8201": {
+      "fileCreateDate": "2026-02-20T10:46:09.105650",
+      "fileID": "e58deae6-85f3-474d-9de9-a23f4fdd8201",
+      "fileName": "IMG-20260219-WA0008.jpg",
+      "id": "e58deae6-85f3-474d-9de9-a23f4fdd8201",
+      "secureURL": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771559168/tsoyxnas8bww5bkx26ph.jpg",
+      "uploader": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    }
+  },
+  "mails": {
+    "2428bfd7-faef-41ba-8208-6a91409542b9": {
+      "attachments": [
+        "86659776-c532-4007-bbf4-98f60f2e6da4"
+      ],
+      "body": "fiduciary h okfos",
+      "draft": false,
+      "from": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "fromType": "TEACHER",
+      "header": "high du CH cry",
+      "id": "2428bfd7-faef-41ba-8208-6a91409542b9",
+      "mailID": "2428bfd7-faef-41ba-8208-6a91409542b9",
+      "opened": false,
+      "preview": "fiduciary h okfos",
+      "richBody": "e8708c40-7587-4494-8e35-2d3ccaf947af",
+      "timeSent": "2026-02-23T00:09:57.963337",
+      "to": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "toType": "STUDENT"
+    },
+    "3dab4d9f-8aba-4cae-bfbe-eeeb6807ac8c": {
+      "attachments": [
+        "1a5b0528-b83b-4310-8e99-18ee14dc54a6"
+      ],
+      "body": "cofounder doc gk di gk",
+      "draft": false,
+      "from": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "fromType": "TEACHER",
+      "header": "",
+      "id": "3dab4d9f-8aba-4cae-bfbe-eeeb6807ac8c",
+      "mailID": "3dab4d9f-8aba-4cae-bfbe-eeeb6807ac8c",
+      "opened": false,
+      "preview": "cofounder doc gk di gk",
+      "richBody": "99e74ba8-fe08-4aa2-94df-77cca584012a",
+      "timeSent": "2026-02-21T20:00:58.599326",
+      "to": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "6bc6e347-c4af-4b1d-9dc1-7913055acc99": {
+      "body": "icon\njudicial Usain",
+      "draft": false,
+      "from": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "fromType": "TEACHER",
+      "header": "fb gk CNN go do",
+      "id": "6bc6e347-c4af-4b1d-9dc1-7913055acc99",
+      "mailID": "6bc6e347-c4af-4b1d-9dc1-7913055acc99",
+      "opened": false,
+      "preview": "icon\njudicial Usain",
+      "richBody": "f03287fa-4d18-4deb-a58f-73c9877bb0f9",
+      "timeSent": "2026-02-21T17:40:25.714039",
+      "to": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "7248b8a2-7bf4-4e7c-90d3-76ce89f6a595": {
+      "body": "gk jack deoss",
+      "draft": true,
+      "from": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "fromType": "TEACHER",
+      "header": "hobo",
+      "id": "7248b8a2-7bf4-4e7c-90d3-76ce89f6a595",
+      "mailID": "7248b8a2-7bf4-4e7c-90d3-76ce89f6a595",
+      "opened": false,
+      "preview": "gk jack deoss",
+      "richBody": "e59ed959-e9b3-4e40-8c5a-d97ffd784d13",
+      "timeSent": "2026-02-21T20:05:15.184115",
+      "to": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "e0dfc31f-2f8f-43ff-9ff8-7fd9f3988d5e": {
+      "body": "knob high g HB high\n\nHeidi\nblockbuster gk gk dub GB in\nghh hjkjgghjj ",
+      "draft": false,
+      "from": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "fromType": "TEACHER",
+      "header": "XL",
+      "id": "e0dfc31f-2f8f-43ff-9ff8-7fd9f3988d5e",
+      "mailID": "e0dfc31f-2f8f-43ff-9ff8-7fd9f3988d5e",
+      "opened": false,
+      "preview": "knob high g HB high\n\nHeidi\nblo",
+      "richBody": "e011616a-6b0d-4c88-bf6e-0b4cbcbc2582",
+      "timeSent": "2026-02-21T17:34:46.811449",
+      "to": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "toType": "STUDENT"
+    }
+  },
+  "meetings": {
+    "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": true,
+      "dateOfMeeting": "2026-02-19",
+      "endTimeChange": "17:30",
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19",
+      "meetingID": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19",
+      "ofSchedule": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "16:30",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-26": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:39.006437",
+      "completed": false,
+      "dateOfMeeting": "2026-02-26",
+      "endTimeChange": "17:30",
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-26",
+      "meetingID": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-26",
+      "ofSchedule": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "16:30",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-05": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:39.007735",
+      "completed": false,
+      "dateOfMeeting": "2026-03-05",
+      "endTimeChange": "17:30",
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-05",
+      "meetingID": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-05",
+      "ofSchedule": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "16:30",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-12": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:39.009040",
+      "completed": false,
+      "dateOfMeeting": "2026-03-12",
+      "endTimeChange": "17:30",
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-12",
+      "meetingID": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-12",
+      "ofSchedule": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "16:30",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-19": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:39.010220",
+      "completed": false,
+      "dateOfMeeting": "2026-03-19",
+      "endTimeChange": "17:30",
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-19",
+      "meetingID": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-19",
+      "ofSchedule": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "16:30",
+      "usersRelated": [
+        "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+      ]
+    },
+    "d498652c-a85d-4256-8176-5836a9d37fc5_2026-02-26": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-02-26",
+      "endTimeChange": "17:20",
+      "id": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-02-26",
+      "meetingID": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-02-26",
+      "ofSchedule": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "15:50",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-05": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-05",
+      "endTimeChange": "17:20",
+      "id": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-05",
+      "meetingID": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-05",
+      "ofSchedule": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "15:50",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-12": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-12",
+      "endTimeChange": "17:20",
+      "id": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-12",
+      "meetingID": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-12",
+      "ofSchedule": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "15:50",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-19": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-19",
+      "endTimeChange": "17:20",
+      "id": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-19",
+      "meetingID": "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-19",
+      "ofSchedule": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "15:50",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "dc008c36-8b51-46ed-b451-9003cff14024_2026-02-25": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-02-25",
+      "endTimeChange": "17:50",
+      "id": "dc008c36-8b51-46ed-b451-9003cff14024_2026-02-25",
+      "meetingID": "dc008c36-8b51-46ed-b451-9003cff14024_2026-02-25",
+      "ofSchedule": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "16:20",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-04": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-04",
+      "endTimeChange": "17:50",
+      "id": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-04",
+      "meetingID": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-04",
+      "ofSchedule": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "16:20",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-11": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-11",
+      "endTimeChange": "17:50",
+      "id": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-11",
+      "meetingID": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-11",
+      "ofSchedule": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "16:20",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-18": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": false,
+      "dateOfMeeting": "2026-03-18",
+      "endTimeChange": "17:50",
+      "id": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-18",
+      "meetingID": "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-18",
+      "ofSchedule": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "preScheduledBy": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "roomChange": "",
+      "startTimeChange": "16:20",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-16": {
+      "alarmAssigned": false,
+      "alarmAssignedAt": "",
+      "completed": true,
+      "dateOfMeeting": "2026-02-16",
+      "endTimeChange": "16:25",
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-16",
+      "meetingID": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-16",
+      "ofSchedule": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "15:25",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-23": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:38.909489",
+      "completed": false,
+      "dateOfMeeting": "2026-02-23",
+      "endTimeChange": "16:25",
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-23",
+      "meetingID": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-23",
+      "ofSchedule": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "15:25",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-02": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:38.910640",
+      "completed": false,
+      "dateOfMeeting": "2026-03-02",
+      "endTimeChange": "16:25",
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-02",
+      "meetingID": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-02",
+      "ofSchedule": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "15:25",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-09": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:38.911803",
+      "completed": false,
+      "dateOfMeeting": "2026-03-09",
+      "endTimeChange": "16:25",
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-09",
+      "meetingID": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-09",
+      "ofSchedule": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "15:25",
+      "usersRelated": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-16": {
+      "alarmAssigned": true,
+      "alarmAssignedAt": "2026-02-22T21:30:39.000463",
+      "completed": false,
+      "dateOfMeeting": "2026-03-16",
+      "endTimeChange": "16:25",
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-16",
+      "meetingID": "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-16",
+      "ofSchedule": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "preScheduledBy": "",
+      "roomChange": "",
+      "startTimeChange": "15:25",
+      "usersRelated": [
+        "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+      ]
+    }
+  },
+  "rich-body": {
+    "99e74ba8-fe08-4aa2-94df-77cca584012a": {
+      "id": "99e74ba8-fe08-4aa2-94df-77cca584012a",
+      "spans": [
+        "6222261f-ccd4-44ce-8216-bd7b76e96360"
+      ],
+      "text": "cofounder doc gk di gk"
+    },
+    "ba32b4e1-8766-4b3c-bae1-a99edac32c85": {
+      "id": "ba32b4e1-8766-4b3c-bae1-a99edac32c85",
+      "spans": [
+        "baf58592-5cd3-4fa9-acd7-d0be4363ddbc",
+        "6e6d09c6-8355-46de-a4c8-59fd8e7a6cbc",
+        "d31c253e-ee0e-43fc-929c-296eb5716667",
+        "f281a967-8b53-43ab-acc4-5d73ae029ee5"
+      ],
+      "text": "knob high g HB high\n\nHeidi\nblockbuster gk gk dub GB in\nghh hjkjgghjj "
+    },
+    "e011616a-6b0d-4c88-bf6e-0b4cbcbc2582": {
+      "id": "e011616a-6b0d-4c88-bf6e-0b4cbcbc2582",
+      "spans": [
+        "d70c5a6d-5800-4120-adeb-8aa76ba053d9",
+        "99a6d11f-5b3b-4655-8f8f-43aa6a7a8ff2",
+        "f640a3b7-dbdc-4a86-9963-f4d410f75fb3",
+        "071d8dc8-45cc-4b64-a652-d6ec23ba5b2e"
+      ],
+      "text": "knob high g HB high\n\nHeidi\nblockbuster gk gk dub GB in\nghh hjkjgghjj "
+    },
+    "e59ed959-e9b3-4e40-8c5a-d97ffd784d13": {
+      "id": "e59ed959-e9b3-4e40-8c5a-d97ffd784d13",
+      "spans": [
+        "780e808b-4049-41f1-87aa-ec0929b48d9c"
+      ],
+      "text": "gk jack deoss"
+    },
+    "e8708c40-7587-4494-8e35-2d3ccaf947af": {
+      "id": "e8708c40-7587-4494-8e35-2d3ccaf947af",
+      "spans": [
+        "d9e19291-602a-427b-9d27-56af14a91a5d",
+        "87664473-c9c0-426a-a63e-ec8bc1533706"
+      ],
+      "text": "fiduciary h okfos"
+    },
+    "f03287fa-4d18-4deb-a58f-73c9877bb0f9": {
+      "id": "f03287fa-4d18-4deb-a58f-73c9877bb0f9",
+      "spans": [
+        "9b6ac131-7e3a-43e7-b8a1-e708534219db"
+      ],
+      "text": "icon\njudicial Usain"
+    }
+  },
+  "rooms": {
+    "43a94085-846f-41cc-82d5-14bae6c54df3": {
+      "capacity": 2,
+      "currentlyOccupiedBy": "",
+      "id": "43a94085-846f-41cc-82d5-14bae6c54df3",
+      "roomId": "43a94085-846f-41cc-82d5-14bae6c54df3",
+      "roomTag": "Room 1C",
+      "suitableCourseType": [
+        "08aab967-43fe-4eb0-9ffe-7713e8c3c204",
+        "34e17fad-7716-41a4-b960-10240404556d",
+        "7f9aba58-d2af-4559-8f65-3c3c776ffcae"
+      ],
+      "used": false
+    },
+    "7bf23d20-a3e8-47fc-98e5-b45cc7a38e1c": {
+      "capacity": 2,
+      "currentlyOccupiedBy": "",
+      "id": "7bf23d20-a3e8-47fc-98e5-b45cc7a38e1c",
+      "roomId": "7bf23d20-a3e8-47fc-98e5-b45cc7a38e1c",
+      "roomTag": "Room 1B",
+      "suitableCourseType": [
+        "08aab967-43fe-4eb0-9ffe-7713e8c3c204",
+        "34e17fad-7716-41a4-b960-10240404556d",
+        "64afc8e3-35a0-4d94-9bdd-e492b97ecf26"
+      ],
+      "used": false
+    },
+    "86879509-7655-4f61-b83d-582727445019": {
+      "capacity": 6,
+      "currentlyOccupiedBy": "",
+      "id": "86879509-7655-4f61-b83d-582727445019",
+      "roomId": "86879509-7655-4f61-b83d-582727445019",
+      "roomTag": "Room 1A",
+      "suitableCourseType": [
+        "14f7e21a-b48d-4427-a59e-06e2f9379e1c",
+        "64afc8e3-35a0-4d94-9bdd-e492b97ecf26",
+        "b4ee4e0d-fce7-415b-9856-001e5c4dc1eb",
+        "c937b7e1-b001-4c36-b76d-9d69596c0905"
+      ],
+      "used": false
+    },
+    "ca4c6c4e-7017-496d-b1b5-93a8252ac181": {
+      "capacity": 3,
+      "currentlyOccupiedBy": "",
+      "id": "ca4c6c4e-7017-496d-b1b5-93a8252ac181",
+      "roomId": "ca4c6c4e-7017-496d-b1b5-93a8252ac181",
+      "roomTag": "pop room",
+      "suitableCourseType": [
+        "14f7e21a-b48d-4427-a59e-06e2f9379e1c",
+        "c937b7e1-b001-4c36-b76d-9d69596c0905"
+      ],
+      "used": false
+    }
+  },
+  "schedules": {
+    "97905b92-ef7c-4d4d-bb04-945928af6e10": {
+      "day": "THURSDAY",
+      "duration": 60,
+      "hasScheduled": false,
+      "id": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "meetingEnd": "17:30",
+      "meetingStart": "16:30",
+      "numberOfStudents": 1,
+      "ofCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "private": false,
+      "room": "7bf23d20-a3e8-47fc-98e5-b45cc7a38e1c",
+      "scheduleID": "97905b92-ef7c-4d4d-bb04-945928af6e10",
+      "scheduler": "",
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "d498652c-a85d-4256-8176-5836a9d37fc5": {
+      "day": "THURSDAY",
+      "duration": 90,
+      "hasScheduled": false,
+      "id": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "meetingEnd": "17:20",
+      "meetingStart": "15:50",
+      "numberOfStudents": 1,
+      "ofCourse": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "private": true,
+      "room": "43a94085-846f-41cc-82d5-14bae6c54df3",
+      "scheduleID": "d498652c-a85d-4256-8176-5836a9d37fc5",
+      "scheduler": "",
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "dc008c36-8b51-46ed-b451-9003cff14024": {
+      "day": "WEDNESDAY",
+      "duration": 90,
+      "hasScheduled": false,
+      "id": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "meetingEnd": "17:50",
+      "meetingStart": "16:20",
+      "numberOfStudents": 1,
+      "ofCourse": "bac0bbe6-022b-4e9f-9a06-2025bbd41d33",
+      "private": true,
+      "room": "43a94085-846f-41cc-82d5-14bae6c54df3",
+      "scheduleID": "dc008c36-8b51-46ed-b451-9003cff14024",
+      "scheduler": "",
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    },
+    "efb6d381-a8df-41c0-b45b-808d881f0a55": {
+      "day": "MONDAY",
+      "duration": 60,
+      "hasScheduled": false,
+      "id": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "meetingEnd": "16:25",
+      "meetingStart": "15:25",
+      "numberOfStudents": 1,
+      "ofCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "private": false,
+      "room": "7bf23d20-a3e8-47fc-98e5-b45cc7a38e1c",
+      "scheduleID": "efb6d381-a8df-41c0-b45b-808d881f0a55",
+      "scheduler": "",
+      "students": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ]
+    }
+  },
+  "student-course": {
+    "0fe557c6-1242-4bcf-8fdf-8d5695d616d4": {
+      "id": "0fe557c6-1242-4bcf-8fdf-8d5695d616d4",
+      "paymentPreferences": false,
+      "pricePer": 37,
+      "privateOrGroup": false,
+      "sc_ID": "0fe557c6-1242-4bcf-8fdf-8d5695d616d4",
+      "schedulesOfCourse": [
+        "efb6d381-a8df-41c0-b45b-808d881f0a55",
+        "97905b92-ef7c-4d4d-bb04-945928af6e10"
+      ]
+    },
+    "12f31eef-150b-4696-a1c0-5048575c61d9": {
+      "id": "12f31eef-150b-4696-a1c0-5048575c61d9",
+      "paymentPreferences": false,
+      "pricePer": 78,
+      "privateOrGroup": true,
+      "sc_ID": "12f31eef-150b-4696-a1c0-5048575c61d9",
+      "schedulesOfCourse": [
+        "dc008c36-8b51-46ed-b451-9003cff14024",
+        "d498652c-a85d-4256-8176-5836a9d37fc5"
+      ],
+      "timeSlots": [
+        "3cafa724-62e7-4fe2-b031-7eec96662966",
+        "af1637d4-93a2-4e1c-89b8-5acc5d883f9e",
+        "b002d5b2-29cb-483a-b8a4-f6a2adb8d278"
+      ]
+    }
+  },
+  "submission-display": {
+    "89a27384-32a4-4f20-88dd-666b3dbcd35e": {
+      "course": "Math",
+      "filesSubmitted": [
+        "VID-20260222-WA0002.mp4"
+      ],
+      "hasStatus": true,
+      "id": "89a27384-32a4-4f20-88dd-666b3dbcd35e",
+      "isLate": true,
+      "name": "Raynard Luhur",
+      "submittedTimeDate": "2026-02-19T07:39",
+      "task": "idiot task"
+    },
+    "f7011f31-5a0c-459d-abd7-1c2dd999c640": {
+      "course": "Math",
+      "filesSubmitted": [
+        "CS Case study An ethical approach to hacking May 2026.pdf"
+      ],
+      "hasStatus": false,
+      "id": "f7011f31-5a0c-459d-abd7-1c2dd999c640",
+      "late": false,
+      "name": "Raynard Luhur",
+      "submittedTimeDate": "2026-02-26T14:10",
+      "task": "a different task"
+    }
+  },
+  "submissions": {
+    "10330450-5b58-4be5-85a9-7efeb43bfc9b": {
+      "completed": true,
+      "dropbox": "209c483e-bc87-4b62-999e-dff81ecea462",
+      "files": {
+        "99ca7e3d-96fc-490f-91da-14cbb196f7ab": false
+      },
+      "id": "10330450-5b58-4be5-85a9-7efeb43bfc9b",
+      "of": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "submission_ID": "10330450-5b58-4be5-85a9-7efeb43bfc9b"
+    },
+    "15fb50f7-853d-4b37-8249-a53169131cb7": {
+      "completed": false,
+      "dropbox": "081ea9e0-404f-4645-9004-263b4bafc957",
+      "id": "15fb50f7-853d-4b37-8249-a53169131cb7",
+      "of": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "submission_ID": "15fb50f7-853d-4b37-8249-a53169131cb7"
+    },
+    "5a888a1a-6f59-4134-874f-e78f3c59ba1d": {
+      "completed": true,
+      "dropbox": "e3181366-aea1-4169-9f37-75b84165178c",
+      "files": {
+        "718eb8be-2263-4812-a8c1-f3db018d398c": true
+      },
+      "id": "5a888a1a-6f59-4134-874f-e78f3c59ba1d",
+      "of": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+      "submission_ID": "5a888a1a-6f59-4134-874f-e78f3c59ba1d"
+    }
+  },
+  "tasks": {
+    "20184fca-abce-4c10-9e31-f3dd3b70c8ad": {
+      "dateAssigned": "2026-02-19",
+      "description": "dasme moask osdasdoakd aod paod kadas",
+      "dueDate": "2026-02-18T18:41",
+      "id": "20184fca-abce-4c10-9e31-f3dd3b70c8ad",
+      "manualCompletionRequired": true,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "20184fca-abce-4c10-9e31-f3dd3b70c8ad",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "jancok"
+    },
+    "a7ebd838-240c-4239-94cd-aaa5044f7098": {
+      "dateAssigned": "2026-02-19",
+      "description": "dasme moask osdasdoakd aod paod kadas",
+      "dueDate": "2026-02-25T23:00",
+      "id": "a7ebd838-240c-4239-94cd-aaa5044f7098",
+      "manualCompletionRequired": true,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "a7ebd838-240c-4239-94cd-aaa5044f7098",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "tugas beda"
+    },
+    "bd21d44a-91e5-4293-a423-038df3a73114": {
+      "dateAssigned": "2026-02-19",
+      "description": "just do the task you fkn moron",
+      "dropbox": "209c483e-bc87-4b62-999e-dff81ecea462",
+      "dueDate": "2026-02-26T14:10",
+      "id": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "manualCompletionRequired": false,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "bd21d44a-91e5-4293-a423-038df3a73114",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "a different task"
+    },
+    "db66a577-d897-43ba-a054-ff8c2884d43d": {
+      "dateAssigned": "2026-02-19",
+      "description": "jidjasoidjasoid jasoidjasodiasj doiasj doaisj daioj as",
+      "dueDate": "2026-02-18T03:41",
+      "id": "db66a577-d897-43ba-a054-ff8c2884d43d",
+      "manualCompletionRequired": true,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "db66a577-d897-43ba-a054-ff8c2884d43d",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "cooked or cooked"
+    },
+    "fc30fbba-f94a-4897-91d9-26b27329a08d": {
+      "dateAssigned": "2026-02-22",
+      "description": "civic fd Jo bdkdksw",
+      "dropbox": "081ea9e0-404f-4645-9004-263b4bafc957",
+      "dueDate": "2026-02-28T23:59",
+      "id": "fc30fbba-f94a-4897-91d9-26b27329a08d",
+      "manualCompletionRequired": false,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "fc30fbba-f94a-4897-91d9-26b27329a08d",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "Math Calculus"
+    },
+    "fe319f5b-e595-4a07-9b0d-da1d470c9621": {
+      "dateAssigned": "2026-02-19",
+      "description": "just do the task you fkn moron",
+      "dropbox": "e3181366-aea1-4169-9f37-75b84165178c",
+      "dueDate": "2026-02-19T07:39",
+      "id": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "manualCompletionRequired": false,
+      "publisher": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+      "studentsAssign": [
+        "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+      ],
+      "taskID": "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+      "taskOfCourse": "c34c7e01-94df-425b-92df-064e7ad49fcd",
+      "title": "idiot task"
+    }
+  },
+  "text-style-range": {
+    "02b3d52c-0b0f-4c4e-8355-3346732872f7": {
+      "bold": false,
+      "end": 17,
+      "id": "02b3d52c-0b0f-4c4e-8355-3346732872f7",
+      "italic": true,
+      "start": 12,
+      "underline": true
+    },
+    "071d8dc8-45cc-4b64-a652-d6ec23ba5b2e": {
+      "bold": true,
+      "end": 69,
+      "id": "071d8dc8-45cc-4b64-a652-d6ec23ba5b2e",
+      "italic": true,
+      "start": 58,
+      "underline": false
+    },
+    "151af3b7-a8cc-41e9-8858-e17b8f832e09": {
+      "bold": false,
+      "end": 44,
+      "id": "151af3b7-a8cc-41e9-8858-e17b8f832e09",
+      "italic": true,
+      "start": 26,
+      "underline": false
+    },
+    "1fd94eb2-5641-4c8a-a390-31fb93556ab6": {
+      "bold": true,
+      "end": 62,
+      "id": "1fd94eb2-5641-4c8a-a390-31fb93556ab6",
+      "italic": true,
+      "start": 41,
+      "underline": false
+    },
+    "2ea2a22b-c594-4aa0-967d-bd5831e91cc5": {
+      "bold": true,
+      "end": 109,
+      "id": "2ea2a22b-c594-4aa0-967d-bd5831e91cc5",
+      "italic": false,
+      "start": 62,
+      "underline": true
+    },
+    "6222261f-ccd4-44ce-8216-bd7b76e96360": {
+      "bold": false,
+      "end": 22,
+      "id": "6222261f-ccd4-44ce-8216-bd7b76e96360",
+      "italic": true,
+      "start": 19,
+      "underline": false
+    },
+    "6e6d09c6-8355-46de-a4c8-59fd8e7a6cbc": {
+      "bold": true,
+      "end": 44,
+      "id": "6e6d09c6-8355-46de-a4c8-59fd8e7a6cbc",
+      "italic": true,
+      "start": 21,
+      "underline": true
+    },
+    "77191181-db7a-4ba9-bfce-002b18827894": {
+      "bold": false,
+      "end": 118,
+      "id": "77191181-db7a-4ba9-bfce-002b18827894",
+      "italic": false,
+      "start": 117,
+      "underline": true
+    },
+    "780e808b-4049-41f1-87aa-ec0929b48d9c": {
+      "bold": false,
+      "end": 13,
+      "id": "780e808b-4049-41f1-87aa-ec0929b48d9c",
+      "italic": false,
+      "start": 8,
+      "underline": true
+    },
+    "7dca16fb-7ceb-4d8d-aa41-4289f51b4401": {
+      "bold": true,
+      "end": 26,
+      "id": "7dca16fb-7ceb-4d8d-aa41-4289f51b4401",
+      "italic": false,
+      "start": 0,
+      "underline": false
+    },
+    "87664473-c9c0-426a-a63e-ec8bc1533706": {
+      "bold": false,
+      "end": 17,
+      "id": "87664473-c9c0-426a-a63e-ec8bc1533706",
+      "italic": true,
+      "start": 12,
+      "underline": true
+    },
+    "99a6d11f-5b3b-4655-8f8f-43aa6a7a8ff2": {
+      "bold": true,
+      "end": 44,
+      "id": "99a6d11f-5b3b-4655-8f8f-43aa6a7a8ff2",
+      "italic": true,
+      "start": 21,
+      "underline": true
+    },
+    "9b6ac131-7e3a-43e7-b8a1-e708534219db": {
+      "bold": true,
+      "end": 19,
+      "id": "9b6ac131-7e3a-43e7-b8a1-e708534219db",
+      "italic": false,
+      "start": 5,
+      "underline": false
+    },
+    "a275dc80-10b9-4b1b-ae9e-e72077e3bed2": {
+      "bold": false,
+      "end": 133,
+      "id": "a275dc80-10b9-4b1b-ae9e-e72077e3bed2",
+      "italic": true,
+      "start": 109,
+      "underline": false
+    },
+    "a8ce1c7e-8f1d-4caa-8ad6-b1e4bad0e82d": {
+      "bold": false,
+      "end": 71,
+      "id": "a8ce1c7e-8f1d-4caa-8ad6-b1e4bad0e82d",
+      "italic": false,
+      "start": 44,
+      "underline": true
+    },
+    "b5c20b18-4436-4a0d-91f4-90bb19efe62e": {
+      "bold": false,
+      "end": 117,
+      "id": "b5c20b18-4436-4a0d-91f4-90bb19efe62e",
+      "italic": true,
+      "start": 97,
+      "underline": true
+    },
+    "b7e555ee-0e70-41bf-8c27-be130285275c": {
+      "bold": true,
+      "end": 41,
+      "id": "b7e555ee-0e70-41bf-8c27-be130285275c",
+      "italic": false,
+      "start": 0,
+      "underline": false
+    },
+    "baf58592-5cd3-4fa9-acd7-d0be4363ddbc": {
+      "bold": true,
+      "end": 21,
+      "id": "baf58592-5cd3-4fa9-acd7-d0be4363ddbc",
+      "italic": false,
+      "start": 4,
+      "underline": false
+    },
+    "d31c253e-ee0e-43fc-929c-296eb5716667": {
+      "bold": false,
+      "end": 58,
+      "id": "d31c253e-ee0e-43fc-929c-296eb5716667",
+      "italic": false,
+      "start": 44,
+      "underline": true
+    },
+    "d70c5a6d-5800-4120-adeb-8aa76ba053d9": {
+      "bold": true,
+      "end": 21,
+      "id": "d70c5a6d-5800-4120-adeb-8aa76ba053d9",
+      "italic": false,
+      "start": 4,
+      "underline": false
+    },
+    "d9e19291-602a-427b-9d27-56af14a91a5d": {
+      "bold": false,
+      "end": 12,
+      "id": "d9e19291-602a-427b-9d27-56af14a91a5d",
+      "italic": true,
+      "start": 10,
+      "underline": false
+    },
+    "ee73f23e-eb61-4364-8977-4254835362a9": {
+      "bold": true,
+      "end": 97,
+      "id": "ee73f23e-eb61-4364-8977-4254835362a9",
+      "italic": true,
+      "start": 71,
+      "underline": false
+    },
+    "f281a967-8b53-43ab-acc4-5d73ae029ee5": {
+      "bold": true,
+      "end": 69,
+      "id": "f281a967-8b53-43ab-acc4-5d73ae029ee5",
+      "italic": true,
+      "start": 58,
+      "underline": false
+    },
+    "f4bac0e3-4557-48f6-b617-61d62a9934bf": {
+      "bold": false,
+      "end": 12,
+      "id": "f4bac0e3-4557-48f6-b617-61d62a9934bf",
+      "italic": true,
+      "start": 10,
+      "underline": false
+    },
+    "f640a3b7-dbdc-4a86-9963-f4d410f75fb3": {
+      "bold": false,
+      "end": 58,
+      "id": "f640a3b7-dbdc-4a86-9963-f4d410f75fb3",
+      "italic": false,
+      "start": 44,
+      "underline": true
+    }
+  },
+  "user-status": {
+    "0159Tg4dgHTpP1zXmGovkJ6z3jv2": {
+      "lastSeen": "2026-02-22T23:24:51.959500",
+      "online": false,
+      "userID": "0159Tg4dgHTpP1zXmGovkJ6z3jv2"
+    },
+    "6Wps5R7X2XRpi2xb9PcnvMid3Z22": {
+      "lastSeen": "2026-02-22T23:48:28.943717",
+      "online": false,
+      "userID": "6Wps5R7X2XRpi2xb9PcnvMid3Z22"
+    },
+    "7TgmEjIyhJX3QlSsFJjCXXYnmac2": {
+      "lastSeen": "2026-02-23T00:54:45.302359",
+      "online": true,
+      "userID": "7TgmEjIyhJX3QlSsFJjCXXYnmac2"
+    },
+    "MzxM90vTM9Sf1Wf31f3v0D4gXwq1": {
+      "lastSeen": "2026-02-23T00:10:04.446783",
+      "online": false,
+      "userID": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1"
+    },
+    "R8WtvIhCWFgJwEmnyDsIIMmGFH63": {
+      "lastSeen": "2026-02-22T23:16:08.329966",
+      "online": false,
+      "userID": "R8WtvIhCWFgJwEmnyDsIIMmGFH63"
+    },
+    "WNPaOv2rqGaY7f0LVNJLQmuvHOq2": {
+      "lastSeen": "2026-02-22T23:40:53.585966",
+      "online": false,
+      "userID": "WNPaOv2rqGaY7f0LVNJLQmuvHOq2"
+    }
+  },
+  "users": {
+    "admins": {
+      "8zN32OOyWaOcJdnTj8fnNYHo1bn1": {
+        "age": 58,
+        "birthDate": "25/11/1967",
+        "email": "akaifranco@gmail.com",
+        "fullName": "Ferosiados",
+        "gender": "Male",
+        "id": "8zN32OOyWaOcJdnTj8fnNYHo1bn1",
+        "language": "English",
+        "nickname": "AkaiFranco",
+        "phoneNumber": "0854626946",
+        "theme": "System",
+        "uid": "8zN32OOyWaOcJdnTj8fnNYHo1bn1",
+        "userType": "Admin"
+      }
+    },
+    "roles": {
+      "0159Tg4dgHTpP1zXmGovkJ6z3jv2": {
+        "role": "Student"
+      },
+      "6Wps5R7X2XRpi2xb9PcnvMid3Z22": {
+        "role": "Student"
+      },
+      "7TgmEjIyhJX3QlSsFJjCXXYnmac2": {
+        "role": "Student"
+      },
+      "8zN32OOyWaOcJdnTj8fnNYHo1bn1": {
+        "role": "Admin"
+      },
+      "MzxM90vTM9Sf1Wf31f3v0D4gXwq1": {
+        "role": "Teacher"
+      }
+    },
+    "students": {
+      "6Wps5R7X2XRpi2xb9PcnvMid3Z22": {
+        "age": 36,
+        "autoSchedule": 1,
+        "birthDate": "22/2/1990",
+        "courseInterested": [
+          "Piano",
+          "Chinese",
+          "Drum"
+        ],
+        "email": "menmennn69@gmail.com",
+        "fullName": "Timothy Ronald",
+        "gender": "Male",
+        "gradeLevel": "",
+        "hasScheduled": false,
+        "id": "6Wps5R7X2XRpi2xb9PcnvMid3Z22",
+        "language": "English",
+        "lastScheduled": "",
+        "lateAttendance": 0,
+        "lateSubmissions": 0,
+        "nickname": "AC",
+        "notificationEarlyDuration": 30,
+        "percentageCompleted": 0,
+        "phoneNumber": "0819465161",
+        "school": "",
+        "theme": "System",
+        "uid": "6Wps5R7X2XRpi2xb9PcnvMid3Z22",
+        "userType": "Student"
+      },
+      "7TgmEjIyhJX3QlSsFJjCXXYnmac2": {
+        "age": 19,
+        "allSchedules": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10",
+          "dc008c36-8b51-46ed-b451-9003cff14024",
+          "d498652c-a85d-4256-8176-5836a9d37fc5"
+        ],
+        "allTask": [
+          "f92c7f77-94f5-4882-99de-445eb6956f21",
+          "dd24b250-ea32-441f-a829-dca9b31cc2c3",
+          "3a54bfbb-14ce-43f0-a1e7-c2b9b04e1245",
+          "3fddeced-c56d-49a6-9196-b8b8047092a7",
+          "fe319f5b-e595-4a07-9b0d-da1d470c9621",
+          "bd21d44a-91e5-4293-a423-038df3a73114",
+          "db66a577-d897-43ba-a054-ff8c2884d43d",
+          "20184fca-abce-4c10-9e31-f3dd3b70c8ad",
+          "a7ebd838-240c-4239-94cd-aaa5044f7098",
+          "fc30fbba-f94a-4897-91d9-26b27329a08d"
+        ],
+        "autoSchedule": 1,
+        "birthDate": "2/12/2006",
+        "courseInterested": [
+          "Bimbel",
+          "Math",
+          "Piano",
+          "Chinese"
+        ],
+        "courseTaken": [
+          "c34c7e01-94df-425b-92df-064e7ad49fcd",
+          "bac0bbe6-022b-4e9f-9a06-2025bbd41d33"
+        ],
+        "email": "raphael.zhao@tunasmuda.sch.id",
+        "fullName": "Raynard Luhur",
+        "gender": "Male",
+        "gradeLevel": "Year 12",
+        "hasScheduled": false,
+        "id": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+        "inbox": [
+          "e0dfc31f-2f8f-43ff-9ff8-7fd9f3988d5e",
+          "6bc6e347-c4af-4b1d-9dc1-7913055acc99",
+          "3dab4d9f-8aba-4cae-bfbe-eeeb6807ac8c",
+          "2428bfd7-faef-41ba-8208-6a91409542b9"
+        ],
+        "language": "English",
+        "lastModified": 1771680353601,
+        "lastScheduled": "",
+        "lateAttendance": 0,
+        "lateSubmissions": 2,
+        "manualCompletedTask": [
+          "db66a577-d897-43ba-a054-ff8c2884d43d",
+          "a7ebd838-240c-4239-94cd-aaa5044f7098"
+        ],
+        "meetingHistory": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-16",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19"
+        ],
+        "nextMeeting": "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19",
+        "nickname": "KaizerBLACKKKK",
+        "notificationEarlyDuration": 30,
+        "percentageCompleted": 0,
+        "phoneNumber": "084564361911",
+        "preScheduledMeetings": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-23",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-02",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-09",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-26",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-05",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-12",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-16",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-19",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-02-25",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-04",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-11",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-18",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-02-26",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-05",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-12",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-19"
+        ],
+        "scheduleCompletedThisWeek": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10"
+        ],
+        "school": "Tunas Muda School",
+        "studentCourseTaken": [
+          "0fe557c6-1242-4bcf-8fdf-8d5695d616d4",
+          "12f31eef-150b-4696-a1c0-5048575c61d9"
+        ],
+        "theme": "Dark",
+        "uid": "7TgmEjIyhJX3QlSsFJjCXXYnmac2",
+        "uncompletedTask": [
+          "fc30fbba-f94a-4897-91d9-26b27329a08d"
+        ],
+        "userType": "Student"
+      }
+    },
+    "teachers": {
+      "MzxM90vTM9Sf1Wf31f3v0D4gXwq1": {
+        "age": 17,
+        "birthDate": "6/9/2008",
+        "completedMeetings": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-16",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-19"
+        ],
+        "courseTypeTeach": [
+          "Piano",
+          "Math"
+        ],
+        "coursesTeach": [
+          "c34c7e01-94df-425b-92df-064e7ad49fcd",
+          "ac62408d-748a-4a8a-97aa-59d7aa94118e",
+          "bac0bbe6-022b-4e9f-9a06-2025bbd41d33"
+        ],
+        "draftMails": [
+          "7248b8a2-7bf4-4e7c-90d3-76ce89f6a595"
+        ],
+        "email": "clementzhao74@gmail.com",
+        "fullName": "Clement Zhao",
+        "gender": "Male",
+        "id": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+        "language": "English",
+        "lastModified": 1771779622886,
+        "latestSubmission": [
+          "f7011f31-5a0c-459d-abd7-1c2dd999c640",
+          "89a27384-32a4-4f20-88dd-666b3dbcd35e"
+        ],
+        "nickname": "Clement",
+        "outbox": [
+          "e0dfc31f-2f8f-43ff-9ff8-7fd9f3988d5e",
+          "6bc6e347-c4af-4b1d-9dc1-7913055acc99",
+          "3dab4d9f-8aba-4cae-bfbe-eeeb6807ac8c",
+          "2428bfd7-faef-41ba-8208-6a91409542b9"
+        ],
+        "pfpCloudinary": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771779620/wlyx7awlkpjcrzu22z6d.jpg",
+        "phoneNumber": "+6281906184645",
+        "profileImageCloudinary": "https://res.cloudinary.com/daccry0jr/raw/upload/v1771779620/wlyx7awlkpjcrzu22z6d.jpg",
+        "scheduledMeetings": [
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-02-23",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-02",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-09",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-02-26",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-05",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-12",
+          "efb6d381-a8df-41c0-b45b-808d881f0a55_2026-03-16",
+          "97905b92-ef7c-4d4d-bb04-945928af6e10_2026-03-19",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-02-25",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-04",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-11",
+          "dc008c36-8b51-46ed-b451-9003cff14024_2026-03-18",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-02-26",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-05",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-12",
+          "d498652c-a85d-4256-8176-5836a9d37fc5_2026-03-19"
+        ],
+        "teachYearExperience": 0,
+        "teacherResume": "",
+        "theme": "System",
+        "timeArrangements": [
+          "e99306fe-a791-46f4-8901-57d5d8b614c9",
+          "70d30a4b-26fa-408a-864b-2b42c5ddd71e",
+          "28342d9d-12f9-4d78-b3bc-ae5690b5f74a",
+          "12607ca8-701d-4c0a-ba5d-6dc95c9c15d5",
+          "fe4ec27e-891c-4995-b1ef-1e00f5d559fd"
+        ],
+        "uid": "MzxM90vTM9Sf1Wf31f3v0D4gXwq1",
+        "userType": "Teacher"
+      }
+    }
+  }
+}

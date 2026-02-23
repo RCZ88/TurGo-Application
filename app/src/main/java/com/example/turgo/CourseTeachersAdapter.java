@@ -8,27 +8,40 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersViewHolder>{
+    private static final DateTimeFormatter MEETING_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM d, yyyy");
+
     ArrayList<Course>courses;
     ArrayList<Meeting>meetings;
     OnItemClickListener<Course>listener;
     ArrayList<Integer>studentCountOfCourse;
+    private final CourseTeacherItemMode mode;
 
     public CourseTeachersAdapter(ArrayList<Course> courses, ArrayList<Meeting>meetings, ArrayList<Integer>studentCountOfCourse, OnItemClickListener<Course>listener) {
+        this(courses, meetings, studentCountOfCourse, listener, CourseTeacherItemMode.RECYCLER);
+    }
+
+    public CourseTeachersAdapter(ArrayList<Course> courses, ArrayList<Meeting>meetings, ArrayList<Integer>studentCountOfCourse, OnItemClickListener<Course>listener, CourseTeacherItemMode mode) {
         this.courses = courses;
         this.meetings = meetings;
         this.studentCountOfCourse = studentCountOfCourse;
         this.listener = listener;
+        this.mode = mode != null ? mode : CourseTeacherItemMode.RECYCLER;
     }
 
     @NonNull
     @Override
     public CourseTeachersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        int layout = mode == CourseTeacherItemMode.VIEW_PAGER
+                ? R.layout.course_teacher_viewpager_viewholder
+                : R.layout.course_teacher_viewholder;
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.course_teacher_viewholder, parent, false);
-        return new CourseTeachersViewHolder(view, listener, courses.get(viewType));
+                .inflate(layout, parent, false);
+        return new CourseTeachersViewHolder(view, listener);
     }
 
     @SuppressLint("SetTextI18n")
@@ -43,6 +56,7 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
         }
 
         Course course = courses.get(position);
+        holder.course = course;
         holder.tv_courseName.setText(course.getCourseName() != null ? course.getCourseName() : "Unnamed Course");
 
         // Handle student count safely
@@ -58,7 +72,7 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
         if (meetings != null && position < meetings.size()) {
             Meeting nextMeetingOfNextSchedule = meetings.get(position);
             if (nextMeetingOfNextSchedule != null && nextMeetingOfNextSchedule.getDateOfMeeting() != null) {
-                nextMeeting = nextMeetingOfNextSchedule.getDateOfMeeting().toString();
+                nextMeeting = formatMeetingDate(nextMeetingOfNextSchedule.getDateOfMeeting());
             }
         }
         holder.tv_nextSchedule.setText(nextMeeting);
@@ -67,5 +81,16 @@ public class CourseTeachersAdapter extends RecyclerView.Adapter<CourseTeachersVi
     @Override
     public int getItemCount() {
         return courses.size();
+    }
+
+    private static String formatMeetingDate(LocalDate date) {
+        if (date == null) {
+            return "-";
+        }
+        int year = date.getYear();
+        if (year < 0 || year > 9999) {
+            return "-";
+        }
+        return date.format(MEETING_DATE_FORMAT);
     }
 }

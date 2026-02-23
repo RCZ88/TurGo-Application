@@ -1,52 +1,38 @@
 package com.example.turgo;
 
-import static android.content.Intent.getIntent;
-
-import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Comparator;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AllAgendaPage#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class AllAgendaPage extends Fragment {
-    ArrayList<Agenda>agendas;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    RecyclerView rv_allAgenda;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView rvThisWeek;
+    private RecyclerView rvPastAgendas;
+    private LinearLayout llThisWeekEmpty;
+    private LinearLayout llPastEmpty;
+    private TextView tvThisWeekCount;
+    private TextView tvPastCount;
 
-    public AllAgendaPage(ArrayList<Agenda> agendas){
-        this.agendas = agendas;
-    }
-    public AllAgendaPage() {
-        // Required empty public constructor
-    }
+    private final ArrayList<Agenda> thisWeekAgendas = new ArrayList<>();
+    private final ArrayList<Agenda> pastAgendas = new ArrayList<>();
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AllAgendaPage.
-     */
-    // TODO: Rename and change types and number of parameters
+    public AllAgendaPage() {}
+
     public static AllAgendaPage newInstance(String param1, String param2) {
         AllAgendaPage fragment = new AllAgendaPage();
         Bundle args = new Bundle();
@@ -59,22 +45,81 @@ public class AllAgendaPage extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    @SuppressWarnings("unchecked")
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_all_agenda_page, container, false);
-        rv_allAgenda = view.findViewById(R.id.rv_AllAgendas);
+
+        rvThisWeek = view.findViewById(R.id.rv_AAP_ThisWeek);
+        rvPastAgendas = view.findViewById(R.id.rv_AAP_PastAgendas);
+        llThisWeekEmpty = view.findViewById(R.id.ll_AAP_ThisWeekEmpty);
+        llPastEmpty = view.findViewById(R.id.ll_AAP_PastEmpty);
+        tvThisWeekCount = view.findViewById(R.id.tv_AAP_ThisWeekCount);
+        tvPastCount = view.findViewById(R.id.tv_AAP_PastCount);
+
+        rvThisWeek.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvPastAgendas.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        ArrayList<Agenda> agendas = new ArrayList<>();
         Bundle bundle = getArguments();
-        agendas = (ArrayList<Agenda>)bundle.getSerializable(Agenda.SERIALIZE_KEY_CODE);
-        AgendaAdapter agendaAdapter = new AgendaAdapter(agendas);
-        rv_allAgenda.setAdapter(agendaAdapter);
-        // Inflate the layout for this fragment
+        if (bundle != null && bundle.getSerializable(Agenda.SERIALIZE_KEY_CODE) instanceof ArrayList) {
+            agendas = (ArrayList<Agenda>) bundle.getSerializable(Agenda.SERIALIZE_KEY_CODE);
+        }
+
+        splitAgendasByWeek(agendas != null ? agendas : new ArrayList<>());
+        bindSections();
         return view;
+    }
+
+    private void splitAgendasByWeek(ArrayList<Agenda> source) {
+        thisWeekAgendas.clear();
+        pastAgendas.clear();
+
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate weekEnd = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        for (Agenda agenda : source) {
+            if (agenda == null || agenda.getDate() == null) {
+                continue;
+            }
+            LocalDate agendaDate = agenda.getDate();
+            if (!agendaDate.isBefore(weekStart) && !agendaDate.isAfter(weekEnd)) {
+                thisWeekAgendas.add(agenda);
+            } else if (agendaDate.isBefore(weekStart)) {
+                pastAgendas.add(agenda);
+            } else {
+                thisWeekAgendas.add(agenda);
+            }
+        }
+
+        thisWeekAgendas.sort(Comparator.comparing(Agenda::getDate, Comparator.nullsLast(LocalDate::compareTo)));
+        pastAgendas.sort((a, b) -> {
+            LocalDate da = a.getDate();
+            LocalDate db = b.getDate();
+            if (da == null && db == null) {
+                return 0;
+            }
+            if (da == null) {
+                return 1;
+            }
+            if (db == null) {
+                return -1;
+            }
+            return db.compareTo(da);
+        });
+    }
+
+    private void bindSections() {
+        rvThisWeek.setAdapter(new AgendaAdapter(thisWeekAgendas));
+        rvPastAgendas.setAdapter(new AgendaAdapter(pastAgendas));
+
+        tvThisWeekCount.setText(String.valueOf(thisWeekAgendas.size()));
+        tvPastCount.setText(String.valueOf(pastAgendas.size()));
+
+        Tool.handleEmpty(thisWeekAgendas.isEmpty(), rvThisWeek, llThisWeekEmpty);
+        Tool.handleEmpty(pastAgendas.isEmpty(), rvPastAgendas, llPastEmpty);
     }
 }

@@ -68,8 +68,10 @@
                     android:gravity="center_vertical">
 
                     <ImageView
+                        android:id="@+id/iv_something"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
+                        android:src="@android:drawable/ic_menu_recent_history"
                         app:tint="@color/brand_emerald"
                         tools:src="@android:drawable/ic_menu_recent_history" />
 
@@ -108,25 +110,51 @@
                     android:textColor="@color/black_soft"
                     android:textSize="22sp" />
 
-                <TextView
-                    android:id="@+id/tv_TD_MeetingRoom"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="📍 Room A / Online"
-                    android:textColor="@color/brand_emerald"
-                    android:textSize="14sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                <Button
-                    android:id="@+id/btn_TD_TodaysSchedule"
+                    <ImageView
+                        android:id="@+id/imageView4"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_marginTop="4dp"
+                        android:src="@drawable/door_open" />
+
+                    <TextView
+                        android:id="@+id/tv_TD_MeetingRoom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginTop="4dp"
+                        android:text="Room A / Online"
+                        android:textColor="@color/brand_emerald"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_TD_ViewSchedulesAction"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:layout_marginTop="16dp"
                     android:background="@drawable/bg_emerald_btn_primary"
-                    android:text="View All Schedules"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white_soft"
-                    app:backgroundTint="@null" />
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_TD_ViewSchedulesAction"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/bricolage_grotesque_bold"
+                        android:maxLines="1"
+                        android:text="View All Schedules"
+                        android:textColor="@color/white_soft"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
 
@@ -157,11 +185,14 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
+                        android:id="@+id/ll_TD_CreateTaskAction"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_emerald_input"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingVertical="8dp">
@@ -172,24 +203,26 @@
                             android:layout_height="wrap_content"
                             android:textSize="20sp" />
 
-                        <Button
-                            android:id="@+id/btn_TD_CreateTask"
+                        <TextView
+                            android:id="@+id/tv_TD_CreateTaskAction"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
                             android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:maxLines="1"
                             android:text="Task"
                             android:textColor="@color/brand_emerald_dark"
-                            android:textSize="12sp"
-                            app:backgroundTint="@null" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_TD_AddAgendaAction"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="4dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_emerald_input"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingVertical="8dp">
@@ -200,24 +233,26 @@
                             android:layout_height="wrap_content"
                             android:textSize="20sp" />
 
-                        <Button
-                            android:id="@+id/btn_TD_AddAgenda"
+                        <TextView
+                            android:id="@+id/tv_TD_AddAgendaAction"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
                             android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:maxLines="1"
                             android:text="Agenda"
                             android:textColor="@color/brand_emerald_dark"
-                            android:textSize="12sp"
-                            app:backgroundTint="@null" />
+                            android:textSize="11sp" />
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_TD_AddDTAAction"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_emerald_input"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:paddingVertical="8dp">
@@ -228,16 +263,15 @@
                             android:layout_height="wrap_content"
                             android:textSize="20sp" />
 
-                        <Button
-                            android:id="@+id/btn_TD_AddDTA"
+                        <TextView
+                            android:id="@+id/tv_TD_AddDTAAction"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="@android:color/transparent"
                             android:fontFamily="@font/bricolage_grotesque_bold"
+                            android:maxLines="1"
                             android:text="DTA"
                             android:textColor="@color/brand_emerald_dark"
-                            android:textSize="12sp"
-                            app:backgroundTint="@null" />
+                            android:textSize="11sp" />
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -248,12 +282,14 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_emerald_card"
                 android:minHeight="160dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:paddingTop="8dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginStart="8dp"
                     android:layout_marginBottom="12dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
@@ -271,15 +307,27 @@
                         android:layout_height="0dp"
                         android:layout_weight="1" />
 
-                    <Button
-                        android:id="@+id/btn_TD_CreateCourse"
+                    <LinearLayout
+                        android:id="@+id/ll_TD_CreateCourseAction"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:text="+ Create New"
-                        android:textColor="@color/brand_emerald"
-                        android:textStyle="bold"
-                        app:backgroundTint="@null" />
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:gravity="center"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="6dp">
+
+                        <TextView
+                            android:id="@+id/tv_TD_CreateCourseAction"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:text="+ Create New"
+                            android:textColor="@color/brand_emerald"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout

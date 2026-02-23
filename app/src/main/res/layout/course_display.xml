@@ -40,7 +40,7 @@
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
-                android:fontFamily="@font/bricolage_grotesque_heading"
+                android:fontFamily="@font/bricolage_grotesque_bold"
                 android:maxLines="2"
                 android:text="Course Title"
                 android:textColor="@color/brand_emerald_dark"
@@ -94,7 +94,7 @@
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:id="@+id/ivDateIcon"
+                    android:id="@+id/iv_cdnf_dateIcon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:src="@drawable/calendar"

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -13,15 +14,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,11 +31,12 @@ public class TeacherDashboard extends Fragment{
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    Button btn_viewTodaySchedule, btn_CreateTask, btn_addAgenda, btn_addDTA, btn_createCourse;
+    LinearLayout ll_viewTodayScheduleAction, ll_createTaskAction, ll_addAgendaAction, ll_addDTAAction, ll_createCourseAction;
     TextView tv_courseName, tv_scheduleTime, tv_meetingRoom
             ,tv_noActiveCourses, tv_noRecentStudentSubmit;
     RecyclerView rv_recentStudentSubmit;
     ViewPager2 vp2_activeCourses;
+    CourseTeachersAdapter courseTeachersAdapter;
 
     ArrayList<Course> teacherCoursesTeach = new ArrayList<>();
     ArrayList<Integer> studentCountOfCourses = new ArrayList<>();
@@ -96,19 +93,19 @@ public class TeacherDashboard extends Fragment{
         loadTeacher();
         // Find all views
         Log.d("TeacherDashboard", "Finding views...");
-        btn_viewTodaySchedule = view.findViewById(R.id.btn_TD_TodaysSchedule);
-        Log.d("TeacherDashboard", "btn_viewTodaySchedule: " + (btn_viewTodaySchedule != null ? "FOUND" : "NULL"));
+        ll_viewTodayScheduleAction = view.findViewById(R.id.ll_TD_ViewSchedulesAction);
+        Log.d("TeacherDashboard", "ll_viewTodayScheduleAction: " + (ll_viewTodayScheduleAction != null ? "FOUND" : "NULL"));
 
-        btn_CreateTask = view.findViewById(R.id.btn_TD_CreateTask);
-        Log.d("TeacherDashboard", "btn_CreateTask: " + (btn_CreateTask != null ? "FOUND" : "NULL"));
+        ll_createTaskAction = view.findViewById(R.id.ll_TD_CreateTaskAction);
+        Log.d("TeacherDashboard", "ll_createTaskAction: " + (ll_createTaskAction != null ? "FOUND" : "NULL"));
 
-        btn_addAgenda = view.findViewById(R.id.btn_TD_AddAgenda);
-        Log.d("TeacherDashboard", "btn_addAgenda: " + (btn_addAgenda != null ? "FOUND" : "NULL"));
+        ll_addAgendaAction = view.findViewById(R.id.ll_TD_AddAgendaAction);
+        Log.d("TeacherDashboard", "ll_addAgendaAction: " + (ll_addAgendaAction != null ? "FOUND" : "NULL"));
 
-        btn_addDTA = view.findViewById(R.id.btn_TD_AddDTA);
-        Log.d("TeacherDashboard", "btn_addDTA: " + (btn_addDTA != null ? "FOUND" : "NULL"));
+        ll_addDTAAction = view.findViewById(R.id.ll_TD_AddDTAAction);
+        Log.d("TeacherDashboard", "ll_addDTAAction: " + (ll_addDTAAction != null ? "FOUND" : "NULL"));
 
-        btn_createCourse = view.findViewById(R.id.btn_TD_CreateCourse);
+        ll_createCourseAction = view.findViewById(R.id.ll_TD_CreateCourseAction);
 
         tv_courseName = view.findViewById(R.id.tv_TD_courseName);
         Log.d("TeacherDashboard", "tv_courseName: " + (tv_courseName != null ? "FOUND" : "NULL"));
@@ -158,7 +155,7 @@ public class TeacherDashboard extends Fragment{
                 }
                 nextSchedule.getRoom().addOnSuccessListener(room -> {
                     if (tv_meetingRoom != null) {
-                        tv_meetingRoom.setText(room != null ? room.getID() : "No room");
+                        tv_meetingRoom.setText(room != null ? room.getRoomTag() : "No room");
                     }
                 });
                 if (tv_scheduleTime != null) {
@@ -179,7 +176,7 @@ public class TeacherDashboard extends Fragment{
 
 
 
-        btn_viewTodaySchedule.setOnClickListener(view1 -> {
+        ll_viewTodayScheduleAction.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "View Today's Schedule clicked");
             TeacherScheduleList tesl = new TeacherScheduleList();
             Bundle bundle = new Bundle();
@@ -189,26 +186,26 @@ public class TeacherDashboard extends Fragment{
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tesl);
         });
 
-        btn_CreateTask.setOnClickListener(view1 -> {
+        ll_createTaskAction.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Create Task clicked");
             TeacherCreateTask tct = new TeacherCreateTask();
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tct);
         });
 
-        btn_addAgenda.setOnClickListener(view1 -> {
+        ll_addAgendaAction.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add Agenda clicked");
             TeacherAddAgenda taa = new TeacherAddAgenda();
 
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
         });
 
-        btn_addDTA.setOnClickListener(view1 -> {
+        ll_addDTAAction.setOnClickListener(view1 -> {
             Log.d("TeacherDashboard", "Add DTA clicked");
             TeacherAddDTA tad = new TeacherAddDTA();
             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tad);
         });
 
-        btn_createCourse.setOnClickListener(v -> {
+        ll_createCourseAction.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), CreateCourse.class);
             startActivity(intent);
         });
@@ -249,9 +246,11 @@ public class TeacherDashboard extends Fragment{
             @Override
             public void onItemLongClick(Course item) {
             }
-        });
+        }, CourseTeacherItemMode.VIEW_PAGER);
         Log.d("TeacherDashboard", "Setting adapter to vp2_activeCourses...");
-        vp2_activeCourses.setAdapter(cta);
+        courseTeachersAdapter = cta;
+        vp2_activeCourses.setAdapter(courseTeachersAdapter);
+        courseTeachersAdapter.notifyDataSetChanged();
         Log.d("TeacherDashboard", "✓ Adapter set");
 
         Log.d("TeacherDashboard", "Processing submissions...");
@@ -274,6 +273,13 @@ public class TeacherDashboard extends Fragment{
         Log.d("TeacherDashboard", "Creating SubmissionAdapter...");
         SubmissionAdapter sa = new SubmissionAdapter(latestSubmission);
         Log.d("TeacherDashboard", "Setting adapter to rv_recentStudentSubmit...");
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
+        rv_recentStudentSubmit.setLayoutManager(layoutManager);
+
+// 2. Attach the PagerSnapHelper (This is the magic "one at a time" part)
+        PagerSnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(rv_recentStudentSubmit);
+
         rv_recentStudentSubmit.setAdapter(sa);
         Log.d("TeacherDashboard", "✓ Adapter set");
 
@@ -293,15 +299,47 @@ public class TeacherDashboard extends Fragment{
     }
     private void loadTeacher(){
         Teacher teacher = ((TeacherScreen)requireActivity()).getTeacher();
-        teacherCoursesTeach = teacher.getCoursesTeach();
-        List<Task<Meeting>> taskForMeeting = Tool.streamToArray(teacherCoursesTeach.stream().map(Course::getNextMeetingOfNextSchedule).filter(Objects::nonNull));
-        Tasks.whenAllSuccess(taskForMeeting).addOnSuccessListener(meetings ->{
-            nextMeetingOfCourses = new ArrayList<>();
-            for(Object m : meetings){
-                nextMeetingOfCourses.add((Meeting)m);
+        teacherCoursesTeach = teacher != null && teacher.getCoursesTeach() != null
+                ? teacher.getCoursesTeach()
+                : new ArrayList<>();
+
+        studentCountOfCourses = new ArrayList<>();
+        nextMeetingOfCourses = new ArrayList<>();
+
+        for (int i = 0; i < teacherCoursesTeach.size(); i++) {
+            Course course = teacherCoursesTeach.get(i);
+            int studentCount = 0;
+            if (course != null && course.getStudentIds() != null) {
+                studentCount = course.getStudentIds().size();
             }
-        });
-        studentCountOfCourses = Tool.streamToArray(teacherCoursesTeach.stream().map(course -> course.getStudentIds().size()));
+            studentCountOfCourses.add(studentCount);
+            nextMeetingOfCourses.add(null);
+        }
+
+        for (int i = 0; i < teacherCoursesTeach.size(); i++) {
+            final int index = i;
+            Course course = teacherCoursesTeach.get(i);
+            if (course == null || course.getNextMeetingOfNextSchedule() == null) {
+                continue;
+            }
+            course.getNextMeetingOfNextSchedule()
+                    .addOnSuccessListener(meeting -> {
+                        if (index >= 0 && index < nextMeetingOfCourses.size()) {
+                            nextMeetingOfCourses.set(index, meeting);
+                        }
+                        if (isAdded() && courseTeachersAdapter != null) {
+                            courseTeachersAdapter.notifyItemChanged(index);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        if (index >= 0 && index < nextMeetingOfCourses.size()) {
+                            nextMeetingOfCourses.set(index, null);
+                        }
+                        if (isAdded() && courseTeachersAdapter != null) {
+                            courseTeachersAdapter.notifyItemChanged(index);
+                        }
+                    });
+        }
     }
     @Override
     public void onStart() {

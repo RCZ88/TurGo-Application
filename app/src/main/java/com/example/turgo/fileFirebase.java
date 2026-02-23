@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class fileFirebase implements FirebaseClass<file>{
     private String fileID;
     private String secureURL;
+    private String fileName;
     private String uploader;
     private String fileCreateDate;
     private String submitTime;
@@ -24,8 +25,9 @@ public class fileFirebase implements FirebaseClass<file>{
         }
 
         fileID = from.getID();
-        secureURL = from.getSecureURL();
-        uploader = (from.getUploader() != null) ? from.getUploader().getUid() : "";
+        secureURL = Tool.boolOf(from.getSecureURL()) ? from.getSecureURL() : null;
+        fileName = from.getFileName();
+        uploader = (from.getUploader() != null && Tool.boolOf(from.getUploader().getUid())) ? from.getUploader().getUid() : null;
 
         // Use current time as fallback for dates
         fileCreateDate = (from.getFileCreateDate() != null) ?
@@ -33,7 +35,7 @@ public class fileFirebase implements FirebaseClass<file>{
         submitTime = (from.getSubmitTime() != null) ?
                 from.getSubmitTime().toString() : null;
 
-        ofTask = (from.getOfTask() != null) ? from.getOfTask().getID() : "";
+        ofTask = (from.getOfTask() != null && Tool.boolOf(from.getOfTask().getID())) ? from.getOfTask().getID() : null;
     }
 
     public fileFirebase(){}
@@ -73,6 +75,14 @@ public class fileFirebase implements FirebaseClass<file>{
 
     public void setSecureURL(String secureURL) {
         this.secureURL = secureURL;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public String getUploader() {

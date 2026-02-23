@@ -9,6 +9,9 @@ public class Pair <O1, O2>{
         one = first;
         two = second;
     }
+    public static <A, B> Pair<A,B> newInstance(A first, B second){
+        return new Pair<>(first, second);
+    }
 
     @NonNull
     @Override

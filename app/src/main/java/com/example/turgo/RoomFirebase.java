@@ -12,27 +12,22 @@ public class RoomFirebase implements FirebaseClass<Room>{
     private boolean used;
     private String currentlyOccupiedBy; // Store meeting ID instead of full Meeting object
     private ArrayList<String> schedules; // Store schedule IDs instead of full objects
+    private String roomTag;
+    private int capacity;
 
     public RoomFirebase() {
     }
 
-    public RoomFirebase(String roomId, ArrayList<String> suitableCourseType,
-                        boolean used, String currentlyOccupiedBy,
-                        ArrayList<String> schedules) {
-        this.roomId = roomId;
-        this.suitableCourseType = suitableCourseType;
-        this.used = used;
-        this.currentlyOccupiedBy = currentlyOccupiedBy;
-        this.schedules = schedules;
-    }
     @Override
     public void importObjectData(Room from) {
         this.roomId = from.getID();
         this.suitableCourseType = convertToIdList(from.getSuitableCourseType());
         this.used = from.isUsed();
         // Store only Meeting ID instead of full object
-        this.currentlyOccupiedBy = from.getCurrentlyOccupiedBy().getID();
+        this.currentlyOccupiedBy = from.getCurrentlyOccupiedBy() != null ? from.getCurrentlyOccupiedBy().getID() : "";
         this.schedules = convertToIdList(from.getSchedules());
+        this.roomTag = from.getRoomTag();
+        this.capacity = from.getCapacity();
     }
 
     @Override
@@ -52,6 +47,22 @@ public class RoomFirebase implements FirebaseClass<Room>{
 
             }
         });
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public String getRoomTag() {
+        return roomTag;
+    }
+
+    public void setRoomTag(String roomTag) {
+        this.roomTag = roomTag;
     }
 
     public String getRoomId() {

@@ -1,5 +1,7 @@
 package com.example.turgo;
 
+import android.util.Log;
+
 import com.google.firebase.database.DatabaseError;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +18,7 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
     private int lateAttendance;
     private int lateSubmissions;
     private boolean hasScheduled;
+    private String completionWeekKey;
     private String school;
     private String gradeLevel;
     private ArrayList<String> courseTaken;
@@ -28,6 +31,8 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
     private ArrayList<String> allSchedules;
     private ArrayList<String> allTask;
     private ArrayList<String> uncompletedTask;
+    private ArrayList<String> manualCompletedTask;
+    private ArrayList<String> manualMissedTask;
     private ArrayList<String> allAgendas;
 
     public StudentFirebase(){
@@ -45,14 +50,15 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         setPhoneNumber(from.getPhoneNumber());
         setLanguage(from.getLanguage().getDisplayName());
         setTheme(from.getTheme().getTheme());
-        setInbox(convertToIdList(from.getInbox()));
-        setOutbox(convertToIdList(from.getOutbox()));
-        setNotifications(convertToIdList(from.getNotifications()));
+        setInbox(from.getInboxIds());
+        setOutbox(from.getOutboxIds());
+        setNotifications(from.getNotificationsIds());
         setSchool(from.getSchool());
         setGradeLevel(from.getGradeLevel());
 
         percentageCompleted = from.getPercentageCompleted();
-        nextMeeting = (from.getNextMeeting() != null && from.getNextMeeting().getID() != null) ? from.getNextMeeting().getID() : null;
+        completionWeekKey = from.getCompletionWeekKey();
+        nextMeeting = from.getNextMeetingId();
         hasScheduled = from.isHasScheduled();
         lastScheduled = from.getLastScheduled() != null ? from.getLastScheduled().toString() : "";
         autoSchedule = from.getAutoSchedule();
@@ -67,17 +73,19 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
         lateSubmissions = from.getLateSubmissions();
 
         // Lists -> ID lists (use convertToIdList helper for object lists)
-        courseTaken = from.getCourseTaken() != null ? convertToIdList(from.getCourseTaken()) : new ArrayList<>();
-        studentCourseTaken = from.getStudentCourseTaken() != null ? convertToIdList(from.getStudentCourseTaken()) : new ArrayList<>();
+        courseTaken = from.getCourseTakenIds() != null ? from.getCourseTakenIds() : new ArrayList<>();
+        studentCourseTaken = from.getStudentCourseTakenIds() != null ? from.getStudentCourseTakenIds() : new ArrayList<>();
         courseInterested = from.getCourseInterested() != null ? from.getCourseInterested() : new ArrayList<>();
-        courseRelated = from.getCourseRelated() != null ? convertToIdList(from.getCourseRelated()) : new ArrayList<>();
-        preScheduledMeetings = from.getPreScheduledMeetings() != null ? convertToIdList(from.getPreScheduledMeetings()) : new ArrayList<>();
-        meetingHistory = from.getMeetingHistory() != null ? convertToIdList(from.getMeetingHistory()) : new ArrayList<>();
-        scheduleCompletedThisWeek = from.getScheduleCompletedThisWeek() != null ? convertToIdList(from.getScheduleCompletedThisWeek()) : new ArrayList<>();
-        allSchedules = from.getAllSchedules() != null ? convertToIdList(from.getAllSchedules()) : new ArrayList<>();
-        allTask = from.getAllTask() != null ? convertToIdList(from.getAllTask()) : new ArrayList<>();
-        uncompletedTask = from.getUncompletedTask() != null ? convertToIdList(from.getUncompletedTask()) : new ArrayList<>();
-        allAgendas = from.getAllAgendas() != null ? convertToIdList(from.getAllAgendas()) : new ArrayList<>();
+        courseRelated = from.getCourseRelatedIds() != null ? from.getCourseRelatedIds() : new ArrayList<>();
+        preScheduledMeetings = from.getPreScheduledMeetingsIds() != null ? from.getPreScheduledMeetingsIds() : new ArrayList<>();
+        meetingHistory = from.getMeetingHistoryIds() != null ? from.getMeetingHistoryIds() : new ArrayList<>();
+        scheduleCompletedThisWeek = from.getScheduleCompletedThisWeekIds() != null ? from.getScheduleCompletedThisWeekIds() : new ArrayList<>();
+        allSchedules = from.getAllSchedulesIds() != null ? from.getAllSchedulesIds() : new ArrayList<>();
+        allTask = from.getAllTaskIds() != null ? from.getAllTaskIds() : new ArrayList<>();
+        uncompletedTask = from.getUncompletedTaskIds() != null ? from.getUncompletedTaskIds() : new ArrayList<>();
+        manualCompletedTask = from.getManualCompletedTaskIds() != null ? from.getManualCompletedTaskIds() : new ArrayList<>();
+        manualMissedTask = from.getManualMissedTaskIds() != null ? from.getManualMissedTaskIds() : new ArrayList<>();
+        allAgendas = from.getAllAgendasIds() != null ? from.getAllAgendasIds() : new ArrayList<>();
     }
 
     @Override
@@ -94,7 +102,8 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
 
             @Override
             public void onError(DatabaseError error) {
-
+                Log.e("StudentFirebase", "convertToNormal failed for id=" + getID() + ": " + error.getMessage());
+                objectCallBack.onError(error);
             }
         });
     }
@@ -121,6 +130,14 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
 
     public void setHasScheduled(boolean hasScheduled) {
         this.hasScheduled = hasScheduled;
+    }
+
+    public String getCompletionWeekKey() {
+        return completionWeekKey;
+    }
+
+    public void setCompletionWeekKey(String completionWeekKey) {
+        this.completionWeekKey = completionWeekKey;
     }
 
     public double getPercentageCompleted() {
@@ -257,6 +274,22 @@ public class StudentFirebase extends UserFirebase implements FirebaseClass<Stude
 
     public void setUncompletedTask(ArrayList<String> uncompletedTask) {
         this.uncompletedTask = uncompletedTask;
+    }
+
+    public ArrayList<String> getManualCompletedTask() {
+        return manualCompletedTask;
+    }
+
+    public void setManualCompletedTask(ArrayList<String> manualCompletedTask) {
+        this.manualCompletedTask = manualCompletedTask;
+    }
+
+    public ArrayList<String> getManualMissedTask() {
+        return manualMissedTask;
+    }
+
+    public void setManualMissedTask(ArrayList<String> manualMissedTask) {
+        this.manualMissedTask = manualMissedTask;
     }
 
     public ArrayList<String> getAllAgendas() {

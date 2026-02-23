@@ -14,7 +14,6 @@ public class CourseRepository implements RepositoryClass<Course, CourseFirebase>
                 .getReference(FirebaseNode.COURSE.getPath())
                 .child(courseId);
     }
-
     @Override
     public DatabaseReference getDbReference() {
 

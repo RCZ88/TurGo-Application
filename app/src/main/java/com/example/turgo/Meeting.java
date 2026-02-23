@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,7 +39,10 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     private final String meetingID;
     private static final String FIREBASE_DB_REFERENCE = "Meetings";
     private HashMap<Student, LocalTime> studentsAttended;
-    private User preScheduledBy;
+    private ArrayList<String> usersRelated;
+    private String preScheduledBy;
+    private String preScheduledByType;
+    private transient User preScheduledByUser;
     private String ofSchedule;
     private LocalDate dateOfMeeting;
     private LocalTime startTimeChange;
@@ -52,10 +56,15 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     public Meeting(Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy, String ofSchedule){
         meetingID = UUID.randomUUID().toString();
         studentsAttended = new HashMap<>();
+        usersRelated = new ArrayList<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
         endTimeChange = meetingOfSchedule.getMeetingEnd();
-        this.preScheduledBy = preScheduledBy;
+        this.preScheduledBy = preScheduledBy != null ? preScheduledBy.getUid() : "";
+        this.preScheduledByType = preScheduledBy != null && preScheduledBy.getUserType() != null
+                ? preScheduledBy.getUserType().type()
+                : "";
+        this.preScheduledByUser = preScheduledBy;
         this.ofSchedule = ofSchedule;
         roomChange = null;
         completed = false;
@@ -63,17 +72,41 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     public Meeting(String meetingID, Schedule meetingOfSchedule, LocalDate dateOfMeeting, User preScheduledBy){
         this.meetingID = meetingID;
         studentsAttended = new HashMap<>();
+        usersRelated = new ArrayList<>();
         this.dateOfMeeting = dateOfMeeting;
         startTimeChange = meetingOfSchedule.getMeetingStart(); // no time change
         endTimeChange = meetingOfSchedule.getMeetingEnd();
-        this.preScheduledBy = preScheduledBy;
+        this.preScheduledBy = preScheduledBy != null ? preScheduledBy.getUid() : "";
+        this.preScheduledByType = preScheduledBy != null && preScheduledBy.getUserType() != null
+                ? preScheduledBy.getUserType().type()
+                : "";
+        this.preScheduledByUser = preScheduledBy;
+        this.ofSchedule = meetingOfSchedule.getID();
         roomChange = null;
         completed = false;
     }
     public Meeting(){
         meetingID = UUID.randomUUID().toString();
+        studentsAttended = new HashMap<>();
+        usersRelated = new ArrayList<>();
+        preScheduledBy = "";
+        preScheduledByType = "";
+        preScheduledByUser = null;
+        completed = false;
 
     }
+
+    public ArrayList<String> getUsersRelated() {
+        return usersRelated;
+    }
+
+    public void setUsersRelated(ArrayList<String> usersRelated) {
+        this.usersRelated = usersRelated;
+    }
+    public void assignUser(User user){
+        usersRelated.add(user.getUid());
+    }
+
     public static Task<Meeting> getClosestMeetingToSchedule(Schedule schedule) {
         TaskCompletionSource<Meeting> tcs = new TaskCompletionSource<>();
 
@@ -177,15 +210,34 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     }
 
     public Task<Schedule> getMeetingOfSchedule(){
+        if (!Tool.boolOf(ofSchedule)) {
+            Log.w("Meeting", "getMeetingOfSchedule called with empty ofSchedule for meetingId=" + getID());
+            return Tasks.forResult(null);
+        }
         ScheduleRepository scheduleRepository = new ScheduleRepository(ofSchedule);
         return scheduleRepository.loadAsNormal();
     }
 
     public Task<Course> getMeetingOfCourse(){
-        TaskCompletionSource<Course>taskCourse = new TaskCompletionSource<>();
-        getMeetingOfSchedule().addOnSuccessListener(schedule->{
-            schedule.getScheduleOfCourse().addOnSuccessListener(taskCourse::setResult);
-        });
+        TaskCompletionSource<Course> taskCourse = new TaskCompletionSource<>();
+        getMeetingOfSchedule()
+                .addOnSuccessListener(schedule -> {
+                    if (schedule == null) {
+                        Log.w("Meeting", "No schedule found for meetingId=" + getID() + ", ofSchedule=" + ofSchedule);
+                        taskCourse.setResult(null);
+                        return;
+                    }
+                    schedule.getScheduleOfCourse()
+                            .addOnSuccessListener(taskCourse::setResult)
+                            .addOnFailureListener(e -> {
+                                Log.e("Meeting", "Failed to load course from scheduleId=" + schedule.getID(), e);
+                                taskCourse.setException(e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Meeting", "Failed to load schedule for meetingId=" + getID() + ", ofSchedule=" + ofSchedule, e);
+                    taskCourse.setException(e);
+                });
         return taskCourse.getTask();
     }
 
@@ -204,9 +256,11 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         Intent intent = new Intent(context, MeetingAlarmReciever.class);
         intent.putExtra("Student", student);
         intent.putExtra("Meeting", this);
+        intent.putExtra("MeetingId", getID());
+        int requestCode = (getID() + "_" + (student != null ? student.getID() : "")).hashCode();
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                requestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE  // ✅ Fixed!
         );
@@ -218,12 +272,34 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     }
 
 
-    public User getPreScheduledBy() {
+    public String getPreScheduledBy() {
         return preScheduledBy;
     }
 
-    public void setPreScheduledBy(User preScheduledBy) {
+    public void setPreScheduledBy(String preScheduledBy) {
         this.preScheduledBy = preScheduledBy;
+    }
+
+    public String getPreScheduledByType() {
+        return preScheduledByType;
+    }
+
+    public void setPreScheduledByType(String preScheduledByType) {
+        this.preScheduledByType = preScheduledByType;
+    }
+
+    public User getPreScheduledByUser() {
+        return preScheduledByUser;
+    }
+
+    public void setPreScheduledByUser(User preScheduledByUser) {
+        this.preScheduledByUser = preScheduledByUser;
+        if (preScheduledByUser != null) {
+            this.preScheduledBy = preScheduledByUser.getUid();
+            this.preScheduledByType = preScheduledByUser.getUserType() != null
+                    ? preScheduledByUser.getUserType().type()
+                    : this.preScheduledByType;
+        }
     }
 
     public LocalTime getEndTimeChange() {
@@ -252,7 +328,7 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
 
     @Override
     public String getID() {
-        return this.meetingID;
+        return resolveMeetingKey();
     }
 
     public FirebaseNode getFbn() {
@@ -406,6 +482,17 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         studentsAttended.put(student, time);
     }
     public String getMeetingID(){
+        return resolveMeetingKey();
+    }
+
+    public String getRawMeetingID() {
+        return meetingID;
+    }
+
+    private String resolveMeetingKey() {
+        if (Tool.boolOf(ofSchedule) && dateOfMeeting != null) {
+            return ofSchedule + "_" + dateOfMeeting;
+        }
         return meetingID;
     }
 
@@ -430,5 +517,23 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
                 Log.e("Firebase Database Error", "Error Retrieving Data of Meeting: "+ error);
             }
         });
+    }
+
+    @Override
+    public String toString() {
+        return "Meeting{" +
+                "meetingID='" + meetingID + '\'' +
+                ", studentsAttended=" + studentsAttended +
+                ", usersRelated=" + usersRelated +
+                ", preScheduledBy=" + preScheduledBy +
+                ", ofSchedule='" + ofSchedule + '\'' +
+                ", dateOfMeeting=" + dateOfMeeting +
+                ", startTimeChange=" + startTimeChange +
+                ", endTimeChange=" + endTimeChange +
+                ", roomChange=" + roomChange +
+                ", completed=" + completed +
+                ", alarmAssigned=" + alarmAssigned +
+                ", alarmAssignedAt=" + alarmAssignedAt +
+                '}';
     }
 }

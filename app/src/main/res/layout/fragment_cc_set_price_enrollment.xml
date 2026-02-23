@@ -1,230 +1,259 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/surface_inner_panel"
+    android:fillViewport="true"
     tools:context=".cc_PriceEnrollment">
-
-    <!-- TODO: Update blank fragment layout -->
-
-    <TextView
-        android:id="@+id/textView71"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
-        android:text="Pricing &amp; Enrollment"
-        android:textAllCaps="false"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout28"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView71">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20sp"
-            android:layout_marginRight="20sp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView73"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hourly Cost" />
-
-            <EditText
-                android:id="@+id/etn_CC_HourlyCost"
-                android:layout_width="120sp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20sp"
-            android:layout_marginRight="20sp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView74"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Base Cost" />
-
-            <EditText
-                android:id="@+id/etn_CC_BaseCost"
-                android:layout_width="120sp"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
-
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout29"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout28">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView78"
-                android:layout_width="137dp"
-                android:layout_height="40dp"
-                android:layout_margin="18sp"
-                android:text="Accepted Meetings"
-                android:textAlignment="center" />
-
-            <Switch
-                android:id="@+id/sw_CC_GroupType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Group" />
-
-            <Switch
-                android:id="@+id/sw_CC_PrivateType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Private" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/textView75"
-                android:layout_width="137dp"
-                android:layout_height="40dp"
-                android:layout_margin="18sp"
-                android:text="Accepted Payment Methods"
-                android:textAlignment="center" />
-
-            <Switch
-                android:id="@+id/sw_CC_PerMonth"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Per Month" />
-
-            <Switch
-                android:id="@+id/sw_CC_PerMeeting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Per Meeting" />
-
-        </LinearLayout>
-    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout29">
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/textView71"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/dela_gothic_one_regular"
+            android:text="Pricing &amp; Enrollment"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="28sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="Set your course rates and define the rules for student admission and billing."
+            android:textColor="@color/brand_emerald"
+            android:textSize="14sp" />
 
         <LinearLayout
-            android:layout_width="190dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:gravity="center_horizontal"
+            android:layout_marginBottom="24dp"
+            android:background="@drawable/bg_card_surface"
             android:orientation="vertical"
-            tools:layout_editor_absoluteX="12dp"
-            tools:layout_editor_absoluteY="465dp">
+            android:padding="20dp">
 
             <TextView
-                android:id="@+id/textView76"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="18sp"
-                android:text="Monthly Discount Percentage"
-                android:textAlignment="center"
-                android:textAllCaps="false" />
-
-            <EditText
-                android:id="@+id/etn_MonthlyDiscount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:inputType="number" />
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:letterSpacing="0.05"
+                android:text="FINANCIAL STRUCTURE"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="Hourly Rate"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etn_CC_HourlyCost"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:drawableStart="@android:drawable/ic_menu_edit"
+                        android:drawableTint="@color/brand_emerald"
+                        android:drawablePadding="12dp"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:hint="0.00"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="16dp"
+                        android:textColor="@color/brand_emerald_dark" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="@font/bricolage_body"
+                        android:text="Base Fee"
+                        android:textColor="@color/brand_emerald_dark"
+                        android:textSize="14sp" />
+
+                    <EditText
+                        android:id="@+id/etn_CC_BaseCost"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_emerald_input"
+                        android:drawableStart="@android:drawable/ic_menu_edit"
+                        android:drawableTint="@color/brand_emerald"
+                        android:drawablePadding="12dp"
+                        android:fontFamily="@font/space_mono_regular"
+                        android:hint="0.00"
+                        android:inputType="numberDecimal"
+                        android:paddingHorizontal="16dp"
+                        android:textColor="@color/brand_emerald_dark" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="@font/bricolage_body"
+                    android:text="Monthly Discount (%)"
+                    android:textColor="@color/brand_emerald_dark"
+                    android:textSize="14sp" />
+
+                <EditText
+                    android:id="@+id/etn_MonthlyDiscount"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:background="@drawable/bg_emerald_input"
+                    android:drawableStart="@android:drawable/ic_menu_info_details"
+                    android:drawableTint="@color/brand_emerald"
+                    android:drawablePadding="12dp"
+                    android:fontFamily="@font/space_mono_regular"
+                    android:hint="e.g. 15"
+                    android:inputType="number"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/brand_emerald_dark" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:gravity="center_horizontal"
+            android:background="@drawable/bg_card_surface"
             android:orientation="vertical"
-            tools:layout_editor_absoluteX="233dp"
-            tools:layout_editor_absoluteY="465dp">
+            android:padding="20dp">
 
             <TextView
-                android:id="@+id/textView77"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="18sp"
-                android:text="Auto Accept Students?"
-                android:textAlignment="center" />
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/bricolage_condensed_semibold"
+                android:letterSpacing="0.05"
+                android:text="ENROLLMENT RULES"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="12sp" />
 
-            <CheckBox
-                android:id="@+id/cb_CC_AutoAccept"
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="Session Formats"
+                android:textColor="@color/brand_emerald"
+                android:textSize="16sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_CC_GroupType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_body"
+                android:minHeight="48dp"
+                android:text="Allow Group Sessions"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp"
+                app:thumbTint="@color/white"
+                app:trackTint="@color/brand_emerald" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_CC_PrivateType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_body"
+                android:minHeight="48dp"
+                android:text="Allow Private Sessions"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp"
+                app:thumbTint="@color/white"
+                app:trackTint="@color/brand_emerald" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="16dp"
+                android:background="#E0E6E4" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:text="Billing &amp; Automation"
+                android:textColor="@color/brand_emerald"
+                android:textSize="16sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_CC_PerMonth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_body"
+                android:minHeight="48dp"
+                android:text="Enable Monthly Billing"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp"
+                app:thumbTint="@color/white"
+                app:trackTint="@color/brand_emerald" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/sw_CC_PerMeeting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/bricolage_body"
+                android:minHeight="48dp"
+                android:text="Enable Per-Meeting Billing"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp"
+                app:thumbTint="@color/white"
+                app:trackTint="@color/brand_emerald" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/cb_CC_AutoAccept"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/bricolage_body"
+                android:minHeight="48dp"
+                android:text="Auto-Accept New Students"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="16sp"
+                app:thumbTint="@color/brand_emerald_dark"
+                app:trackTint="@color/brand_emerald_light" />
 
         </LinearLayout>
     </LinearLayout>
-
-    <!-- Hourly Cost -->
-
-    <!-- Payment Options -->
-
-    <!-- Course Type Options -->
-
-    <!-- Discount -->
-
-    <!-- Auto Accept -->
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

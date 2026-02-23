@@ -3,18 +3,15 @@ package com.example.turgo;
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.UUID;
 
-import kotlinx.serialization.KSerializer;
-
 public class CourseType implements Serializable, RequireUpdate<CourseType, CourseTypeFirebase, CourseTypeRepository> {
-    public static final FirebaseNode fbn = FirebaseNode.COURSETYPE;
+    public static final FirebaseNode fbn = FirebaseNode.COURSE_TYPE;
     private Class<CourseTypeFirebase> fbc = CourseTypeFirebase.class;
     private String courseType_ID;
     private String courseType;
-    public CourseType(String courseType) throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+    public CourseType(String courseType){
         courseType_ID = UUID.randomUUID().toString();
         this.courseType = courseType;
     }
@@ -51,5 +48,7 @@ public class CourseType implements Serializable, RequireUpdate<CourseType, Cours
         return courseType;
     }
 
-
+    public static ArrayList<String> getCourseTypeString(ArrayList<CourseType>courseTypes){
+        return Tool.streamToArray(courseTypes.stream().map(CourseType::getCourseType));
+    }
 }

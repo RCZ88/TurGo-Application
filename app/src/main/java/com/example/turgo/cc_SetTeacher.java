@@ -3,7 +3,6 @@ package com.example.turgo;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,16 +15,11 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -121,7 +115,7 @@ public class cc_SetTeacher extends Fragment implements checkFragmentCompletion{
             tm.add(teacherMini);
             Log.d(tag, "Teacher Added -> " + teacherMini);
         }
-        teacherSelectedAdapter = new TeacherAdapter(new ArrayList<>(), getContext(), null);
+        teacherSelectedAdapter = new TeacherAdapter(new ArrayList<>(), getContext(), null, false);
         rv_teacherSelected.setLayoutManager(new LinearLayoutManager(getContext()));
         rv_teacherSelected.setAdapter(teacherSelectedAdapter);
 
@@ -166,7 +160,7 @@ public class cc_SetTeacher extends Fragment implements checkFragmentCompletion{
             public void onItemLongClick(Pair<Integer, TeacherMini> pair) {
 
             }
-        });
+        }, true);
         rv_teachersFound.setLayoutManager(new LinearLayoutManager(getContext()));
         rv_teachersFound.setAdapter(teacherSearchAdapter);
 

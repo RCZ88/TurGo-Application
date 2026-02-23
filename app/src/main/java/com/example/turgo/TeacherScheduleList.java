@@ -5,11 +5,13 @@ import android.os.Bundle;
 
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.time.DayOfWeek;
@@ -27,9 +29,9 @@ public class TeacherScheduleList extends Fragment {
     SwitchCompat sc_Modes, sc_TimeFrame;
     RecyclerView rv_schedules;
     TextView tv_noSchedules;
+    LinearLayout ll_emptyState;
 
-    TeacherScreen ts = (TeacherScreen) getActivity();
-    Teacher teacher = ts.getTeacher();
+    private Teacher teacher;
 
     DayScheduleAdapter dsa;
     DayMeetingAdapter dma;
@@ -39,6 +41,11 @@ public class TeacherScheduleList extends Fragment {
     private static final boolean DAILY = true;
     private static final boolean SCHEDULE = false;
     private static final boolean MEETING = true;
+    private static final String KEY_IS_MEETING_MODE = "isMeetingMode";
+    private static final String KEY_IS_DAILY = "isDaily";
+
+    private boolean restoredIsMeetingMode = SCHEDULE;
+    private boolean restoredIsDaily = WEEKLY;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -78,14 +85,10 @@ public class TeacherScheduleList extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        boolean isMeetingMode = savedInstanceState.getBoolean("isMeetingMode");
-        boolean isDaily = savedInstanceState.getBoolean("isDaily");
-
-        sc_Modes.setChecked(isMeetingMode);
-        sc_TimeFrame.setChecked(isDaily);
-
-        updateRecyclerView(isMeetingMode, isDaily);
+        if (savedInstanceState != null) {
+            restoredIsMeetingMode = savedInstanceState.getBoolean(KEY_IS_MEETING_MODE, SCHEDULE);
+            restoredIsDaily = savedInstanceState.getBoolean(KEY_IS_DAILY, WEEKLY);
+        }
     }
 
     @SuppressLint("MissingInflatedId")
@@ -97,9 +100,22 @@ public class TeacherScheduleList extends Fragment {
 /*        rg_weeklyDailyOptions = view.findViewById(R.id.rg_TSL_DailyWeeklySelect);
         cb_meetingMode = view.findViewById(R.id.cb_TSL_ShowAll);*/
         rv_schedules = view.findViewById(R.id.rv_TSL_DaySchedules);
+        rv_schedules.setLayoutManager(new LinearLayoutManager(requireContext()));
         tv_noSchedules = view.findViewById(R.id.tv_TSL_ScheduleEmpty);
+        ll_emptyState = view.findViewById(R.id.ll_tsl_empty);
         sc_Modes = view.findViewById(R.id.sc_TSL_Mode);
         sc_TimeFrame = view.findViewById(R.id.sc_TSL_Timeframe);
+
+        if (getActivity() instanceof TeacherScreen) {
+            teacher = ((TeacherScreen) getActivity()).getTeacher();
+        }
+        if (teacher == null) {
+            updateEmptyView(null);
+            return view;
+        }
+
+        sc_Modes.setChecked(restoredIsMeetingMode);
+        sc_TimeFrame.setChecked(restoredIsDaily);
         currentMode = new AtomicBoolean(sc_Modes.isChecked());
 
 
@@ -121,9 +137,16 @@ public class TeacherScheduleList extends Fragment {
             updateRecyclerView(currentMode.get(), isChecked);
         });
 
-        rv_schedules.setAdapter(adapter.get());
+        updateRecyclerView(sc_Modes.isChecked(), sc_TimeFrame.isChecked());
 
         return view;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_IS_MEETING_MODE, sc_Modes != null && sc_Modes.isChecked());
+        outState.putBoolean(KEY_IS_DAILY, sc_TimeFrame != null && sc_TimeFrame.isChecked());
     }
     public static boolean isThisWeek(LocalDate date) {
         LocalDate now = LocalDate.now();
@@ -139,6 +162,9 @@ public class TeacherScheduleList extends Fragment {
     }
 
     public void updateRecyclerView(boolean isMeetingMode, boolean isDaily){
+        if (rv_schedules == null || adapter == null || teacher == null) {
+            return;
+        }
         if(isMeetingMode == SCHEDULE){
             rv_schedules.setAdapter(dsa);
             adapter.set(dsa);
@@ -152,16 +178,34 @@ public class TeacherScheduleList extends Fragment {
         ModeUpdatable mu = (ModeUpdatable) adapter.get();
         mu.updateMode(teacher, isDaily);
         updateEmptyView(mu);
-
-        updateEmptyView((ModeUpdatable)adapter.get());
     }
     private void updateEmptyView(ModeUpdatable adapter) {
+        if (rv_schedules == null || tv_noSchedules == null) {
+            return;
+        }
+        if (adapter == null) {
+            rv_schedules.setVisibility(View.INVISIBLE);
+            if (ll_emptyState != null) {
+                ll_emptyState.setVisibility(View.VISIBLE);
+            } else {
+                tv_noSchedules.setVisibility(View.VISIBLE);
+            }
+            return;
+        }
         if (adapter.isEmpty()) {
             rv_schedules.setVisibility(View.INVISIBLE);
-            tv_noSchedules.setVisibility(View.VISIBLE);
+            if (ll_emptyState != null) {
+                ll_emptyState.setVisibility(View.VISIBLE);
+            } else {
+                tv_noSchedules.setVisibility(View.VISIBLE);
+            }
         } else {
             rv_schedules.setVisibility(View.VISIBLE);
-            tv_noSchedules.setVisibility(View.GONE);
+            if (ll_emptyState != null) {
+                ll_emptyState.setVisibility(View.GONE);
+            } else {
+                tv_noSchedules.setVisibility(View.GONE);
+            }
         }
     }
 
