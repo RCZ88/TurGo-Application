@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/brand_emerald_pale"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <LinearLayout
+            android:id="@+id/ll_psg_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="44dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_psg_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/bricolage_grotesque_bold"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="18sp"
+                tools:text="Personal Info" />
+
+            <ImageView
+                android:id="@+id/iv_psg_chevron"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/caret_down"
+                app:tint="@color/brand_emerald"
+                tools:ignore="ContentDescription" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_psg_subsettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_profile_subsetting" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

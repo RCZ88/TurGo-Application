@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/brand_emerald_pale"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/tv_TTSI_StudentName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:text="Student Name"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tv_TTSI_Status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_emerald_input"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="2dp"
+            android:text="Online"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tv_TTSI_SubmittedAt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Wednesday, 3rd August 1998"
+            android:textColor="#667070"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_TTSI_Files"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="@font/space_mono_regular"
+            android:text="poke.mp4, poki.jpg"
+            android:textColor="#667070"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
+

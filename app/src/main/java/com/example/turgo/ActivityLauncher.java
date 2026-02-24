@@ -47,7 +47,7 @@ public class ActivityLauncher extends AppCompatActivity {
 //                throw new RuntimeException(e);
 //            }
 //
-//        }
+//        }/
         tv_loadingText = findViewById(R.id.tv_AL_LoadingText);
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();

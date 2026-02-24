@@ -1,0 +1,11 @@
+node_modules/
+*.local
+
+# Environment and emulator secrets
+.env
+.env.*
+firebase-debug.log
+
+# Tooling artifacts
+.DS_Store
+npm-debug.log*

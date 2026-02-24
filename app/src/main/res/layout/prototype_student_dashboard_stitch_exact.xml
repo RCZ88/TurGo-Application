@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/stitch_bg_ios"
+    tools:context=".Student_Dashboard">
+
+    <LinearLayout
+        android:id="@+id/stitch_header"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_stitch_header_surface"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/jetbrains_mono"
+                android:letterSpacing="0.12"
+                android:text="STUDENT DASHBOARD"
+                android:textColor="@color/brand_emerald"
+                android:textSize="9sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:text="Welcome, Alex Rivera"
+                android:textColor="@color/brand_emerald_dark"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_stitch_surface_card"
+            android:fontFamily="@font/material_symbols_outlined"
+            android:gravity="center"
+            android:text="notifications"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="22sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@id/stitch_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/stitch_header">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_stitch_hero_card"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/jetbrains_mono"
+                    android:letterSpacing="0.16"
+                    android:text="WEEKLY MOMENTUM"
+                    android:textColor="@color/brand_emerald_light"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="This Week's Progress"
+                    android:textColor="@color/white_soft"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:layout_marginTop="12dp"
+                    android:background="@drawable/bg_stitch_progress_track">
+
+                    <View
+                        android:layout_width="240dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/brand_emerald_light" />
+                </FrameLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="You're ahead of 85% of your peers."
+                    android:textColor="#CCF2FBF9"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stitch_surface_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/jetbrains_mono" android:text="SCHEDULED" android:textColor="@color/brand_emerald" android:textSize="10sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/plus_jakarta_sans" android:text="12 Meetings" android:textColor="@color/brand_emerald_dark" android:textSize="26sp" android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_stitch_surface_card"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/jetbrains_mono" android:text="AVERAGE" android:textColor="@color/brand_emerald" android:textSize="10sp" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/plus_jakarta_sans" android:text="94% Attendance" android:textColor="@color/brand_emerald_dark" android:textSize="26sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_stitch_scan_button"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/material_symbols_outlined"
+                    android:text="qr_code_scanner"
+                    android:textColor="@color/white_soft"
+                    android:textSize="22sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:fontFamily="@font/plus_jakarta_sans"
+                    android:text="Scan QR to Check-in"
+                    android:textColor="@color/white_soft"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:letterSpacing="0.14"
+                android:text="UPCOMING CLASS"
+                android:textColor="@color/stitch_text_muted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bg_stitch_upcoming_card"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/plus_jakarta_sans" android:text="Advanced Macroeconomics" android:textColor="@color/brand_emerald_dark" android:textSize="22sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="@font/plus_jakarta_sans" android:text="Prof. Julian V." android:textColor="@color/stitch_text_muted" android:textSize="14sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:fontFamily="@font/jetbrains_mono" android:text="10:30 AM   •   Hall 4B" android:textColor="@color/brand_emerald_dark" android:textSize="13sp" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/plus_jakarta_sans"
+                android:letterSpacing="0.14"
+                android:text="PRIORITY TASKS"
+                android:textColor="@color/stitch_text_muted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_stitch_task_row" android:orientation="horizontal" android:padding="12dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/plus_jakarta_sans" android:text="Thesis Draft" android:textColor="@color/brand_emerald_dark" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stitch_due_chip_urgent" android:fontFamily="@font/jetbrains_mono" android:paddingStart="10dp" android:paddingTop="4dp" android:paddingEnd="10dp" android:paddingBottom="4dp" android:text="DUE: TOMORROW" android:textColor="@color/stitch_due_urgent_text" android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_stitch_task_row" android:orientation="horizontal" android:padding="12dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/plus_jakarta_sans" android:text="Market Research" android:textColor="@color/brand_emerald_dark" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stitch_due_chip_soft" android:fontFamily="@font/jetbrains_mono" android:paddingStart="10dp" android:paddingTop="4dp" android:paddingEnd="10dp" android:paddingBottom="4dp" android:text="DUE: OCT 24" android:textColor="@color/brand_emerald" android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_stitch_task_row" android:orientation="horizontal" android:padding="12dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/plus_jakarta_sans" android:text="Peer Review" android:textColor="@color/brand_emerald_dark" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/bg_stitch_due_chip_soft" android:fontFamily="@font/jetbrains_mono" android:paddingStart="10dp" android:paddingTop="4dp" android:paddingEnd="10dp" android:paddingBottom="4dp" android:text="DUE: OCT 26" android:textColor="@color/brand_emerald" android:textSize="10sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/stitch_nav"
+        android:layout_width="0dp"
+        android:layout_height="74dp"
+        android:background="@drawable/bg_stitch_header_surface"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/material_symbols_outlined" android:gravity="center" android:text="home" android:textColor="@color/brand_emerald" android:textSize="28sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/material_symbols_outlined" android:gravity="center" android:text="auto_stories" android:textColor="@color/stitch_text_muted" android:textSize="28sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/material_symbols_outlined" android:gravity="center" android:text="group" android:textColor="@color/stitch_text_muted" android:textSize="28sp" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:fontFamily="@font/material_symbols_outlined" android:gravity="center" android:text="person" android:textColor="@color/stitch_text_muted" android:textSize="28sp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

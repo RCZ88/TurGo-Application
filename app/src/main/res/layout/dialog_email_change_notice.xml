@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/pending"
+            app:tint="@color/brand_emerald_dark" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/bricolage_grotesque_bold"
+            android:text="Email Change Notice"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_email_change_notice_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:fontFamily="sans-serif"
+        android:lineSpacingExtra="4dp"
+        android:text="Verification email sent to your new address.\n\nAfter you confirm that email, please restart the app and sign in again using the new email so your session and profile stay in sync."
+        android:textColor="#667070"
+        android:textSize="15sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_email_change_notice_ok"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/bricolage_condensed_semibold"
+        android:text="I Understand"
+        android:textAllCaps="false"
+        app:backgroundTint="@color/brand_emerald"
+        app:cornerRadius="12dp" />
+
+</LinearLayout>

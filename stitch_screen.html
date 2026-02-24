@@ -1,0 +1,215 @@
+<html class="light" lang="en"><head><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="min-h-screen">```html
+
+
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TurGo Premium Student Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0B6E4F",
+                        "dark-emerald": "#013220",
+                        "accent": "#50C878",
+                        "surface": "#D1F2EB",
+                        "surface-light": "#EAF6F3",
+                        "bg-ios": "#F8FAF9",
+                    },
+                    fontFamily: {
+                        "display": ["'Plus Jakarta Sans'", "sans-serif"],
+                        "mono": ["'JetBrains Mono'", "monospace"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-display text-dark-emerald bg-bg-ios antialiased;
+            }
+        }
+        .ios-blur {
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+        }
+        .progress-gradient {
+            background: linear-gradient(90deg, #50C878 0%, #D1F2EB 100%);
+        }
+        .active-pill {
+            position: relative;
+        }
+        .active-pill::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            border-radius: 9999px;
+            background-color: #0B6E4F;
+        }
+    </style>
+
+
+<div class="relative flex min-h-screen w-full flex-col max-w-[430px] mx-auto bg-bg-ios overflow-x-hidden pb-32">
+<header class="sticky top-0 z-50 ios-blur bg-bg-ios/80 px-6 pt-12 pb-4 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full overflow-hidden ring-2 ring-primary/10">
+<img alt="Alex Rivera" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2TLXy-DIDjuxmwWAq7FTr3Kc4kicboMlqzZO9fbY4i6XjB21gSlwki10SgPx4MbwgAgXznas1WcNFTlc0SbXXx6Ybi7YgjZg6Qdo9ONz1vJKHykK-wlLUuZ5TyUazKwKXMuLHAT9Q80BE_rLC0L-a-1IkjecT4CESIghAi_Ev8JxS08wjsKiV1Ir9Kk8Yt_sMR4ZMvk0p-WLxDR8_P0Rn1g63Pd3yHXkPo-2TqTXShGiNgl8yKqYXKVre2K0smDLzzjT_xX4jpcLu"/>
+</div>
+<div>
+<span class="font-mono text-[10px] uppercase tracking-wider text-primary opacity-70">Student Dashboard</span>
+<h1 class="text-xl font-extrabold tracking-tight text-dark-emerald">Welcome, Alex Rivera</h1>
+</div>
+</div>
+<button class="size-10 flex items-center justify-center rounded-full bg-white shadow-sm border border-black/5">
+<span class="material-symbols-outlined text-dark-emerald text-[22px]">notifications</span>
+</button>
+</header>
+<main class="flex flex-col gap-8 p-6">
+<section class="bg-dark-emerald rounded-[32px] p-7 text-white shadow-2xl shadow-dark-emerald/20 relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="font-mono text-[11px] uppercase tracking-[0.2em] text-accent/80 mb-1">Weekly Momentum</p>
+<h2 class="text-3xl font-extrabold tracking-tight">This Week’s Progress</h2>
+</div>
+<span class="text-3xl font-light opacity-40">78%</span>
+</div>
+<div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-4">
+<div class="h-full bg-accent rounded-full transition-all duration-1000" style="width: 78%"></div>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-accent text-sm">trending_up</span>
+<p class="text-[13px] text-surface-light/80">You're ahead of <span class="text-accent font-bold">85% of your peers</span>.</p>
+</div>
+</div>
+<div class="absolute -right-10 -top-10 size-40 bg-primary/20 rounded-full blur-3xl"></div>
+</section>
+<section class="flex flex-col gap-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-light border border-primary/10 p-5 rounded-2xl">
+<span class="font-mono text-[10px] uppercase tracking-widest text-primary block mb-1">Scheduled</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-extrabold">12</span>
+<span class="text-sm font-medium opacity-60">Meetings</span>
+</div>
+</div>
+<div class="bg-surface-light border border-primary/10 p-5 rounded-2xl">
+<span class="font-mono text-[10px] uppercase tracking-widest text-primary block mb-1">Average</span>
+<div class="flex items-baseline gap-1">
+<span class="text-2xl font-extrabold">94%</span>
+<span class="text-sm font-medium opacity-60">Attendance</span>
+</div>
+</div>
+</div>
+<button class="w-full bg-primary text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+<span>Scan QR to Check-in</span>
+</button>
+</section>
+<section>
+<div class="flex justify-between items-end mb-4 px-1">
+<h3 class="text-sm font-extrabold uppercase tracking-widest text-dark-emerald/40">Upcoming Class</h3>
+<span class="font-mono text-[11px] text-primary bg-surface px-2 py-0.5 rounded">LIVE NOW</span>
+</div>
+<div class="bg-white rounded-[24px] p-6 border border-black/[0.03] shadow-sm">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h4 class="text-xl font-extrabold text-dark-emerald mb-1">Advanced Macroeconomics</h4>
+<p class="text-sm text-dark-emerald/60 font-medium">Prof. Julian V.</p>
+</div>
+<div class="size-12 bg-surface-light rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined font-light text-3xl">account_balance</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">schedule</span>
+<span class="font-mono text-sm font-medium">10:30 AM</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-xl">location_on</span>
+<span class="font-mono text-sm font-medium">Hall 4B</span>
+</div>
+</div>
+</div>
+</section>
+<section>
+<div class="flex justify-between items-center mb-4 px-1">
+<h3 class="text-sm font-extrabold uppercase tracking-widest text-dark-emerald/40 text-left w-full">Priority Tasks</h3>
+</div>
+<div class="flex flex-col gap-3">
+<div class="group flex items-center gap-4 bg-white p-4 rounded-2xl border border-black/[0.02] shadow-sm">
+<div class="flex-shrink-0">
+<div class="size-6 rounded-full border-2 border-primary/20 flex items-center justify-center group-hover:border-primary transition-colors"></div>
+</div>
+<div class="flex-1">
+<h5 class="text-[15px] font-bold text-dark-emerald">Thesis Draft</h5>
+</div>
+<div class="font-mono text-[10px] font-medium bg-red-50 text-red-600 px-3 py-1 rounded-full uppercase">
+                            Due: Tomorrow
+                        </div>
+</div>
+<div class="group flex items-center gap-4 bg-white p-4 rounded-2xl border border-black/[0.02] shadow-sm">
+<div class="flex-shrink-0">
+<div class="size-6 rounded-full border-2 border-primary/20 flex items-center justify-center"></div>
+</div>
+<div class="flex-1">
+<h5 class="text-[15px] font-bold text-dark-emerald">Market Research</h5>
+</div>
+<div class="font-mono text-[10px] font-medium bg-surface-light text-primary px-3 py-1 rounded-full uppercase">
+                            Due: Oct 24
+                        </div>
+</div>
+<div class="group flex items-center gap-4 bg-white p-4 rounded-2xl border border-black/[0.02] shadow-sm">
+<div class="flex-shrink-0">
+<div class="size-6 rounded-full border-2 border-primary/20 flex items-center justify-center"></div>
+</div>
+<div class="flex-1">
+<h5 class="text-[15px] font-bold text-dark-emerald">Peer Review</h5>
+</div>
+<div class="font-mono text-[10px] font-medium bg-surface-light text-primary px-3 py-1 rounded-full uppercase">
+                            Due: Oct 26
+                        </div>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50 ios-blur bg-white/90 border-t border-black/[0.05] pb-8 pt-4">
+<div class="flex items-center justify-around px-6">
+<a class="flex flex-col items-center gap-1.5 text-primary active-pill" href="#">
+<span class="material-symbols-outlined fill-1 text-[28px]">home</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tighter">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1.5 text-dark-emerald/30" href="#">
+<span class="material-symbols-outlined text-[28px]">auto_stories</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tighter">Courses</span>
+</a>
+<a class="flex flex-col items-center gap-1.5 text-dark-emerald/30" href="#">
+<span class="material-symbols-outlined text-[28px]">group</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tighter">Meetings</span>
+</a>
+<a class="flex flex-col items-center gap-1.5 text-dark-emerald/30" href="#">
+<span class="material-symbols-outlined text-[28px]">person</span>
+<span class="text-[10px] font-extrabold uppercase tracking-tighter">Profile</span>
+</a>
+</div>
+</nav>
+</div>
+
+
+</body></html>

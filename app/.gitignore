@@ -1,1 +1,11 @@
-/build
+# Gradle outputs and IDE files
+.gradle/
+/build/
+/captures/
+
+# Local configuration
+local.properties
+google-services.json
+
+# Skip auto-generated editor data
+.idea/

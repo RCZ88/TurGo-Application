@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_emerald_input"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:id="@+id/ll_pss_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="38dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_pss_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="14sp"
+            tools:text="Full Name" />
+
+        <TextView
+            android:id="@+id/tv_pss_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:maxWidth="170dp"
+            android:textColor="@color/black_soft"
+            android:textSize="13sp"
+            tools:text="John Doe" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_pss_editor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/et_pss_value"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_input_soft_emerald"
+            android:fontFamily="@font/bricolage_body"
+            android:hint="Enter value"
+            android:paddingHorizontal="10dp"
+            android:singleLine="true"
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="14sp" />
+
+        <Spinner
+            android:id="@+id/sp_pss_value"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:background="@drawable/bg_input_soft_emerald"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pss_cancel"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginEnd="8dp"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:cornerRadius="10dp"
+                app:strokeColor="@color/brand_emerald_pale" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pss_save"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                app:backgroundTint="@color/brand_emerald"
+                app:cornerRadius="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

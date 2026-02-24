@@ -1,0 +1,4852 @@
+@startuml
+class com.example.turgo.MailRepository {
+- DatabaseReference mailRef
++ DatabaseReference getDbReference()
++ Class<MailFirebase> getFbClass()
++ void delete()
+}
+
+
+class com.example.turgo.DayMeetingViewHolder {
+~ RecyclerView rv_meetings
+~ TextView tv_dayName
+}
+
+class com.example.turgo.Course {
+- String courseID
+- Class<CourseFirebase> fbc
++ {static} String SERIALIZE_KEY_CODE
++ {static} int PER_MONTH_INDEX
++ {static} int PER_MEETING_INDEX
++ {static} int PRIVATE_INDEX
++ {static} int GROUP_INDEX
+- FirebaseNode fbn
+~ Context context
+- ArrayList<String> imagesCloudinary
+- String logoCloudinary
+- String backgroundCloudinary
+- String teacher
+- CourseType courseType
+- String courseName
+- String courseDescription
+- int maxStudentPerMeeting
+- ArrayList<Boolean> paymentPer
+- ArrayList<Boolean> privateGroup
+- ArrayList<DayTimeArrangement> dayTimeArrangement
+- ArrayList<Schedule> schedules
+- ArrayList<Agenda> agendas
+- ArrayList<StudentCourse> studentsCourse
+- ArrayList<String> students
+- double baseCost
+- double hourlyCost
+- double monthlyDiscountPercentage
+- boolean autoAcceptStudent
++ void setTeacher(String)
++ void setMonthlyDiscountPercentage(double)
++ void setHourlyCost(double)
++ void setBaseCost(double)
++ void setStudentsCourse(ArrayList<StudentCourse>)
++ ArrayList<String> getStudentIds()
++ String getBackgroundCloudinary()
++ void setBackgroundCloudinary(String)
++ String getLogoCloudinary()
++ void setLogoCloudinary(String)
++ ArrayList<String> getImagesCloudinary()
++ void setImagesCloudinary(ArrayList<String>)
++ FirebaseNode getFbn()
++ Class<CourseFirebase> getFbc()
++ void setFbc(Class<CourseFirebase>)
++ boolean isAutoAcceptStudent()
++ void setAutoAcceptStudent(boolean)
++ ArrayList<StudentCourse> getStudentsCourse()
++ double getBaseCost()
++ double getHourlyCost()
++ double getMonthlyDiscountPercentage()
++ void getSCofStudent(Student,ObjectCallBack<StudentCourse>)
++ String getDaysAvailable()
++ Schedule getScheduleFromTimeSlot(TimeSlot)
++ void addStudent(Student)
++ void addStudent(String)
++ int amountDaysAvail()
++ ArrayList<Schedule> getScheduleOfDay(DayOfWeek)
++ Task<Boolean> hasStudent(Student)
++ DayTimeArrangement getDTAOfDay(DayOfWeek)
++ ArrayList<DayOfWeek> filterFullDays(ScheduleQuality,int,ArrayList<DayTimeArrangement>)
++ ArrayList<TimeSlot> findFreeSpotOfDay(DayOfWeek,ScheduleQuality,int,int)
++ FirebaseNode getFirebaseNode()
++ Class<CourseRepository> getRepositoryClass()
++ Class<CourseFirebase> getFirebaseClass()
++ String getID()
++ ArrayList<DayTimeArrangement> getDayTimeArrangement()
++ void setDayTimeArrangement(ArrayList<DayTimeArrangement>)
++ void addNewDayTimeArr(DayTimeArrangement)
++ void changeCourseBanner(int)
++ void setCourseBanner(int)
++ void setCourseLogo()
++ int getMaxStudentPerMeeting()
++ void setMaxStudentPerMeeting(int)
++ ArrayList<Boolean> getPaymentPer()
++ void setPaymentPer(ArrayList<Boolean>)
++ ArrayList<Boolean> getPrivateGroup()
++ void setPrivateGroup(ArrayList<Boolean>)
++ String getCourseDescription()
++ void setCourseDescription(String)
++ double calcPrice(boolean,int,double)
++ ArrayList<Agenda> getAgendas()
++ void setAgendas(ArrayList<Agenda>)
++ void setCourseType(CourseType)
++ CourseType getCourseType()
++ void addStudent(Student,boolean,boolean,int,ArrayList<Schedule>,ArrayList<TimeSlot>)
++ Task<Void> addStudentAsync(Student,boolean,boolean,int,ArrayList<Schedule>,ArrayList<TimeSlot>)
+- {static} Task<T> logTask(String,Task<T>)
+- DayTimeArrangement buildDtaFromSchedule(Schedule)
+- void reconcileDtaBounds(DayTimeArrangement,Schedule)
+- void upsertCanonicalDtaFields(DTARepository,DayTimeArrangement)
+- Map<String,Object> buildCanonicalDtaUpdateMap(DayTimeArrangement)
++ int getMaxMeetingDuration()
++ ArrayList<DayTimeArrangement> getDtasOfTime(int)
++ Task<Meeting> getNextMeetingOfNextSchedule()
++ String getTeacherId()
++ Task<Teacher> getTeacher()
++ String getCourseName()
++ void setCourseName(String)
++ void getTeacher(ObjectCallBack<Teacher>)
++ Task<List<Student>> getStudents()
++ ArrayList<String> getStudentsId()
++ ArrayList<Schedule> getSchedules()
++ void setSchedules(ArrayList<Schedule>)
++ void addSchedule(Schedule)
++ String getLogo()
++ void getScheduleOfStudent(Student,ObjectCallBack<ArrayList<Schedule>>)
++ String getDaysOfSchedule(Student)
++ Task<StudentCourse> getStudentCourseOfStudent(Student)
++ String getCourseID()
++ void setLogo(String)
++ Agenda getCurrentAgenda()
++ Context getContext()
++ void setContext(Context)
++ String getBackground()
++ void setBackground(String)
++ ArrayList<Agenda> getAgenda()
++ void setAgenda(ArrayList<Agenda>)
++ String toString()
+}
+
+
+class com.example.turgo.StudentExploreJoined {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
+~ FragmentContainerView fcv_ExploreJoined
+~ Button btn_Explore
++ {static} StudentExploreJoined newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.TaskDeadlineService {
+- {static} String TAG
++ {static} Task<Void> processOverdueNonDropboxTasks()
+- {static} boolean isOverdueNonDropbox(TaskFirebase)
+}
+
+
+class com.example.turgo.MACFirebase {
+- ArrayList<String> schedules
+- Course course
+- String reasonForJoining
+- String school
+- String grade
++ void importObjectData(Mail)
++ void convertToNormal(ObjectCallBack<Mail>)
++ ArrayList<String> getSchedules()
++ void setSchedules(ArrayList<String>)
++ Course getCourse()
++ void setCourse(Course)
++ String getReasonForJoining()
++ void setReasonForJoining(String)
++ String getSchool()
++ void setSchool(String)
++ String getGrade()
++ void setGrade(String)
+}
+
+
+class com.example.turgo.Room {
+- FirebaseNode fbn
+- Class<RoomFirebase> fbc
+- {static} RTDBManager<RoomFirebase> roomRTDB
+- String roomId
+- String roomTag
+- ArrayList<CourseType> suitableCourseType
+- boolean used
+- Meeting currentlyOccupiedBy
+- int capacity
+- ArrayList<Schedule> schedules
++ int getCapacity()
++ void setCapacity(int)
++ {static} void assignRoomForSchedule(Room,Schedule)
++ {static} void useRoom(Room,Meeting)
++ {static} void getEmptyRoom(LocalTime,LocalTime,DayOfWeek,ObjectCallBack<Room>)
+- {static} void findSuitableRoomRecursive(ArrayList<Room>,int,LocalTime,LocalTime,DayOfWeek,ObjectCallBack<Room>)
+- {static} void isRoomSuitableForSchedules(Room,int,LocalTime,LocalTime,DayOfWeek,SuitabilityCallback)
+- {static} void safeReturnRoom(ObjectCallBack<Room>,Room)
++ String getRoomId()
++ String getRoomTag()
++ void setRoomTag(String)
++ Meeting getCurrentlyOccupiedBy()
++ void setCurrentlyOccupiedBy(Meeting)
++ ArrayList<CourseType> getSuitableCourseType()
++ void setSuitableCourseType(ArrayList<CourseType>)
++ ArrayList<Schedule> getSchedules()
++ void setSchedules(ArrayList<Schedule>)
++ void setRoomId(String)
++ boolean isUsed()
++ void setUsed(boolean)
++ FirebaseNode getFirebaseNode()
++ Class<RoomRepository> getRepositoryClass()
++ Class<RoomFirebase> getFirebaseClass()
++ String getID()
++ String toString()
+}
+
+
+interface com.example.turgo.Room$SuitabilityCallback {
+~ void onResult(boolean)
+}
+
+class com.example.turgo.STCViewHolder {
+~ TextView tv_StudentName
+~ ImageView iv_pfp
+~ Student student
+}
+
+class com.example.turgo.Student_MyCourses {
+~ RecyclerView rv_myCourses
+~ TextView tv_noCourse
+~ Button btn_goToExplore
+~ LinearLayout ll_empty
+~ Student user
+~ ArrayList<Teacher> teachersOfCourse
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} Student_MyCourses newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadTeachersAndSetupAdapter(ArrayList<Course>)
+- void setupAdapter(ArrayList<Course>)
++ void selectCourse(Course)
+}
+
+
+class com.example.turgo.CourseJoinedFullPage {
+~ Course course
+~ Student student
+~ TextView tv_courseTeacher
+~ CollapsingToolbarLayout ct_courseTitle
+~ TextView tv_noAgendaMessage
+~ ImageView iv_courseBackgroundImage
+~ RecyclerView rv_listOfTasks
+~ Button btn_viewAllAgenda
+~ Toolbar tb_topBar
+~ TaskAdapter taskAdapter
+~ ArrayList<Task> tasks
+~ Teacher teacher
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} CourseJoinedFullPage newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void setLatestAgenda(ObjectCallBack<Void>)
+- void loadTasks()
+- void loadItems(Bundle)
+}
+
+
+interface com.example.turgo.UserRepositoryClass {
+~ void sendMail(Mail)
+~ void recieveMail(Mail)
+~ void draftMail(Mail)
+}
+
+class com.example.turgo.Pair {
++ O1 one
++ O2 two
++ {static} Pair<A,B> newInstance(A,B)
++ String toString()
+}
+
+
+class com.example.turgo.Submission {
+- FirebaseNode fbn
+- Class<SubmissionFirebase> fbc
+- String submission_ID
+- HashMap<file,Boolean> files
+- String dropbox
+- Student of
+- boolean completed
+- Dropbox dropboxObject
++ void addFile(file,boolean)
++ ArrayList<file> getFilesOnly()
++ Task<Boolean> isLate(LocalDateTime)
++ HashMap<file,Boolean> getFiles()
++ void setFiles(HashMap<file,Boolean>)
++ String getDropbox()
++ void setDropbox(String)
++ com.google.android.gms.tasks.Task<Dropbox> getDropboxObject()
++ void setDropboxObject(Dropbox)
++ void setOf(Student)
++ Student getOf()
++ boolean isCompleted()
++ void setCompleted(boolean)
++ FirebaseNode getFirebaseNode()
++ Class<SubmissionFirebase> getFirebaseClass()
++ Class<SubmissionRepository> getRepositoryClass()
++ String getID()
++ String toString()
+}
+
+
+class com.example.turgo.MailPageFull {
+~ FloatingActionButton fab_WriteMail
+~ BottomNavigationView nv_MailPage
+~ TextView tv_pageTitle
+- ActivityMailPageFullBinding binding
+- User user
+- Toolbar toolbar
+~ boolean inSelectionMode
+~ MailSmallAdapter adapter
+# void onCreate(Bundle)
+- void setupBottomNavigation(BottomNavigationView)
++ {static} int getContainer()
++ boolean onCreateOptionsMenu(Menu)
++ boolean onPrepareOptionsMenu(Menu)
++ boolean onOptionsItemSelected(MenuItem)
++ void setSelectionMode(boolean)
++ User getUser()
++ void setUser(User)
+}
+
+
+class com.example.turgo.ProfileSettingsAdapter {
+- Context context
+- ArrayList<Setting> settings
+- ProfileSubSettingActionListener actionListener
+- int expandedGroup
++ SettingGroupViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(SettingGroupViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.ProfileSettingsAdapter$SettingGroupViewHolder {
+~ LinearLayout headerContainer
+~ TextView tvTitle
+~ ImageView chevron
+~ RecyclerView subSettingsRecycler
+}
+
+enum com.example.turgo.Language {
++  ENGLISH
++  INDONESIAN
+- String displayName
++ String getDisplayName()
+}
+
+
+enum com.example.turgo.MailType {
++  MAIL_TYPE
++  DRAFT
++  INBOX
++  OUTBOX
++ String mailType
++ String getMailType()
+}
+
+
+class com.example.turgo.Task {
+- FirebaseNode fbn
+- Class<TaskFirebase> fbc
+- String taskID
++ {static} String SERIALIZE_KEY_CODE
+- {static} RTDBManager<Task> rtdbManager
+- String title
+- String description
+- LocalDateTime dueDate
+- String taskOfCourse
+- String fromSchedule
+- LocalDate dateAssigned
+- String dropbox
+- boolean manualCompletionRequired
+- String publisher
+- ArrayList<String> studentsAssign
+- Course taskOfCourseObject
+- Schedule fromScheduleObject
+- Dropbox dropboxObject
+- Teacher publisherObject
++ com.google.android.gms.tasks.Task<Void> enableDropbox()
++ void submit(file,Student,boolean)
++ com.google.android.gms.tasks.Task<Submission> getSubmissionOfStudent(Student)
++ String getTitle()
++ void setTitle(String)
++ String getDescription()
++ void setDescription(String)
++ LocalDateTime getDueDate()
++ void setDueDate(LocalDateTime)
++ String getTaskOfCourse()
++ void setTaskOfCourse(String)
++ String getFromSchedule()
++ void setFromSchedule(String)
++ String getPublisher()
++ void setPublisher(String)
++ String getTaskID()
++ void setTaskID(String)
++ RTDBManager<Task> getRtdbManager()
++ void setRtdbManager(RTDBManager<Task>)
++ LocalDate getDateAssigned()
++ void setDateAssigned(LocalDate)
++ FirebaseNode getFirebaseNode()
++ Class<TaskRepository> getRepositoryClass()
++ Class<TaskFirebase> getFirebaseClass()
++ boolean isComplete(Student)
++ com.google.android.gms.tasks.Task<List<Student>> getStudentAssigned()
++ String getDropbox()
++ void setDropbox(String)
++ Dropbox getDropboxCached()
++ com.google.android.gms.tasks.Task<Dropbox> getDropboxObject()
++ com.google.android.gms.tasks.Task<Course> getTaskOfCourseObject()
++ com.google.android.gms.tasks.Task<Schedule> getFromScheduleObject()
++ com.google.android.gms.tasks.Task<Teacher> getPublisherObject()
++ void setTaskOfCourseObject(Course)
++ void setFromScheduleObject(Schedule)
++ void setPublisherObject(Teacher)
++ void setDropboxObject(Dropbox)
++ ArrayList<String> getStudentsAssign()
++ void setStudentsAssign(ArrayList<String>)
++ boolean isManualCompletionRequired()
++ void setManualCompletionRequired(boolean)
++ String toString()
++ String getID()
+}
+
+
+class com.example.turgo.SubmissionAdapter {
+- {static} String TAG
+~ ArrayList<SubmissionDisplay> submissions
+- SubmissionItemMode mode
+- OnPreviewRemoveListener removeListener
++ SubmissionViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(SubmissionViewHolder,int)
++ int getItemCount()
+}
+
+
+interface com.example.turgo.SubmissionAdapter$OnPreviewRemoveListener {
+~ void onRemove(int)
+}
+
+class com.example.turgo.cc_AddScheduleDTA {
+~ TextView btn_selectEarliest
+~ Button btn_addDTA
+~ AutoCompleteTextView sp_selectDay
+~ SwitchMaterial cb_limit
+~ Boolean earlyOrLatest
+~ RecyclerView rv_DTASelected
+~ LocalTime earliest
+~ LocalTime latest
+~ DayOfWeek day
+~ boolean limitMeetingBool
+~ EditText et_meetingLimit
+~ CreateCourse cc
+~ int meetingLimit
+- ArrayList<Room> roomsAvailable
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} cc_AddScheduleDTA newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void maxMeetingStatus(boolean)
+- boolean checkCompletion()
++ void showTimePicker()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.MailSmallViewHolder {
++ TextView tv_fromUser
++ LinearLayout ll_mailPreview
++ boolean editable
++ User user
++ Mail mail
++ void updateMailState(boolean)
+}
+
+
+class com.example.turgo.ScheduleViewHolder {
+~ TextView tv_subject
+~ TextView tv_day
+~ TextView tv_time
+~ TextView tv_duration
+}
+
+class com.example.turgo.MeetingAlarm {
++ {static} void setMeetingAlarm(Context,LocalDateTime,Course,Student,Schedule)
+}
+
+class com.example.turgo.RegisterCourse {
+~ int amtOfRegisFrag
+~ Fragment[] registerFragments
+~ HashMap<TimeSlot,Integer> slotAmount
+~ ProgressBar pb_regisProgress
+~ ImageButton btn_collapse
+~ Fragment frag_UserInfo
+~ View fc_container
+~ Teacher courseTeacher
+~ Button btn_next
+~ TextView tv_title
+~ LinearLayout ll_topNav
+- int amountOfMeetingPerWeek
+- Course course
+- ScheduleQuality sq
+- int duration
+- int selectedPrice
+- ArrayList<DayOfWeek> dowSelected
+- ArrayList<TimeSlot> selectedTS
+- ArrayList<DayTimeArrangement> dtaAvailable
+- String school
+~ int currentFragIndex
+- Student student
+- boolean paymentPreferences
+- boolean nextJoin
+- boolean topBarOpened
+# void onCreate(Bundle)
++ ArrayList<DayTimeArrangement> getDtaAvailable()
++ void setDtaAvailable(ArrayList<DayTimeArrangement>)
++ void apply()
+- Task<Void> generateMeetingsNow(ArrayList<Schedule>)
+- void createSchedules(ObjectCallBack<ArrayList<Schedule>>)
+- void createSchedulesFromExisting(ArrayList<Schedule>,ObjectCallBack<ArrayList<Schedule>>)
+- Schedule findExactSchedule(ArrayList<Schedule>,DayOfWeek,java.time.LocalTime,java.time.LocalTime)
+- void initializeProgressBar()
+- void ensureStudentLinkedToSchedules(ArrayList<Schedule>)
++ void nextFragment()
++ void prevFragment()
+- void goBackToCourseFullPage()
++ void updateCurrentFragment()
++ Student getStudent()
++ void setStudent(Student)
++ boolean isPaymentPreferences()
++ void setPaymentPreferences(boolean)
++ ArrayList<TimeSlot> getSelectedTS()
++ void setSelectedTS(ArrayList<TimeSlot>)
++ void addDowSelected(DayOfWeek)
++ ArrayList<DayOfWeek> getDowSelected()
++ void setDowSelected(ArrayList<DayOfWeek>)
++ ScheduleQuality getSq()
++ void setSq(ScheduleQuality)
++ int getDuration()
++ void setDuration(int)
++ Course getCourse()
++ void setCourse(Course)
++ int getAmountOfMeetingPerWeek()
++ void setAmountOfMeetingPerWeek(int)
++ int getSelectedPrice()
++ void setSelectedPrice(int)
++ String getSchool()
++ void setSchool(String)
++ String getEducationGrade()
++ void setEducationGrade(String)
++ String getReasonForJoining()
++ void setReasonForJoining(String)
+}
+
+
+class com.example.turgo.ui.dashboard.DashboardFragment {
+- FragmentDashboardBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onDestroyView()
+}
+
+
+class com.example.turgo.signup__student_selectcourse {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ SignUpPage sup
+~ Button btn_addCourse
+~ ListView lv_selectedCourses
+~ ArrayList<String> selectedCourses
+~ ArrayAdapter<String> listAdapter
+~ Spinner sp_chooseCourse
+- String mParam1
+- String mParam2
++ {static} signup__student_selectcourse newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void showOnAdapter()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.DTARepository {
+- DatabaseReference dtaRef
++ DatabaseReference getDbReference()
++ Class<DTAFirebase> getFbClass()
++ void delete()
++ void updateDay(DayOfWeek)
++ void updateStart(LocalTime)
++ void updateEnd(LocalTime)
++ void addOccupied(Schedule)
++ void removeOccupied(String)
++ void removeOccupiedCompletely(Schedule)
++ void updateMaxMeeting(int)
++ void incrementMaxMeeting(int)
++ void decrementMaxMeeting(int)
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+class com.example.turgo.TurgoApp {
++ void onCreate()
+- void scheduleMeetingProcessor()
+- long calculateInitialDelay()
+}
+
+class com.example.turgo.Teacher {
+- {static} FirebaseNode fbn
+- {static} int MAX_LATEST_SUBMISSION_SIZE
+- {static} Class<TeacherFirebase> fbc
++ {static} String SERIALIZE_KEY_CODE
+- String profileImageCloudinary
+- ArrayList<Course> coursesTeach
+- ArrayList<SubmissionDisplay> latestSubmission
+- ArrayList<String> courseTypeTeach
+- ArrayList<Meeting> scheduledMeetings
+- ArrayList<Meeting> completedMeetings
+- ArrayList<Agenda> agendas
+- ArrayList<DayTimeArrangement> timeArrangements
+- String teacherResume
+- int teachYearExperience
++ void updateUserDB()
++ FirebaseNode getFirebaseNode()
++ Class<TeacherRepository> getRepositoryClass()
++ Class<TeacherFirebase> getFirebaseClass()
++ String getID()
++ void addLatestSubmission(SubmissionDisplay)
++ ArrayList<SubmissionDisplay> getLatestSubmission()
++ void setLatestSubmission(ArrayList<SubmissionDisplay>)
++ String getProfileImageCloudinary()
++ void setProfileImageCloudinary(String)
++ ArrayList<Schedule> getAllSchedule()
++ {static} String getSerializeKeyCode()
++ Class<TeacherFirebase> getFbc()
++ FirebaseNode getFbn()
++ String getSerializeCode()
++ void createAgenda(String,LocalDate,Meeting,Student,Course)
++ void addTask(Task,Course)
++ void addCourse(Course)
++ ArrayList<Course> getCoursesTeach()
++ void addCourseTeach(String)
++ ArrayList<String> getCourseTypeTeach()
++ ArrayList<Meeting> getScheduledMeetings()
++ int getTeachYearExperience()
++ ArrayList<DayTimeArrangement> getTimeArrangements()
++ void setTimeArrangements(ArrayList<DayTimeArrangement>)
++ void addDTA(DayTimeArrangement)
++ Schedule getNextSchedule()
++ void setTeachYearExperience(int)
++ String getProfileImage()
++ void setCoursesTeach(ArrayList<Course>)
++ void setCourseTypeTeach(ArrayList<String>)
++ void setScheduledMeetings(ArrayList<Meeting>)
++ ArrayList<Agenda> getAgendas()
++ void setAgendas(ArrayList<Agenda>)
++ String getTeacherResume()
++ void setTeacherResume(String)
++ void addScheduledMeeting(Meeting)
++ ArrayList<Meeting> getCompletedMeetings()
++ void setCompletedMeetings(ArrayList<Meeting>)
++ TeacherMini toTM()
++ ArrayList<Schedule> getSchedulesOfDay(DayOfWeek)
++ String toString()
+}
+
+
+class com.example.turgo.TaskFullPage {
+- {static} String TAG
+~ TextView tv_taskDate
+~ RecyclerView rv_filesUploaded
+~ Button btn_uploadFile
+~ Button btn_markDone
+~ MaterialCardView card_manualDecision
+~ TextView tv_manualStatus
+~ Student student
+~ ArrayList<File> fileDataList
+- ActivityResultLauncher<Intent> filePickerLauncher
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- Task task
+- ArrayList<file> filesSelected
+- ArrayList<SubmissionDisplay> selectedFilePreview
+- ArrayList<SubmissionDisplay> submittedFilePreview
+- SubmissionAdapter filesSelectedAdapter
+- SubmissionAdapter submittedFilesAdapter
+- String submitButtonDefaultText
+- String mParam1
+- String mParam2
++ {static} TaskFullPage newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void setupManualDecisionCard()
+- boolean isTaskInList(ArrayList<Task>,String)
+- void updateManualStatus(boolean)
+- void onSingleUploadFinished(AtomicInteger,AtomicInteger,ArrayList<file>,AtomicBoolean)
+- void setUploadUiState(boolean,int,int)
+- void setDropboxCardState(boolean)
+}
+
+
+class com.example.turgo.SimpleSpinnerAdapter {
+- Context context
+- List<T> items
+- StringExtractor<T> extractor
++ int getCount()
++ Object getItem(int)
++ long getItemId(int)
++ View getView(int,View,ViewGroup)
++ View getDropDownView(int,View,ViewGroup)
+}
+
+
+interface com.example.turgo.SimpleSpinnerAdapter$StringExtractor {
+~ String extractName(T)
+}
+
+class com.example.turgo.SubmissionDisplay {
+- String name
+- boolean isLate
+- boolean hasStatus
+- ArrayList<String> filesSubmitted
++ boolean isLate()
++ void setLate(boolean)
++ boolean isHasStatus()
++ void setHasStatus(boolean)
++ String getName()
++ void setName(String)
++ String getTask()
++ void setTask(String)
++ String getCourse()
++ void setCourse(String)
++ String getSubmittedTimeDate()
++ void setSubmittedTimeDate(String)
++ ArrayList<String> getFilesSubmitted()
++ void setFilesSubmitted(ArrayList<String>)
+}
+
+
+interface com.example.turgo.ModeUpdatable {
+~ void updateMode(Teacher,boolean)
+~ boolean isEmpty()
+}
+
+enum com.example.turgo.PageNames {
++  TEACHER_DASHBOARD
++  STUDENT_DASHBOARD
+- String pageName
++ String getPageName()
+}
+
+
+class com.example.turgo.TeacherAddAgenda {
+~ Spinner sp_AgendaOfCourse
+~ EditText etml_AgendaContents
+~ Button btn_UploadImageAgenda
+~ ToggleButton tb_AgendaFormat
+~ ImageView iv_AgendaUploadedPreview
+~ TextView tv_presetStudents
+~ Teacher teacher
+~ ArrayList<Student> finalPresetStudents
+~ Course presetCourse
+- ActivityResultLauncher<Intent> filePickerLauncher
++ {static} TeacherAddAgenda newInstance(String,String)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadStudentsForCourse(Course)
+- void loadMeetings(Course,Student)
+- void handleFileAgenda(Uri,Meeting,Student,Course,boolean)
+- void handleTextAgenda(Meeting,Student,Course,boolean)
+- void updateAgenda(Agenda)
+- void openFilePicker()
++ void toggleView(boolean)
+}
+
+
+class com.example.turgo.CourseViewHolder {
+~ ImageView iv_courseIcon
+~ TextView tv_CourseName
+~ CourseAdapter courseAdapter
+}
+
+class com.example.turgo.Setting {
+- String setting
+- ArrayList<SubSetting> subSettings
++ String getSetting()
++ void setSetting(String)
++ ArrayList<SubSetting> getSubSettings()
++ void addSubSettings(SubSetting)
++ void addSubSettings(String,String,SettingEditType)
+}
+
+
+class com.example.turgo.SubmissionFirebase {
+- String submission_ID
+- HashMap<String,Boolean> files
+- String dropbox
+- String of
+- boolean completed
++ void importObjectData(Submission)
++ String getID()
++ void convertToNormal(ObjectCallBack<Submission>)
++ String getSubmission_ID()
++ void setSubmission_ID(String)
++ HashMap<String,Boolean> getFiles()
++ void setFiles(HashMap<String,Boolean>)
++ String getDropbox()
++ void setDropbox(String)
++ String getOf()
++ void setOf(String)
++ boolean isCompleted()
++ void setCompleted(boolean)
+}
+
+
+class com.example.turgo.TestFirebaseClasses {
++ {static} void main(String[])
+}
+
+class com.example.turgo.FileRepository {
+- DatabaseReference fileRef
++ DatabaseReference getDbReference()
++ Class<fileFirebase> getFbClass()
++ com.google.android.gms.tasks.Task<file> loadAsNormal()
++ void delete()
+}
+
+
+class com.example.turgo.MailSmallAdapter {
+- String userID
+- ArrayList<Mail> mailSelected
+- ArrayList<Mail> mails
+- boolean selectMode
+- boolean editable
+- MailPageFull activity
++ MailSmallViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(MailSmallViewHolder,int)
++ int getItemCount()
++ MailPageFull getActivity()
++ void setActivity(MailPageFull)
++ ArrayList<Mail> getMailSelected()
++ void setMailSelected(ArrayList<Mail>)
++ boolean isSelectMode()
++ void setSelectMode(boolean)
++ void exitSelectMode()
++ void deleteSelectedMails()
++ String getUserID()
++ void setUserID(String)
++ ArrayList<Mail> getMails()
++ void setMails(ArrayList<Mail>)
++ boolean isEditable()
++ void setEditable(boolean)
++ void addMail(Mail)
+}
+
+
+class com.example.turgo.RoomViewHolder {
+~ TextView tv_roomTag
+~ ImageButton btn_removeRoom
+}
+
+class com.example.turgo.UserAdapter {
++ View getView(int,View,ViewGroup)
+}
+
+class com.example.turgo.cc_PriceEnrollment {
+~ EditText et_hourlyCost
+~ SwitchMaterial sw_group
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} cc_PriceEnrollment newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.StudentMeetings {
+~ RecyclerView rv_futureMeeting
+~ Course course
+~ Student student
+~ ArrayList<Course> courses
+~ ArrayList<Meeting> meetings
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} StudentMeetings newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadItems(Bundle)
+}
+
+
+class com.example.turgo.signup_ContactInformation {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ EditText et_email
+- String mParam1
+- String mParam2
++ {static} signup_ContactInformation newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.MailApplyCourse {
+- ArrayList<Schedule> schedules
+- Course course
+- String reasonForJoining
+- String school
+- String grade
++ ArrayList<Schedule> getSchedules()
++ void setSchedules(ArrayList<Schedule>)
++ Course getCourse()
++ void setCourse(Course)
++ String getReasonForJoining()
++ void setReasonForJoining(String)
++ String getSchool()
++ void setSchool(String)
++ String getGrade()
++ void setGrade(String)
++ DatabaseReference getDBRef(String)
++ void retrieveOnce(ObjectCallBack<MailFirebase>,String)
++ ArrayList<MailFirebase> retrieveListFromUser(String,String,ObjectCallBack<ArrayList<MailFirebase>>)
++ void toggleRealtime(String,MailFirebase[])
++ FirebaseNode getFirebaseNode()
++ Class<MailRepository> getRepositoryClass()
+}
+
+
+class com.example.turgo.UploadFileSimpleViewHolder {
+}
+class com.example.turgo.Mail {
+- String mailID
+- FirebaseNode fbn
++ {static} String SERIALIZE_KEY_CODE
+- User from
+- User to
+- LocalDateTime timeSent
+- LocalDateTime timeOpened
+- String header
+- boolean draft
+- boolean opened
++ FirebaseNode getFirebaseNode()
++ Class<MailFirebase> getFirebaseClass()
++ String getID()
++ Class<MailRepository> getRepositoryClass()
++ String getMailID()
++ FirebaseNode getFbn()
++ User getFrom()
++ void setFrom(User)
++ User getTo()
++ void setTo(User)
++ LocalDateTime getTimeSent()
++ void setTimeSent(LocalDateTime)
++ LocalDateTime getTimeOpened()
++ void setTimeOpened(LocalDateTime)
++ String getHeader()
++ void setHeader(String)
++ String getBody()
++ void setBody(String)
++ boolean isOpened()
++ void setOpened(boolean)
++ String getPreview()
++ boolean isDraft()
++ void setDraft(boolean)
+}
+
+
+class com.example.turgo.CreateCourse {
+# String courseName
+# CourseType courseType
+# Room room
+~ Uri courseIcon
+~ ArrayList<Uri> courseImages
+~ ArrayList<String> courseImagesCloudinary
+# Teacher teacher
+# ArrayList<DayTimeArrangement> dtas
+# int hourlyCost
+# boolean[] groupPrivate
+# boolean autoAcceptStudent
+~ cc_AddScheduleDTA as
+~ cc_CourseInformation ci
+~ cc_Media m
+~ cc_SetTeacher st
+~ cc_PriceEnrollment pe
+~ Fragment[] phases
+- boolean[] fragmentCompletion
+~ Course course
+~ FragmentContainerView fcv_phases
+~ Button btn_next
+~ int currentPhase
+~ Admin admin
+# void onCreate(Bundle)
+- void next()
++ void back()
+- void createCourse()
+}
+
+
+interface com.example.turgo.ConstructClassCallback {
+~ void onSuccess(Object)
+~ void onError(DatabaseError)
+}
+
+class com.example.turgo.signup_UserCategory {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
+~ RadioGroup rg_userCategories
+~ boolean segmentComplete
++ {static} signup_UserCategory newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.TeacherDashboard {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ Button btn_viewTodaySchedule
+~ TextView tv_courseName
+~ RecyclerView rv_recentStudentSubmit
+~ ViewPager2 vp2_activeCourses
+~ ArrayList<Course> teacherCoursesTeach
+~ ArrayList<Integer> studentCountOfCourses
+~ ArrayList<Meeting> nextMeetingOfCourses
+- String mParam1
+- String mParam2
++ {static} TeacherDashboard newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void loadTeacher()
++ void onStart()
++ void onResume()
+}
+
+
+class com.example.turgo.ScheduleSimpleAdapter {
+- ArrayList<Schedule> schedules
++ ScheduleSimpleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ScheduleSimpleViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.NotificationFirebase {
+- String notif_ID
+- String title
+- String content
+- String timeSent
+- String from
+- String to
++ void importObjectData(Notification<?>)
++ String getID()
++ void convertToNormal(ObjectCallBack<Notification<?>>)
++ String getNotif_ID()
++ void setNotif_ID(String)
++ String getTitle()
++ void setTitle(String)
++ String getContent()
++ void setContent(String)
++ String getTimeSent()
++ void setTimeSent(String)
++ String getFrom()
++ void setFrom(String)
++ String getTo()
++ void setTo(String)
+}
+
+
+class com.example.turgo.cc_Media {
+~ RecyclerView rv_courseLogo
+~ Button btn_uploadCourseLogo
+~ TextView tv_emptyCourseImageUpload
+- {static} int PICK_FILE_REQUEST
+- Uri selectedFileUri
+- OnFileSelectedListener currentUploadCallback
+- ActivityResultLauncher<Intent> filePickerLauncher
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} cc_Media newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- int dpToPx(int)
+- void setDefaultCourseIconOptions(CreateCourse)
+- void setDefaultCourseBannerOptions(CreateCourse)
+- void openFilePicker(OnFileSelectedListener)
+- String getCloudinaryOfImageId(int)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.NotifViewHolder {
++ TextView tv_header
+}
+
+class com.example.turgo.CoursesData {
+- {static} ArrayList<Course> courses
++ {static} ArrayList<Course> getCourses()
+}
+
+
+class com.example.turgo.Tool {
++ {static} ArrayList<T> streamToArray(Stream<T>)
++ {static} boolean isOverlapping(LocalTime,LocalTime,LocalTime,LocalTime)
++ {static} boolean hasField(Class<?>,String)
++ {static} void loadFragment(FragmentActivity,int,Fragment)
++ {static} void loadFragment(FragmentActivity,int,Fragment,Bundle)
++ {static} String stringifyStartEndTime(LocalTime,LocalTime)
++ {static} boolean boolOf(Object)
++ {static} String formatTime24h(LocalTime)
++ {static} void run(FragmentActivity,String,ThrowingRunnable,Runnable,Consumer<Exception>)
++ {static} void doBackPress(AppCompatActivity)
++ {static} int dpToPx(int,AppCompatActivity)
++ {static} ArrayList<Integer> getListIdFromXmlArray(Context,int)
++ {static} boolean logOutUI(Activity,FirebaseUser)
++ {static} void warn(Activity,String,String,String,String,Runnable)
+- {static} void signOut(Activity,FirebaseUser)
++ {static} double safeDouble(double)
++ {static} Task<U> prepareUserObjectForScreen(R)
++ {static} FirebaseNode getNodeOfID(String)
++ {static} File uriToFile(Uri,Context)
++ {static} String getFileName(Context,Uri)
++ {static} User getUserOfId(String)
++ {static} void checkIfReferenceExists(DatabaseReference,ObjectCallBack<Boolean>)
++ {static} void handleEmpty(boolean,ViewGroup,TextView)
++ {static} void handleEmpty(boolean,ViewGroup,LinearLayout)
++ {static} boolean isPrimitive(Field)
++ {static} Class<?> getArrayListElementType(Field)
++ {static} void uploadToCloudinary(File,ObjectCallBack<String>)
++ {static} void uploadToCloudinary(String)
++ {static} void setImageCloudinary(Context,String,ImageView)
++ {static} boolean hasParent(Class<?>)
++ {static} Bitmap drawableToBitmap(Drawable)
++ {static} Drawable getDrawableFromId(Context,int)
++ {static} boolean isTimeOccupied(LocalTime,LocalDate,Meeting)
++ {static} boolean isTimeAvailable(LocalTime,LocalTime,LocalTime,LocalTime)
++ {static} boolean isTimeOccupied(LocalTime,LocalTime,DayOfWeek,Schedule)
++ {static} boolean isShorter(Duration,Duration)
++ {static} boolean isLonger(Duration,Duration)
+}
+
+interface com.example.turgo.Tool$ThrowingRunnable {
+~ void run()
+}
+
+interface com.example.turgo.Tool$ConvertToNormalCallback {
+~ void onAllConverted(ArrayList<N>)
+~ void onError(DatabaseError)
+}
+
+class com.example.turgo.signup_UserDetails_Teacher {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ Button btn_addSubject
+~ Spinner sp_subjects
+~ ListView lv_selectedSubjects
+~ SignUpPage sup
+~ ArrayList<String> selectedSubjects
+~ ArrayAdapter<String> listAdapter
+- String mParam1
+- String mParam2
++ {static} signup_UserDetails_Teacher newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void showOnAdapter()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.StudentFirebase {
+- double percentageCompleted
+- String nextMeeting
+- String lastScheduled
+- int autoSchedule
+- int notificationEarlyDuration
+- int lateAttendance
+- int lateSubmissions
+- boolean hasScheduled
+- String school
+- String gradeLevel
+- ArrayList<String> courseTaken
+- ArrayList<String> studentCourseTaken
+- ArrayList<String> courseInterested
+- ArrayList<String> courseRelated
+- ArrayList<String> preScheduledMeetings
+- ArrayList<String> meetingHistory
+- ArrayList<String> scheduleCompletedThisWeek
+- ArrayList<String> allSchedules
+- ArrayList<String> allTask
+- ArrayList<String> uncompletedTask
+- ArrayList<String> manualCompletedTask
+- ArrayList<String> manualMissedTask
+- ArrayList<String> allAgendas
++ void importObjectData(Student)
++ String getID()
++ void convertToNormal(ObjectCallBack<Student>)
++ String getSchool()
++ void setSchool(String)
++ String getGradeLevel()
++ void setGradeLevel(String)
++ boolean isHasScheduled()
++ void setHasScheduled(boolean)
++ double getPercentageCompleted()
++ void setPercentageCompleted(double)
++ String getNextMeeting()
++ void setNextMeeting(String)
++ String getLastScheduled()
++ void setLastScheduled(String)
++ int getAutoSchedule()
++ void setAutoSchedule(int)
++ int getNotificationEarlyDuration()
++ void setNotificationEarlyDuration(int)
++ int getLateAttendance()
++ void setLateAttendance(int)
++ int getLateSubmissions()
++ void setLateSubmissions(int)
++ ArrayList<String> getCourseTaken()
++ void setCourseTaken(ArrayList<String>)
++ ArrayList<String> getStudentCourseTaken()
++ void setStudentCourseTaken(ArrayList<String>)
++ ArrayList<String> getCourseInterested()
++ void setCourseInterested(ArrayList<String>)
++ ArrayList<String> getCourseRelated()
++ void setCourseRelated(ArrayList<String>)
++ ArrayList<String> getPreScheduledMeetings()
++ void setPreScheduledMeetings(ArrayList<String>)
++ ArrayList<String> getMeetingHistory()
++ void setMeetingHistory(ArrayList<String>)
++ ArrayList<String> getScheduleCompletedThisWeek()
++ void setScheduleCompletedThisWeek(ArrayList<String>)
++ ArrayList<String> getAllSchedules()
++ void setAllSchedules(ArrayList<String>)
++ ArrayList<String> getAllTask()
++ void setAllTask(ArrayList<String>)
++ ArrayList<String> getUncompletedTask()
++ void setUncompletedTask(ArrayList<String>)
++ ArrayList<String> getManualCompletedTask()
++ void setManualCompletedTask(ArrayList<String>)
++ ArrayList<String> getManualMissedTask()
++ void setManualMissedTask(ArrayList<String>)
++ ArrayList<String> getAllAgendas()
++ void setAllAgendas(ArrayList<String>)
+}
+
+
+class com.example.turgo.Admin {
++ {static} String SERIALIZE_KEY_CODE
++ FirebaseNode getFirebaseNode()
++ Class<AdminRepository> getRepositoryClass()
++ Class<AdminFirebase> getFirebaseClass()
++ String getID()
++ void updateUserDB()
++ String getSerializeCode()
+}
+
+
+enum com.example.turgo.TaskItemMode {
++  RECYCLER
++  VIEW_PAGER
+- String node
++ String getNode()
+}
+
+
+class com.example.turgo.TimeSlotFirebase {
+- String timeSlotId
+- String day
+- String start
+- String end
+- String time
+- ArrayList<String> schedules
+- int minuteIncrement
++ void importObjectData(TimeSlot)
++ String getID()
++ void convertToNormal(ObjectCallBack<TimeSlot>)
++ String getTimeSlotId()
++ void setTimeSlotId(String)
++ String getDay()
++ void setDay(String)
++ String getStart()
++ void setStart(String)
++ String getEnd()
++ void setEnd(String)
++ String getTime()
++ void setTime(String)
++ ArrayList<String> getSchedules()
++ void setSchedules(ArrayList<String>)
++ int getMinuteIncrement()
++ void setMinuteIncrement(int)
+}
+
+
+enum com.example.turgo.Theme {
++  DARK
++  LIGHT
++  SYSTEM
+- String theme
++ String getTheme()
+}
+
+
+class com.example.turgo.DayTimeViewHolder {
+~ TextView tv_day
+}
+
+class com.example.turgo.CourseImageAdapter {
+~ ArrayList<String> imageUrls
++ CourseImageViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(CourseImageViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.signup_admin_empty {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} signup_admin_empty newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.RC_PrivateDurationAmount {
+~ RadioGroup rg_privateGroup
+~ SeekBar sb_durationSlider
+~ {static} String viewName
+~ TextView tv_minutesDisplay
+~ int currentSessionAvailableAmount
+~ int currentAmountSelected
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} RC_PrivateDurationAmount newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.NotifPageFull {
+- ImageView btnBack
+- TextView btnClearAll
+- LinearLayout llEmptyState
+- RecyclerView rvNotifications
+- NotifAdapter notifAdapter
+- ArrayList<NotificationFirebase> notifications
+# void onCreate(Bundle)
+- void initializeViews()
+- void setupRecyclerView()
+- void setupListeners()
+- void loadNotifications()
+- void updateEmptyState()
+}
+
+
+class com.example.turgo.Dropbox {
+- FirebaseNode fbn
+- Class<DropboxFirebase> fbc
+- ArrayList<Submission> submissions
+- String UID
+- Task ofTask
++ com.google.android.gms.tasks.Task<Void> setup()
++ Submission getSubmissionSlot(Student)
++ void setupSubmissions(ArrayList<Student>)
++ FirebaseNode getFirebaseNode()
++ Class<DropboxFirebase> getFirebaseClass()
++ String getID()
++ void setUID(String)
++ Class<DropboxRepository> getRepositoryClass()
++ ArrayList<Submission> getSubmissions()
++ void setSubmissions(ArrayList<Submission>)
++ Task getOfTask()
++ void setOfTask(Task)
+}
+
+
+class com.example.turgo.cc_CourseInformation {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- EditText et_CourseName
+- Spinner sp_CourseTypes
+- {static} String tag
+- String mParam1
+- String mParam2
++ {static} cc_CourseInformation newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void retrieveCourseTypes(ObjectCallBack<ArrayList<CourseType>>)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.DayScheduleAdapter {
+~ ArrayList<ScheduleToDisplay> daySchedules
++ DayScheduleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(DayScheduleViewHolder,int)
++ int getItemCount()
++ void getSchedulesOfMode(Teacher,boolean)
++ void updateMode(Teacher,boolean)
++ boolean isEmpty()
+}
+
+
+class com.example.turgo.Student {
+- {static} String CLOSEST_MEETING_TAG
+- {static} FirebaseNode fbn
+- {static} Class<StudentFirebase> fbc
+- ArrayList<Course> courseTaken
+- ArrayList<StudentCourse> studentCourseTaken
++ {static} String SERIALIZE_KEY_CODE
+- ArrayList<String> courseInterested
+- ArrayList<Course> courseRelated
+- ArrayList<Meeting> preScheduledMeetings
+- ArrayList<Meeting> meetingHistory
+- ArrayList<Schedule> scheduleCompletedThisWeek
+- double percentageCompleted
+- Meeting nextMeeting
+- String school
+- String gradeLevel
+- ArrayList<Schedule> allSchedules
+- LocalDate lastScheduled
+- boolean hasScheduled
+- int autoSchedule
+- Duration notificationEarlyDuration
+- ArrayList<Task> allTask
+- ArrayList<Task> uncompletedTask
+- ArrayList<Task> manualCompletedTask
+- ArrayList<Task> manualMissedTask
+- ArrayList<Agenda> allAgendas
+- int lateAttendance
+- int lateSubmissions
++ void getStudentCourseFromCourse(Course,ObjectCallBack<StudentCourse>)
++ ArrayList<Schedule> getSchedulesOfCourse(Course)
++ String getID()
++ FirebaseNode getFirebaseNode()
++ Class<StudentRepository> getRepositoryClass()
++ Class<StudentFirebase> getFirebaseClass()
++ void updateUserDB()
++ String getSerializeCode()
++ ArrayList<Task> getCompletedTask()
++ TaskStatus resolveTaskStatus(Task,LocalDateTime)
++ ArrayList<Task> getCurrentTasks()
++ ArrayList<Task> getPastTasks()
++ void markManualTaskStatus(Task,boolean)
+- boolean isTaskInList(ArrayList<Task>,String)
++ com.google.android.gms.tasks.Task<ArrayList<Meeting>> getAllMeetingOfCourse(Course)
++ void calculatePercentageCompleted()
++ void setNextMeeting()
++ void attendMeeting(Meeting)
++ void addScheduledMeeting(Context,Teacher)
++ com.google.android.gms.tasks.Task<Void> addScheduledMeetingAsync(Context,Teacher)
+- ArrayList<Schedule> updateSchedule()
++ com.google.android.gms.tasks.Task<LocalDate> getClosestMeetingOfCourse(Course)
+- com.google.android.gms.tasks.Task<LocalDate> findClosestMeetingByScheduleIdsFromDatabase(ArrayList<String>)
+- boolean isEarlierMeeting(Meeting,Meeting)
++ void completeMeeting(Meeting)
+- boolean checkAllComplete()
+- void findCourseRelated()
++ com.google.android.gms.tasks.Task<Void> joinCourse(Course,boolean,boolean,int,ArrayList<Schedule>,ArrayList<TimeSlot>,Context)
+- {static} com.google.android.gms.tasks.Task<T> logTask(String,com.google.android.gms.tasks.Task<T>)
++ void assignAgenda(Agenda)
++ ArrayList<StudentCourse> getStudentCourseTaken()
++ void setStudentCourseTaken(ArrayList<StudentCourse>)
++ Duration getNotificationEarlyDuration()
++ String getSchool()
++ void setSchool(String)
++ String getGradeLevel()
++ void setGradeLevel(String)
++ void setNotificationEarlyDuration(Duration)
++ ArrayList<Course> getCourseTaken()
++ void addCourseInterest(String)
++ void setCourseTaken(ArrayList<Course>)
++ ArrayList<String> getCourseInterested()
++ void setCourseInterested(ArrayList<String>)
++ ArrayList<Course> getCourseRelated()
++ void setCourseRelated(ArrayList<Course>)
++ boolean isHasScheduled()
++ void setHasScheduled(boolean)
++ ArrayList<Meeting> getPreScheduledMeetings()
++ void setPreScheduledMeetings(ArrayList<Meeting>)
++ ArrayList<Meeting> getMeetingHistory()
++ void addMeetingHistory(Meeting)
++ void setMeetingHistory(ArrayList<Meeting>)
++ ArrayList<Schedule> getAllSchedules()
++ void setAllSchedules(ArrayList<Schedule>)
++ LocalDate getLastScheduled()
++ void setLastScheduled(LocalDate)
++ int getAutoSchedule()
++ void setAutoSchedule(int)
++ void addMeetingCompleted(Meeting)
++ ArrayList<Schedule> getScheduleCompletedThisWeek()
++ void setScheduleCompletedThisWeek(ArrayList<Schedule>)
++ Meeting getNextMeeting()
++ void setNextMeeting(Meeting)
+- boolean isUpcomingMeeting(Meeting)
++ double getPercentageCompleted()
++ void setPercentageCompleted(double)
++ ArrayList<Task> getAllTask()
++ void setAllTask(ArrayList<Task>)
++ ArrayList<Task> getUncompletedTask()
++ void setUncompletedTask(ArrayList<Task>)
++ ArrayList<Task> getManualCompletedTask()
++ void setManualCompletedTask(ArrayList<Task>)
++ ArrayList<Task> getManualMissedTask()
++ void setManualMissedTask(ArrayList<Task>)
++ ArrayList<Task> getAllTaskOfCourse(Course)
++ void getAgendaOfCourse(Course,ObjectCallBack<ArrayList<Agenda>>)
++ void addAgenda(Agenda)
++ ArrayList<Agenda> getAllAgendas()
++ void setAllAgendas(ArrayList<Agenda>)
++ void assignTask(Task)
++ void getLatestAgendaOfCourse(Course,ObjectCallBack<Agenda>)
++ int getLateAttendance()
++ void setLateAttendance(int)
++ int getLateSubmissions()
++ void setLateSubmissions(int)
++ com.google.android.gms.tasks.Task<ArrayList<Course>> getExploreCourse()
+- void convertCourses(ArrayList<CourseFirebase>,TaskCompletionSource<ArrayList<Course>>)
++ void submitTask(ArrayList<file>,Task)
++ String toString()
+}
+
+
+class com.example.turgo.SubmissionViewHolder {
+~ TextView tv_studentName
+~ TextView tv_fileNameSimple
+~ TextView tv_statusSubmission
+~ ImageButton btn_removeFile
+- TextView findTextViewAny(View,int)
+}
+
+
+class com.example.turgo.DropboxFirebase {
+- ArrayList<String> submissions
+- String UID
+- String ofTask
+- String dropboxID
++ void importObjectData(Dropbox)
++ String getID()
++ void convertToNormal(ObjectCallBack<Dropbox>)
++ ArrayList<String> getSubmissions()
++ void setSubmissions(ArrayList<String>)
++ String getDropboxID()
++ void setDropboxID(String)
++ String getUID()
++ void setUID(String)
++ String getOfTask()
++ void setOfTask(String)
+}
+
+
+class com.example.turgo.StudentCourse {
+- FirebaseNode fbn
+- Class<StudentCourseFirebase> fbc
+- String sc_ID
+- ArrayList<Schedule> schedulesOfCourse
+- boolean paymentPreferences
+- boolean privateOrGroup
+- ArrayList<Task> tasks
+- ArrayList<Agenda> agendas
+- ArrayList<TimeSlot> timeSlots
+- String student
+- int pricePer
++ void assignTask(Task)
++ void assignAgenda(Agenda)
++ String getStudentId()
++ com.google.android.gms.tasks.Task<Student> getStudent()
++ void setStudent(String)
++ ArrayList<TimeSlot> getTimeSlots()
++ void setTimeSlots(ArrayList<TimeSlot>)
++ String getSc_ID()
++ void addSchedule(Schedule)
++ void getStudent(ObjectCallBack<Student>)
++ void getOfCourse(ObjectCallBack<Course>)
++ ArrayList<Schedule> getSchedulesOfCourse()
++ void setSchedulesOfCourse(ArrayList<Schedule>)
++ boolean isPaymentPreferences()
++ void setPaymentPreferences(boolean)
++ boolean isPrivateOrGroup()
++ void setPrivateOrGroup(boolean)
++ ArrayList<Task> getTasks()
++ void setTasks(ArrayList<Task>)
++ ArrayList<Agenda> getAgendas()
++ void setAgendas(ArrayList<Agenda>)
++ int getPricePer()
++ void setPricePer(int)
++ FirebaseNode getFirebaseNode()
++ Class<StudentCourseFirebase> getFirebaseClass()
++ String getID()
++ Class<StudentCourseRepository> getRepositoryClass()
+}
+
+
+class com.example.turgo.DayTimeArrangement {
+- FirebaseNode fbn
+- Class<DTAFirebase> fbc
+- String DTA_ID
+- DayOfWeek day
+- LocalTime start
+- LocalTime end
+- ArrayList<Schedule> occupied
+- int maxMeeting
++ int getDuration()
++ ArrayList<TimeSlot> findFreeSlots(ScheduleQuality,int,int)
+- ArrayList<TimeSlot> getSlotsForGivenTimePeriod(int,int)
++ {static} ArrayList<String> getDaysOfDtas(ArrayList<DayTimeArrangement>)
++ {static} ArrayList<String> getTimesOfDtas(ArrayList<DayTimeArrangement>)
+- boolean isTimeEqualOrBetween(LocalTime,LocalTime,LocalTime,LocalTime)
++ ArrayList<Schedule> getOccupied()
++ void getOfTeacher(ObjectCallBack<Teacher>)
++ void getAtCourse(ObjectCallBack<Course>)
++ DayOfWeek getDay()
++ void setDay(DayOfWeek)
++ LocalTime getStart()
++ void setStart(LocalTime)
++ LocalTime getEnd()
++ void setEnd(LocalTime)
++ int getMaxMeeting()
++ void setMaxMeeting(int)
++ FirebaseNode getFirebaseNode()
++ Class<DTARepository> getRepositoryClass()
++ Class<DTAFirebase> getFirebaseClass()
++ String getID()
++ String toString()
+}
+
+
+class com.example.turgo.ObjectCreator {
++ {static} void main(String[])
+}
+
+class com.example.turgo.CourseAdminViewHolder {
+~ MaterialCardView cv_container
+~ TextView tv_courseName
+}
+
+class com.example.turgo.CourseNotification {
+- {static} String CHANNEL_ID
+- Course course
+- Student student
+- Schedule schedule
+- Duration notifEarlyDuration
++ void onReceive(Context,Intent)
+- void createNotificationChannel(Context)
+- void sendNotification(Context)
+}
+
+
+class com.example.turgo.StudentCourseFirebase {
+- String sc_ID
+- ArrayList<String> schedulesOfCourse
+- boolean paymentPreferences
+- boolean privateOrGroup
+- ArrayList<String> tasks
+- ArrayList<String> agendas
+- ArrayList<String> timeSlots
+- String student
+- int pricePer
++ void importObjectData(StudentCourse)
++ String getID()
++ void convertToNormal(ObjectCallBack<StudentCourse>)
++ String getSc_ID()
++ void setSc_ID(String)
++ ArrayList<String> getSchedulesOfCourse()
++ void setSchedulesOfCourse(ArrayList<String>)
++ boolean isPaymentPreferences()
++ void setPaymentPreferences(boolean)
++ boolean isPrivateOrGroup()
++ void setPrivateOrGroup(boolean)
++ ArrayList<String> getTasks()
++ void setTasks(ArrayList<String>)
++ ArrayList<String> getAgendas()
++ void setAgendas(ArrayList<String>)
++ int getPricePer()
++ void setPricePer(int)
++ ArrayList<String> getTimeSlots()
++ void setTimeSlots(ArrayList<String>)
+}
+
+
+enum com.example.turgo.SubmissionItemMode {
++  DASHBOARD
++  FILE_PICKER
+}
+
+class com.example.turgo.CourseAdapter {
+- ArrayList<Course> courses
+- {static} DateTimeFormatter MEETING_DATE_FORMAT
+# OnItemClickListener<Course> listener
+- ArrayList<Teacher> teachers
+- Context context
+- boolean showMeeting
+~ Student student
++ CourseViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(CourseViewHolder,int)
++ int getItemCount()
++ ArrayList<Course> getCourses()
+}
+
+
+class com.example.turgo.TimeSlotRepository {
++ DatabaseReference getDbReference()
++ Class<TimeSlotFirebase> getFbClass()
+}
+
+class com.example.turgo.TeacherScheduleViewHolder {
++ TextView tvScheduleDate
++ TextView tvTimeConstraint
++ TextView tvDuration
++ TextView tvGroupPrivate
++ TextView tvStudentNumberORName
++ TextView tvStatus
+}
+
+class com.example.turgo.TeacherAllCourse {
+~ RecyclerView rv_allCourse
+~ ArrayList<Course> teacherCoursesTeach
+~ ArrayList<Integer> studentCountOfCourses
+~ ArrayList<Meeting> nextMeetingOfCourses
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TeacherAllCourse newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.CourseTypeRepository {
+- DatabaseReference courseTypeRef
++ DatabaseReference getDbReference()
++ Class<CourseTypeFirebase> getFbClass()
++ void updateCourseTypeName(String)
+}
+
+
+interface com.example.turgo.Intents {
+~ void itent()
+}
+
+class com.example.turgo.TeacherScheduleAdapter {
+~ ArrayList<Schedule> scheduleList
+~ ArrayList<ArrayList<Student>> listOfStudents
+~ ArrayList<Course> courses
++ TeacherScheduleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(TeacherScheduleViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.rcScheduleViewHolder {
+~ TextView tv_day
+~ ImageButton btn_remove
+~ int id
++ void setId(int)
+}
+
+
+class com.example.turgo.ObjectManager {
+# {static} ArrayList<User> USERS
+# {static} ArrayList<Course> COURSES
+# {static} ArrayList<Room> ROOMS
+# {static} ArrayList<CourseType> COURSE_TYPES
++ {static} void ADD_USER(User)
++ {static} void ADD_COURSE(Course)
+}
+
+
+class com.example.turgo.STCAdapter {
+- ArrayList<Student> students
+- Context context
+- OnItemClickListener<Student> onclickListener
++ STCViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(STCViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.AlarmPermissionHelper {
++ {static} boolean canScheduleExactAlarms(Context)
++ {static} void requestExactAlarmPermission(Context)
++ {static} void requestExactAlarmPermissionWithCallback(Context,Runnable,Runnable)
+}
+
+class com.example.turgo.ui.home.HomeViewModel {
+- MutableLiveData<String> mText
++ LiveData<String> getText()
+}
+
+
+class com.example.turgo.ui.notifications.NotificationsViewModel {
+- MutableLiveData<String> mText
++ LiveData<String> getText()
+}
+
+
+class com.example.turgo.Student_TaskList {
+~ RecyclerView rv_tasks
+~ Button btn_viewPastTasks
+~ LinearLayout ll_emptyState
+~ Spinner sp_filter
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} Student_TaskList newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadLatestStudentTasks(StudentScreen)
+- void setupFilterSpinner(Student,ArrayList<Task>,TaskAdapter)
+- void applyFilter(Student,ArrayList<Task>,TaskAdapter,String)
+}
+
+
+class com.example.turgo.CourseDetails {
+~ TextView tv_courseTitle
+~ ImageView iv_courseLogo
+- {static} String ARG_COURSE_TITLE
+- {static} String ARG_TEACHER_NAME
+- {static} String ARG_NEXT_MEETING
+- {static} String ARG_DAY_OF_WEEK
+- {static} String ARG_DURATION
+- {static} String ARG_ROOM
+- {static} String ARG_LOGO_URL
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} CourseDetails newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ {static} Bundle createArgs(String,String,String,String,String,String,String)
+}
+
+
+class com.example.turgo.file {
+- FirebaseNode fbn
+- Class<fileFirebase> fbc
+- String fileID
+- String secureURL
+- String fileName
+- {static} RTDBManager<String> linkRTDB
+- User uploader
+- LocalDateTime fileCreateDate
+- LocalDateTime submitTime
+- Task ofTask
++ FirebaseNode getFbn()
++ Class<fileFirebase> getFbc()
++ String getFileID()
++ void setFileID(String)
++ String getFileName()
++ void setFileName(String)
++ {static} RTDBManager<String> getLinkRTDB()
++ {static} void setLinkRTDB(RTDBManager<String>)
++ void setOfTask(Task)
++ Task getOfTask()
++ void setSubmitTime(LocalDateTime)
++ LocalDateTime getSubmitTime()
++ User getUploader()
++ void setUploader(User)
++ LocalDateTime getFileCreateDate()
++ void setFileCreateDate(LocalDateTime)
++ String getSecureURL()
++ void setSecureURL(String)
++ FirebaseNode getFirebaseNode()
++ Class<fileFirebase> getFirebaseClass()
++ Class<FileRepository> getRepositoryClass()
++ String getID()
+}
+
+
+class com.example.turgo.AdminCreateRoom {
+- ActivityAdminCreateRoomBinding binding
+~ EditText et_roomTag
+~ SeekBar sb_roomCapacity
+~ Button btn_createRoom
+~ ImageButton ib_goBack
+~ RecyclerView rv_roomsCreated
+~ TextView tv_emptyRoom
+~ ChipGroup cg_courseTypes
+# void onCreate(Bundle)
+- Task<List<CourseType>> getCourseTypes()
+- Task<List<Room>> getExistingRooms()
+- Room createRoom()
+- void setupCourseTypes(List<CourseType>)
+- boolean checkComplete()
+- ArrayList<CourseType> getSelectedCourseObjects()
+}
+
+
+class com.example.turgo.AdminScreen {
+~ Button btn_createCourse
+~ ImageView iv_arrowCourse
+~ LinearLayout headerCourse
+~ HashMap<Pair<LinearLayout,LinearLayout>,ImageView> headerContent
+~ Admin admin
+~ FirebaseUser fbUser
+# void onCreate(Bundle)
+- void setAdminActionsEnabled(boolean)
+}
+
+
+class com.example.turgo.DTAAdapter {
+- ArrayList<DayTimeArrangement> items
+- OnItemClickListener<Integer> listener
++ void setListener(OnItemClickListener<Integer>)
++ DTAViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(DTAViewHolder,int)
++ int getItemCount()
++ void addItem(DayTimeArrangement)
++ void removeItem(int)
+}
+
+
+class com.example.turgo.CaptureAct {
+}
+class com.example.turgo.Notification {
+- FirebaseNode fbn
+- Class<NotificationFirebase> fbc
+- {static} RTDBManager<Notification<?>> notifRTDB
+- String notif_ID
+- String title
+- String content
+- LocalDateTime timeSent
+- FromType from
+- User to
++ String getTitle()
++ void setTitle(String)
++ String getContent()
++ void setContent(String)
++ LocalDateTime getTimeSent()
++ void setTimeSent(LocalDateTime)
++ FromType getFrom()
++ void setFrom(FromType)
++ User getTo()
++ void setTo(User)
++ {static} void sendNotification(Notification<?>)
++ FirebaseNode getFirebaseNode()
++ Class<NotificationRepository> getRepositoryClass()
++ Class<NotificationFirebase> getFirebaseClass()
++ String getID()
+}
+
+
+interface com.example.turgo.OnItemClickListener {
+~ void onItemClick(T)
+~ void onItemLongClick(T)
+}
+
+class com.example.turgo.popupProfileEdit {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} popupProfileEdit newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.StudentScreen {
+- ActivityStudentScreenBinding binding
+- Student student
+- FirebaseUser fbUser
+- NavHostFragment navHostFragment
+- BottomNavigationView navView
+- LinearLayout ll_mailEmpty
+- Toolbar topAppBar
+- ArrayList<MailFirebase> inboxFirebase
+- ArrayList<NotificationFirebase> notifs
+- MailSmallAdapter mailSmallAdapter
+- NotifAdapter notifAdapter
+- BottomNavigationView bottomNav
+- ArrayList<Mail> inbox
+- PopupWindow mailPopupWindow
+- boolean inLoading
+~ RecyclerView rv_MailDropDown
+# void onCreate(Bundle)
+- void continueAfterStudentNotNull()
+- void setScreenInteractionEnabled(boolean)
+- void prepareActivityUI()
+- void loadDashboard()
++ {static} int getContainer()
++ {static} int getMenuIdForFragment(String)
+- void initializeUI()
+- void setupBottomNavigation(BottomNavigationView)
+- int dpToPx(int)
++ boolean onOptionsItemSelected(MenuItem)
+- PopupWindow createPopupWindow(View,int,String)
+- void setupMailSeeAll(View)
+- void dismissPopups()
++ boolean onCreateOptionsMenu(Menu)
++ void prepareObjects()
++ Student getStudent()
++ void setStudent(Student)
++ ActivityStudentScreenBinding getBinding()
++ void setBinding(ActivityStudentScreenBinding)
++ FirebaseUser getFbUser()
++ void setFbUser(FirebaseUser)
++ NavHostFragment getNavHostFragment()
++ void setNavHostFragment(NavHostFragment)
++ BottomNavigationView getNavView()
++ void setNavView(BottomNavigationView)
++ Toolbar getTopAppBar()
++ void setTopAppBar(Toolbar)
++ ArrayList<MailFirebase> getInboxFirebase()
++ void setInboxFirebase(ArrayList<MailFirebase>)
++ ArrayList<NotificationFirebase> getNotifs()
++ void setNotifs(ArrayList<NotificationFirebase>)
++ MailSmallAdapter getMailSmallAdapter()
++ void setMailSmallAdapter(MailSmallAdapter)
++ NotifAdapter getNotifAdapter()
++ void setNotifAdapter(NotifAdapter)
+}
+
+
+class com.example.turgo.ScheduleRepository {
+- DatabaseReference scheduleRef
++ void delete(Schedule)
++ DatabaseReference getDbReference()
++ Class<ScheduleFirebase> getFbClass()
++ void updateNumberOfStudents(int)
++ void incrementNumberOfStudents(int)
++ void decrementNumberOfStudents(int)
++ void updateIsPrivate(boolean)
++ void updateHasScheduled(boolean)
++ void updateDuration(int)
++ void updateMeetingStart(LocalTime)
++ void updateMeetingEnd(LocalTime)
++ void updateDay(DayOfWeek)
++ void setScheduler(U)
++ void removeScheduler()
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+class com.example.turgo.AdminRepository {
+- DatabaseReference adminRef
++ DatabaseReference getDbReference()
++ Class<AdminFirebase> getFbClass()
+}
+
+
+class com.example.turgo.TeacherScheduleList {
+~ SwitchCompat sc_Modes
+~ RecyclerView rv_schedules
+~ TextView tv_noSchedules
+~ TeacherScreen ts
+~ Teacher teacher
+~ DayScheduleAdapter dsa
+~ DayMeetingAdapter dma
+~ AtomicReference<RecyclerView.Adapter> adapter
+~ AtomicBoolean currentMode
+- {static} boolean WEEKLY
+- {static} boolean DAILY
+- {static} boolean SCHEDULE
+- {static} boolean MEETING
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TeacherScheduleList newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ {static} boolean isThisWeek(LocalDate)
++ void updateRecyclerView(boolean,boolean)
+- void updateEmptyView(ModeUpdatable)
+}
+
+
+class com.example.turgo.FileAdapter {
+- ArrayList<file> submissions
++ FileViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(FileViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.AuthEmailChangeManager {
++ {static} boolean isGoogleProvider(FirebaseUser)
++ {static} boolean hasPasswordProvider(FirebaseUser)
++ {static} String validateEmailInputs(String,String,String)
++ {static} void verifyBeforeUpdateEmail(FirebaseUser,String,VerificationCallback)
++ {static} void reauthenticateWithPassword(FirebaseUser,String,String,SimpleCallback)
+}
+
+interface com.example.turgo.AuthEmailChangeManager$VerificationCallback {
+~ void onVerificationSent()
+~ void onRecentLoginRequired()
+~ void onError(String)
+}
+
+interface com.example.turgo.AuthEmailChangeManager$SimpleCallback {
+~ void onSuccess()
+~ void onError(String)
+}
+
+class com.example.turgo.MeetingViewHolder {
+~ TextView tv_date
+}
+
+class com.example.turgo.TeacherViewHolder {
+~ TextView teacherName
+~ ImageView teacherPFP
+~ MaterialButton addTeacher
+~ TeacherMini tm
+~ int position
+~ Pair<Integer,TeacherMini> pair
+- void bindViews(View)
+}
+
+
+class com.example.turgo.TeacherCourseScreen {
+~ SearchView sv_StudentSearch
+~ Button btn_ViewSchedule
+~ RecyclerView rv_listOfStudent
+~ TextView tv_courseName
+~ Course course
+~ ArrayList<Student> students
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TeacherCourseScreen newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+abstract class com.example.turgo.UserFirebase {
+- String userType
+- String uid
+- String fullName
+- String nickname
+- String birthDate
+- int age
+- String email
+- String gender
+- String phoneNumber
+- String language
+- String theme
+- ArrayList<String> inbox
+- ArrayList<String> outbox
+- ArrayList<String> draftMails
+- ArrayList<String> notifications
++ ArrayList<String> getInbox()
++ void setInbox(ArrayList<String>)
++ ArrayList<String> getOutbox()
++ void setOutbox(ArrayList<String>)
++ ArrayList<String> getNotifications()
++ void setNotifications(ArrayList<String>)
++ void setUserType(String)
++ String getUserType()
++ String getID()
++ void setID(String)
++ String getFullName()
++ void setFullName(String)
++ String getNickname()
++ void setNickname(String)
++ String getBirthDate()
++ void setBirthDate(String)
++ int getAge()
++ void setAge(int)
++ String getEmail()
++ void setEmail(String)
++ String getGender()
++ void setGender(String)
++ String getPhoneNumber()
++ void setPhoneNumber(String)
++ String getLanguage()
++ void setLanguage(String)
++ String getTheme()
++ void setTheme(String)
++ String getUid()
++ void setUid(String)
++ ArrayList<String> getDraftMails()
++ void setDraftMails(ArrayList<String>)
+}
+
+
+class com.example.turgo.Agenda {
+- String agenda_ID
++ {static} String SERIALIZE_KEY_CODE
+- {static} FirebaseNode fbn
+- {static} Class<AgendaFirebase> fbc
+- RTDBManager<AgendaFirebase> agendaRTDB
+- file agendaImage
+- LocalDate date
+- String contents
+- Meeting ofMeeting
+- Teacher teacher
+- Student student
+- String ofCourse
++ String getContents()
++ void setContents(String)
++ Meeting getOfMeeting()
++ void setOfMeeting(Meeting)
++ Teacher getTeacher()
++ void setTeacher(Teacher)
++ Student getStudent()
++ void setStudent(Student)
++ void getOfCourse(ObjectCallBack<Course>)
++ Task<Course> getOfCourse()
++ String getOfCourseId()
++ void setOfCourse(String)
++ file getAgendaImage()
++ void setAgendaImage(file)
++ LocalDate getDate()
++ void setDate(LocalDate)
++ FirebaseNode getFirebaseNode()
++ Class<AgendaRepository> getRepositoryClass()
++ Class<AgendaFirebase> getFirebaseClass()
++ String getID()
+}
+
+
+class com.example.turgo.RC_SelectPaymentConfirm {
+~ LinearLayout VL_pwSlot
+~ RecyclerView rv_reviewSchedules
+~ HashMap<TimeSlot,Integer> lists
+~ {static} String viewName
+~ TextView tv_ppw
+~ Button btn_sw
+~ boolean pwm
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} RC_SelectPaymentConfirm newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void handlePaymentSelectedUI(LinearLayout,Button,LinearLayout,Button)
+- void removeSelection(LinearLayout,Button)
++ boolean checkIfCompleted()
+}
+
+
+enum com.example.turgo.SettingEditType {
++  EDIT_TEXT
++  SPINNER
++  UPLOAD
+- String type
++ String getType()
++ void setType(String)
+}
+
+
+enum com.example.turgo.UserType {
++  STUDENT
++  TEACHER
++  PARENT
++  ADMIN
+- String userType
+- Class<? extends User> userClass
++ String type()
++ Class<? extends User> getUserClass()
+}
+
+
+class com.example.turgo.RC_UserInformation {
+~ EditText et_school
+~ Button btn_saveToStudent
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ {static} String viewTitle
+- String mParam1
+- String mParam2
++ {static} RC_UserInformation newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.RoomFirebase {
+- String roomId
+- ArrayList<String> suitableCourseType
+- boolean used
+- String currentlyOccupiedBy
+- ArrayList<String> schedules
+- String roomTag
+- int capacity
++ void importObjectData(Room)
++ String getID()
++ void convertToNormal(ObjectCallBack<Room>)
++ int getCapacity()
++ void setCapacity(int)
++ String getRoomTag()
++ void setRoomTag(String)
++ String getRoomId()
++ void setRoomId(String)
++ ArrayList<String> getSuitableCourseType()
++ void setSuitableCourseType(ArrayList<String>)
++ boolean isUsed()
++ void setUsed(boolean)
++ String getCurrentlyOccupiedBy()
++ void setCurrentlyOccupiedBy(String)
++ ArrayList<String> getSchedules()
++ void setSchedules(ArrayList<String>)
+}
+
+
+class com.example.turgo.TaskRepository {
+- DatabaseReference taskRef
++ DatabaseReference getDbReference()
++ Class<TaskFirebase> getFbClass()
++ com.google.android.gms.tasks.Task<Task> loadAsNormal()
++ void updateTitle(String)
++ void updateDescription(String)
++ void updateDueDate(String)
++ void updateDateAssigned(String)
++ void updateTaskOfCourse(Course)
++ void updateFromSchedule(Schedule)
++ void updatePublisher(Teacher)
++ void updateDropbox(Dropbox)
++ void updateManualCompletionRequired(boolean)
++ void addAssignedStudent(Student)
++ void removeAssignedStudent(String)
+}
+
+
+class com.example.turgo.DataLoading {
+- TextView tv_statusText
+- ProgressBar pb_loading
+# void onCreate(Bundle)
+- void startLoading()
+- void loadActivity(Bundle,Class<?>,User)
+- void loadFragment(Bundle,Class<? extends RequiresDataLoading>,User,int)
++ {static} void loadAndNavigate(Context,Class<? extends RequiresDataLoading>,Bundle,boolean,Class<? extends AppCompatActivity>,User)
++ {static} void loadAndNavigate(Context,Class<? extends RequiresDataLoading>,Bundle,boolean,Class<?>,User,int)
+}
+
+
+interface com.example.turgo.DataLoading$ProgressCallback {
+~ void onProgress(String)
+}
+
+class com.example.turgo.TimeSlotAdapter {
+- ArrayList<TimeSlot> timeSlots
+- OnItemClickListener<SelectedIndicatorHelper<TimeSlot>> listener
+- TimeSlotViewHolder currentHolder
+- DayOfWeek day
+- int selectedPosition
++ TimeSlotViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(TimeSlotViewHolder,int)
++ ArrayList<TimeSlot> getTimeSlots()
++ TimeSlotViewHolder getCurrentHolder()
++ void setCurrentHolder(TimeSlotViewHolder)
++ void setTimeSlots(ArrayList<TimeSlot>)
++ int getItemCount()
++ DayOfWeek getDay()
++ void setDay(DayOfWeek)
+}
+
+
+class com.example.turgo.CourseTeachersAdapter {
+- {static} DateTimeFormatter MEETING_DATE_FORMAT
+~ ArrayList<Course> courses
+~ ArrayList<Meeting> meetings
+~ OnItemClickListener<Course> listener
+~ ArrayList<Integer> studentCountOfCourse
++ CourseTeachersViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(CourseTeachersViewHolder,int)
++ int getItemCount()
+- {static} String formatMeetingDate(LocalDate)
+}
+
+
+class com.example.turgo.OneTimeDtaCleanup {
+- {static} String TAG
++ {static} Task<Report> run(Options)
++ {static} Task<Report> runForTeacher(String)
+- {static} boolean isValidDtaNode(DataSnapshot)
+- {static} List<String> readStringList(DataSnapshot)
+- {static} List<String> cleanRefList(List<String>,Set<String>,RemovedRefCallback)
+- {static} Map<String,DayBucket> buildScheduleBuckets(DataSnapshot)
+- {static} String findMatchingDtaId(Map<String,DataSnapshot>,Set<String>,List<String>,String,String)
+}
+
+
+class com.example.turgo.OneTimeDtaCleanup$Options {
++ boolean deleteMalformedDtas
++ boolean pruneTeacherReferences
++ boolean pruneCourseReferences
++ boolean reconstructMissingDtas
++ String onlyTeacherId
+}
+
+class com.example.turgo.OneTimeDtaCleanup$Report {
++ int totalDtaNodes
++ int validDtaNodes
++ int malformedDtaNodes
++ int deletedMalformedDtaNodes
++ int reconstructedDtaNodes
++ int occupiedSyncedDtaNodes
++ int teachersScanned
++ int teachersUpdated
++ int teacherRefsRemoved
++ int coursesScanned
++ int coursesUpdated
++ int courseRefsRemoved
++ ArrayList<String> malformedDtaIds
++ ArrayList<String> removedTeacherRefs
++ ArrayList<String> removedCourseRefs
+}
+
+interface com.example.turgo.OneTimeDtaCleanup$RemovedRefCallback {
+~ void onRemoved(String)
+}
+
+class com.example.turgo.OneTimeDtaCleanup$DayBucket {
+~ String courseId
+~ String day
+~ LocalTime start
+~ LocalTime end
+~ ArrayList<String> scheduleIds
+}
+
+enum com.example.turgo.BannerTheme {
++  RED
++  BLUE
++  GREEN
+- String bannerColor
++ String getBannerColor()
+}
+
+
+class com.example.turgo.MeetingAlarmReciever {
++ void onReceive(Context,Intent)
+}
+
+class com.example.turgo.CourseExploreFullPage {
+~ Button btn_joinCourse
+~ TextView tv_courseTitle
+~ ViewPager2 vp_courseImages
+~ ImageView iv_courseWallpaper
+~ LinearLayout ll_ImageIndicators
+~ RecyclerView rv_courseDayTimes
+~ Course course
+~ Teacher teacher
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} CourseExploreFullPage newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadTeacher()
+- void setupCarousel(CourseImageAdapter)
+- void setupIndicators(int)
+- void updateIndicators(int)
+}
+
+
+class com.example.turgo.TeacherCreateTask {
+- EditText et_taskTitle
+- Spinner sp_taskOfCourse
+- ChipGroup cg_selectStudent
+- Button btn_createTask
+- CheckBox cb_openDropbox
+- TextView tv_selectDate
+- MaterialCardView cardSelectDate
+- {static} String DEFAULT_DATE_LABEL
+- {static} String DEFAULT_TIME_LABEL
+- {static} DateTimeFormatter DEADLINE_FORMATTER
+- Teacher teacher
+- Course coursePreset
+- ArrayList<Student> studentSelectedList
+- Course[] courseSelected
++ {static} TeacherCreateTask newInstance()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void openTimePicker()
+- void openDatePicker()
+- void toggleView(boolean)
+}
+
+
+class com.example.turgo.ComposeMail {
+~ EditText et_subject
+~ AutoCompleteTextView actv_to
+~ Button btn_addAttachment
+~ User user
+# void onCreate(Bundle)
+- void queryUserByUsername(String,OnUsersResultListener)
+- void fetchAndFilterUsers(DatabaseReference,Class<T>,String,ArrayList<User>,HashSet<String>,AtomicInteger,OnUsersResultListener)
+- boolean matchesPrefix(User,String)
+- void completeUserQueryIfDone(AtomicInteger,ArrayList<User>,OnUsersResultListener)
+- void handleExistingDrafts()
+}
+
+
+class com.example.turgo.DTAViewHolder {
+~ TextView tvDayOfWeek
+~ ImageButton btn_remove
+~ int position
+}
+
+class com.example.turgo.AgendaAdapter {
+- ArrayList<Agenda> agendas
++ AgendaViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(AgendaViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.Notif_MeetingReminder {
++ Schedule schedule
+}
+
+class com.example.turgo.ScheduleAdapter {
+- ArrayList<Schedule> schedules
+- ArrayList<Course> courses
++ ScheduleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ScheduleViewHolder,int)
++ int getItemCount()
++ ArrayList<Course> getCourses()
+- {static} String formatDuration(int)
+- {static} String formatDay(DayOfWeek)
+}
+
+
+class com.example.turgo.UserPresenceManager {
+- {static} DatabaseReference connectedRef
+- {static} DatabaseReference userStatusRef
++ {static} void startTracking(String)
++ {static} void stopTracking(String)
++ {static} UserStatus getUserStatus(User)
+}
+
+
+class com.example.turgo.RcScheduleAdapter {
+~ ArrayList<TimeSlot> slots
+~ OnItemClickListener<Integer> clickListener
+~ boolean deleteButton
++ rcScheduleViewHolder onCreateViewHolder(ViewGroup,int)
++ void setClickListener(OnItemClickListener<Integer>)
++ void onBindViewHolder(rcScheduleViewHolder,int)
++ void addSlot(TimeSlot)
++ void removeSlot(int)
++ ArrayList<TimeSlot> getSlots()
++ void setSlots(ArrayList<TimeSlot>)
++ OnItemClickListener<Integer> getClickListener()
++ int getItemCount()
+}
+
+
+class com.example.turgo.Student_Dashboard {
+~ RecyclerView rv_coursesCompletedThisWeek
+~ FragmentContainerView fcv_upcomingSchedule
+~ Student user
+~ ArrayList<Task> studentTasks
+~ ViewPager2 vp2_listOfTasks
+~ ProgressBar pb_progressThisWeek
+~ ImageButton btn_details
+~ TaskAdapter adapter
+~ TextView tv_noScheduleFound
+~ LinearLayout ll_Task
+~ boolean expanded
+~ Schedule scheduleOfNextMeeting
+~ Course course
+~ String roomTag
+~ ArrayList<Course> coursesForScheduleAdapter
+~ ArrayList<Schedule> schedulesCompleted
+~ Meeting nextMeeting
+~ Teacher teacher
+- Meeting currentMeeting
+~ ActivityResultLauncher<ScanOptions> barLauncher
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadCompletedSchedules()
+- void loadProgress()
+- void loadTasks()
+- void loadUpcomingMeeting()
+- void continueAfterObjectsLoaded()
+- void setupTaskNavigation()
++ void attendMeetingScan(View)
+}
+
+
+class com.example.turgo.RC_AvailableDayTime {
+~ {static} String viewName
+~ TextView tv_daysTitle
+~ RecyclerView rv_listOfDays
+~ Button btn_add
+~ HashMap<TimeSlot,Integer> tsAmountPeople
+~ int amtPerWeek
+~ RegisterCourse rc
+~ ArrayList<DayOfWeek> daysAlreadySelected
+~ SeekBar sb_timeOffset
+~ TextView tv_offsetText
+~ int[] cycleCount
+~ TimeSlot[] currentSelectedTS
+~ int[] currentAmtPpl
+~ boolean[] selected
+~ TimeSlotViewHolder tsvh
+~ DayViewHolder dvh
+~ ArrayList<TimeSlot> selectedTimeSlots
+~ MutableLiveData<DayOfWeek> currentSelectedDay
+~ RcScheduleAdapter scheduleAdapter
+~ DayAdapter dayAdapter
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} RC_AvailableDayTime newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void updateUI()
+- void handleTimeListChange(ArrayList<TimeSlot>,TimeSlotAdapter,int)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.MeetingDisplay {
+~ ImageView iv_courseLogo
+~ TextView tv_courseTitle
+- {static} String ARG_COURSE_TITLE
+- {static} String ARG_COURSE_TIME
+- {static} String ARG_COURSE_DATE
+- {static} String ARG_LOGO_URL
+~ Schedule schedule
+~ Course course
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} MeetingDisplay newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ {static} Bundle createArgs(String,String,String,String)
+}
+
+
+class com.example.turgo.cc_SetTeacher {
+~ SearchView sv_searchTeacher
+~ RecyclerView rv_teachersFound
+~ TextView tv_teachersNotAvailable
+~ TeacherAdapter teacherSearchAdapter
+- {static} String tag
+~ ArrayList<TeacherFirebase> teachers
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} cc_SetTeacher newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void initializeUI(ArrayList<TeacherFirebase>)
+- void showRV()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.CourseTypeFirebase {
+- String courseType_ID
+- String courseType
++ void importObjectData(CourseType)
++ String getID()
++ void convertToNormal(ObjectCallBack<CourseType>)
++ String getCourseType_ID()
++ void setCourseType_ID(String)
++ String getCourseType()
++ void setCourseType(String)
++ String toString()
+}
+
+
+class com.example.turgo.ImageViewHolder {
+~ ImageView iv_image
+- OnItemClickListener<Integer> onItemClickListener
+- int currentImageId
++ void setOnItemClickListener(OnItemClickListener<Integer>)
++ void bind(int,boolean)
++ void bind(int)
+- void updateSelectedState(boolean)
+}
+
+
+class com.example.turgo.TeacherAddDTA {
+~ Button btn_selectStart
+~ EditText et_maxMeeting
+~ Spinner sp_selectCourse
+~ TextView tv_start
+~ Teacher teacher
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TeacherAddDTA newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.ScheduleSimpleViewHolder {
+~ TextView tv_timeRange
+}
+
+enum com.example.turgo.DLIntentMessage {
++  EXTRA_LOADING_INPUT
++  EXTRA_IS_FRAGMENT
++  EXTRA_TARGET_FRAGMENT
++  EXTRA_TARGET_ACTIVITY
++  EXTRA_TARGET_USER
++  EXTRA_TARGET_BOTTOM_NAV
+- String intentMessage
++ String getIntentMessage()
+}
+
+
+class com.example.turgo.ParentRepository {
+- DatabaseReference parentRef
++ DatabaseReference getDbReference()
++ Class<ParentFirebase> getFbClass()
++ void addChild(Student)
++ void removeChild(String)
+}
+
+
+class com.example.turgo.AllAgendaPage {
+~ ArrayList<Agenda> agendas
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ RecyclerView rv_allAgenda
+- String mParam1
+- String mParam2
++ {static} AllAgendaPage newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+interface com.example.turgo.OnFileSelectedListener {
+~ void onFileSelected(String,Uri)
+}
+
+class com.example.turgo.TimeChecker {
+~ {static} ScheduledExecutorService scheduler
++ {static} void addTimer(int,int,Meeting)
+}
+
+
+class com.example.turgo.MailFirebase {
+- String mailID
+- String from
+- String to
+- String timeSent
+- String timeOpened
+- String header
+- String body
+- boolean draft
+- boolean opened
++ String getPreview()
++ String getMailID()
++ void setMailID(String)
++ String getFrom()
++ void setFrom(String)
++ String getTo()
++ void setTo(String)
++ String getTimeSent()
++ void setTimeSent(String)
++ String getTimeOpened()
++ void setTimeOpened(String)
++ String getHeader()
++ void setHeader(String)
++ String getBody()
++ void setBody(String)
++ boolean isOpened()
++ void setOpened(boolean)
++ boolean isDraft()
++ void setDraft(boolean)
++ void importObjectData(Mail)
++ String getID()
++ void convertToNormal(ObjectCallBack<Mail>)
+}
+
+
+class com.example.turgo.signup__parent_connecttochild {
+~ SignUpPage signUpPage
+~ EditText et_childIdManual
+~ Button btn_searchChild
+~ TextView tv_childFound
+~ Student childFound
+~ ArrayList<String> childSelected
+~ ArrayList<Student> childSelectedStudent
+~ ArrayAdapter<String> listAdapter
+~ ListView lv_childSelected
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
+~ ActivityResultLauncher<ScanOptions> barLauncher
++ {static} signup__parent_connecttochild newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void scanQR(View)
++ void searchChildByID()
+- void showOnAdapter()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.ScheduleToDisplay {
+~ String day
+~ ArrayList<Schedule> schedules
+}
+
+class com.example.turgo.Student_PastTasks {
+~ RecyclerView rv_pastTasks
+~ ImageButton btn_back
+~ LinearLayout ll_noTasks
+~ Spinner sp_filter
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} Student_PastTasks newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadLatestCompletedTasks(StudentScreen)
+- void setupFilterSpinner(Student,ArrayList<Task>,TaskAdapter)
+- void applyFilter(Student,ArrayList<Task>,TaskAdapter,String)
+}
+
+
+interface com.example.turgo.RepositoryClass {
+~ void save(R)
+~ Task<Void> saveAsync(R)
+~ void delete(R)
+~ void removeStringFromArray(String,String)
+~ void addStringToArray(String,String)
+~ Task<Void> addStringToArrayAsync(String,String)
+~ Task<Void> removeStringFromArrayAsync(String,String)
+~ void load(ObjectCallBack<F>)
+~ Task<R> loadAsNormal()
+~ void loadAll(ObjectCallBack<ArrayList<F>>)
+~ DatabaseReference getDbReference()
+~ Class<F> getFbClass()
+}
+
+class com.example.turgo.TimeSlotViewHolder {
+~ TextView tv_timeSlot
+~ MaterialCardView mcv_bg
+~ TimeSlot ts
+~ {static} int exist
+~ {static} int nonExist
+~ boolean scheduleExist
++ void updateBackground()
++ void setTS(TimeSlot)
+}
+
+
+class com.example.turgo.TaskPagerAdapter {
+- ArrayList<Task> tasks
++ Fragment createFragment(int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.DayScheduleViewHolder {
+~ RecyclerView rv_schedulesOfDay
+~ TextView tv_dayName
+}
+
+class com.example.turgo.SignInPage {
+- FirebaseAuth mAuth
+- GoogleSignInClient googleSignInClient
+- {static} int RC_SIGN_IN
+- {static} String TAG
+~ EditText et_emailOrUsername
+# void onCreate(Bundle)
++ void signInWGoogle(View)
+# void onActivityResult(int,int,Intent)
+- void firebaseAuthWithGoogle(String)
+- boolean isNetworkAvailable()
+- boolean isGooglePlayServicesAvailable()
+- void checkIfUserExists(FirebaseUser)
+- void updateUI(FirebaseUser,UserFirebase)
++ void signIn(View)
+- void selectUserFromDB(String,FirebaseUser)
+}
+
+
+abstract class com.example.turgo.User {
+# {static} String FIREBASE_DB_REFERENCE
++ {static} String SERIALIZE_KEY_CODE
+- String uid
+- UserType userType
+- String fullName
+- int age
+- String birthDate
+- String nickname
+- String email
+- String gender
+- String phoneNumber
+- Language language
+- Theme theme
+- ArrayList<Mail> inbox
+- ArrayList<Mail> outbox
+- ArrayList<Mail> draftMails
+- ArrayList<Notification<?>> notifications
+- String pfpCloudinary
++ {abstract}FirebaseNode getFirebaseNode()
++ {abstract}void updateUserDB()
++ {static} String getSerializeKeyCode()
++ {static} void setSerializeKeyCode(String)
++ UserStatus getUserStatus()
++ ArrayList<Mail> getOutbox()
++ ArrayList<Mail> getDraftMails()
++ void addDraftMail(Mail)
++ void setDraftMails(ArrayList<Mail>)
++ void setOutbox(ArrayList<Mail>)
++ ArrayList<Notification<?>> getNotifications()
++ void setNotifications(ArrayList<Notification<?>>)
++ {abstract}String getSerializeCode()
+- void addStatusToDB()
++ void calculateAge()
++ String getFullName()
++ void setFullName(String)
++ int getAge()
++ void setAge(int)
++ String getNickname()
++ void setNickname(String)
++ String getEmail()
++ void setEmail(String)
++ String getUid()
++ void setUid(String)
++ String getPhoneNumber()
++ void setPhoneNumber(String)
++ String getBirthDate()
++ void setBirthDate(String)
++ UserType getUserType()
++ void setUserType(UserType)
++ ArrayList<Mail> getInbox()
++ void setInbox(ArrayList<Mail>)
++ String getGender()
++ void setGender(String)
++ Language getLanguage()
++ Theme getTheme()
++ void setTheme(Theme)
++ void setLanguage(Language)
++ String toString()
++ {static} void sendMail(Mail)
++ {static} void getUserDataFromDB(String,ObjectCallBack<User>)
++ void recieveNotification(Notification<?>)
++ String getPfpCloudinary()
++ void setPfpCloudinary(String)
+}
+
+
+enum com.example.turgo.ScheduleQuality {
++  PRIVATE_ONLY
++  GROUP_ONLY
++  FLEXIBLE
+- String scheduleQuality
++ String getScheduleQuality()
+}
+
+
+class com.example.turgo.MeetingSimpleAdapter {
+~ ArrayList<Meeting> meetings
++ ScheduleSimpleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ScheduleSimpleViewHolder,int)
++ int getItemCount()
+}
+
+
+interface com.example.turgo.OnUsersResultListener {
+~ void onUsersResult(ArrayList<User>)
+}
+
+class com.example.turgo.TeacherAdapter {
+~ ArrayList<TeacherMini> teacherFullList
+~ ArrayList<TeacherMini> teacherSearchResult
+~ Context context
+~ boolean showButton
+~ OnItemClickListener<Pair<Integer,TeacherMini>> listener
++ TeacherViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(TeacherViewHolder,int)
++ int getItemCount()
++ void filter(String)
++ void changeTeacherSelected(TeacherMini)
+}
+
+
+class com.example.turgo.AgendaRepository {
+- DatabaseReference agendaRef
++ DatabaseReference getDbReference()
++ Class<AgendaFirebase> getFbClass()
++ void updateDate(String)
++ void updateContents(String)
++ void updateAgendaImage(String)
++ void updateMeeting(Meeting)
++ void updateTeacher(Teacher)
++ void updateStudent(Student)
++ void updateCourse(String)
+}
+
+
+class com.example.turgo.TaskFirebase {
+- String taskID
+- ArrayList<String> studentsAssign
+- String title
+- String description
+- String dueDate
+- String taskOfCourse
+- String fromSchedule
+- String dateAssigned
+- String dropbox
+- boolean manualCompletionRequired
+- String publisher
++ void importObjectData(Task)
++ String getID()
++ void convertToNormal(ObjectCallBack<Task>)
++ String getTaskID()
++ void setTaskID(String)
++ String getTitle()
++ void setTitle(String)
++ String getDescription()
++ void setDescription(String)
++ String getDueDate()
++ void setDueDate(String)
++ String getTaskOfCourse()
++ void setTaskOfCourse(String)
++ String getFromSchedule()
++ void setFromSchedule(String)
++ String getDateAssigned()
++ void setDateAssigned(String)
++ String getDropbox()
++ void setDropbox(String)
++ String getPublisher()
++ void setPublisher(String)
++ boolean isManualCompletionRequired()
++ void setManualCompletionRequired(boolean)
++ ArrayList<String> getStudentsAssign()
++ void setStudentsAssign(ArrayList<String>)
+}
+
+
+class com.example.turgo.ImageAdapter {
+- ArrayList<Uri> uris
+- ArrayList<Integer> imageIds
+- OnItemClickListener<Integer> onItemClickListener
+- int selectedPosition
++ void setSelectedPosition(int)
++ void setOnItemClickListener(OnItemClickListener<Integer>)
++ ImageViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ImageViewHolder,int)
++ int getItemCount()
++ ArrayList<Integer> getImageIds()
++ void setImageIds(ArrayList<Integer>)
++ ArrayList<Uri> getUris()
++ void setUris(ArrayList<Uri>)
++ int getSelectedPosition()
+}
+
+
+class com.example.turgo.CourseFirebase {
+- String courseID
+- String courseName
+- String courseDescription
+- String logoCloudinary
+- String backgroundCloudinary
+- String courseType
+- double baseCost
+- double hourlyCost
+- double monthlyDiscountPercentage
+- boolean autoAcceptStudent
+- int maxStudentPerMeeting
+- ArrayList<Integer> paymentPer
+- ArrayList<Integer> privateGroup
+- ArrayList<String> dayTimeArrangement
+- ArrayList<String> schedules
+- ArrayList<String> agendas
+- ArrayList<String> studentsCourse
+- ArrayList<String> imagesCloudinary
+- ArrayList<String> students
+- String teacher
++ void importObjectData(Course)
++ String getID()
++ void convertToNormal(ObjectCallBack<Course>)
++ ArrayList<String> getStudents()
++ void setStudents(ArrayList<String>)
++ ArrayList<String> getImagesCloudinary()
++ void setImagesCloudinary(ArrayList<String>)
++ int getMaxStudentPerMeeting()
++ void setMaxStudentPerMeeting(int)
++ boolean isAutoAcceptStudent()
++ void setAutoAcceptStudent(boolean)
++ String getLogoCloudinary()
++ void setLogoCloudinary(String)
++ String getBackgroundCloudinary()
++ void setBackgroundCloudinary(String)
++ ArrayList<Integer> getPaymentPer()
++ void setPaymentPer(ArrayList<Integer>)
++ ArrayList<Integer> getPrivateGroup()
++ void setPrivateGroup(ArrayList<Integer>)
++ String getCourseID()
++ void setCourseID(String)
++ String getCourseName()
++ void setCourseName(String)
++ String getCourseDescription()
++ void setCourseDescription(String)
++ double getBaseCost()
++ void setBaseCost(double)
++ double getHourlyCost()
++ void setHourlyCost(double)
++ double getMonthlyDiscountPercentage()
++ String getCourseType()
++ void setCourseType(String)
++ ArrayList<String> getDayTimeArrangement()
++ void setDayTimeArrangement(ArrayList<String>)
++ ArrayList<String> getSchedules()
++ void setSchedules(ArrayList<String>)
++ ArrayList<String> getAgendas()
++ void setAgendas(ArrayList<String>)
++ ArrayList<String> getStudentsCourse()
++ void setStudentsCourse(ArrayList<String>)
++ void setMonthlyDiscountPercentage(double)
++ String getTeacher()
++ void setTeacher(String)
+}
+
+
+class com.example.turgo.RoomAdapter {
+- ArrayList<Room> rooms
+- Activity activity
++ void setRooms(List<Room>)
++ void addRoom(Room)
++ RoomViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(RoomViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.DropboxRepository {
+- DatabaseReference dropboxRef
++ DatabaseReference getDbReference()
++ Class<DropboxFirebase> getFbClass()
++ com.google.android.gms.tasks.Task<Dropbox> loadAsNormal()
++ void delete()
++ void addSubmission(Submission)
++ void removeSubmission(String)
++ void removeSubmissionCompletely(Submission)
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+class com.example.turgo.TeacherMini {
+- String teacherName
++ String getTeacherName()
++ void setTeacherName(String)
++ String getSubjectTeaching()
++ void setSubjectTeaching(String)
++ String getTeacherPfp()
++ void setTeacherPfp(String)
++ String getRealTeacherID()
++ void setRealTeacherID(String)
++ String toString()
+}
+
+
+class com.example.turgo.CourseType {
++ {static} FirebaseNode fbn
+- Class<CourseTypeFirebase> fbc
+- String courseType_ID
+- String courseType
++ String getCourseType()
++ FirebaseNode getFirebaseNode()
++ Class<CourseTypeRepository> getRepositoryClass()
++ Class<CourseTypeFirebase> getFirebaseClass()
++ String getID()
++ String toString()
++ {static} ArrayList<String> getCourseTypeString(ArrayList<CourseType>)
+}
+
+
+class com.example.turgo.Image {
+}
+class com.example.turgo.AdminViewAllCourses {
+~ ActivityAdminViewAllCourseBinding binding
+~ RecyclerView rv_allCourses
+~ EditText et_searchCourse
+~ MaterialCardView mcv_backButton
+~ FloatingActionButton fab_createNewCourse
+~ ArrayList<Course> coursesList
+~ CourseAdminAdapter adapter
+# void onCreate(Bundle)
+}
+
+
+class com.example.turgo.StudentRepository {
+- DatabaseReference studentRef
++ DatabaseReference getDbReference()
++ Class<StudentFirebase> getFbClass()
++ void delete()
++ void addCourseTaken(Course)
++ void removeCourseTaken(String)
++ void removeCourseTakenCompletely(Course)
++ void addStudentCourseTaken(StudentCourse)
++ void removeStudentCourseTaken(String)
++ void removeStudentCourseTakenCompletely(StudentCourse)
++ void addCourseInterested(String)
++ void removeCourseInterested(String)
++ void addCourseRelated(Course)
++ void removeCourseRelated(String)
++ void removeCourseRelatedCompletely(Course)
++ void addPreScheduledMeeting(Meeting)
++ void removePreScheduledMeeting(String)
++ void removePreScheduledMeetingCompletely(Meeting)
++ void addMeetingHistory(Meeting)
++ void removeMeetingHistory(String)
++ void removeMeetingHistoryCompletely(Meeting)
++ void addScheduleCompletedThisWeek(Schedule)
++ void removeScheduleCompletedThisWeek(String)
++ void removeScheduleCompletedThisWeekCompletely(Schedule)
++ void updatePercentageCompleted(double)
++ void updateNextMeeting(Meeting)
++ void updateSchool(String)
++ void updateGradeLevel(String)
++ void addAllSchedule(Schedule)
++ void replaceAllSchedule(ArrayList<Schedule>,ArrayList<Schedule>)
++ void removeAllSchedule(String)
++ void removeAllScheduleCompletely(Schedule)
++ void updateLastScheduled(LocalDate)
++ void updateHasScheduled(boolean)
++ void updateAutoSchedule(int)
++ void updateNotificationEarlyDuration(Duration)
++ void addAllTask(Task)
++ void removeAllTask(String)
++ void removeAllTaskCompletely(Task)
++ void addUncompletedTask(Task)
++ void removeUncompletedTask(String)
++ com.google.android.gms.tasks.Task<Void> removeUncompletedTaskAsync(String)
++ void removeUncompletedTaskCompletely(Task)
++ void addManualCompletedTask(Task)
++ com.google.android.gms.tasks.Task<Void> addManualCompletedTaskAsync(String)
++ com.google.android.gms.tasks.Task<Void> removeManualCompletedTaskAsync(String)
++ void addManualMissedTask(Task)
++ com.google.android.gms.tasks.Task<Void> addManualMissedTaskAsync(String)
++ com.google.android.gms.tasks.Task<Void> removeManualMissedTaskAsync(String)
++ void addAllAgenda(Agenda)
++ void removeAllAgenda(String)
++ void removeAllAgendaCompletely(Agenda)
++ void updateLateAttendance(int)
++ void updateLateSubmissions(int)
++ void updateMultipleFields(Map<String,Object>)
++ void incrementAutoSchedule(int)
++ void decrementAutoSchedule(int)
++ void incrementLateAttendance(int)
++ void decrementLateAttendance(int)
++ void incrementLateSubmissions(int)
++ void decrementLateSubmissions(int)
++ void sendMail(Mail)
++ void recieveMail(Mail)
++ void draftMail(Mail)
+}
+
+
+class com.example.turgo.AdminCreateCourse {
+# void onCreate(Bundle)
+}
+
+class com.example.turgo.DayTimeAdapter {
+~ ArrayList<String> day
++ DayTimeViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(DayTimeViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.ProfileSubSettingsAdapter {
+- Context context
+- Setting group
+- ArrayList<SubSetting> subSettings
+- ProfileSubSettingActionListener actionListener
+- int expandedChild
++ SubSettingViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(SubSettingViewHolder,int)
+- void bindEditor(SubSettingViewHolder,SubSetting,boolean)
+- ArrayList<String> optionsFor(SubSetting)
++ int getItemCount()
+}
+
+
+class com.example.turgo.ProfileSubSettingsAdapter$SubSettingViewHolder {
+~ LinearLayout summaryContainer
+~ LinearLayout editorContainer
+~ TextView tvLabel
+~ TextView tvValue
+~ EditText etValue
+~ Spinner spinnerValue
+~ Button btnCancel
+~ Button btnSave
+}
+
+interface com.example.turgo.RequiresDataLoading {
+~ Bundle loadDataInBackground(Bundle,DataLoading.ProgressCallback)
+~ void onDataLoaded(Bundle)
+~ void onLoadingError(Exception)
+}
+
+class com.example.turgo.CourseName {
+~ ImageView iv_courseIcon
+~ TextView tv_courseName
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} CourseName newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.AdminFirebase {
++ void importObjectData(Admin)
++ String getID()
++ void convertToNormal(ObjectCallBack<Admin>)
+}
+
+class com.example.turgo.SettingsListAdapter {
+- Context context
+- ArrayList<Setting> settings
++ int getGroupCount()
++ int getChildrenCount(int)
++ Object getGroup(int)
++ Object getChild(int,int)
++ long getGroupId(int)
++ long getChildId(int,int)
++ boolean hasStableIds()
++ View getGroupView(int,boolean,View,ViewGroup)
++ View getChildView(int,int,boolean,View,ViewGroup)
++ boolean isChildSelectable(int,int)
+}
+
+
+class com.example.turgo.DayViewHolder {
+~ TextView tv_Day
++ MaterialCardView cardView
+}
+
+class com.example.turgo.RoomRepository {
+- DatabaseReference roomRef
++ DatabaseReference getDbReference()
++ Class<RoomFirebase> getFbClass()
++ void delete()
++ void updateRoomName(String)
++ void updateUsed(boolean)
++ void addSuitableCourseType(CourseType)
++ void removeSuitableCourseType(String)
++ void updateCurrentlyOccupiedBy(Meeting)
++ void clearCurrentlyOccupiedBy()
++ void addSchedule(Schedule)
++ void removeSchedule(String)
++ void removeScheduleCompletely(Schedule)
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+enum com.example.turgo.FirebaseNode {
++  USER
++  STUDENT
++  TEACHER
++  PARENT
++  ADMIN
++  USERIDROLES
++  AGENDA
++  ROOM
++  DTA
++  COURSE
++  STUDENTCOURSE
++  COURSETYPE
++  FILE
++  TIME_SLOT
++  SCHEDULE
++  MEETING
++  SUBMISSION
++  TASK
++  DROPBOX
++  NOTIFICATION
++  MAIL
++  MAIL_APPLY_COURSE
++  BUILT_IN_COURSE_LOGO
++  BUILT_IN_COURSE_BANNER
++  UPLOADED_COURSE_LOGO
++  UPLOADED_COURSE_BANNER
++  COURSE_IMAGES
++  USER_STATUS
+- String path
+- Class<?> clazz
++ String getPath()
++ Class<?> getClazz()
+}
+
+
+class com.example.turgo.UserStatus {
+- String userID
+- boolean online
+- String lastSeen
++ String getUserID()
++ void setUserID(String)
++ boolean isOnline()
++ void setOnline(boolean)
++ String getLastSeen()
++ void setLastSeen(String)
++ String toString()
+}
+
+
+class com.example.turgo.SubSetting {
+- String subSetting
+- String preference
+- SettingEditType type
++ String getSubSetting()
++ void setSubSetting(String)
++ String getPreference()
++ void setPreference(String)
++ SettingEditType getType()
++ void setType(SettingEditType)
+}
+
+
+class com.example.turgo.signup_ConfirmData {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ Button btn_SignUp
+~ TextView tv_userData
+~ User cachedUser
+- String mParam1
+- String mParam2
++ {static} signup_ConfirmData newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.MeetingAdapter {
+~ ArrayList<Meeting> meetings
+~ ArrayList<Course> courses
++ MeetingViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(MeetingViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.example.turgo.FileViewHolder {
+~ TextView tv_fileName
+}
+
+class com.example.turgo.NotificationRepository {
+- DatabaseReference notifRepo
++ DatabaseReference getDbReference()
++ Class<NotificationFirebase> getFbClass()
++ DatabaseReference getNotifRepo()
++ void setNotifRepo(DatabaseReference)
+}
+
+
+class com.example.turgo.TaskViewHolder {
+~ TextView tv_TaskTitle
+~ ImageView iv_submissionStatus
+~ Task task
+- TextView findTextViewAny(View,int)
+- ImageView findImageViewAny(View,int)
+}
+
+
+class com.example.turgo.Schedule {
+- FirebaseNode fbn
+- Class<ScheduleFirebase> fbc
++ String scheduleID
++ {static} String SERIALIZE_KEY_CODE
++ {static} LocalDate NEVER_SCHEDULED
+- int numberOfStudents
+- boolean isPrivate
+- boolean hasScheduled
+- User scheduler
+- String ofCourse
+- LocalTime meetingStart
+- LocalTime meetingEnd
+- int duration
+- DayOfWeek day
+- String room
++ ArrayList<String> students
++ LocalDate getNextMeetingDate()
++ boolean isPrivate()
++ {static} int maxStudentsOfSchedules(ArrayList<Schedule>)
++ void setPrivate(boolean)
++ LocalTime getMeetingStart()
++ void setMeetingStart(LocalTime)
++ LocalTime getMeetingEnd()
++ void setMeetingEnd(LocalTime)
++ int getDuration()
++ void setDuration(int)
++ DayOfWeek getDay()
++ void setDay(DayOfWeek)
++ void getRoom(ObjectCallBack<Room>)
++ Task<Room> getRoom()
++ String getRoomId()
++ String getOfCourse()
++ void setOfCourse(String)
++ void setRoom(String)
++ void getScheduleOfCourse(ObjectCallBack<Course>)
++ Task<Course> getScheduleOfCourse()
++ int getNumberOfStudents()
++ void setNumberOfStudents(int)
++ String getScheduleID()
++ {static} void sortSchedule(ArrayList<Schedule>)
++ Task<List<Student>> getStudents()
++ boolean isHasScheduled()
++ void setHasScheduled(boolean)
++ User getScheduler()
++ void setScheduler(User)
++ FirebaseNode getFirebaseNode()
++ Class<ScheduleRepository> getRepositoryClass()
++ Class<ScheduleFirebase> getFirebaseClass()
++ String getID()
+}
+
+
+class com.example.turgo.ui.home.HomeFragment {
+- FragmentHomeBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onDestroyView()
+}
+
+
+class com.example.turgo.CourseRepository {
+- DatabaseReference courseRef
++ DatabaseReference getDbReference()
++ Class<CourseFirebase> getFbClass()
++ void updateLogoCloudinary(String)
++ void updateBackgroundCloudinary(String)
++ void updateCourseName(String)
++ void updateCourseDescription(String)
++ void updateMaxStudentPerMeeting(int)
++ void incrementMaxStudentPerMeeting(int)
++ void decrementMaxStudentPerMeeting(int)
++ void updateBaseCost(double)
++ void updateHourlyCost(double)
++ void updateMonthlyDiscountPercentage(double)
++ void updateAutoAcceptStudent(boolean)
++ void addImagesCloudinary(String)
++ void removeImagesCloudinary(String)
++ void updatePaymentPerAtIndex(int,boolean)
++ void updatePrivateGroupAtIndex(int,boolean)
++ void addDayTimeArrangement(DayTimeArrangement)
++ void removeDayTimeArrangement(String)
++ void removeDayTimeArrangementCompletely(DayTimeArrangement)
++ void addStudent(Student)
++ void removeStudent(String)
++ void addSchedule(Schedule)
++ void removeSchedule(String)
++ void removeScheduleCompletely(Schedule)
++ void addAgenda(Agenda)
++ void removeAgenda(String)
++ void removeAgendaCompletely(Agenda)
++ void addStudentCourse(StudentCourse)
++ void removeStudentCourse(String)
++ void removeStudentCourseCompletely(StudentCourse)
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+class com.example.turgo.ui.dashboard.DashboardViewModel {
+- MutableLiveData<String> mText
++ LiveData<String> getText()
+}
+
+
+class com.example.turgo.AdminCourseFullPage {
++ {static} String EXTRA_DTA
++ {static} String ACTION_ADMIN_DTA_FULL_PAGE
+- Course course
+- CourseRepository courseRepository
+- TextView tvCourseId
+- EditText etCourseName
+- EditText etDescription
+- AutoCompleteTextView actvCourseType
+- AutoCompleteTextView actvTeacher
+- EditText etBaseCost
+- EditText etHourlyCost
+- EditText etMonthlyDiscount
+- EditText etMaxStudents
+- SwitchMaterial swAutoAccept
+- SwitchMaterial swPayPerMonth
+- SwitchMaterial swPayPerMeeting
+- SwitchMaterial swPrivateMode
+- SwitchMaterial swGroupMode
+- TextView tvLogoPath
+- TextView tvBannerPath
+- ImageView ivLogoPreview
+- ImageView ivBannerPreview
+- RecyclerView rvImages
+- RecyclerView rvDtas
+- TextView tvCountStudents
+- TextView tvCountSchedules
+- TextView tvCountAgendas
+- TextView tvCountStudentCourses
+- MaterialCardView cvBack
+- MaterialButton btnSaveTop
+- MaterialButton btnSaveBottom
+- MaterialButton btnDiscard
+- MaterialButton btnDeleteCourse
+- MaterialButton btnChangeLogo
+- MaterialButton btnChangeBanner
+- MaterialButton btnAddImage
+- MaterialButton btnAddDta
+- ArrayList<CourseType> allCourseTypes
+- ArrayList<Teacher> allTeachers
+- CourseType selectedCourseType
+- Teacher selectedTeacher
+- DTAAdapter dtaAdapter
+# void onCreate(Bundle)
+- void bindViews()
+- void setupStaticClicks()
+- void setupRecycler()
+- void loadDropdownData()
+- void bindCourseToUi()
+- void saveCourseChanges()
+- void deleteCourse()
+- void openDtaFullPage(DayTimeArrangement)
+- {static} ArrayList<Boolean> safeBoolList(ArrayList<Boolean>,int)
+- {static} String valueOrEmpty(String)
+- {static} double parseDoubleOrDefault(EditText,double)
+- {static} int parseIntOrDefault(EditText,int)
+}
+
+
+class com.example.turgo.TaskAdapter {
+- ArrayList<Task> tasks
+- User user
+- Drawable d_Submitted
+- OnItemClickListener<Task> listener
+- TaskItemMode mode
++ TaskViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(TaskViewHolder,int)
++ int getItemCount()
++ void replaceTasks(ArrayList<Task>)
+}
+
+
+class com.example.turgo.MeetingRepository {
+- DatabaseReference meetingRef
++ DatabaseReference getDbReference()
++ Class<MeetingFirebase> getFbClass()
++ void delete()
++ void addStudentAttended(Student,LocalTime)
++ void removeStudentAttended(String)
++ void removeStudentAttendedCompletely(Student)
++ void updateAlarmAssigned(boolean)
++ void updateAlarmAssignedAt(LocalDateTime)
++ void updateDateOfMeeting(LocalDate)
++ void updateStartTimeChange(LocalTime)
++ void updateEndTimeChange(LocalTime)
++ void updateRoomChange(Room)
++ void updateCompleted(boolean)
++ void updateMultipleFields(Map<String,Object>)
++ Task<Schedule> getSchedule()
+}
+
+
+class com.example.turgo.RTDBManager {
+- {static} String dbLink
++ void storeUserType(User)
++ boolean storeData(String,String,T,String,String)
++ boolean storeData(String[],T,String,String)
+}
+
+
+class com.example.turgo.signup_PasswordSetup {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ TextInputEditText pi_password
+~ TextInputEditText pi_confirmPassword
+~ LinearLayout checkboxContainer
+- String mParam1
+- String mParam2
+- boolean[] checklists
++ {static} signup_PasswordSetup newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void updateChecklist(String)
++ boolean[] checkPasswordStrength(String)
++ boolean conditionMet()
++ boolean checkConfirmPassword()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.StudentCourseRepository {
+- DatabaseReference studentCourseRef
++ DatabaseReference getDbReference()
++ Class<StudentCourseFirebase> getFbClass()
++ void delete()
++ void updatePaymentPreferences(boolean)
++ void updatePrivateOrGroup(boolean)
++ void updatePricePer(int)
++ void incrementPricePer(int)
++ void decrementPricePer(int)
++ void addSchedule(Schedule)
++ void removeSchedule(String)
++ void removeScheduleCompletely(Schedule)
++ void addTask(Task)
++ void removeTask(String)
++ void removeTaskCompletely(Task)
++ void addAgenda(Agenda)
++ void removeAgenda(String)
++ void removeAgendaCompletely(Agenda)
++ void addTimeSlot(TimeSlot)
++ void removeTimeSlot(String)
++ void removeTimeSlotCompletely(TimeSlot)
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+class com.example.turgo.SubmissionRepository {
+- DatabaseReference submissionRef
++ DatabaseReference getDbReference()
++ Class<SubmissionFirebase> getFbClass()
++ void delete()
++ void setCompleted(boolean)
++ void addFile(file,boolean)
++ void removeFile(String)
++ void removeFileCompletely(file)
++ void setStudent(Student)
++ void setDropbox(String)
++ void clearDropbox()
++ void clearStudent()
++ void updateMultipleFields(Map<String,Object>)
+}
+
+
+interface com.example.turgo.RequireUpdate {
+~ FirebaseNode getFirebaseNode()
+~ Class<RC> getRepositoryClass()
+~ Class<FBC> getFirebaseClass()
+~ Task<List<C>> getAllObjects()
+~ {static} Task<List<C>> getAllObjects(Class<C>)
+~ DatabaseReference getDBRef(String)
+~ {static} void getUserDBRef(String,ObjectCallBack<Pair<DatabaseReference,Class<? extends UserFirebase>>>)
+~ {static} void retrieveUser(String,ObjectCallBack<Object>)
+~ void retrieveOnce(ObjectCallBack<FBC>,String)
+~ ArrayList<FBC> retrieveListFromUser(String,String,ObjectCallBack<ArrayList<FBC>>)
+~ void toggleRealtime(String,FBC[])
+~ void findAggregatedObject(Class<CO>,String,ObjectCallBack<CO>)
+~ void findAllAggregatedObjects(Class<CO>,String,ObjectCallBack<ArrayList<CO>>)
+~ void updateDB()
+~ String getID()
+~ RC getRepositoryInstance()
+}
+
+enum com.example.turgo.BuildInBanner {
++  BLUE
++  GREEN
++  RED
+- String link
++ String getLink()
+}
+
+
+class com.example.turgo.Student_ExploreCourse {
+- Student student
+- ArrayList<Teacher> teachers
+- ArrayList<Course> exploreCourses
+~ RecyclerView rv_courses
+~ TextView tv_emptyCourses
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} Student_ExploreCourse newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadExploreCourses()
+- void loadTeachersForCourses()
+- void onAllDataLoaded()
+}
+
+
+class com.example.turgo.TeacherScheduleOfCourse {
+~ RecyclerView rv_schedules
+~ Spinner sp_dayOptions
+~ ArrayList<ArrayList<Student>> students
+~ ArrayList<Schedule> schedules
+~ ArrayList<Course> courses
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TeacherScheduleOfCourse newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void loadItems()
+}
+
+
+class com.example.turgo.ParentFirebase {
+- ArrayList<String> children
++ void importObjectData(Parent)
++ ArrayList<String> getChildren()
++ void setChildren(ArrayList<String>)
++ void convertToNormal(ObjectCallBack<Parent>)
+}
+
+
+interface com.example.turgo.Preparable {
+~ void prepareObjects()
+}
+
+enum com.example.turgo.TaskStatus {
++  COMPLETED
++  UNCOMPLETED
++  UNMARKED
+}
+
+class com.example.turgo.TeacherRepository {
+- DatabaseReference teacherRef
++ DatabaseReference getDbReference()
++ Class<TeacherFirebase> getFbClass()
++ void delete()
++ void updateProfileImageCloudinary(String)
++ void updateTeacherResume(String)
++ void updateTeachYearExperience(int)
++ void incrementTeachYearExperience(int)
++ void decrementTeachYearExperience(int)
++ void addCourseTeach(Course)
++ void removeCourseTeach(String)
++ void removeCourseTeachCompletely(Course)
++ void removeLatestSubmission(String)
++ void addCourseTypeTeach(String)
++ void removeCourseTypeTeach(String)
++ void addScheduledMeeting(Meeting)
++ void removeScheduledMeeting(String)
++ void removeScheduledMeetingCompletely(Meeting)
++ void addCompletedMeeting(Meeting)
++ void removeCompletedMeeting(String)
++ void removeCompletedMeetingCompletely(Meeting)
++ void addAgenda(Agenda)
++ void removeAgenda(String)
++ void removeAgendaCompletely(Agenda)
++ void addTimeArrangement(DayTimeArrangement)
++ void removeTimeArrangement(String)
++ void removeTimeArrangementCompletely(DayTimeArrangement)
++ void updateMultipleFields(Map<String,Object>)
++ void sendMail(Mail)
++ void recieveMail(Mail)
++ void draftMail(Mail)
+}
+
+
+class com.example.turgo.SignUpPage {
++ {static} int MODSEGMENT1
++ {static} int AMOUNTOFSEGMENT
++ UserType userType
+~ View fc_signUpStages
+~ RTDBManager<User> rtdbManager
+~ double progress
+~ ProgressBar pb_signUpProgress
+~ Fragment frag_userCategory
+~ Button btn_next
+- int currentSegmentIndex
+~ Fragment[] signUpSegments
+~ boolean[] completedSegments
+- {static} String USER_COLLECTION
+# void onCreate(Bundle)
++ void updateProgressBar()
++ void goToNextSegment(View)
++ void goToPreviousSegment(View)
+- void updateFragment()
++ User createUser()
++ void signUp()
+}
+
+
+class com.example.turgo.LoadingBottomSheet {
+- String message
++ {static} LoadingBottomSheet newInstance(String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.signup_userdetails {
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+~ EditText et_fullName
+~ Spinner sp_latestEducation
+~ Switch sw_gender
+~ String gender
+~ EditText[] userDetailsText
+- String mParam1
+- String mParam2
++ {static} signup_userdetails newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void setupSPLE()
++ boolean checkIfCompleted()
+}
+
+
+class com.example.turgo.fileFirebase {
+- String fileID
+- String secureURL
+- String fileName
+- String uploader
+- String fileCreateDate
+- String submitTime
+- String ofTask
++ void importObjectData(file)
++ String getID()
++ void convertToNormal(ObjectCallBack<file>)
++ String getFileID()
++ void setFileID(String)
++ String getSecureURL()
++ void setSecureURL(String)
++ String getFileName()
++ void setFileName(String)
++ String getUploader()
++ void setUploader(String)
++ String getFileCreateDate()
++ void setFileCreateDate(String)
++ String getSubmitTime()
++ void setSubmitTime(String)
++ String getOfTask()
++ void setOfTask(String)
+}
+
+
+class com.example.turgo.MeetingFirebase {
+- String meetingID
+- String preScheduledBy
+- String dateOfMeeting
+- String startTimeChange
+- String endTimeChange
+- String roomChange
+- boolean completed
+- Map<String,String> studentsAttended
+- ArrayList<String> usersRelated
+- boolean alarmAssigned
+- String alarmAssignedAt
+- String ofSchedule
++ void importObjectData(Meeting)
++ ArrayList<String> getUsersRelated()
++ void setUsersRelated(ArrayList<String>)
++ String getID()
++ void convertToNormal(ObjectCallBack<Meeting>)
++ String getOfSchedule()
++ void setOfSchedule(String)
++ boolean isAlarmAssigned()
++ void setAlarmAssigned(boolean)
++ String getAlarmAssignedAt()
++ void setAlarmAssignedAt(String)
++ String getMeetingID()
++ void setMeetingID(String)
++ String getPreScheduledBy()
++ void setPreScheduledBy(String)
++ String getDateOfMeeting()
++ void setDateOfMeeting(String)
++ String getStartTimeChange()
++ void setStartTimeChange(String)
++ String getEndTimeChange()
++ void setEndTimeChange(String)
++ String getRoomChange()
++ void setRoomChange(String)
++ boolean isCompleted()
++ void setCompleted(boolean)
++ Map<String,String> getStudentsAttended()
++ void setStudentsAttended(Map<String,String>)
+}
+
+
+class com.example.turgo.DayAdapter {
+- ArrayList<DayOfWeek> days
+# OnItemClickListener<SelectedIndicatorHelper<DayOfWeek>> listener
+- int selectedPosition
++ DayViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(DayViewHolder,int)
++ ArrayList<DayOfWeek> getDays()
++ void setDays(ArrayList<DayOfWeek>)
++ OnItemClickListener<SelectedIndicatorHelper<DayOfWeek>> getListener()
++ void setListener(OnItemClickListener<SelectedIndicatorHelper<DayOfWeek>>)
++ void setSelectedPosition(int)
++ int getSelectedPosition()
++ void addDay(DayOfWeek)
++ int getItemCount()
+}
+
+
+interface com.example.turgo.checkFragmentCompletion {
+~ boolean checkIfCompleted()
+}
+
+interface com.example.turgo.FirebasePathEnum {
+~ String getPath()
+}
+
+class com.example.turgo.ActivityLauncher {
+~ TextView tv_loadingText
+# void onCreate(Bundle)
+- void loadUserAndNavigate(String)
++ void handleActivityTransfer(UserFirebase)
+}
+
+
+interface com.example.turgo.StringExtractor {
+~ String extractName(T)
+}
+
+interface com.example.turgo.ObjectCallBack {
+~ void onObjectRetrieved(T)
+~ void onError(DatabaseError)
+}
+
+class com.example.turgo.UploadProgressDialog {
+- AlertDialog dialog
+- ProgressBar progressBar
+- TextView tvPercentage
+- TextView tvStatus
+- TextView tvTitle
++ void show()
++ void dismiss()
++ boolean isShowing()
++ void setTitle(String)
++ void setMessage(String)
++ void setProgress(int)
++ void setMaxProgress(int)
+}
+
+
+interface com.example.turgo.FirebaseClass {
+~ void importObjectData(F)
+~ ArrayList<String> convertToIdList(ArrayList<O>)
+~ ArrayList<Integer> convertBooleanToInt(ArrayList<Boolean>)
+~ String getID()
+~ void convertToNormal(ObjectCallBack<F>)
+~ void constructClass(Class<?>,String,ConstructClassCallback)
+~ boolean hasParent(Class<?>)
+~ void getAllObject(FirebaseNode,Class<? extends FirebaseClass>,ObjectCallBack<ArrayList<FBC>>)
+~ Object convertMapKey(String,Class<?>)
+~ Object convertMapValueSnapshot(DataSnapshot,Class<?>)
+}
+
+class com.example.turgo.JoinCourseRequest {
+- Course ofCourse
+- boolean approved
+- TimeSlot timeSlot
+- Schedule joinedSchedule
+- boolean isPrivate
+- int payment
+- boolean per
++ Course getOfCourse()
++ void setOfCourse(Course)
++ boolean isApproved()
++ void setApproved(boolean)
++ TimeSlot getTimeSlot()
++ void setTimeSlot(TimeSlot)
++ Schedule getJoinedSchedule()
++ void setJoinedSchedule(Schedule)
++ boolean isPrivate()
++ void setPrivate(boolean)
++ int getPayment()
++ void setPayment(int)
++ boolean isPer()
++ void setPer(boolean)
+}
+
+
+class com.example.turgo.ui.notifications.NotificationsFragment {
+- FragmentNotificationsBinding binding
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onDestroyView()
+}
+
+
+class com.example.turgo.DTAFirebase {
+- String DTA_ID
+- String id
+- String ofTeacher
+- String atCourse
+- String day
+- String start
+- String end
+- ArrayList<String> occupied
+- int maxMeeting
++ void importObjectData(DayTimeArrangement)
++ String getID()
++ void convertToNormal(ObjectCallBack<DayTimeArrangement>)
++ String getDTA_ID()
++ void setDTA_ID(String)
++ String getId()
++ void setId(String)
++ String getOfTeacher()
++ void setOfTeacher(String)
++ String getAtCourse()
++ void setAtCourse(String)
++ String getDay()
++ void setDay(String)
++ String getStart()
++ void setStart(String)
++ String getEnd()
++ void setEnd(String)
++ ArrayList<String> getOccupied()
++ void setOccupied(ArrayList<String>)
++ int getMaxMeeting()
++ void setMaxMeeting(int)
+}
+
+
+class com.example.turgo.MainActivity {
+~ FirebaseUser currentUser
+~ User userFound
+# void onCreate(Bundle)
++ void toSignUpActivity(View)
++ void toSignInActivity(View)
++ void signOut(View)
+- void clearAuthPreferences()
++ void refreshActivity()
+- void updateUser()
+- boolean hasUser()
+}
+
+
+class com.example.turgo.NotifAdapter {
+- ArrayList<NotificationFirebase> notifications
++ NotifViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(NotifViewHolder,int)
++ void addNotification(NotificationFirebase)
++ int getItemCount()
+}
+
+
+class com.example.turgo.MailListPage {
+~ ArrayList<Mail> mails
+~ LinearLayout ll_emptyState
+~ TextView tv_emptyText
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} MailListPage newInstance(String,String)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.TaskDisplay {
+~ Task task
+~ TextView tv_taskTitle
+~ ImageView iv_submissionStatus
+- {static} String ARG_PARAM1
+- {static} String ARG_PARAM2
+- String mParam1
+- String mParam2
++ {static} TaskDisplay newInstance(String,String)
++ {static} TaskDisplay newInstance(Task)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.Meeting {
+- FirebaseNode fbn
+- Class<MeetingFirebase> fbc
+- String meetingID
+- {static} String FIREBASE_DB_REFERENCE
+- HashMap<Student,LocalTime> studentsAttended
+- ArrayList<String> usersRelated
+- User preScheduledBy
+- String ofSchedule
+- LocalDate dateOfMeeting
+- LocalTime startTimeChange
+- LocalTime endTimeChange
+- Room roomChange
+- boolean completed
+- boolean alarmAssigned
+- LocalDateTime alarmAssignedAt
++ ArrayList<String> getUsersRelated()
++ void setUsersRelated(ArrayList<String>)
++ void assignUser(User)
++ {static} Task<Meeting> getClosestMeetingToSchedule(Schedule)
++ String getOfSchedule()
++ void setOfSchedule(String)
++ void assignAlarmNotification(ArrayList<Student>,Context)
++ Task<Schedule> getMeetingOfSchedule()
++ Task<Course> getMeetingOfCourse()
++ void doTimeChanges(LocalTime,LocalTime)
++ void setMeetingEndAlarm(Context,LocalDate,LocalTime,Student)
++ User getPreScheduledBy()
++ void setPreScheduledBy(User)
++ LocalTime getEndTimeChange()
++ void setEndTimeChange(LocalTime)
++ FirebaseNode getFirebaseNode()
++ Class<MeetingRepository> getRepositoryClass()
++ Class<MeetingFirebase> getFirebaseClass()
++ String getID()
++ FirebaseNode getFbn()
++ Class<MeetingFirebase> getFbc()
++ boolean isAlarmAssigned()
++ void setAlarmAssigned(boolean)
++ LocalDateTime getAlarmAssignedAt()
++ void setAlarmAssignedAt(LocalDateTime)
++ void changeDay(LocalDate)
+- boolean searchMeetingInList(DataSnapshot,ObjectCallBack<Schedule>)
+- void searchInTeacher(ObjectCallBack<Schedule>)
++ HashMap<Student,LocalTime> getStudentsAttended()
++ void setStudentsAttended(HashMap<Student,LocalTime>)
++ LocalDate getDateOfMeeting()
++ void setDateOfMeeting(LocalDate)
++ LocalTime getStartTimeChange()
++ void setStartTimeChange(LocalTime)
++ Room getRoomChange()
++ void setRoomChange(Room)
++ boolean isCompleted()
++ void setCompleted(boolean)
++ void addStudentAttendance(Student,LocalTime)
++ String getMeetingID()
++ String getRawMeetingID()
+- String resolveMeetingKey()
++ {static} void getMeetingFromDB(String,ObjectCallBack<Meeting>)
++ String toString()
+}
+
+
+class com.example.turgo.SelectedIndicatorHelper {
+~ RecyclerView.ViewHolder currentViewHolder
+~ C object
+}
+
+class com.example.turgo.Parent {
+- ArrayList<Student> children
++ {static} String SERIALIZE_KEY_CODE
++ FirebaseNode getFirebaseNode()
++ Class<ParentRepository> getRepositoryClass()
++ Class<ParentFirebase> getFirebaseClass()
++ String getID()
++ void updateUserDB()
++ String getSerializeCode()
++ String toString()
++ void addChild(Student)
++ ArrayList<Student> getChildren()
+}
+
+
+class com.example.turgo.QRCmanager {
++ {static} void scanCode(ActivityResultLauncher<ScanOptions>)
++ {static} Bitmap generateQR(String)
+}
+
+class com.example.turgo.DayMeetingAdapter {
+~ ArrayList<MeetingToDisplay> meetings
++ DayScheduleViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(DayScheduleViewHolder,int)
++ int getItemCount()
++ void getMeetingsOfMode(Teacher,boolean)
++ void updateMode(Teacher,boolean)
++ boolean isEmpty()
+}
+
+
+class com.example.turgo.AgendaViewHolder {
+~ TextView tv_dateDisplay
+}
+
+class com.example.turgo.TimeSlot {
+- String timeSlotId
+- DayOfWeek day
+- LocalTime start
+- LocalTime end
+- Duration time
+- ArrayList<Schedule> schedules
+- int minuteIncrement
++ {static} ArrayList<TimeSlot> filterTimesOfIncrement(ArrayList<TimeSlot>,int)
++ int getMinuteIncrement()
++ ArrayList<Schedule> getSchedules()
++ Pair<Integer,Integer> getPersonCount()
++ void setSchedules(ArrayList<Schedule>)
++ void setMinuteIncrement(int)
++ DayOfWeek getDay()
++ void setDay(DayOfWeek)
++ LocalTime getStart()
++ void setStart(LocalTime)
++ LocalTime getEnd()
++ void setEnd(LocalTime)
++ Duration getTime()
++ void setTime(Duration)
++ String toStr()
++ String toString()
++ FirebaseNode getFirebaseNode()
++ Class<TimeSlotRepository> getRepositoryClass()
++ Class<TimeSlotFirebase> getFirebaseClass()
++ String getID()
+}
+
+
+class com.example.turgo.MeetingCompletionService {
+- {static} String TAG
++ {static} Task<Void> completeMeetingIfDue(String)
++ {static} Task<Void> completeMeetingIfDue(String,MeetingFirebase)
++ {static} Task<Void> reconcileCompletedMeetingLinks(String,MeetingFirebase)
+- {static} boolean isDueAndIncomplete(Meeting)
+- {static} boolean isDueAndIncomplete(MeetingFirebase)
+- {static} Task<Void> completeAndMove(Meeting,String)
+- {static} Task<Void> completeAndMoveRaw(String,MeetingFirebase)
+- {static} Task<Void> moveRelationships(Meeting,String,String)
+- {static} Task<Void> moveRelationshipsRaw(MeetingFirebase,Set<String>,String)
+- {static} Task<Void> buildStudentsMoveTask(Schedule,Meeting,Set<String>,String)
+- {static} Set<String> buildIdsToRemove(Meeting,String)
+- {static} Set<String> buildIdsToRemove(String,MeetingFirebase)
+- {static} Task<Void> buildStudentsMoveTaskRaw(Schedule,MeetingFirebase,Set<String>,String)
+- {static} Task<Void> moveRelationshipsByMembershipScan(Set<String>,String)
+- {static} boolean containsAnyId(com.google.firebase.database.DataSnapshot,Set<String>)
+}
+
+
+class com.example.turgo.AgendaFirebase {
+- String agenda_ID
+- String agendaID
+- String agendaImage
+- String date
+- String contents
+- String ofMeeting
+- String teacher
+- String student
+- String ofCourse
++ void importObjectData(Agenda)
++ String getID()
++ void convertToNormal(ObjectCallBack<Agenda>)
++ void setAgendaID(String)
++ String getAgenda_ID()
++ void setAgenda_ID(String)
++ String getAgendaImage()
++ void setAgendaImage(String)
++ String getDate()
++ void setDate(String)
++ String getContents()
++ void setContents(String)
++ String getOfMeeting()
++ void setOfMeeting(String)
++ String getTeacher()
++ void setTeacher(String)
++ String getStudent()
++ void setStudent(String)
++ String getOfCourse()
++ void setOfCourse(String)
+}
+
+
+class com.example.turgo.CourseAdminAdapter {
+- ArrayList<Course> courseList
+- OnCourseClickListener clickListener
++ CourseAdminViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(CourseAdminViewHolder,int)
++ void setCourseList(ArrayList<Course>)
++ int getItemCount()
+}
+
+
+interface com.example.turgo.CourseAdminAdapter$OnCourseClickListener {
+~ void onCourseClick(Course)
+}
+
+class com.example.turgo.MeetingToDisplay {
+~ String day
+~ ArrayList<Meeting> schedules
+}
+
+class com.example.turgo.CourseScheduleListFragment {
+- Course course
++ {static} CourseScheduleListFragment newInstance(Course)
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.example.turgo.CourseTeachersViewHolder {
+~ TextView tv_courseName
+}
+
+interface com.example.turgo.ProfileSubSettingActionListener {
+~ void onSaveSubSetting(Setting,SubSetting,String)
+~ void onUploadRequested(Setting,SubSetting)
+}
+
+class com.example.turgo.MeetingProcessorWorker {
+- {static} int WEEKS_AHEAD
+- {static} String TAG
++ {static} String KEY_CLEANUP_ONLY
+- {static} String MANUAL_CLEANUP_WORK_NAME
++ Result doWork()
++ {static} void enqueueCleanupNow(Context)
+- void processCompletedMeetings()
+- void processOverdueTasks()
+- void processAllCourses()
+- void processCourseMeetings(Course)
+- void checkAndCreateMeeting(Schedule,LocalDate,String)
+- void normalizeMeetingReferences(Schedule,Meeting,String)
+- void createNewMeeting(Schedule,LocalDate)
+- void assignAlarmsToMeeting(Meeting,Schedule)
+- void cleanupOldMeetings()
+- Task<Void> cleanupOldMeetingReferences(Meeting)
+- void cleanupDuplicateMeetings()
+- void normalizeMeetingReferencesFromLegacy(Meeting,String,Set<String>)
+- String generateMeetingId(String,LocalDate)
+}
+
+
+class com.example.turgo.MailExpandFull {
+# void onCreate(Bundle)
+}
+
+class com.example.turgo.ScheduleFirebase {
+- String scheduleID
+- int numberOfStudents
+- boolean isPrivate
+- boolean hasScheduled
+- String scheduler
+- String meetingStart
+- String meetingEnd
+- int duration
+- String day
+- String ofCourse
+- String room
+- ArrayList<String> students
++ void importObjectData(Schedule)
++ String getID()
++ void convertToNormal(ObjectCallBack<Schedule>)
++ String getOfCourse()
++ void setOfCourse(String)
++ String getRoom()
++ void setRoom(String)
++ ArrayList<String> getStudents()
++ void setStudents(ArrayList<String>)
++ String getScheduleID()
++ void setScheduleID(String)
++ int getNumberOfStudents()
++ void setNumberOfStudents(int)
++ boolean isPrivate()
++ void setPrivate(boolean)
++ boolean isHasScheduled()
++ void setHasScheduled(boolean)
++ String getScheduler()
++ void setScheduler(String)
++ String getMeetingStart()
++ void setMeetingStart(String)
++ String getMeetingEnd()
++ void setMeetingEnd(String)
++ int getDuration()
++ void setDuration(int)
++ String getDay()
++ void setDay(String)
+}
+
+
+class com.example.turgo.Profile {
+- User user
+- ArrayList<Setting> settings
+- TextView tvProfileName
+- ImageView ivProfileAvatar
+- RecyclerView rvProfileSettings
++ {static} Profile newInstance(String,String)
++ void onCreate(Bundle)
+- void resolveUserFromActivity()
+- void initializeContent()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onResume()
++ void onSaveSubSetting(Setting,SubSetting,String)
+- void launchEmailChangeFlow(String)
+- void showEmailChangeDialog(FirebaseUser,String)
+- void requestVerifyBeforeUpdate(FirebaseUser,String)
+- void promptPasswordReauth(FirebaseUser,String)
+- void refreshSettingsList()
+- void syncAuthEmailToProfileIfChanged(boolean)
+- void persistProfileUpdates(Map<String,Object>)
+- void persistProfileUpdates(Map<String,Object>,boolean)
+- int parsePositiveInt(String,int)
+- Theme parseTheme(String)
+- Language parseLanguage(String)
++ void onUploadRequested(Setting,SubSetting)
+}
+
+
+class com.example.turgo.TeacherScreen {
+- Teacher teacher
+- ActivityTeacherScreenBinding binding
+- MailSmallAdapter mailSmallAdapter
+- NotifAdapter notifAdapter
+- ArrayList<NotificationFirebase> notifs
+- ArrayList<Mail> inbox
+- Toolbar topAppBar
+- LinearLayout ll_mailEmpty
+- PopupWindow mailPopupWindow
+- RecyclerView rv_MailDropDown
+- ImageButton notifFullPage
+- BottomNavigationView bottomNav
+- FirebaseUser fbUser
+# void onCreate(Bundle)
+- void continueAfterTeacherNotNull()
+- void setScreenInteractionEnabled(boolean)
+- void prepareActivityUI()
+- void loadDashboard()
+- void initializeUI()
+- void setupBottomNavigation(BottomNavigationView)
++ boolean onCreateOptionsMenu(Menu)
+- int dpToPx(int)
++ boolean onOptionsItemSelected(MenuItem)
+- PopupWindow createPopupWindow(View,int,String)
+- void setupMailSeeAll(View)
+- void dismissPopups()
++ {static} int getContainerId()
++ void prepareObjects()
++ Teacher getTeacher()
+}
+
+
+class com.example.turgo.TeacherFirebase {
+- String profileImageCloudinary
+- ArrayList<String> coursesTeach
+- ArrayList<String> courseTypeTeach
+- ArrayList<String> scheduledMeetings
+- ArrayList<String> completedMeetings
+- ArrayList<String> agendas
+- ArrayList<String> timeArrangements
+- ArrayList<SubmissionDisplay> latestSubmission
+- String teacherResume
+- int teachYearExperience
++ void importObjectData(Teacher)
++ String getID()
++ void convertToNormal(ObjectCallBack<Teacher>)
++ String getProfileImageCloudinary()
++ void setProfileImageCloudinary(String)
++ ArrayList<String> getCoursesTeach()
++ void setCoursesTeach(ArrayList<String>)
++ ArrayList<String> getCourseTypeTeach()
++ void setCourseTypeTeach(ArrayList<String>)
++ ArrayList<String> getScheduledMeetings()
++ void setScheduledMeetings(ArrayList<String>)
++ ArrayList<String> getCompletedMeetings()
++ void setCompletedMeetings(ArrayList<String>)
++ ArrayList<String> getAgendas()
++ void setAgendas(ArrayList<String>)
++ ArrayList<String> getTimeArrangements()
++ void setTimeArrangements(ArrayList<String>)
++ ArrayList<SubmissionDisplay> getLatestSubmission()
++ void setLatestSubmission(ArrayList<SubmissionDisplay>)
++ String getTeacherResume()
++ void setTeacherResume(String)
++ int getTeachYearExperience()
++ void setTeachYearExperience(int)
++ TeacherMini toTM()
+}
+
+
+class com.example.turgo.CourseImageViewHolder {
+~ ImageView iv_image
+}
+
+
+
+com.example.turgo.RepositoryClass <|.. com.example.turgo.MailRepository
+com.example.turgo.ViewHolder <|-- com.example.turgo.DayMeetingViewHolder
+java.io.Serializable <|.. com.example.turgo.Course
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Course
+androidx.fragment.app.Fragment <|-- com.example.turgo.StudentExploreJoined
+com.example.turgo.FirebaseClass <|.. com.example.turgo.MACFirebase
+com.example.turgo.MailFirebase <|-- com.example.turgo.MACFirebase
+java.io.Serializable <|.. com.example.turgo.Room
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Room
+com.example.turgo.Room +.. com.example.turgo.Room$SuitabilityCallback
+com.example.turgo.ViewHolder <|-- com.example.turgo.STCViewHolder
+androidx.fragment.app.Fragment <|-- com.example.turgo.Student_MyCourses
+androidx.fragment.app.Fragment <|-- com.example.turgo.CourseJoinedFullPage
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Submission
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.MailPageFull
+com.example.turgo.Adapter <|-- com.example.turgo.ProfileSettingsAdapter
+com.example.turgo.ProfileSettingsAdapter +.. com.example.turgo.ProfileSettingsAdapter$SettingGroupViewHolder
+com.example.turgo.ViewHolder <|-- com.example.turgo.ProfileSettingsAdapter$SettingGroupViewHolder
+java.io.Serializable <|.. com.example.turgo.Task
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Task
+com.example.turgo.Adapter <|-- com.example.turgo.SubmissionAdapter
+com.example.turgo.SubmissionAdapter +.. com.example.turgo.SubmissionAdapter$OnPreviewRemoveListener
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.cc_AddScheduleDTA
+androidx.fragment.app.Fragment <|-- com.example.turgo.cc_AddScheduleDTA
+com.example.turgo.ViewHolder <|-- com.example.turgo.MailSmallViewHolder
+com.example.turgo.ViewHolder <|-- com.example.turgo.ScheduleViewHolder
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.RegisterCourse
+androidx.fragment.app.Fragment <|-- com.example.turgo.ui.dashboard.DashboardFragment
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup__student_selectcourse
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup__student_selectcourse
+com.example.turgo.RepositoryClass <|.. com.example.turgo.DTARepository
+android.app.Application <|-- com.example.turgo.TurgoApp
+java.io.Serializable <|.. com.example.turgo.Teacher
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Teacher
+com.example.turgo.User <|-- com.example.turgo.Teacher
+androidx.fragment.app.Fragment <|-- com.example.turgo.TaskFullPage
+android.widget.BaseAdapter <|-- com.example.turgo.SimpleSpinnerAdapter
+com.example.turgo.SimpleSpinnerAdapter +.. com.example.turgo.SimpleSpinnerAdapter$StringExtractor
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherAddAgenda
+com.example.turgo.ViewHolder <|-- com.example.turgo.CourseViewHolder
+com.example.turgo.FirebaseClass <|.. com.example.turgo.SubmissionFirebase
+com.example.turgo.RepositoryClass <|.. com.example.turgo.FileRepository
+com.example.turgo.Adapter <|-- com.example.turgo.MailSmallAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.RoomViewHolder
+android.widget.ArrayAdapter <|-- com.example.turgo.UserAdapter
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.cc_PriceEnrollment
+androidx.fragment.app.Fragment <|-- com.example.turgo.cc_PriceEnrollment
+androidx.fragment.app.Fragment <|-- com.example.turgo.StudentMeetings
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_ContactInformation
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_ContactInformation
+com.example.turgo.RequireUpdate <|.. com.example.turgo.MailApplyCourse
+com.example.turgo.Mail <|-- com.example.turgo.MailApplyCourse
+com.example.turgo.ViewHolder <|-- com.example.turgo.UploadFileSimpleViewHolder
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Mail
+java.io.Serializable <|.. com.example.turgo.Mail
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.CreateCourse
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_UserCategory
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_UserCategory
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherDashboard
+com.example.turgo.Adapter <|-- com.example.turgo.ScheduleSimpleAdapter
+com.example.turgo.FirebaseClass <|.. com.example.turgo.NotificationFirebase
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.cc_Media
+androidx.fragment.app.Fragment <|-- com.example.turgo.cc_Media
+com.example.turgo.ViewHolder <|-- com.example.turgo.NotifViewHolder
+com.example.turgo.Tool +.. com.example.turgo.Tool$ThrowingRunnable
+com.example.turgo.Tool +.. com.example.turgo.Tool$ConvertToNormalCallback
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_UserDetails_Teacher
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_UserDetails_Teacher
+com.example.turgo.FirebaseClass <|.. com.example.turgo.StudentFirebase
+com.example.turgo.UserFirebase <|-- com.example.turgo.StudentFirebase
+java.io.Serializable <|.. com.example.turgo.Admin
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Admin
+com.example.turgo.User <|-- com.example.turgo.Admin
+com.example.turgo.FirebaseClass <|.. com.example.turgo.TimeSlotFirebase
+com.example.turgo.ViewHolder <|-- com.example.turgo.DayTimeViewHolder
+com.example.turgo.Adapter <|-- com.example.turgo.CourseImageAdapter
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_admin_empty
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_admin_empty
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.RC_PrivateDurationAmount
+androidx.fragment.app.Fragment <|-- com.example.turgo.RC_PrivateDurationAmount
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.NotifPageFull
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Dropbox
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.cc_CourseInformation
+androidx.fragment.app.Fragment <|-- com.example.turgo.cc_CourseInformation
+com.example.turgo.ModeUpdatable <|.. com.example.turgo.DayScheduleAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.DayScheduleAdapter
+java.io.Serializable <|.. com.example.turgo.Student
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Student
+com.example.turgo.User <|-- com.example.turgo.Student
+com.example.turgo.ViewHolder <|-- com.example.turgo.SubmissionViewHolder
+com.example.turgo.FirebaseClass <|.. com.example.turgo.DropboxFirebase
+java.io.Serializable <|.. com.example.turgo.StudentCourse
+com.example.turgo.RequireUpdate <|.. com.example.turgo.StudentCourse
+java.io.Serializable <|.. com.example.turgo.DayTimeArrangement
+com.example.turgo.RequireUpdate <|.. com.example.turgo.DayTimeArrangement
+com.example.turgo.ViewHolder <|-- com.example.turgo.CourseAdminViewHolder
+android.content.BroadcastReceiver <|-- com.example.turgo.CourseNotification
+com.example.turgo.FirebaseClass <|.. com.example.turgo.StudentCourseFirebase
+com.example.turgo.Adapter <|-- com.example.turgo.CourseAdapter
+com.example.turgo.RepositoryClass <|.. com.example.turgo.TimeSlotRepository
+com.example.turgo.ViewHolder <|-- com.example.turgo.TeacherScheduleViewHolder
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherAllCourse
+com.example.turgo.RepositoryClass <|.. com.example.turgo.CourseTypeRepository
+com.example.turgo.Adapter <|-- com.example.turgo.TeacherScheduleAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.rcScheduleViewHolder
+com.example.turgo.Adapter <|-- com.example.turgo.STCAdapter
+androidx.lifecycle.ViewModel <|-- com.example.turgo.ui.home.HomeViewModel
+androidx.lifecycle.ViewModel <|-- com.example.turgo.ui.notifications.NotificationsViewModel
+androidx.fragment.app.Fragment <|-- com.example.turgo.Student_TaskList
+androidx.fragment.app.Fragment <|-- com.example.turgo.CourseDetails
+com.example.turgo.RequireUpdate <|.. com.example.turgo.file
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.AdminCreateRoom
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.AdminScreen
+com.example.turgo.Adapter <|-- com.example.turgo.DTAAdapter
+com.journeyapps.barcodescanner.CaptureActivity <|-- com.example.turgo.CaptureAct
+java.io.Serializable <|.. com.example.turgo.Notification
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Notification
+androidx.fragment.app.Fragment <|-- com.example.turgo.popupProfileEdit
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.StudentScreen
+com.example.turgo.RepositoryClass <|.. com.example.turgo.ScheduleRepository
+com.example.turgo.RepositoryClass <|.. com.example.turgo.AdminRepository
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherScheduleList
+com.example.turgo.Adapter <|-- com.example.turgo.FileAdapter
+com.example.turgo.AuthEmailChangeManager +.. com.example.turgo.AuthEmailChangeManager$VerificationCallback
+com.example.turgo.AuthEmailChangeManager +.. com.example.turgo.AuthEmailChangeManager$SimpleCallback
+com.example.turgo.ViewHolder <|-- com.example.turgo.MeetingViewHolder
+com.example.turgo.ViewHolder <|-- com.example.turgo.TeacherViewHolder
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherCourseScreen
+java.io.Serializable <|.. com.example.turgo.UserFirebase
+java.io.Serializable <|.. com.example.turgo.Agenda
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Agenda
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.RC_SelectPaymentConfirm
+androidx.fragment.app.Fragment <|-- com.example.turgo.RC_SelectPaymentConfirm
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.RC_UserInformation
+androidx.fragment.app.Fragment <|-- com.example.turgo.RC_UserInformation
+com.example.turgo.FirebaseClass <|.. com.example.turgo.RoomFirebase
+com.example.turgo.RepositoryClass <|.. com.example.turgo.TaskRepository
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.DataLoading
+com.example.turgo.DataLoading +.. com.example.turgo.DataLoading$ProgressCallback
+com.example.turgo.Adapter <|-- com.example.turgo.TimeSlotAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.CourseTeachersAdapter
+com.example.turgo.OneTimeDtaCleanup +.. com.example.turgo.OneTimeDtaCleanup$Options
+com.example.turgo.OneTimeDtaCleanup +.. com.example.turgo.OneTimeDtaCleanup$Report
+com.example.turgo.OneTimeDtaCleanup +.. com.example.turgo.OneTimeDtaCleanup$RemovedRefCallback
+com.example.turgo.OneTimeDtaCleanup +.. com.example.turgo.OneTimeDtaCleanup$DayBucket
+android.content.BroadcastReceiver <|-- com.example.turgo.MeetingAlarmReciever
+androidx.fragment.app.Fragment <|-- com.example.turgo.CourseExploreFullPage
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherCreateTask
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.ComposeMail
+com.example.turgo.ViewHolder <|-- com.example.turgo.DTAViewHolder
+com.example.turgo.Adapter <|-- com.example.turgo.AgendaAdapter
+com.example.turgo.Notification <|-- com.example.turgo.Notif_MeetingReminder
+com.example.turgo.Adapter <|-- com.example.turgo.ScheduleAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.RcScheduleAdapter
+androidx.fragment.app.Fragment <|-- com.example.turgo.Student_Dashboard
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.RC_AvailableDayTime
+androidx.fragment.app.Fragment <|-- com.example.turgo.RC_AvailableDayTime
+androidx.fragment.app.Fragment <|-- com.example.turgo.MeetingDisplay
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.cc_SetTeacher
+androidx.fragment.app.Fragment <|-- com.example.turgo.cc_SetTeacher
+com.example.turgo.FirebaseClass <|.. com.example.turgo.CourseTypeFirebase
+com.example.turgo.ViewHolder <|-- com.example.turgo.ImageViewHolder
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherAddDTA
+com.example.turgo.ViewHolder <|-- com.example.turgo.ScheduleSimpleViewHolder
+com.example.turgo.RepositoryClass <|.. com.example.turgo.ParentRepository
+androidx.fragment.app.Fragment <|-- com.example.turgo.AllAgendaPage
+com.example.turgo.FirebaseClass <|.. com.example.turgo.MailFirebase
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup__parent_connecttochild
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup__parent_connecttochild
+androidx.fragment.app.Fragment <|-- com.example.turgo.Student_PastTasks
+com.example.turgo.ViewHolder <|-- com.example.turgo.TimeSlotViewHolder
+androidx.viewpager2.adapter.FragmentStateAdapter <|-- com.example.turgo.TaskPagerAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.DayScheduleViewHolder
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.SignInPage
+java.io.Serializable <|.. com.example.turgo.User
+com.example.turgo.Adapter <|-- com.example.turgo.MeetingSimpleAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.TeacherAdapter
+com.example.turgo.RepositoryClass <|.. com.example.turgo.AgendaRepository
+com.example.turgo.FirebaseClass <|.. com.example.turgo.TaskFirebase
+com.example.turgo.Adapter <|-- com.example.turgo.ImageAdapter
+com.example.turgo.FirebaseClass <|.. com.example.turgo.CourseFirebase
+com.example.turgo.Adapter <|-- com.example.turgo.RoomAdapter
+com.example.turgo.RepositoryClass <|.. com.example.turgo.DropboxRepository
+java.io.Serializable <|.. com.example.turgo.CourseType
+com.example.turgo.RequireUpdate <|.. com.example.turgo.CourseType
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.AdminViewAllCourses
+com.example.turgo.RepositoryClass <|.. com.example.turgo.StudentRepository
+com.example.turgo.UserRepositoryClass <|.. com.example.turgo.StudentRepository
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.AdminCreateCourse
+com.example.turgo.Adapter <|-- com.example.turgo.DayTimeAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.ProfileSubSettingsAdapter
+com.example.turgo.ProfileSubSettingsAdapter +.. com.example.turgo.ProfileSubSettingsAdapter$SubSettingViewHolder
+com.example.turgo.ViewHolder <|-- com.example.turgo.ProfileSubSettingsAdapter$SubSettingViewHolder
+androidx.fragment.app.Fragment <|-- com.example.turgo.CourseName
+com.example.turgo.FirebaseClass <|.. com.example.turgo.AdminFirebase
+com.example.turgo.UserFirebase <|-- com.example.turgo.AdminFirebase
+android.widget.BaseExpandableListAdapter <|-- com.example.turgo.SettingsListAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.DayViewHolder
+com.example.turgo.RepositoryClass <|.. com.example.turgo.RoomRepository
+java.io.Serializable <|.. com.example.turgo.UserStatus
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_ConfirmData
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_ConfirmData
+com.example.turgo.Adapter <|-- com.example.turgo.MeetingAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.FileViewHolder
+com.example.turgo.RepositoryClass <|.. com.example.turgo.NotificationRepository
+com.example.turgo.ViewHolder <|-- com.example.turgo.TaskViewHolder
+java.io.Serializable <|.. com.example.turgo.Schedule
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Schedule
+androidx.fragment.app.Fragment <|-- com.example.turgo.ui.home.HomeFragment
+com.example.turgo.RepositoryClass <|.. com.example.turgo.CourseRepository
+androidx.lifecycle.ViewModel <|-- com.example.turgo.ui.dashboard.DashboardViewModel
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.AdminCourseFullPage
+com.example.turgo.Adapter <|-- com.example.turgo.TaskAdapter
+com.example.turgo.RepositoryClass <|.. com.example.turgo.MeetingRepository
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_PasswordSetup
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_PasswordSetup
+com.example.turgo.RepositoryClass <|.. com.example.turgo.StudentCourseRepository
+com.example.turgo.RepositoryClass <|.. com.example.turgo.SubmissionRepository
+androidx.fragment.app.Fragment <|-- com.example.turgo.Student_ExploreCourse
+androidx.fragment.app.Fragment <|-- com.example.turgo.TeacherScheduleOfCourse
+com.example.turgo.FirebaseClass <|.. com.example.turgo.ParentFirebase
+com.example.turgo.UserFirebase <|-- com.example.turgo.ParentFirebase
+com.example.turgo.RepositoryClass <|.. com.example.turgo.TeacherRepository
+com.example.turgo.UserRepositoryClass <|.. com.example.turgo.TeacherRepository
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.SignUpPage
+com.google.android.material.bottomsheet.BottomSheetDialogFragment <|-- com.example.turgo.LoadingBottomSheet
+com.example.turgo.checkFragmentCompletion <|.. com.example.turgo.signup_userdetails
+androidx.fragment.app.Fragment <|-- com.example.turgo.signup_userdetails
+com.example.turgo.FirebaseClass <|.. com.example.turgo.fileFirebase
+com.example.turgo.FirebaseClass <|.. com.example.turgo.MeetingFirebase
+com.example.turgo.Adapter <|-- com.example.turgo.DayAdapter
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.ActivityLauncher
+androidx.fragment.app.Fragment <|-- com.example.turgo.ui.notifications.NotificationsFragment
+com.example.turgo.FirebaseClass <|.. com.example.turgo.DTAFirebase
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.MainActivity
+com.example.turgo.Adapter <|-- com.example.turgo.NotifAdapter
+androidx.fragment.app.Fragment <|-- com.example.turgo.MailListPage
+androidx.fragment.app.Fragment <|-- com.example.turgo.TaskDisplay
+java.io.Serializable <|.. com.example.turgo.Meeting
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Meeting
+java.io.Serializable <|.. com.example.turgo.Parent
+com.example.turgo.RequireUpdate <|.. com.example.turgo.Parent
+com.example.turgo.User <|-- com.example.turgo.Parent
+com.example.turgo.ModeUpdatable <|.. com.example.turgo.DayMeetingAdapter
+com.example.turgo.Adapter <|-- com.example.turgo.DayMeetingAdapter
+com.example.turgo.ViewHolder <|-- com.example.turgo.AgendaViewHolder
+java.io.Serializable <|.. com.example.turgo.TimeSlot
+com.example.turgo.RequireUpdate <|.. com.example.turgo.TimeSlot
+com.example.turgo.FirebaseClass <|.. com.example.turgo.AgendaFirebase
+com.example.turgo.Adapter <|-- com.example.turgo.CourseAdminAdapter
+com.example.turgo.CourseAdminAdapter +.. com.example.turgo.CourseAdminAdapter$OnCourseClickListener
+androidx.fragment.app.Fragment <|-- com.example.turgo.CourseScheduleListFragment
+com.example.turgo.ViewHolder <|-- com.example.turgo.CourseTeachersViewHolder
+androidx.work.Worker <|-- com.example.turgo.MeetingProcessorWorker
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.MailExpandFull
+com.example.turgo.FirebaseClass <|.. com.example.turgo.ScheduleFirebase
+com.example.turgo.ProfileSubSettingActionListener <|.. com.example.turgo.Profile
+androidx.fragment.app.Fragment <|-- com.example.turgo.Profile
+androidx.appcompat.app.AppCompatActivity <|-- com.example.turgo.TeacherScreen
+com.example.turgo.FirebaseClass <|.. com.example.turgo.TeacherFirebase
+com.example.turgo.UserFirebase <|-- com.example.turgo.TeacherFirebase
+com.example.turgo.ViewHolder <|-- com.example.turgo.CourseImageViewHolder
+@enduml

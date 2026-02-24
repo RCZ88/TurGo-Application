@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_emerald_input"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_compose_recipient_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/bricolage_condensed_semibold"
+            android:text="User Full Name "
+            android:textColor="@color/brand_emerald_dark"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/tv_compose_recipient_role"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/bricolage_body"
+            android:text="STUDENT"
+            android:textColor="@color/brand_emerald"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_compose_recipient_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="email.example@mail.com"
+            android:textColor="#667070"
+            android:textSize="12sp" />
+    </LinearLayout>
+</LinearLayout>
