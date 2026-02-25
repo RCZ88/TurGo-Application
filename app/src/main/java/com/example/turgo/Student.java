@@ -1748,7 +1748,7 @@ public class Student extends User implements Serializable, RequireUpdate<Student
                         ArrayList<com.google.android.gms.tasks.Task<Course>> courseTasks = new ArrayList<>();
                         for (String courseId : candidateCourseIds) {
                             courseTasks.add(
-                                    new CourseRepository(courseId).loadAsNormal().continueWith(task -> {
+                                    new CourseRepository(courseId).loadLite().continueWith(task -> {
                                         if (task.isSuccessful()) {
                                             return task.getResult();
                                         }

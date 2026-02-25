@@ -57,6 +57,7 @@ public class TeacherScreen extends AppCompatActivity {
     private LinearLayout ll_mailEmpty, ll_notifEmpty;
     private PopupWindow mailPopupWindow, notifPopupWindow;
     private RecyclerView rv_MailDropDown, rv_NotifDropdown;
+    private TeacherScreenData tsd;
     private ImageButton notifFullPage;
     private BottomNavigationView bottomNav;
     private FirebaseUser fbUser;
@@ -92,18 +93,38 @@ public class TeacherScreen extends AppCompatActivity {
         }
 
         TeacherRepository tr = new TeacherRepository(fbUser.getUid());
+        tr.loadScreenData().addOnSuccessListener(teacherScreenData -> {
+            tsd = teacherScreenData;
+            if (Tool.boolOf(tsd.uid)) {
+                PushTokenManager.syncKnownRoleWithLatestToken(tsd.uid, "TEACHER");
+            }
+            initializeUIWithTSD();
+            // Start loading dashboard and enable interaction as soon as lite data is in
+            setScreenInteractionEnabled(true);
+            loadDashboard();
+            prepareObjectsWithTSD();
+        });
+
+        // Still load the full object in background for other screens/fragments that need it
         Tool.prepareUserObjectForScreen(tr)
                 .addOnSuccessListener(teacherObj -> {
                     teacher = teacherObj;
                     if (Tool.boolOf(teacher.getID())) {
                         PushTokenManager.syncKnownRoleWithLatestToken(teacher.getID(), "TEACHER");
                     }
-                    continueAfterTeacherNotNull();
+                    if (fbUser != null) {
+                        UserPresenceManager.startTracking(fbUser.getUid());
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("TeacherScreen", "Failed to prepare Teacher object", e);
-                    finish();
+                    Log.e("TeacherScreen", "Failed to prepare full Teacher object", e);
                 });
+    }
+
+    public String getTeacherId() {
+        if (tsd != null && Tool.boolOf(tsd.uid)) return tsd.uid;
+        if (teacher != null && Tool.boolOf(teacher.getID())) return teacher.getID();
+        return fbUser != null ? fbUser.getUid() : null;
     }
 
     private void continueAfterTeacherNotNull() {
@@ -121,21 +142,41 @@ public class TeacherScreen extends AppCompatActivity {
 
     private void prepareActivityUI() {
         initializeUI();
-        prepareObjects();
-
         if (teacher != null && fbUser != null) {
             UserPresenceManager.startTracking(fbUser.getUid());
         }
+    }
+
+    private void prepareObjectsWithTSD() {
+        // Here we could start loading inbox/notifs if they aren't already handled by listeners
+        // For now, prepareObjects() still uses full teacher object's listeners.
     }
 
     private void loadDashboard() {
         Tool.loadFragment(this, getContainerId(), new TeacherDashboard());
     }
 
+    private void initializeUIWithTSD() {
+        // Initialize UI with lightweight TeacherScreenData
+        if (tsd == null) {
+            return;
+        }
+
+        if (topAppBar == null) {
+            topAppBar = findViewById(R.id.tb_ts_topAppBar);
+        }
+        if (topAppBar != null) {
+            setSupportActionBar(topAppBar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(tsd.fullName != null ? tsd.fullName : "Teacher");
+            }
+        }
+    }
+
     private void initializeUI() {
         setSupportActionBar(topAppBar);
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(teacher.getFullName());
+            getSupportActionBar().setTitle(teacher != null ? teacher.getFullName() : (tsd != null && tsd.fullName != null ? tsd.fullName : "Teacher"));
         }
 
         setupBottomNavigation(bottomNav);
@@ -162,6 +203,7 @@ public class TeacherScreen extends AppCompatActivity {
                 return true;
             }
             if (itemId == R.id.dest_teacherProfile) {
+                // Profile requires the full teacher object for editing capabilities
                 Tool.loadFragment(this, getContainerId(), new Profile(teacher));
                 return true;
             }
@@ -311,6 +353,7 @@ public class TeacherScreen extends AppCompatActivity {
         if (seeAll != null) {
             seeAll.setOnClickListener(v -> {
                 Intent intent = new Intent(TeacherScreen.this, MailPageFull.class);
+                // MailPageFull requires the full teacher object for complete functionality
                 intent.putExtra(User.SERIALIZE_KEY_CODE, teacher);
                 startActivity(intent);
                 if (mailPopupWindow != null) mailPopupWindow.dismiss();
@@ -334,6 +377,12 @@ public class TeacherScreen extends AppCompatActivity {
     }
 
     public void prepareObjects() {
+        // Use teacher object if available, otherwise we can't prepare objects that require full teacher data
+        if (teacher == null || teacher.getID() == null) {
+            Log.e("TeacherScreen", "Cannot prepare objects - teacher object or ID is null");
+            return;
+        }
+
         DatabaseReference teacherRef = FirebaseDatabase.getInstance()
                 .getReference(FirebaseNode.TEACHER.getPath())
                 .child(teacher.getID());

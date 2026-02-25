@@ -101,26 +101,24 @@ public class Student_ExploreCourse extends Fragment {
     }
 
     private void loadExploreCourses() {
-        Log.d("StudentExploreCourse", "Fetching Student's Explore Courses...");
+        Log.d("StudentExploreCourse", "Fetching Student's Explore Courses via Selective Repository...");
 
-        student.getExploreCourse().addOnSuccessListener(courses -> {
+        new StudentRepository(student.getID()).loadExploreCourseData().addOnSuccessListener(data -> {
             if (!isUiAlive()) {
                 return;
             }
-            exploreCourses = courses;
-            Log.d("StudentExploreCourse", "Retrieved " + exploreCourses.size() + " Courses");
+            exploreCourses = data.exploreCourses;
+            Log.d("StudentExploreCourse", "Retrieved " + (exploreCourses != null ? exploreCourses.size() : 0) + " Courses");
 
-            if (exploreCourses.isEmpty()) {
+            if (exploreCourses == null || exploreCourses.isEmpty()) {
                 Tool.handleEmpty(true, rv_courses, tv_emptyCourses);
                 return;
             }
 
             loadTeachersForCourses();
         }).addOnFailureListener(e -> {
-            if (!isUiAlive()) {
-                return;
-            }
-            Log.e("StudentExploreCourse", "Failed to load explore courses", e);
+            if (!isUiAlive()) return;
+            Log.e("StudentExploreCourse", "Failed to load explore data", e);
             Tool.handleEmpty(true, rv_courses, tv_emptyCourses);
         });
     }
@@ -137,7 +135,14 @@ public class Student_ExploreCourse extends Fragment {
         for (int i = 0; i < total; i++) {
             final int index = i;
             Course course = exploreCourses.get(i);
-            course.getTeacher().addOnSuccessListener(teacher -> {
+            String teacherId = course.getTeacherId();
+            if (!Tool.boolOf(teacherId)) {
+                completed[0]++;
+                if (completed[0] == total) onAllDataLoaded();
+                continue;
+            }
+
+            new TeacherRepository(teacherId).loadLite().addOnSuccessListener(teacher -> {
                 if (!isUiAlive()) {
                     return;
                 }

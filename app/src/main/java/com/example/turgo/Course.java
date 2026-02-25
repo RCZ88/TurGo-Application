@@ -90,6 +90,9 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
         this.studentsCourse = new ArrayList<>();
         this.students = new ArrayList<>();
     }
+    public Course(String id){
+        courseID = id;
+    }
 
     public void setTeacher(String teacher) {
         this.teacher = teacher;
@@ -208,9 +211,15 @@ public class Course implements Serializable, RequireUpdate<Course, CourseFirebas
     public void setStudentsCourse(ArrayList<StudentCourse> studentsCourse) {
         this.studentsCourse = studentsCourse;
     }
+
     public ArrayList<String> getStudentIds(){
         return students;
     }
+
+    public void setStudents(ArrayList<String> students) {
+        this.students = students;
+    }
+
     public String getBackgroundCloudinary() {
         return backgroundCloudinary;
     }

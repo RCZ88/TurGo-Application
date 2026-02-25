@@ -3,13 +3,13 @@ package com.example.turgo;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public abstract class UserFirebase implements Serializable{
-    private String userType;
+public abstract class UserFirebase implements Serializable {
     private String uid;
+    private String userType;
     private String fullName;
-    private String nickname;
-    private String birthDate;
     private int age;
+    private String birthDate;
+    private String nickname;
     private String email;
     private String gender;
     private String phoneNumber;
@@ -17,43 +17,26 @@ public abstract class UserFirebase implements Serializable{
     private String theme;
     private ArrayList<String> inbox;
     private ArrayList<String> outbox;
-    private ArrayList<String> draftMails;
+    private ArrayList<String> drafts;
     private ArrayList<String> notifications;
-    public UserFirebase(String userType){
-        this.userType = userType;
-    }
-    public UserFirebase(){};
+    private ArrayList<String> inboxIds;
+    private ArrayList<String> outboxIds;
+    private ArrayList<String> draftsIds;
+    private ArrayList<String> notificationsIds;
+    private String pfpCloudinary;
 
-    public ArrayList<String> getInbox() {
-        return inbox;
-    }
-
-    public void setInbox(ArrayList<String> inbox) {
-        this.inbox = inbox;
-    }
-
-    public ArrayList<String> getOutbox() {
-        return outbox;
-    }
-
-    public void setOutbox(ArrayList<String> outbox) {
-        this.outbox = outbox;
-    }
-
-    public ArrayList<String> getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(ArrayList<String> notifications) {
-        this.notifications = notifications;
-    }
-
-    public void setUserType(String userType) {
+    public UserFirebase(String userType) {
         this.userType = userType;
     }
 
-    public String getUserType() {
-        return userType;
+    public UserFirebase() {}
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getID() {
@@ -64,6 +47,14 @@ public abstract class UserFirebase implements Serializable{
         this.uid = ID;
     }
 
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
     public String getFullName() {
         return fullName;
     }
@@ -72,12 +63,12 @@ public abstract class UserFirebase implements Serializable{
         this.fullName = fullName;
     }
 
-    public String getNickname() {
-        return nickname;
+    public int getAge() {
+        return age;
     }
 
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
+    public void setAge(int age) {
+        this.age = age;
     }
 
     public String getBirthDate() {
@@ -88,12 +79,12 @@ public abstract class UserFirebase implements Serializable{
         this.birthDate = birthDate;
     }
 
-    public int getAge() {
-        return age;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
     public String getEmail() {
@@ -136,19 +127,75 @@ public abstract class UserFirebase implements Serializable{
         this.theme = theme;
     }
 
-    public String getUid() {
-        return uid;
+    public ArrayList<String> getInbox() {
+        return inbox;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setInbox(ArrayList<String> inbox) {
+        this.inbox = inbox;
     }
 
-    public ArrayList<String> getDraftMails() {
-        return draftMails;
+    public ArrayList<String> getOutbox() {
+        return outbox;
     }
 
-    public void setDraftMails(ArrayList<String> draftMails) {
-        this.draftMails = draftMails;
+    public void setOutbox(ArrayList<String> outbox) {
+        this.outbox = outbox;
+    }
+
+    public ArrayList<String> getDrafts() {
+        return drafts;
+    }
+
+    public void setDrafts(ArrayList<String> drafts) {
+        this.drafts = drafts;
+    }
+
+    public ArrayList<String> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(ArrayList<String> notifications) {
+        this.notifications = notifications;
+    }
+
+    public ArrayList<String> getInboxIds() {
+        return inboxIds;
+    }
+
+    public void setInboxIds(ArrayList<String> inboxIds) {
+        this.inboxIds = inboxIds;
+    }
+
+    public ArrayList<String> getOutboxIds() {
+        return outboxIds;
+    }
+
+    public void setOutboxIds(ArrayList<String> outboxIds) {
+        this.outboxIds = outboxIds;
+    }
+
+    public ArrayList<String> getDraftsIds() {
+        return draftsIds;
+    }
+
+    public void setDraftsIds(ArrayList<String> draftsIds) {
+        this.draftsIds = draftsIds;
+    }
+
+    public ArrayList<String> getNotificationsIds() {
+        return notificationsIds;
+    }
+
+    public void setNotificationsIds(ArrayList<String> notificationsIds) {
+        this.notificationsIds = notificationsIds;
+    }
+
+    public String getPfpCloudinary() {
+        return pfpCloudinary;
+    }
+
+    public void setPfpCloudinary(String pfpCloudinary) {
+        this.pfpCloudinary = pfpCloudinary;
     }
 }

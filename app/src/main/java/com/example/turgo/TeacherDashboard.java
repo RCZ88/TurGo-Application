@@ -6,7 +6,6 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -21,59 +20,32 @@ import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TeacherDashboard#newInstance} factory method to
- * create an instance of this fragment.
  */
-public class TeacherDashboard extends Fragment{
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class TeacherDashboard extends Fragment {
 
     LinearLayout ll_viewTodayScheduleAction, ll_createTaskAction, ll_addAgendaAction, ll_addDTAAction, ll_createCourseAction;
-    TextView tv_courseName, tv_scheduleTime, tv_meetingRoom
-            ,tv_noActiveCourses, tv_noRecentStudentSubmit;
+    TextView tv_courseName, tv_scheduleTime, tv_meetingRoom, tv_noActiveCourses, tv_noRecentStudentSubmit;
     RecyclerView rv_recentStudentSubmit;
     ViewPager2 vp2_activeCourses;
     CourseTeachersAdapter courseTeachersAdapter;
+    SubmissionAdapter submissionAdapter;
 
     ArrayList<Course> teacherCoursesTeach = new ArrayList<>();
     ArrayList<Integer> studentCountOfCourses = new ArrayList<>();
-    ArrayList<Meeting>nextMeetingOfCourses = new ArrayList<>();
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    ArrayList<Meeting> nextMeetingOfCourses = new ArrayList<>();
 
     public TeacherDashboard() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment TeacherDashboard.
-     */
-    // TODO: Rename and change types and number of parameters
     public static TeacherDashboard newInstance(String param1, String param2) {
         TeacherDashboard fragment = new TeacherDashboard();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @SuppressLint({"SetTextI18n", "MissingInflatedId"})
@@ -81,276 +53,102 @@ public class TeacherDashboard extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d("TeacherDashboard", "========== onCreateView START ==========");
-        Log.d("TeacherDashboard", "inflater: " + inflater);
-        Log.d("TeacherDashboard", "container: " + container);
-        Log.d("TeacherDashboard", "container width: " + (container != null ? container.getWidth() : "null"));
-        Log.d("TeacherDashboard", "container height: " + (container != null ? container.getHeight() : "null"));
 
         View view = inflater.inflate(R.layout.fragment_teacher_dashboard, container, false);
-        Log.d("TeacherDashboard", "✓ View inflated: " + view);
-        Log.d("TeacherDashboard", "View class: " + view.getClass().getName());
-        Log.d("TeacherDashboard", "View LayoutParams: " + view.getLayoutParams());
-        loadTeacher();
+
         // Find all views
-        Log.d("TeacherDashboard", "Finding views...");
         ll_viewTodayScheduleAction = view.findViewById(R.id.ll_TD_ViewSchedulesAction);
-        Log.d("TeacherDashboard", "ll_viewTodayScheduleAction: " + (ll_viewTodayScheduleAction != null ? "FOUND" : "NULL"));
-
         ll_createTaskAction = view.findViewById(R.id.ll_TD_CreateTaskAction);
-        Log.d("TeacherDashboard", "ll_createTaskAction: " + (ll_createTaskAction != null ? "FOUND" : "NULL"));
-
         ll_addAgendaAction = view.findViewById(R.id.ll_TD_AddAgendaAction);
-        Log.d("TeacherDashboard", "ll_addAgendaAction: " + (ll_addAgendaAction != null ? "FOUND" : "NULL"));
-
         ll_addDTAAction = view.findViewById(R.id.ll_TD_AddDTAAction);
-        Log.d("TeacherDashboard", "ll_addDTAAction: " + (ll_addDTAAction != null ? "FOUND" : "NULL"));
-
         ll_createCourseAction = view.findViewById(R.id.ll_TD_CreateCourseAction);
-
         tv_courseName = view.findViewById(R.id.tv_TD_courseName);
-        Log.d("TeacherDashboard", "tv_courseName: " + (tv_courseName != null ? "FOUND" : "NULL"));
-        if (tv_courseName != null) {
-            Log.d("TeacherDashboard", "tv_courseName text: " + tv_courseName.getText());
-            Log.d("TeacherDashboard", "tv_courseName visibility: " + tv_courseName.getVisibility());
-        }
-
         tv_scheduleTime = view.findViewById(R.id.tv_TD_ScheduleTime);
-        Log.d("TeacherDashboard", "tv_scheduleTime: " + (tv_scheduleTime != null ? "FOUND" : "NULL"));
-
         tv_meetingRoom = view.findViewById(R.id.tv_TD_MeetingRoom);
-        Log.d("TeacherDashboard", "tv_meetingRoom: " + (tv_meetingRoom != null ? "FOUND" : "NULL"));
-
         tv_noActiveCourses = view.findViewById(R.id.tv_TD_NoActiveCourses);
-        Log.d("TeacherDashboard", "tv_noActiveCourses: " + (tv_noActiveCourses != null ? "FOUND" : "NULL"));
-        if (tv_noActiveCourses != null) {
-            Log.d("TeacherDashboard", "tv_noActiveCourses visibility: " + tv_noActiveCourses.getVisibility());
-        }
-
         tv_noRecentStudentSubmit = view.findViewById(R.id.tv_TD_NoRecentSubmission);
-        Log.d("TeacherDashboard", "tv_noRecentStudentSubmit: " + (tv_noRecentStudentSubmit != null ? "FOUND" : "NULL"));
-
         vp2_activeCourses = view.findViewById(R.id.vp_TD_activeCourses);
-        Log.d("TeacherDashboard", "vp2_activeCourses: " + (vp2_activeCourses != null ? "FOUND" : "NULL"));
-
         rv_recentStudentSubmit = view.findViewById(R.id.rv_TD_RecentStudentSubmit);
-        Log.d("TeacherDashboard", "rv_recentStudentSubmit: " + (rv_recentStudentSubmit != null ? "FOUND" : "NULL"));
 
-        Log.d("TeacherDashboard", "Getting teacher from activity...");
-        Teacher teacher = ((TeacherScreen)requireActivity()).getTeacher();
+        TeacherScreen activity = (TeacherScreen) getActivity();
+        if (activity == null) return view;
+        String tid = activity.getTeacherId();
 
-        if(teacher != null){
-            Log.d("TeacherDashboard", "✓ Teacher obtained: " + teacher.getFullName());
-        } else {
-            Log.e("TeacherDashboard", "❌ Teacher is NULL!");
+        if (!Tool.boolOf(tid)) {
+            Log.e("TeacherDashboard", "Teacher ID is null!");
             return view;
         }
 
-        Log.d("TeacherDashboard", "Setting up button listeners...");
+        // Progressives/Selective loading
+        new TeacherRepository(tid).loadDashboardData()
+            .addOnSuccessListener(data -> {
+                if (!isAdded()) return;
+                renderDashboard(data);
+            })
+            .addOnFailureListener(e -> Log.e("TeacherDashboard", "Failed lite load", e));
 
-        Schedule nextSchedule = teacher.getNextSchedule();
-        if (Tool.boolOf(nextSchedule)) {
-            nextSchedule.getScheduleOfCourse().addOnSuccessListener(course -> {
-                if (tv_courseName != null) {
-                    tv_courseName.setText(course != null ? course.getCourseName() : "No course");
-                }
-                nextSchedule.getRoom().addOnSuccessListener(room -> {
-                    if (tv_meetingRoom != null) {
-                        tv_meetingRoom.setText(room != null ? room.getRoomTag() : "No room");
-                    }
-                });
-                if (tv_scheduleTime != null) {
-                    tv_scheduleTime.setText(Tool.stringifyStartEndTime(nextSchedule.getMeetingStart(), nextSchedule.getMeetingEnd()));
-                }
-            }).addOnFailureListener(e -> {
-                // Handle failure case
-                if (tv_courseName != null) tv_courseName.setText("Error loading course");
-                if (tv_meetingRoom != null) tv_meetingRoom.setText("Error loading room");
-                if (tv_scheduleTime != null) tv_scheduleTime.setText("Error loading time");
-            });
-        } else {
-            // Handle no schedule case
-            if (tv_courseName != null) tv_courseName.setText("No schedule");
-            if (tv_meetingRoom != null) tv_meetingRoom.setText("No room");
-            if (tv_scheduleTime != null) tv_scheduleTime.setText("No time");
-        }
-
-
-
-        ll_viewTodayScheduleAction.setOnClickListener(view1 -> {
-            Log.d("TeacherDashboard", "View Today's Schedule clicked");
-            TeacherScheduleList tesl = new TeacherScheduleList();
-            Bundle bundle = new Bundle();
-            bundle.putBoolean("isMeetingMode", false);
-            bundle.putBoolean("isDaily", true);
-            tesl.setArguments(bundle);
-            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tesl);
-        });
-
-        ll_createTaskAction.setOnClickListener(view1 -> {
-            Log.d("TeacherDashboard", "Create Task clicked");
-            TeacherCreateTask tct = new TeacherCreateTask();
-            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tct);
-        });
-
-        ll_addAgendaAction.setOnClickListener(view1 -> {
-            Log.d("TeacherDashboard", "Add Agenda clicked");
-            TeacherAddAgenda taa = new TeacherAddAgenda();
-
-            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, taa);
-        });
-
-        ll_addDTAAction.setOnClickListener(view1 -> {
-            Log.d("TeacherDashboard", "Add DTA clicked");
-            TeacherAddDTA tad = new TeacherAddDTA();
-            Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tad);
-        });
-
-        ll_createCourseAction.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), CreateCourse.class);
-            startActivity(intent);
-        });
-
-
-        Log.d("TeacherDashboard", "Processing courses...");
-        ArrayList<Course> coursesTeach = new ArrayList<>();
-
-        if(teacherCoursesTeach != null){
-            coursesTeach = teacherCoursesTeach;
-            Log.d("TeacherDashboard", "Courses count: " + coursesTeach.size());
-        } else {
-            Log.d("TeacherDashboard", "No courses (null)");
-        }
-
-        Log.d("TeacherDashboard", "Calling Tool.handleEmpty for courses...");
-        Tool.handleEmpty(teacherCoursesTeach == null || teacherCoursesTeach.isEmpty(),
-                vp2_activeCourses, tv_noActiveCourses);
-        Log.d("TeacherDashboard", "After handleEmpty - vp2_activeCourses visibility: " + vp2_activeCourses.getVisibility());
-        Log.d("TeacherDashboard", "After handleEmpty - tv_noActiveCourses visibility: " + tv_noActiveCourses.getVisibility());
-
-        Log.d("TeacherDashboard", "Creating CourseTeachersAdapter...");
-        //async - completed
-        CourseTeachersAdapter cta = new CourseTeachersAdapter(coursesTeach, nextMeetingOfCourses, studentCountOfCourses, new OnItemClickListener<>() {
-            @Override
-            public void onItemClick(Course item) {
-                Log.d("TeacherDashboard", "Course clicked: " + item);
-                TeacherCourseScreen tcs = new TeacherCourseScreen();
-                Bundle bundle = new Bundle();
-                bundle.putSerializable(Course.SERIALIZE_KEY_CODE, item);
-                tcs.setArguments(bundle);
-                getParentFragmentManager().beginTransaction()
-                        .replace(R.id.nhf_ts_FragmentContainer, tcs)
-                        .addToBackStack(null)
-                        .commit();
-            }
-
-            @Override
-            public void onItemLongClick(Course item) {
-            }
-        }, CourseTeacherItemMode.VIEW_PAGER);
-        Log.d("TeacherDashboard", "Setting adapter to vp2_activeCourses...");
-        courseTeachersAdapter = cta;
-        vp2_activeCourses.setAdapter(courseTeachersAdapter);
-        courseTeachersAdapter.notifyDataSetChanged();
-        Log.d("TeacherDashboard", "✓ Adapter set");
-
-        Log.d("TeacherDashboard", "Processing submissions...");
-        ArrayList<SubmissionDisplay> latestSubmission = new ArrayList<>();
-        ArrayList<SubmissionDisplay> teacherLatestSubmission = teacher.getLatestSubmission();
-
-        if(teacherLatestSubmission != null){
-            latestSubmission = teacherLatestSubmission;
-            Log.d("TeacherDashboard", "Submissions count: " + latestSubmission.size());
-        } else {
-            Log.d("TeacherDashboard", "No submissions (null)");
-        }
-
-        Log.d("TeacherDashboard", "Calling Tool.handleEmpty for submissions...");
-        Tool.handleEmpty(teacherLatestSubmission == null || teacherLatestSubmission.isEmpty(),
-                rv_recentStudentSubmit, tv_noRecentStudentSubmit);
-        Log.d("TeacherDashboard", "After handleEmpty - rv_recentStudentSubmit visibility: " + rv_recentStudentSubmit.getVisibility());
-        Log.d("TeacherDashboard", "After handleEmpty - tv_noRecentStudentSubmit visibility: " + tv_noRecentStudentSubmit.getVisibility());
-
-        Log.d("TeacherDashboard", "Creating SubmissionAdapter...");
-        SubmissionAdapter sa = new SubmissionAdapter(latestSubmission);
-        Log.d("TeacherDashboard", "Setting adapter to rv_recentStudentSubmit...");
-        LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false);
-        rv_recentStudentSubmit.setLayoutManager(layoutManager);
-
-// 2. Attach the PagerSnapHelper (This is the magic "one at a time" part)
-        PagerSnapHelper snapHelper = new PagerSnapHelper();
-        snapHelper.attachToRecyclerView(rv_recentStudentSubmit);
-
-        rv_recentStudentSubmit.setAdapter(sa);
-        Log.d("TeacherDashboard", "✓ Adapter set");
-
-        Log.d("TeacherDashboard", "========== onCreateView END - returning view ==========");
-        Log.d("TeacherDashboard", "Returned view parent: " + view.getParent());
-        Log.d("TeacherDashboard", "Returned view visibility: " + view.getVisibility());
+        setupStaticListeners();
 
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d("TeacherDashboard", "========== onViewCreated ==========");
-        Log.d("TeacherDashboard", "View: " + view);
-        Log.d("TeacherDashboard", "View parent: " + view.getParent());
-    }
-    private void loadTeacher(){
-        Teacher teacher = ((TeacherScreen)requireActivity()).getTeacher();
-        teacherCoursesTeach = teacher != null && teacher.getCoursesTeach() != null
-                ? teacher.getCoursesTeach()
-                : new ArrayList<>();
+    private void renderDashboard(TeacherDashboardData data) {
+        // 1. Next Schedule
+        tv_courseName.setText(Tool.boolOf(data.nextCourseName) ? data.nextCourseName : "No schedule");
+        tv_meetingRoom.setText(Tool.boolOf(data.nextRoomTag) ? data.nextRoomTag : "No room");
+        tv_scheduleTime.setText(Tool.boolOf(data.nextScheduleTime) ? data.nextScheduleTime : "No time");
 
-        studentCountOfCourses = new ArrayList<>();
-        nextMeetingOfCourses = new ArrayList<>();
+        // 2. Active Courses
+        teacherCoursesTeach = data.coursesTeach;
+        nextMeetingOfCourses = data.nextMeetingOfCourses;
+        studentCountOfCourses = data.studentCountOfCourses;
 
-        for (int i = 0; i < teacherCoursesTeach.size(); i++) {
-            Course course = teacherCoursesTeach.get(i);
-            int studentCount = 0;
-            if (course != null && course.getStudentIds() != null) {
-                studentCount = course.getStudentIds().size();
+        Tool.handleEmpty(teacherCoursesTeach.isEmpty(), vp2_activeCourses, tv_noActiveCourses);
+        courseTeachersAdapter = new CourseTeachersAdapter(teacherCoursesTeach, nextMeetingOfCourses, studentCountOfCourses, new OnItemClickListener<>() {
+            @Override public void onItemClick(Course item) {
+                TeacherCourseScreen tcs = new TeacherCourseScreen();
+                Bundle b = new Bundle();
+                b.putSerializable(Course.SERIALIZE_KEY_CODE, item);
+                tcs.setArguments(b);
+                Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, tcs);
             }
-            studentCountOfCourses.add(studentCount);
-            nextMeetingOfCourses.add(null);
-        }
+            @Override public void onItemLongClick(Course item) {}
+        }, CourseTeacherItemMode.VIEW_PAGER);
+        vp2_activeCourses.setAdapter(courseTeachersAdapter);
 
-        for (int i = 0; i < teacherCoursesTeach.size(); i++) {
-            final int index = i;
-            Course course = teacherCoursesTeach.get(i);
-            if (course == null || course.getNextMeetingOfNextSchedule() == null) {
-                continue;
-            }
-            course.getNextMeetingOfNextSchedule()
-                    .addOnSuccessListener(meeting -> {
-                        if (index >= 0 && index < nextMeetingOfCourses.size()) {
-                            nextMeetingOfCourses.set(index, meeting);
-                        }
-                        if (isAdded() && courseTeachersAdapter != null) {
-                            courseTeachersAdapter.notifyItemChanged(index);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        if (index >= 0 && index < nextMeetingOfCourses.size()) {
-                            nextMeetingOfCourses.set(index, null);
-                        }
-                        if (isAdded() && courseTeachersAdapter != null) {
-                            courseTeachersAdapter.notifyItemChanged(index);
-                        }
-                    });
-        }
+        // 3. Recent Submissions
+        ArrayList<SubmissionDisplay> latest = data.latestSubmissions;
+        Tool.handleEmpty(latest.isEmpty(), rv_recentStudentSubmit, tv_noRecentStudentSubmit);
+        submissionAdapter = new SubmissionAdapter(latest, SubmissionItemMode.DASHBOARD);
+        rv_recentStudentSubmit.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_recentStudentSubmit.setAdapter(submissionAdapter);
     }
+
+    private void setupStaticListeners() {
+        ll_viewTodayScheduleAction.setOnClickListener(v -> {
+             Tool.loadFragment(requireActivity(), R.id.nhf_ts_FragmentContainer, new TeacherScheduleList());
+        });
+        ll_createTaskAction.setOnClickListener(v -> {
+             startActivity(new Intent(requireContext(), TeacherCreateTask.class));
+        });
+        ll_addAgendaAction.setOnClickListener(v -> {
+             startActivity(new Intent(requireContext(), TeacherAddAgenda.class));
+        });
+        ll_addDTAAction.setOnClickListener(v -> {
+             startActivity(new Intent(requireContext(), TeacherAddDTA.class));
+        });
+        ll_createCourseAction.setOnClickListener(v -> {
+             startActivity(new Intent(requireContext(), CreateCourse.class));
+        });
+    }
+
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("TeacherDashboard", "========== onStart ==========");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("TeacherDashboard", "========== onResume ==========");
     }
-
 }

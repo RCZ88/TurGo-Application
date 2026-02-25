@@ -85,6 +85,9 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
         roomChange = null;
         completed = false;
     }
+    public Meeting(String id){
+        meetingID = id;
+    }
     public Meeting(){
         meetingID = UUID.randomUUID().toString();
         studentsAttended = new HashMap<>();
@@ -196,6 +199,10 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
     //students of the schedule.
     public void assignAlarmNotification(ArrayList<Student>students, Context context){
         LocalDateTime ldt = LocalDateTime.of(this.dateOfMeeting, startTimeChange);
+        if(ldt == null){
+            Log.d("Meeting", "LDT is NULL. date of Meeting: " + ((dateOfMeeting == null) ? "NULL" : dateOfMeeting.toString())+ " startTimeChange:" + (startTimeChange == null ? "NULL" : startTimeChange.toString()));
+            return;
+        }
         for(Student student : students){
 //            Schedule schedule = Await.get(this::getMeetingOfSchedule);
 //            Course course = Await.get(schedule::getScheduleOfCourse);
@@ -203,9 +210,7 @@ public class Meeting implements Serializable, RequireUpdate<Meeting, MeetingFire
             getMeetingOfSchedule().continueWithTask(task ->{
                 schedule.set(task.getResult());
                 return schedule.get().getScheduleOfCourse();
-            }).addOnSuccessListener(course ->{
-                MeetingAlarm.setMeetingAlarm(context, ldt, course, student, schedule.get());
-            });
+            }).addOnSuccessListener(course -> MeetingAlarm.setMeetingAlarm(context, ldt, course, student, schedule.get()));
         }
     }
 

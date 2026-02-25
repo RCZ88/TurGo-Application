@@ -130,4 +130,52 @@ public class TaskRepository implements RepositoryClass<Task, TaskFirebase> {
     public void removeAssignedStudent(String studentId) {
         removeStringFromArray("studentsAssign", studentId);
     }
+
+    /**
+     * Load only the fields the Dashboard task card needs, returning a partial
+     * Task built with the empty constructor and only the necessary setters called.
+     *
+     * Fields loaded: taskID, title, dueDate, dropbox, manualCompletionRequired
+     *
+     * Avoids constructClass() and the heavy studentsAssign / publisher / schedule
+     * reads that the dashboard never uses.
+     */
+    public com.google.android.gms.tasks.Task<Task> loadPartialForDashboard() {
+        com.google.android.gms.tasks.TaskCompletionSource<Task> tcs =
+                new com.google.android.gms.tasks.TaskCompletionSource<>();
+
+        loadFields("taskID", "title", "dueDate", "dropbox", "manualCompletionRequired")
+                .addOnSuccessListener(m -> {
+                    Task task = new Task();   // empty constructor, safe defaults
+
+                    // taskID — fall back to the db key if not stored in the document
+                    String id = m.get("taskID") instanceof String ? (String) m.get("taskID") : taskRef.getKey();
+                    task.setTaskID(id);
+
+                    task.setTitle(m.get("title") instanceof String ? (String) m.get("title") : null);
+
+                    // dueDate is stored as LocalDateTime.toString() in Firebase
+                    Object dueDateRaw = m.get("dueDate");
+                    if (dueDateRaw instanceof String && Tool.boolOf((String) dueDateRaw)) {
+                        try {
+                            task.setDueDate(java.time.LocalDateTime.parse((String) dueDateRaw));
+                        } catch (Exception ignored) {
+                            task.setDueDate(null);
+                        }
+                    }
+
+                    Object dropboxRaw = m.get("dropbox");
+                    task.setDropbox(dropboxRaw instanceof String ? (String) dropboxRaw : null);
+
+                    Object manualRaw = m.get("manualCompletionRequired");
+                    if (manualRaw instanceof Boolean) {
+                        task.setManualCompletionRequired((Boolean) manualRaw);
+                    }
+
+                    tcs.setResult(task);
+                })
+                .addOnFailureListener(tcs::setException);
+
+        return tcs.getTask();
+    }
 }

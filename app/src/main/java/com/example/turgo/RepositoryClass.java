@@ -329,6 +329,63 @@ public interface RepositoryClass<R extends RequireUpdate<R, F, ?>, F extends Fir
             }
         });
     }
+    // -------------------------------------------------------------------------
+    // Selective / partial field loading
+    // -------------------------------------------------------------------------
+
+    /** Load a single child field as a raw DataSnapshot. */
+    default Task<DataSnapshot> loadField(String field) {
+        return getDbReference().child(field).get();
+    }
+
+    /** Load a single String-valued child field. */
+    default Task<String> loadStringField(String field) {
+        TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        getDbReference().child(field).get()
+                .addOnSuccessListener(snap -> tcs.setResult(snap.getValue(String.class)))
+                .addOnFailureListener(tcs::setException);
+        return tcs.getTask();
+    }
+
+    /** Load a child field that holds a list of Strings (e.g. ID arrays). */
+    default Task<ArrayList<String>> loadStringListField(String field) {
+        TaskCompletionSource<ArrayList<String>> tcs = new TaskCompletionSource<>();
+        getDbReference().child(field).get()
+                .addOnSuccessListener(snap -> tcs.setResult(extractStringList(snap.getValue())))
+                .addOnFailureListener(tcs::setException);
+        return tcs.getTask();
+    }
+
+    /**
+     * Load multiple named child fields in parallel and return them as a plain
+     * Map keyed by field name. Values are raw Firebase objects.
+     * Use extractStringList() or cast as needed.
+     */
+    default Task<Map<String, Object>> loadFields(String... fields) {
+        TaskCompletionSource<Map<String, Object>> tcs = new TaskCompletionSource<>();
+        if (fields == null || fields.length == 0) {
+            tcs.setResult(new java.util.HashMap<>());
+            return tcs.getTask();
+        }
+        List<Task<DataSnapshot>> tasks = new ArrayList<>();
+        for (String field : fields) {
+            tasks.add(getDbReference().child(field).get());
+        }
+        Tasks.whenAllComplete(tasks).addOnCompleteListener(done -> {
+            Map<String, Object> result = new java.util.HashMap<>();
+            for (int i = 0; i < fields.length; i++) {
+                Task<DataSnapshot> t = tasks.get(i);
+                if (t.isSuccessful() && t.getResult() != null) {
+                    result.put(fields[i], t.getResult().getValue());
+                }
+            }
+            tcs.setResult(result);
+        });
+        return tcs.getTask();
+    }
+
+    // -------------------------------------------------------------------------
+
     DatabaseReference getDbReference();
     Class<F> getFbClass();
 }

@@ -46,6 +46,7 @@ public class StudentScreen extends AppCompatActivity{
 
     private ActivityStudentScreenBinding binding;
     private Student student;
+    private StudentScreenData ssd;
     private FirebaseUser fbUser;
     private NavHostFragment navHostFragment;
     private BottomNavigationView navView;
@@ -101,38 +102,49 @@ public class StudentScreen extends AppCompatActivity{
             return;
         }
         StudentRepository sr = new StudentRepository(fbUser.getUid());
-        Tool.prepareUserObjectForScreen(sr)
-                .addOnSuccessListener(studentObj -> {
-                    student = studentObj;
+        sr.loadScreenData()
+                .addOnSuccessListener(data -> {
+                    // Manual LITE hydration: populate only what's needed for this activity and its fragments.
+                    // This avoids the recursive overhead of constructClass() while keeping the Student interface.
+                    student = new Student();
+                    student.setUid(data.uid);
+                    student.setFullName(data.fullName);
+                    student.setPfpCloudinary(data.pfpCloudinary);
+                    student.setInboxIds(data.inboxIds);
+                    student.setNotificationsIds(data.notificationIds);
+                    student.setCompletionWeekKey(data.completionWeekKey);
+                    student.setPercentageCompleted(data.percentageCompleted);
+                    student.setScheduleCompletedThisWeekIds(data.scheduleCompletedThisWeekIds);
+                    student.setUserType(UserType.STUDENT);
+
                     if (Tool.boolOf(student.getID())) {
                         PushTokenManager.syncKnownRoleWithLatestToken(student.getID(), "STUDENT");
                     }
-                    Log.d("StudentScreen", "Student Prescheduled Meetings:" + student.getPreScheduledMeetings());
                     continueAfterStudentNotNull();
 
+                    // Weekly meeting completion logic
                     String currentWeekKey = Student.getCurrentWeekKey();
                     sr.resetWeeklyMeetingCompletionIfNeeded(currentWeekKey)
                             .addOnSuccessListener(changed -> {
                                 if (Boolean.TRUE.equals(changed)) {
                                     student.setScheduleCompletedThisWeek(new ArrayList<>());
+                                    student.setScheduleCompletedThisWeekIds(new ArrayList<>());
                                     student.setPercentageCompleted(0);
                                     student.setCompletionWeekKey(currentWeekKey);
                                     Log.d("StudentScreen", "Weekly meeting completion reset for week=" + currentWeekKey);
                                 } else if (!Tool.boolOf(student.getCompletionWeekKey())) {
                                     student.setCompletionWeekKey(currentWeekKey);
                                 }
-                                ArrayList<String> completedIdsThisWeek = student.getCompletedScheduleIdsThisWeekList();
-                                int totalSchedules = student.getAllSchedules() != null ? student.getAllSchedules().size() : 0;
-                                double percentage = totalSchedules <= 0
-                                        ? 0d
-                                        : ((double) completedIdsThisWeek.size() / totalSchedules) * 100d;
 
-                                sr.upsertWeeklyCompletionSnapshot(currentWeekKey, completedIdsThisWeek, percentage)
-                                        .addOnSuccessListener(unused -> {
-                                            student.setCompletionWeekKey(currentWeekKey);
-                                            student.setPercentageCompleted(percentage);
-                                            student.getScheduleCompletedThisWeek();
-                                        })
+                                // If the week matches, the DTO data is already correct.
+                                // We don't need to re-calculate from meetingHistory (which isn't loaded).
+                                if (!Boolean.TRUE.equals(changed)) {
+                                    return;
+                                }
+
+                                // Only force an upsert if we just reset (changed == true)
+                                ArrayList<String> emptyIds = new ArrayList<>();
+                                sr.upsertWeeklyCompletionSnapshot(currentWeekKey, emptyIds, 0.0)
                                         .addOnFailureListener(e -> {
                                             Log.e("StudentScreen", "Failed weekly completion snapshot sync", e);
                                         });
@@ -142,7 +154,7 @@ public class StudentScreen extends AppCompatActivity{
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("StudentScreen", "Failed to prepare Student object", e);
+                    Log.e("StudentScreen", "Failed to load Screen Data", e);
                     student = createFallbackStudent();
                     continueAfterStudentNotNull();
                 });
@@ -185,6 +197,10 @@ public class StudentScreen extends AppCompatActivity{
         }
     }
     private void prepareActivityUI() {
+        // Initialize UI with lightweight data if available
+        if (ssd != null) {
+            initializeUIWithSSD();
+        }
         initializeUI();
         prepareObjects();
 
@@ -212,18 +228,41 @@ public class StudentScreen extends AppCompatActivity{
         }
     }
 
+    private void initializeUIWithSSD() {
+        // Initialize UI with lightweight StudentScreenData
+        if (ssd == null) {
+            return;
+        }
+
+        String logTag = UserType.STUDENT.name() + "_SCREEN";
+        Log.d(logTag, "========== initializeUIWithSSD START ==========");
+        Log.d(logTag, UserType.STUDENT + (ssd.fullName != null ? ssd.fullName : "Student"));
+
+        if (topAppBar == null) {
+            topAppBar = findViewById(R.id.tb_ss_topAppBar);
+        }
+        if (topAppBar != null) {
+            setSupportActionBar(topAppBar);
+            if(getSupportActionBar() != null){
+                getSupportActionBar().setTitle(ssd.fullName != null ? ssd.fullName : "Student");
+                Log.d(logTag, "actionBar title set to: " + (ssd.fullName != null ? ssd.fullName : "Student"));
+            }else{
+                Log.e(logTag, "getSupportActionBar() returned Null!");
+            }
+        }
+    }
+
     private void initializeUI() {
-        String logTag = student.getUserType().name() + "_SCREEN";
+        String logTag = UserType.STUDENT.name() + "_SCREEN";
 
         Log.d(logTag, "========== initializeUI START ==========");
-        Log.d(logTag, student.getUserType() + student.getFullName());
-
+        Log.d(logTag, UserType.STUDENT + (ssd != null && ssd.fullName != null ? ssd.fullName : "Student"));
 
         topAppBar = findViewById(R.id.tb_ss_topAppBar);
         setSupportActionBar(topAppBar);
         if(getSupportActionBar() != null){
-            getSupportActionBar().setTitle(student.getFullName());
-            Log.d(logTag, "actionBar title set to: " + student.getFullName());
+            getSupportActionBar().setTitle(ssd != null && ssd.fullName != null ? ssd.fullName : "Student");
+            Log.d(logTag, "actionBar title set to: " + (ssd != null && ssd.fullName != null ? ssd.fullName : "Student"));
         }else{
             Log.e(logTag, "getSupportActionBar() returned Null!");
         }
@@ -251,6 +290,7 @@ public class StudentScreen extends AppCompatActivity{
                 return true;
             }
             if(itemId == R.id.dest_studentProfile){
+                // Profile requires the full student object for editing capabilities
                 Tool.loadFragment(this, StudentScreen.getContainer(), new Profile(student));
                 return true;
             }
@@ -363,6 +403,7 @@ public class StudentScreen extends AppCompatActivity{
         if (seeAll != null) {
             seeAll.setOnClickListener(v -> {
                 Intent intent = new Intent(StudentScreen.this, MailPageFull.class);
+                // MailPageFull requires the full student object for complete functionality
                 intent.putExtra(User.SERIALIZE_KEY_CODE, student);
                 startActivity(intent);
                 if (mailPopupWindow != null) mailPopupWindow.dismiss();
@@ -387,6 +428,12 @@ public class StudentScreen extends AppCompatActivity{
     }
 
     public void prepareObjects(){
+        // Use student object if available, otherwise we can't prepare objects that require full student data
+        if (student == null || student.getID() == null) {
+            Log.e("StudentScreen", "Cannot prepare objects - student object or ID is null");
+            return;
+        }
+
         DatabaseReference studentRef = FirebaseDatabase.getInstance().getReference(FirebaseNode.STUDENT.getPath()).child(student.getID());
         studentRef.child("inbox").addChildEventListener(new ChildEventListener() {
             @Override
@@ -404,7 +451,7 @@ public class StudentScreen extends AppCompatActivity{
                         //updates the UI and the adapter in general
                         object.convertToNormal(new ObjectCallBack<>() {
                             @Override
-                            public void onObjectRetrieved(Mail object) throws ParseException, InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
+                            public void onObjectRetrieved(Mail object) {
                                 addMailToInbox(object);
                             }
 

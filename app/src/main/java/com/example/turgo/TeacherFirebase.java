@@ -109,13 +109,7 @@ public class TeacherFirebase extends UserFirebase implements FirebaseClass<Teach
     }
 
 //
-//    public String getPfpCloudinary() {
-//        return pfpCloudinary;
-//    }
-//
-//    public void setPfpCloudinary(String pfpCloudinary) {
-//        this.pfpCloudinary = pfpCloudinary;
-//    }
+
 
     @Override
     public String getID() {

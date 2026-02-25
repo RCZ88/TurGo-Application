@@ -80,167 +80,100 @@ public class Student_Dashboard extends Fragment {
         if (activity == null) throw new IllegalStateException("Activity is null");
         user = activity.getStudent();
         Log.d("StudentDashboard", "Student Retrieved: " + user);
-//        Submission s1 = new Submission(user, "5f4afa7e-f844-44d8-bcf2-b74cfa056178");
-//        Submission s2 = new Submission(user, "d3b3a67f-f130-44aa-9c9d-e8a9b9da6266");
-//        Submission s3 = new Submission(user, "6c8c377e-e11e-40ea-b904-2c32a0d7f23e");
-//        ArrayList<Submission>submissions = new ArrayList<>();
-//        submissions.add(s1);
-//        submissions.add(s2);
-//        submissions.add(s3);
-//
-//        for (Submission submission : submissions) {
-//            SubmissionRepository submissionRepository = new SubmissionRepository(submission.getID());
-//            submissionRepository.save(submission);
-//        }
 
-        // Load all data synchronously
-        loadCompletedSchedules();
-        loadProgress();
-        loadTasks();
-        loadUpcomingMeeting();
+        // Optimized selective loading
+        new StudentRepository(user.getID()).loadDashboardData()
+                .addOnSuccessListener(data -> {
+                    if (!isAdded()) return;
+                    renderDashboard(data);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("StudentDashboard", "Failed to load dashboard data", e);
+                });
+
         setupTaskNavigation();
         btn_scanQR.setOnClickListener(this::attendMeetingScan);
 
         return view;
     }
 
-    private void loadCompletedSchedules() {
-        schedulesCompleted = user.getScheduleCompletedThisWeek();
-        int completedThisWeek = user.getCompletedScheduleCountThisWeek();
-        Log.d("StudentDashboard", "Schedule Completed This Week Count: " + completedThisWeek);
-        tv_meetingsCompletedCount.setText(String.valueOf(completedThisWeek));
-        String label = completedThisWeek == 1
-                ? "meeting completed this week"
-                : "meetings completed this week";
-        tv_noMeetingCompleted.setText(label);
-    }
-
-    private void loadProgress() {
-        double progress = user.getPercentageCompleted();
-        int progressInt = (int) Math.ceil(progress);
+    private void renderDashboard(StudentDashboardData data) {
+        // 1. Progress
+        int progressInt = (int) Math.ceil(data.percentageCompleted);
         pb_progressThisWeek.setMax(100);
         pb_progressThisWeek.setProgressCompat(progressInt, true);
         tv_weeklyProgressPercent.setText(progressInt + "%");
-    }
 
-    private void loadTasks() {
-        studentTasks = user.getUncompletedTask();
-        Log.d("StudentDashboard", "Student Tasks: " + studentTasks);
-        Tool.handleEmpty(studentTasks == null || studentTasks.isEmpty(), ll_Task, tv_noTaskFound);
+        // 2. Completed Schedules
+        int completedCount = data.scheduleCompletedThisWeekIds != null ? data.scheduleCompletedThisWeekIds.size() : 0;
+        tv_meetingsCompletedCount.setText(String.valueOf(completedCount));
+        tv_noMeetingCompleted.setText(completedCount == 1 ? "meeting completed this week" : "meetings completed this week");
 
-        if (studentTasks != null && !studentTasks.isEmpty()) {
+        // 3. Tasks
+        studentTasks = data.uncompletedTasks != null ? data.uncompletedTasks : new ArrayList<>();
+        Tool.handleEmpty(studentTasks.isEmpty(), ll_Task, tv_noTaskFound);
+        if (!studentTasks.isEmpty()) {
             adapter = new TaskAdapter(studentTasks, user, new OnItemClickListener<>() {
-                @Override
-                public void onItemClick(Task item) {
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable(Task.SERIALIZE_KEY_CODE, item);
-
+                @Override public void onItemClick(Task item) {
+                    Bundle b = new Bundle();
+                    b.putSerializable(Task.SERIALIZE_KEY_CODE, item);
                     TaskFullPage tfp = new TaskFullPage();
-                    tfp.setArguments(bundle);
+                    tfp.setArguments(b);
                     Tool.loadFragment(requireActivity(), R.id.nhf_ss_FragContainer, tfp);
                 }
-
-                @Override
-                public void onItemLongClick(Task item) {
-
-                }
+                @Override public void onItemLongClick(Task item) {}
             }, TaskItemMode.VIEW_PAGER);
             vp2_listOfTasks.setAdapter(adapter);
         }
-    }
 
-    private void loadUpcomingMeeting() {
-        nextMeeting = user.getNextMeeting();
-        Tool.handleEmpty(Tool.boolOf(nextMeeting), fcv_upcomingSchedule, tv_noScheduleFound);
-
-        if (nextMeeting == null) return;
-
-        nextMeeting.getMeetingOfSchedule()
-                .continueWithTask(task -> {
-                    if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
-
-                    scheduleOfNextMeeting = task.getResult();
-                    return scheduleOfNextMeeting.getScheduleOfCourse();
-                })
-                .continueWithTask(task -> {
-                    if (!task.isSuccessful()) throw Objects.requireNonNull(task.getException());
-
-                    course = task.getResult();
-                    return course.getTeacher(); // must return Task<Teacher>
-                })
-                .continueWithTask(task -> {
-                    teacher = task.getResult();
-                    return scheduleOfNextMeeting.getRoom();
-                }).addOnSuccessListener(result->{
-                    roomTag = result.getRoomTag();
-                    continueAfterObjectsLoaded();
-                });
-        // synchronous
-        // Setup fragments
-    }
-
-    private void continueAfterObjectsLoaded(){
-        if (!isAdded() || getView() == null || fcv_upcomingSchedule == null) {
-            return;
+        // 4. Upcoming Meeting
+        if (Tool.boolOf(data.nextMeetingId)) {
+            Tool.handleEmpty(true, fcv_upcomingSchedule, tv_noScheduleFound);
+            setupUpcomingMeetingFragments(data);
+        } else {
+            Tool.handleEmpty(false, fcv_upcomingSchedule, tv_noScheduleFound);
         }
+    }
+
+    private void setupUpcomingMeetingFragments(StudentDashboardData data) {
+        if (!isAdded() || getView() == null || fcv_upcomingSchedule == null) return;
 
         MeetingDisplay meetingDisplay = new MeetingDisplay();
-        Bundle bundle = new Bundle();
-        bundle.putSerializable(Student.SERIALIZE_KEY_CODE, user);
-        String meetingTitle = course != null ? course.getCourseName() : "Course";
-        String meetingTime = scheduleOfNextMeeting != null && scheduleOfNextMeeting.getMeetingStart() != null
-                ? scheduleOfNextMeeting.getMeetingStart().toString()
-                : "-";
+        Bundle bundleFirst = new Bundle();
+        bundleFirst.putSerializable(Student.SERIALIZE_KEY_CODE, user);
+        
+        String mTitle = Tool.boolOf(data.nextCourseName) ? data.nextCourseName : "Course";
+        String mTime  = Tool.boolOf(data.nextMeetingTime) ? data.nextMeetingTime : "-";
+        String mDate  = Tool.boolOf(data.nextMeetingDate) ? data.nextMeetingDate : "-";
+        String mLogo  = Tool.boolOf(data.nextCourseLogo) ? data.nextCourseLogo : "";
+        
+        bundleFirst.putAll(MeetingDisplay.createArgs(mTitle, mTime, mDate, mLogo));
+        meetingDisplay.setArguments(bundleFirst);
 
-        String meetingDate = nextMeeting != null && nextMeeting.getDateOfMeeting() != null
-                ? nextMeeting.getDateOfMeeting().toString()
-                : "-";
-
-        String meetingLogo = course != null ? course.getLogo() : "";
-        bundle.putAll(MeetingDisplay.createArgs(meetingTitle, meetingTime, meetingDate, meetingLogo));
-        meetingDisplay.setArguments(bundle);
-
-        FragmentManager fragmentManager = getChildFragmentManager();
-        if (!fragmentManager.isStateSaved()) {
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fcv_UpcomingClass, meetingDisplay);
-            fragmentTransaction.commit();
+        FragmentManager fm = getChildFragmentManager();
+        if (!fm.isStateSaved()) {
+            fm.beginTransaction().replace(R.id.fcv_UpcomingClass, meetingDisplay).commit();
         }
 
         CourseDetails courseDetails = new CourseDetails();
-        String durationText = String.valueOf(scheduleOfNextMeeting.getDuration());
-        String teacherName = teacher != null ? teacher.getFullName() : "Unknown";
-        String daysOfSchedule = course != null ? course.getDaysOfSchedule(user) : "-";
-        String roomText = Tool.boolOf(roomTag) ? roomTag : "No Room";
-        String nextMeetingDate = nextMeeting != null && nextMeeting.getDateOfMeeting() != null
-                ? nextMeeting.getDateOfMeeting().toString()
-                : "No Meeting Found!";
-        String courseName = course != null ? course.getCourseName() : "Course";
-        String courseLogo = course != null ? course.getLogo() : "";
-
         courseDetails.setArguments(CourseDetails.createArgs(
-                courseName,
-                teacherName,
-                nextMeetingDate,
-                daysOfSchedule,
-                durationText,
-                roomText,
-                courseLogo
+                mTitle,
+                Tool.boolOf(data.nextTeacherName) ? data.nextTeacherName : "Unknown",
+                mDate,
+                Tool.boolOf(data.nextCourseDays) ? data.nextCourseDays : "-",
+                String.valueOf(data.nextCourseDuration),
+                Tool.boolOf(data.nextRoomTag) ? data.nextRoomTag : "No Room",
+                mLogo
         ));
 
         expanded = false;
-
         btn_details.setOnClickListener(v -> {
-            if (!isAdded() || getView() == null || fcv_upcomingSchedule == null) {
-                return;
-            }
-            Fragment fragmentToLoad = expanded ? meetingDisplay : courseDetails;
+            if (!isAdded() || getView() == null) return;
+            Fragment toLoad = expanded ? meetingDisplay : courseDetails;
             expanded = !expanded;
-            FragmentManager childFm = getChildFragmentManager();
-            if (!childFm.isStateSaved()) {
-                childFm.beginTransaction()
-                        .replace(R.id.fcv_UpcomingClass, fragmentToLoad)
-                        .commit();
+            FragmentManager cfm = getChildFragmentManager();
+            if (!cfm.isStateSaved()) {
+                cfm.beginTransaction().replace(R.id.fcv_UpcomingClass, toLoad).commit();
             }
             btn_details.setImageResource(expanded ? R.drawable.caret : R.drawable.caret_down);
         });

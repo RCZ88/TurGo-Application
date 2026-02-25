@@ -176,6 +176,21 @@ public class CourseRepository implements RepositoryClass<Course, CourseFirebase>
                 .removeValue();
     }
 
+    public com.google.android.gms.tasks.Task<Course> loadLite() {
+        return loadFields("courseName", "logoCloudinary", "backgroundCloudinary", "teacher", "courseDescription")
+            .continueWith(task -> {
+                java.util.Map<String, Object> m = task.getResult();
+                Course c = new Course();
+                c.setCourseID(courseRef.getKey());
+                c.setCourseName((String) m.get("courseName"));
+                c.setLogo((String) m.get("logoCloudinary"));
+                c.setBackgroundCloudinary((String) m.get("backgroundCloudinary"));
+                c.setTeacher((String) m.get("teacher"));
+                c.setCourseDescription((String) m.get("courseDescription"));
+                return c;
+            });
+    }
+
     /**
      * Updates multiple fields atomically with a lastModified timestamp.
      * Only allows primitive-safe values and strings.

@@ -45,6 +45,7 @@ public class TimeSlot implements Serializable, RequireUpdate<TimeSlot, TimeSlotF
         this.time = time;
         this.end = start.plus(time);
     }
+    public TimeSlot(){timeSlotId = UUID.randomUUID().toString();}
     public static ArrayList<TimeSlot> filterTimesOfIncrement(ArrayList<TimeSlot> timeSlots, int increment){
         Log.d("filterTimeSlot", "(USING INCREMENT OF: " + increment + " MINUTES)");
         Log.d("FilterTimesSlot", "Size of TS {before} Filter: " + timeSlots.size());

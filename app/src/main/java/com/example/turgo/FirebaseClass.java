@@ -61,6 +61,7 @@ public interface FirebaseClass<F>{
     // Add this at class level to track objects being constructed
     default void constructClass(Class<?> clazz, String id, ConstructClassCallback callback)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+        boolean log = false;
         String nodeKey = clazz.getName() + "#" + id;
         Set<String> activePath = ACTIVE_CONSTRUCT_PATH.get();
         Map<String, Object> objectCache = CONSTRUCTED_OBJECT_CACHE.get();
@@ -69,8 +70,12 @@ public interface FirebaseClass<F>{
             Object cachedObject = objectCache.get(nodeKey);
             String fieldTrace = String.join(" | ", edgeStack);
             if (cachedObject != null) {
-                Log.w("constructClass", "Cycle detected, reusing in-progress object for " + nodeKey);
-                Log.w("constructClass", "Edge trace: " + fieldTrace);
+                if (log) {
+                    Log.w("constructClass", "Cycle detected, reusing in-progress object for " + nodeKey);
+                }
+                if (log) {
+                    Log.w("constructClass", "Edge trace: " + fieldTrace);
+                }
                 try {
                     callback.onSuccess(cachedObject);
                 } catch (ParseException | InvocationTargetException | NoSuchMethodException |
@@ -90,16 +95,26 @@ public interface FirebaseClass<F>{
                 activeNodes.add(nodeKey);
                 cyclePath = String.join(" -> ", activeNodes);
             }
-            Log.w("constructClass", "Cycle detected, skipping recursive construct for " + nodeKey);
-            Log.w("constructClass", "Cycle path: " + cyclePath);
-            Log.w("constructClass", "Edge trace: " + fieldTrace);
-            Log.w("constructClass", "Active chain before cycle: " + String.join(" -> ", activeNodes));
+            if (log) {
+                Log.w("constructClass", "Cycle detected, skipping recursive construct for " + nodeKey);
+            }
+            if (log) {
+                Log.w("constructClass", "Cycle path: " + cyclePath);
+            }
+            if (log) {
+                Log.w("constructClass", "Edge trace: " + fieldTrace);
+            }
+            if (log) {
+                Log.w("constructClass", "Active chain before cycle: " + String.join(" -> ", activeNodes));
+            }
             try {
                 callback.onError(DatabaseError.fromException(
                         new Exception("Recursive reference detected. Path: " + cyclePath + " | Edges: " + fieldTrace)
                 ));
             } catch (Exception ignored) {
-                Log.w("constructClass", "Cycle callback error ignored for " + nodeKey);
+                if (log) {
+                    Log.w("constructClass", "Cycle callback error ignored for " + nodeKey);
+                }
             }
             return;
         }
@@ -123,42 +138,62 @@ public interface FirebaseClass<F>{
             }
         };
 
-        Log.d("constructClass", "========== START ==========");
-        Log.d("constructClass", "Class: " + clazz.getSimpleName() + ", ID: " + id);
+        if (log) {
+
+            Log.d("constructClass", "========== START ==========");
+
+        }
+        if (log) {
+            Log.d("constructClass", "Class: " + clazz.getSimpleName() + ", ID: " + id);
+        }
 
         // Get Firebase path
         RequireUpdate<?, ?, ?> tempInstance = (RequireUpdate<?, ?, ?>) clazz.getDeclaredConstructor().newInstance();
         String path = tempInstance.getFirebaseNode().getPath();
 
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference(path).child(id);
-        Log.d("constructClass", "Firebase path: " + dbRef);
+        if (log) {
+            Log.d("constructClass", "Firebase path: " + dbRef);
+        }
 
         dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 try {
                     Object object = rootObject;
-                    Log.d("constructClass", "onDataChange called for " + clazz.getSimpleName());
-                    Log.d("constructClass", "Snapshot exists: " + snapshot.exists());
+                    if (log) {
+                        Log.d("constructClass", "onDataChange called for " + clazz.getSimpleName());
+                    }
+                    if (log) {
+                        Log.d("constructClass", "Snapshot exists: " + snapshot.exists());
+                    }
 
                     if (!snapshot.exists()) {
                         String errorMsg = "No data found at: " + path + "/" + id;
-                        Log.e("constructClass", errorMsg);
+                        if (log) {
+                            Log.e("constructClass", errorMsg);
+                        }
                         cleanupPath.run();
                         callback.onError(DatabaseError.fromException(new Exception(errorMsg)));
                         return;
                     }
 
                     // Create object instance
-                    Log.d("constructClass", "Using instance of " + clazz.getSimpleName() + " from cache");
+                    if (log) {
+                        Log.d("constructClass", "Using instance of " + clazz.getSimpleName() + " from cache");
+                    }
 
                     // Get all fields
                     ArrayList<Field> fields = new ArrayList<>(Arrays.asList(clazz.getDeclaredFields()));
                     if(hasParent(clazz)){
-                        Log.d("constructClass", "Class has parent, adding parent fields");
+                        if (log) {
+                            Log.d("constructClass", "Class has parent, adding parent fields");
+                        }
                         fields.addAll(Arrays.asList(clazz.getSuperclass().getDeclaredFields()));
                     }
-                    Log.d("constructClass", "Total fields to process: " + fields.size());
+                    if (log) {
+                        Log.d("constructClass", "Total fields to process: " + fields.size());
+                    }
 
                     // Track async operations
                     AtomicInteger pendingFields = new AtomicInteger(0);
@@ -170,7 +205,9 @@ public interface FirebaseClass<F>{
                                 && !hasError.get()
                                 && callbackCompleted.compareAndSet(false, true)) {
                             try {
-                                Log.d("constructClass", "✓✓ SUCCESS: " + clazz.getSimpleName() + " constructed completely");
+                                if (log) {
+                                    Log.d("constructClass", "✓✓ SUCCESS: " + clazz.getSimpleName() + " constructed completely");
+                                }
                                 cleanupPath.run();
                                 callback.onSuccess(rootObject);
                             } catch (ParseException | InvocationTargetException |
@@ -189,28 +226,40 @@ public interface FirebaseClass<F>{
                         field.setAccessible(true);
                         String fieldName = field.getName();
 
-                        Log.d("constructClass", "Processing field: " + fieldName + " (Type: " + field.getType().getSimpleName() + ")");
+                        if (log) {
+
+                            Log.d("constructClass", "Processing field: " + fieldName + " (Type: " + field.getType().getSimpleName() + ")");
+
+                        }
 
                         // Skip static final fields
                         if(Modifier.isStatic(field.getModifiers()) && Modifier.isFinal(field.getModifiers())){
-                            Log.d("constructClass", "  → Skipping static final field");
+                            if (log) {
+                                Log.d("constructClass", "  → Skipping static final field");
+                            }
                             continue;
                         }
 
                         // Skip transient runtime/cache fields (not persisted in Firebase)
                         if (Modifier.isTransient(field.getModifiers())) {
-                            Log.d("constructClass", "  → Skipping transient field");
+                            if (log) {
+                                Log.d("constructClass", "  → Skipping transient field");
+                            }
                             continue;
                         }
 
                         if (isRuntimeOnlyField(field)) {
-                            Log.d("constructClass", "  -> Skipping runtime-only field");
+                            if (log) {
+                                Log.d("constructClass", "  -> Skipping runtime-only field");
+                            }
                             continue;
                         }
 
                         // Check if field exists in Firebase
                         if(!snapshot.hasChild(fieldName)) {
-                            Log.d("constructClass", "  ⚠️ Field '" + fieldName + "' not found in Firebase, skipping");
+                            if (log) {
+                                Log.d("constructClass", "  ⚠️ Field '" + fieldName + "' not found in Firebase, skipping");
+                            }
                             continue;
                         }
 
@@ -229,29 +278,39 @@ public interface FirebaseClass<F>{
                                     boolValue = "1".equals(value.toString()) || "true".equalsIgnoreCase(value.toString());
                                 }
                                 field.set(object, boolValue);
-                                Log.d("constructClass", "  → Boolean field '" + fieldName + "' = " + boolValue + " (from " + value + ")");
+                                if (log) {
+                                    Log.d("constructClass", "  → Boolean field '" + fieldName + "' = " + boolValue + " (from " + value + ")");
+                                }
                             } else {
                                 field.set(object, false);
-                                Log.d("constructClass", "  → Boolean field '" + fieldName + "' is null, defaulting to false");
+                                if (log) {
+                                    Log.d("constructClass", "  → Boolean field '" + fieldName + "' is null, defaulting to false");
+                                }
                             }
                         }
                         // Handle primitives and basic types
                         else if(Tool.isPrimitive(field)) {
                             Object value = snapshot.child(fieldName).getValue(field.getType());
-                            Log.d("constructClass", "  → Primitive/Basic field '" + fieldName + "' = " + value);
+                            if (log) {
+                                Log.d("constructClass", "  → Primitive/Basic field '" + fieldName + "' = " + value);
+                            }
                             field.set(object, value);
                         }
                         else if(field.getType() == LocalTime.class){
                             String timeString = snapshot.child(fieldName).getValue(String.class);
                             LocalTime time = LocalTime.parse(timeString);
-                            Log.d("constructClass", "  → LocalTime field '" + fieldName + "' = " + time);
+                            if (log) {
+                                Log.d("constructClass", "  → LocalTime field '" + fieldName + "' = " + time);
+                            }
                             field.set(object, time);
                         }
                         else if(field.getType() == LocalDateTime.class){
                             String dateTimeString = snapshot.child(fieldName).getValue(String.class);
                             if(Tool.boolOf(dateTimeString)){
                                 LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
-                                Log.d("constructClass", "  → LocalDateTime field '" + fieldName + "' = " + dateTime);
+                                if (log) {
+                                    Log.d("constructClass", "  → LocalDateTime field '" + fieldName + "' = " + dateTime);
+                                }
                                 field.set(object, dateTime);
                             }else{
                                 field.set(object, null);
@@ -261,43 +320,61 @@ public interface FirebaseClass<F>{
                         }
                         // Handle ArrayList
                         else if(field.getType() == ArrayList.class){
-                            Log.d("constructClass", "  → ArrayList field: " + fieldName);
+                            if (log) {
+                                Log.d("constructClass", "  → ArrayList field: " + fieldName);
+                            }
                             Type listType = ((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 
                             if (listType instanceof Class<?>) {
                                 Class<?> elementClass = (Class<?>) listType;
-                                Log.d("constructClass", "  → Element type: " + elementClass.getSimpleName());
+                                if (log) {
+                                    Log.d("constructClass", "  → Element type: " + elementClass.getSimpleName());
+                                }
 
                                 // Check if it's a list of RequireUpdate objects
                                 if (RequireUpdate.class.isAssignableFrom(elementClass)) {
-                                    Log.d("constructClass", "  → Complex object list (RequireUpdate)");
+                                    if (log) {
+                                        Log.d("constructClass", "  → Complex object list (RequireUpdate)");
+                                    }
                                     ArrayList<Object> list = new ArrayList<>();
 
                                     // Get all child IDs
                                     DataSnapshot listSnapshot = snapshot.child(fieldName);
                                     ArrayList<String> ids = extractIdListFromSnapshot(listSnapshot);
                                     for (String objectID : ids) {
-                                        Log.d("constructClass", "    -> Found ID: " + objectID);
+                                        if (log) {
+                                            Log.d("constructClass", "    -> Found ID: " + objectID);
+                                        }
                                     }
 
-                                    Log.d("constructClass", "  → Total IDs found: " + ids.size());
+                                    if (log) {
+
+                                        Log.d("constructClass", "  → Total IDs found: " + ids.size());
+
+                                    }
 
                                     Field relationIdsField = findRelationIdField(clazz, fieldName, true);
                                     if (relationIdsField != null) {
                                         setRelationIdsFieldValue(object, relationIdsField, ids);
                                         field.set(object, list);
-                                        Log.d("constructClass", "  → ID-only list field '" + fieldName + "', skipped nested construct");
+                                        if (log) {
+                                            Log.d("constructClass", "  → ID-only list field '" + fieldName + "', skipped nested construct");
+                                        }
                                         continue;
                                     }
 
                                     if (!ids.isEmpty()) {
                                         pendingFields.addAndGet(ids.size());
-                                        Log.d("constructClass", "  → Pending async fields: " + pendingFields.get());
+                                        if (log) {
+                                            Log.d("constructClass", "  → Pending async fields: " + pendingFields.get());
+                                        }
                                         AtomicInteger pendingThisField = new AtomicInteger(ids.size());
 
                                         // Recursively construct each object
                                         for(String objectID : ids) {
-                                            Log.d("constructClass", "  → Fetching nested object with ID: " + objectID);
+                                            if (log) {
+                                                Log.d("constructClass", "  → Fetching nested object with ID: " + objectID);
+                                            }
 
                                             final String edgeTraceEntry = clazz.getSimpleName() + "#" + id + "." + fieldName + " -> " + elementClass.getSimpleName() + "#" + objectID;
                                             edgeStack.add(edgeTraceEntry);
@@ -305,7 +382,9 @@ public interface FirebaseClass<F>{
                                                 @Override
                                                 public void onSuccess(Object childObject) {
                                                     edgeStack.remove(edgeTraceEntry);
-                                                    Log.d("constructClass", "  ✓ Nested object retrieved: " + elementClass.getSimpleName() + " (ID: " + objectID + ")");
+                                                    if (log) {
+                                                        Log.d("constructClass", "  ✓ Nested object retrieved: " + elementClass.getSimpleName() + " (ID: " + objectID + ")");
+                                                    }
                                                     synchronized (list) {
                                                         list.add(childObject);
                                                     }
@@ -314,9 +393,13 @@ public interface FirebaseClass<F>{
                                                     if (remainingThisField == 0) {
                                                         try {
                                                             field.set(object, list);
-                                                            Log.d("constructClass", "✓ Set async list field '" + fieldName + "' size=" + list.size());
+                                                            if (log) {
+                                                                Log.d("constructClass", "✓ Set async list field '" + fieldName + "' size=" + list.size());
+                                                            }
                                                         } catch (IllegalAccessException e) {
-                                                            Log.e("constructClass", "✗ Error setting field " + fieldName + ": " + e.getMessage(), e);
+                                                            if (log) {
+                                                                Log.e("constructClass", "✗ Error setting field " + fieldName + ": " + e.getMessage(), e);
+                                                            }
                                                             if (!hasError.getAndSet(true) && callbackCompleted.compareAndSet(false, true)) {
                                                                 cleanupPath.run();
                                                                 callback.onError(DatabaseError.fromException(e));
@@ -326,23 +409,31 @@ public interface FirebaseClass<F>{
                                                     }
 
                                                     int remaining = decrementPendingSafely(pendingFields, "async");
-                                                    Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                    if (log) {
+                                                        Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                    }
                                                     finalizeIfDone.run();
                                                 }
 
                                                 @Override
                                                 public void onError(DatabaseError error) {
                                                     edgeStack.remove(edgeTraceEntry);
-                                                    Log.w("constructClass", "⚠️ Skipping nested object (ID: " + objectID + "): " + error.getMessage());
+                                                    if (log) {
+                                                        Log.w("constructClass", "⚠️ Skipping nested object (ID: " + objectID + "): " + error.getMessage());
+                                                    }
 
                                                     // Don't fail entire construction - just skip this object
                                                     int remainingThisField = pendingThisField.decrementAndGet();
                                                     if (remainingThisField == 0) {
                                                         try {
                                                             field.set(object, list);
-                                                            Log.d("constructClass", "✓ Set async list field '" + fieldName + "' (partial) size=" + list.size());
+                                                            if (log) {
+                                                                Log.d("constructClass", "✓ Set async list field '" + fieldName + "' (partial) size=" + list.size());
+                                                            }
                                                         } catch (IllegalAccessException e) {
-                                                            Log.e("constructClass", "✗ Error setting field: " + e.getMessage(), e);
+                                                            if (log) {
+                                                                Log.e("constructClass", "✗ Error setting field: " + e.getMessage(), e);
+                                                            }
                                                             if (!hasError.getAndSet(true) && callbackCompleted.compareAndSet(false, true)) {
                                                                 cleanupPath.run();
                                                                 callback.onError(DatabaseError.fromException(e));
@@ -352,20 +443,26 @@ public interface FirebaseClass<F>{
                                                     }
 
                                                     int remaining = decrementPendingSafely(pendingFields, "async");
-                                                    Log.d("constructClass", "  → Skipped, remaining: " + remaining);
+                                                    if (log) {
+                                                        Log.d("constructClass", "  → Skipped, remaining: " + remaining);
+                                                    }
                                                     finalizeIfDone.run();
                                                 }
                                             });
                                         }
                                     } else {
                                         // Empty list
-                                        Log.d("constructClass", "  → Empty list for field: " + fieldName);
+                                        if (log) {
+                                            Log.d("constructClass", "  → Empty list for field: " + fieldName);
+                                        }
                                         field.set(object, list);
                                     }
                                 }
                                 // Handle ArrayList<Boolean>
                                 else if(elementClass == Boolean.class){
-                                    Log.d("constructClass", "  → Boolean List (Converting from Long/Integer to Boolean)");
+                                    if (log) {
+                                        Log.d("constructClass", "  → Boolean List (Converting from Long/Integer to Boolean)");
+                                    }
                                     ArrayList<Boolean> boolList = new ArrayList<>();
                                     DataSnapshot listSnapshot = snapshot.child(fieldName);
 
@@ -375,52 +472,72 @@ public interface FirebaseClass<F>{
                                             boolean boolValue;
                                             if (value instanceof Long) {
                                                 boolValue = ((Long) value) == 1L;
-                                                Log.d("constructClass", "    → Converted Long " + value + " to " + boolValue);
+                                                if (log) {
+                                                    Log.d("constructClass", "    → Converted Long " + value + " to " + boolValue);
+                                                }
                                             } else if (value instanceof Integer) {
                                                 boolValue = ((Integer) value) == 1;
-                                                Log.d("constructClass", "    → Converted Integer " + value + " to " + boolValue);
+                                                if (log) {
+                                                    Log.d("constructClass", "    → Converted Integer " + value + " to " + boolValue);
+                                                }
                                             } else if (value instanceof Boolean) {
                                                 boolValue = (Boolean) value;
-                                                Log.d("constructClass", "    → Already Boolean: " + boolValue);
+                                                if (log) {
+                                                    Log.d("constructClass", "    → Already Boolean: " + boolValue);
+                                                }
                                             } else {
                                                 // Fallback: try parsing as string "1"/"0" or "true"/"false"
                                                 String strValue = value.toString();
                                                 boolValue = "1".equals(strValue) || "true".equalsIgnoreCase(strValue);
-                                                Log.d("constructClass", "    → Converted String " + value + " to " + boolValue);
+                                                if (log) {
+                                                    Log.d("constructClass", "    → Converted String " + value + " to " + boolValue);
+                                                }
                                             }
                                             boolList.add(boolValue);
                                         }
                                     }
-                                    Log.d("constructClass", "  → Boolean list size: " + boolList.size());
+                                    if (log) {
+                                        Log.d("constructClass", "  → Boolean list size: " + boolList.size());
+                                    }
                                     field.set(object, boolList);
                                 }
                                 // Handle other simple lists
                                 else {
-                                    Log.d("constructClass", "  → Simple list (String/Integer/etc.)");
+                                    if (log) {
+                                        Log.d("constructClass", "  → Simple list (String/Integer/etc.)");
+                                    }
                                     ArrayList<Object> simpleList = new ArrayList<>();
                                     DataSnapshot listSnapshot = snapshot.child(fieldName);
                                     if (elementClass == String.class) {
                                         ArrayList<String> ids = extractIdListFromSnapshot(listSnapshot);
                                         simpleList.addAll(ids);
                                         for (String id : ids) {
-                                            Log.d("constructClass", "    -> Added simple value: " + id);
+                                            if (log) {
+                                                Log.d("constructClass", "    -> Added simple value: " + id);
+                                            }
                                         }
                                     } else {
                                         for(DataSnapshot childSnapshot : listSnapshot.getChildren()){
                                             Object value = childSnapshot.getValue(elementClass);
                                             if (value != null) {
                                                 simpleList.add(value);
-                                                Log.d("constructClass", "    -> Added simple value: " + value);
+                                                if (log) {
+                                                    Log.d("constructClass", "    -> Added simple value: " + value);
+                                                }
                                             }
                                         }
                                     }
-                                    Log.d("constructClass", "  → Simple list size: " + simpleList.size());
+                                    if (log) {
+                                        Log.d("constructClass", "  → Simple list size: " + simpleList.size());
+                                    }
                                     field.set(object, simpleList);
                                 }
                             }
                         }
                         else if (Map.class.isAssignableFrom(field.getType()) || field.getType() == HashMap.class) {
-                            Log.d("constructClass", "  → Map field: " + fieldName);
+                            if (log) {
+                                Log.d("constructClass", "  → Map field: " + fieldName);
+                            }
                             DataSnapshot mapSnapshot = snapshot.child(fieldName);
                             HashMap<Object, Object> resolvedMap = new HashMap<>();
 
@@ -475,9 +592,13 @@ public interface FirebaseClass<F>{
                                 }
                                 try {
                                     field.set(object, resolvedMap);
-                                    Log.d("constructClass", "✓ Set async map field '" + fieldName + "' size=" + resolvedMap.size());
+                                    if (log) {
+                                        Log.d("constructClass", "✓ Set async map field '" + fieldName + "' size=" + resolvedMap.size());
+                                    }
                                 } catch (IllegalAccessException e) {
-                                    Log.e("constructClass", "✗ Error setting async map field '" + fieldName + "': " + e.getMessage(), e);
+                                    if (log) {
+                                        Log.e("constructClass", "✗ Error setting async map field '" + fieldName + "': " + e.getMessage(), e);
+                                    }
                                     if (!hasError.getAndSet(true) && callbackCompleted.compareAndSet(false, true)) {
                                         cleanupPath.run();
                                         callback.onError(DatabaseError.fromException(e));
@@ -485,7 +606,9 @@ public interface FirebaseClass<F>{
                                     return;
                                 }
                                 int remainingPending = decrementPendingSafely(pendingFields, "async");
-                                Log.d("constructClass", "  → Remaining pending fields: " + remainingPending);
+                                if (log) {
+                                    Log.d("constructClass", "  → Remaining pending fields: " + remainingPending);
+                                }
                                 finalizeIfDone.run();
                             };
 
@@ -534,7 +657,9 @@ public interface FirebaseClass<F>{
 
                                             @Override
                                             public void onError(DatabaseError error) {
-                                                Log.w("constructClass", "⚠️ Skipping map entry key for field '" + fieldName + "' id=" + keyId + ": " + error.getMessage());
+                                                if (log) {
+                                                    Log.w("constructClass", "⚠️ Skipping map entry key for field '" + fieldName + "' id=" + keyId + ": " + error.getMessage());
+                                                }
                                                 skipEntry.set(true);
                                                 entryParts.decrementAndGet();
                                                 tryFinalizeEntry.run();
@@ -562,7 +687,9 @@ public interface FirebaseClass<F>{
 
                                             @Override
                                             public void onError(DatabaseError error) {
-                                                Log.w("constructClass", "⚠️ Skipping map entry value for field '" + fieldName + "' id=" + valueId + ": " + error.getMessage());
+                                                if (log) {
+                                                    Log.w("constructClass", "⚠️ Skipping map entry value for field '" + fieldName + "' id=" + valueId + ": " + error.getMessage());
+                                                }
                                                 skipEntry.set(true);
                                                 entryParts.decrementAndGet();
                                                 tryFinalizeEntry.run();
@@ -582,10 +709,14 @@ public interface FirebaseClass<F>{
                                 if (fbLD != null && !fbLD.isEmpty()) {
                                     // Special case for Student lastScheduled
                                     if(clazz == Student.class && fieldName.equals("lastScheduled")){
-                                        Log.d("ConstructClass", "Special Student.lastScheduled case");
+                                        if (log) {
+                                            Log.d("ConstructClass", "Special Student.lastScheduled case");
+                                        }
                                         if(snapshot.hasChild("hasScheduled")) {
                                             boolean hasScheduled = Boolean.TRUE.equals(snapshot.child("hasScheduled").getValue(Boolean.class));
-                                            Log.d("constructClass", "hasScheduled: " + hasScheduled);
+                                            if (log) {
+                                                Log.d("constructClass", "hasScheduled: " + hasScheduled);
+                                            }
                                             if(!hasScheduled){
                                                 field.set(object, Schedule.NEVER_SCHEDULED);
                                                 continue;
@@ -594,27 +725,39 @@ public interface FirebaseClass<F>{
                                     }
                                     LocalDate date = LocalDate.parse(fbLD);
                                     field.set(object, date);
-                                    Log.d("constructClass", "  → LocalDate field '" + fieldName + "' = " + date);
+                                    if (log) {
+                                        Log.d("constructClass", "  → LocalDate field '" + fieldName + "' = " + date);
+                                    }
                                 } else {
-                                    Log.d("constructClass", "  → LocalDate field '" + fieldName + "' is null");
+                                    if (log) {
+                                        Log.d("constructClass", "  → LocalDate field '" + fieldName + "' is null");
+                                    }
                                 }
                             }
                             // Handle Enum
                             else if(field.getType().isEnum()){
                                 String enumValue = snapshot.child(fieldName).getValue(String.class);
-                                Log.d("constructClass", "  → Enum field: " + fieldName + " = " + enumValue);
+                                if (log) {
+                                    Log.d("constructClass", "  → Enum field: " + fieldName + " = " + enumValue);
+                                }
 
                                 if (enumValue != null && !enumValue.isEmpty()) {
                                     try {
                                         Class<? extends Enum> enumClass = (Class<? extends Enum>) field.getType();
                                         Enum enumConstant = Enum.valueOf(enumClass, enumValue.toUpperCase());
                                         field.set(object, enumConstant);
-                                        Log.d("constructClass", "    ✓ Enum set successfully");
+                                        if (log) {
+                                            Log.d("constructClass", "    ✓ Enum set successfully");
+                                        }
                                     } catch (IllegalArgumentException e) {
-                                        Log.e("constructClass", "    ✗ Invalid enum value: " + enumValue, e);
+                                        if (log) {
+                                            Log.e("constructClass", "    ✗ Invalid enum value: " + enumValue, e);
+                                        }
                                     }
                                 } else {
-                                    Log.d("constructClass", "    ⚠ Enum value is null, skipping");
+                                    if (log) {
+                                        Log.d("constructClass", "    ⚠ Enum value is null, skipping");
+                                    }
                                 }
                             }
                             // Handle Duration
@@ -624,21 +767,29 @@ public interface FirebaseClass<F>{
                                     int durationInMinutes = ((Number) durationValue).intValue();
                                     Duration duration = Duration.ofMinutes(durationInMinutes);
                                     field.set(object, duration);
-                                    Log.d("constructClass", "  → Duration field '" + fieldName + "' = " + duration);
+                                    if (log) {
+                                        Log.d("constructClass", "  → Duration field '" + fieldName + "' = " + duration);
+                                    }
                                 } else {
-                                    Log.d("constructClass", "  → Duration field '" + fieldName + "' is null");
+                                    if (log) {
+                                        Log.d("constructClass", "  → Duration field '" + fieldName + "' is null");
+                                    }
                                 }
                             }
                             // Handle single User object with explicit type hint (ex: from + fromType)
                             else if (User.class.isAssignableFrom(field.getType())) {
                                 String nestedUserId = snapshot.child(fieldName).getValue(String.class);
                                 if (!Tool.boolOf(nestedUserId)) {
-                                    Log.d("constructClass", "→ User field " + fieldName + " has null/empty ID, skipping");
+                                    if (log) {
+                                        Log.d("constructClass", "→ User field " + fieldName + " has null/empty ID, skipping");
+                                    }
                                 } else {
                                     Field relationIdField = findRelationIdField(clazz, fieldName, false);
                                     if (relationIdField != null) {
                                         setRelationIdFieldValue(object, relationIdField, nestedUserId);
-                                        Log.d("constructClass", "  → ID-only user field '" + fieldName + "', skipped nested construct");
+                                        if (log) {
+                                            Log.d("constructClass", "  → ID-only user field '" + fieldName + "', skipped nested construct");
+                                        }
                                         continue;
                                     }
                                     String typeFieldName = fieldName + "Type";
@@ -651,7 +802,9 @@ public interface FirebaseClass<F>{
                                     if (targetUserClass != null) {
                                         String nestedUserNodeKey = targetUserClass.getName() + "#" + nestedUserId;
                                         if (activePath.contains(nestedUserNodeKey)) {
-                                            Log.w("constructClass", "Reusing active user node for field '" + fieldName + "': " + nestedUserNodeKey);
+                                            if (log) {
+                                                Log.w("constructClass", "Reusing active user node for field '" + fieldName + "': " + nestedUserNodeKey);
+                                            }
                                         }
                                         pendingFields.incrementAndGet();
                                         Class<?> userClassForConstruct = targetUserClass;
@@ -661,7 +814,9 @@ public interface FirebaseClass<F>{
                                                 try {
                                                     field.set(object, nestedObject);
                                                 } catch (IllegalAccessException e) {
-                                                    Log.e("constructClass", "✗ Error setting user field " + fieldName + ": " + e.getMessage(), e);
+                                                    if (log) {
+                                                        Log.e("constructClass", "✗ Error setting user field " + fieldName + ": " + e.getMessage(), e);
+                                                    }
                                                     if (!hasError.getAndSet(true)) {
                                                         cleanupPath.run();
                                                         callback.onError(DatabaseError.fromException(e));
@@ -669,20 +824,28 @@ public interface FirebaseClass<F>{
                                                     return;
                                                 }
                                                 int remaining = decrementPendingSafely(pendingFields, "async");
-                                                Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                if (log) {
+                                                    Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                }
                                                 finalizeIfDone.run();
                                             }
 
                                             @Override
                                             public void onError(DatabaseError error) {
-                                                Log.w("constructClass", "⚠️ Skipping user field '" + fieldName + "' (ID: " + nestedUserId + "): " + error.getMessage());
+                                                if (log) {
+                                                    Log.w("constructClass", "⚠️ Skipping user field '" + fieldName + "' (ID: " + nestedUserId + "): " + error.getMessage());
+                                                }
                                                 int remaining = decrementPendingSafely(pendingFields, "async");
-                                                Log.d("constructClass", "  → Skipped user, remaining: " + remaining);
+                                                if (log) {
+                                                    Log.d("constructClass", "  → Skipped user, remaining: " + remaining);
+                                                }
                                                 finalizeIfDone.run();
                                             }
                                         });
                                     } else {
-                                        Log.w("constructClass", "⚠️ User type hint missing/invalid for field '" + fieldName + "'. Hint=" + typeHint + " (ID: " + nestedUserId + ")");
+                                        if (log) {
+                                            Log.w("constructClass", "⚠️ User type hint missing/invalid for field '" + fieldName + "'. Hint=" + typeHint + " (ID: " + nestedUserId + ")");
+                                        }
                                         pendingFields.incrementAndGet();
                                         FirebaseDatabase.getInstance()
                                                 .getReference(FirebaseNode.USER_ID_ROLES.getPath())
@@ -700,15 +863,21 @@ public interface FirebaseClass<F>{
                                                         }
                                                         Class<? extends User> fallbackClass = resolveUserClassFromTypeHint(fallbackType);
                                                         if (fallbackClass == null) {
-                                                            Log.w("constructClass", "⚠️ Unable to resolve user type from users/roles for ID: " + nestedUserId);
+                                                            if (log) {
+                                                                Log.w("constructClass", "⚠️ Unable to resolve user type from users/roles for ID: " + nestedUserId);
+                                                            }
                                                             int remaining = decrementPendingSafely(pendingFields, "async");
-                                                            Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                            if (log) {
+                                                                Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                            }
                                                             finalizeIfDone.run();
                                                             return;
                                                         }
                                                         String nestedUserNodeKey = fallbackClass.getName() + "#" + nestedUserId;
                                                         if (activePath.contains(nestedUserNodeKey)) {
-                                                            Log.w("constructClass", "Reusing active fallback user node for field '" + fieldName + "': " + nestedUserNodeKey);
+                                                            if (log) {
+                                                                Log.w("constructClass", "Reusing active fallback user node for field '" + fieldName + "': " + nestedUserNodeKey);
+                                                            }
                                                         }
                                                         try {
                                                             constructClass(fallbackClass, nestedUserId, new ConstructClassCallback() {
@@ -724,15 +893,21 @@ public interface FirebaseClass<F>{
                                                                         return;
                                                                     }
                                                                     int remaining = decrementPendingSafely(pendingFields, "async");
-                                                                    Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                                    if (log) {
+                                                                        Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                                    }
                                                                     finalizeIfDone.run();
                                                                 }
 
                                                                 @Override
                                                                 public void onError(DatabaseError error) {
-                                                                    Log.w("constructClass", "⚠️ Fallback user fetch failed for ID " + nestedUserId + ": " + error.getMessage());
+                                                                    if (log) {
+                                                                        Log.w("constructClass", "⚠️ Fallback user fetch failed for ID " + nestedUserId + ": " + error.getMessage());
+                                                                    }
                                                                     int remaining = decrementPendingSafely(pendingFields, "async");
-                                                                    Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                                    if (log) {
+                                                                        Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                                    }
                                                                     finalizeIfDone.run();
                                                                 }
                                                             });
@@ -746,9 +921,13 @@ public interface FirebaseClass<F>{
 
                                                     @Override
                                                     public void onCancelled(@NonNull DatabaseError error) {
-                                                        Log.w("constructClass", "⚠️ users/roles lookup cancelled for " + nestedUserId + ": " + error.getMessage());
+                                                        if (log) {
+                                                            Log.w("constructClass", "⚠️ users/roles lookup cancelled for " + nestedUserId + ": " + error.getMessage());
+                                                        }
                                                         int remaining = decrementPendingSafely(pendingFields, "async");
-                                                        Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                        if (log) {
+                                                            Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                                        }
                                                         finalizeIfDone.run();
                                                     }
                                                 });
@@ -760,16 +939,22 @@ public interface FirebaseClass<F>{
                                 String nestedObjectId = snapshot.child(fieldName).getValue(String.class);
 
                                 if (nestedObjectId != null && !nestedObjectId.isEmpty()) {
-                                    Log.d("constructClass", "→ Found nested RequireUpdate field: " + fieldName + " with ID: " + nestedObjectId);
+                                    if (log) {
+                                        Log.d("constructClass", "→ Found nested RequireUpdate field: " + fieldName + " with ID: " + nestedObjectId);
+                                    }
                                     Field relationIdField = findRelationIdField(clazz, fieldName, false);
                                     if (relationIdField != null) {
                                         setRelationIdFieldValue(object, relationIdField, nestedObjectId);
-                                        Log.d("constructClass", "  → ID-only nested field '" + fieldName + "', skipped nested construct");
+                                        if (log) {
+                                            Log.d("constructClass", "  → ID-only nested field '" + fieldName + "', skipped nested construct");
+                                        }
                                         continue;
                                     }
                                     String nestedNodeKey = field.getType().getName() + "#" + nestedObjectId;
                                     if (activePath.contains(nestedNodeKey)) {
-                                        Log.w("constructClass", "Reusing active nested field '" + fieldName + "': " + nestedNodeKey);
+                                        if (log) {
+                                            Log.w("constructClass", "Reusing active nested field '" + fieldName + "': " + nestedNodeKey);
+                                        }
                                     }
 
                                     pendingFields.incrementAndGet();
@@ -780,13 +965,19 @@ public interface FirebaseClass<F>{
                                         @Override
                                         public void onSuccess(Object nestedObject) throws NoSuchMethodException, IllegalAccessException, InstantiationException {
                                             edgeStack.remove(edgeTraceEntry);
-                                            Log.d("constructClass", "  ✓ Nested object retrieved: " + field.getType().getSimpleName() + " (ID: " + nestedObjectId + ")");
+                                            if (log) {
+                                                Log.d("constructClass", "  ✓ Nested object retrieved: " + field.getType().getSimpleName() + " (ID: " + nestedObjectId + ")");
+                                            }
 
                                             try {
                                                 field.set(object, nestedObject);
-                                                Log.d("constructClass", "  ✓ Set field " + fieldName + " with nested object");
+                                                if (log) {
+                                                    Log.d("constructClass", "  ✓ Set field " + fieldName + " with nested object");
+                                                }
                                             } catch (IllegalAccessException e) {
-                                                Log.e("constructClass", "✗ Error setting field " + fieldName + ": " + e.getMessage(), e);
+                                                if (log) {
+                                                    Log.e("constructClass", "✗ Error setting field " + fieldName + ": " + e.getMessage(), e);
+                                                }
                                                 if (!hasError.getAndSet(true)) {
                                                     cleanupPath.run();
                                                     callback.onError(DatabaseError.fromException(e));
@@ -795,32 +986,46 @@ public interface FirebaseClass<F>{
                                             }
 
                                             int remaining = decrementPendingSafely(pendingFields, "async");
-                                            Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                            if (log) {
+                                                Log.d("constructClass", "  → Remaining pending fields: " + remaining);
+                                            }
                                             finalizeIfDone.run();
                                         }
 
                                         @Override
                                         public void onError(DatabaseError error) {
                                             edgeStack.remove(edgeTraceEntry);
-                                            Log.w("constructClass", "⚠️ Skipping nested object field '" + fieldName + "' (ID: " + nestedObjectId + "): " + error.getMessage());
+                                            if (log) {
+                                                Log.w("constructClass", "⚠️ Skipping nested object field '" + fieldName + "' (ID: " + nestedObjectId + "): " + error.getMessage());
+                                            }
 
                                             // Don't fail - just leave field as null
                                             int remaining = decrementPendingSafely(pendingFields, "async");
-                                            Log.d("constructClass", "  → Skipped, remaining: " + remaining);
+                                            if (log) {
+                                                Log.d("constructClass", "  → Skipped, remaining: " + remaining);
+                                            }
                                             finalizeIfDone.run();
                                         }
                                     });
                                 } else {
-                                    Log.d("constructClass", "→ Field " + fieldName + " has null/empty ID, skipping");
+                                    if (log) {
+                                        Log.d("constructClass", "→ Field " + fieldName + " has null/empty ID, skipping");
+                                    }
                                 }
                             }
                             else {
-                                Log.d("constructClass", "  → Skipping unsupported field type: " + field.getType().getSimpleName());
+                                if (log) {
+                                    Log.d("constructClass", "  → Skipping unsupported field type: " + field.getType().getSimpleName());
+                                }
                             }
                         }
                     }
 
-                    Log.d("constructClass", "Field processing complete. Pending fields: " + pendingFields.get());
+                    if (log) {
+
+                        Log.d("constructClass", "Field processing complete. Pending fields: " + pendingFields.get());
+
+                    }
 
                     // If no async fields, return immediately
                     if (pendingFields.get() == 0) {
@@ -828,7 +1033,9 @@ public interface FirebaseClass<F>{
                     }
 
                 } catch (Exception e) {
-                    Log.e("constructClass", "✗✗ EXCEPTION in constructClass for " + clazz.getSimpleName() + ": " + e.getMessage(), e);
+                    if (log) {
+                        Log.e("constructClass", "✗✗ EXCEPTION in constructClass for " + clazz.getSimpleName() + ": " + e.getMessage(), e);
+                    }
                     cleanupPath.run();
                     callback.onError(DatabaseError.fromException(e));
                 }
@@ -836,9 +1043,15 @@ public interface FirebaseClass<F>{
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("constructClass", "✗✗ DATABASE CANCELLED for " + clazz.getSimpleName() + ": " + error.getMessage());
-                Log.e("constructClass", "Error code: " + error.getCode());
-                Log.e("constructClass", "Error details: " + error.getDetails());
+                if (log) {
+                    Log.e("constructClass", "✗✗ DATABASE CANCELLED for " + clazz.getSimpleName() + ": " + error.getMessage());
+                }
+                if (log) {
+                    Log.e("constructClass", "Error code: " + error.getCode());
+                }
+                if (log) {
+                    Log.e("constructClass", "Error details: " + error.getDetails());
+                }
                 cleanupPath.run();
                 callback.onError(error);
             }

@@ -56,9 +56,13 @@ public class Schedule implements Serializable, RequireUpdate<Schedule, ScheduleF
     }
 
     public Schedule(){scheduleID = "";}
+    public Schedule(String id){
+        scheduleID = id;
+    }
     public boolean isPrivate(){
         return this.isPrivate;
     }
+
     public static int maxStudentsOfSchedules(ArrayList<Schedule>schedules){
         int maxStudents = 0;
         if(schedules.isEmpty()){

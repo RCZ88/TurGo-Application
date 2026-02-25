@@ -198,7 +198,7 @@ public class Student_MyCourses extends Fragment {
 
                         ArrayList<Task<Course>> courseTasks = new ArrayList<>();
                         for (String courseId : courseIds) {
-                            courseTasks.add(loadLightCourseById(courseId));
+                            courseTasks.add(new CourseRepository(courseId).loadLite());
                         }
 
                         Tasks.whenAllComplete(courseTasks).addOnCompleteListener(task -> {
@@ -247,39 +247,6 @@ public class Student_MyCourses extends Fragment {
                 });
     }
 
-    private Task<Course> loadLightCourseById(String courseId) {
-        TaskCompletionSource<Course> tcs = new TaskCompletionSource<>();
-        FirebaseDatabase.getInstance()
-                .getReference(FirebaseNode.COURSE.getPath())
-                .child(courseId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (!snapshot.exists()) {
-                            tcs.setResult(null);
-                            return;
-                        }
-                        try {
-                            Course course = new Course();
-                            course.setCourseID(courseId);
-                            course.setCourseName(snapshot.child("courseName").getValue(String.class));
-                            course.setLogoCloudinary(snapshot.child("logoCloudinary").getValue(String.class));
-                            course.setBackgroundCloudinary(snapshot.child("backgroundCloudinary").getValue(String.class));
-                            course.setTeacher(snapshot.child("teacher").getValue(String.class));
-                            course.setCourseDescription(snapshot.child("courseDescription").getValue(String.class));
-                            tcs.setResult(course);
-                        } catch (Exception e) {
-                            tcs.setException(e);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        tcs.setException(error.toException());
-                    }
-                });
-        return tcs.getTask();
-    }
 
     private Task<ArrayList<Teacher>> loadTeachersForCourses(ArrayList<Course> courses) {
         TaskCompletionSource<ArrayList<Teacher>> tcs = new TaskCompletionSource<>();

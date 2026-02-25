@@ -94,6 +94,16 @@ public interface RequireUpdate<C extends RequireUpdate<C, FBC, RC>, FBC extends 
         return taskSource.getTask();
     }
 
+    static <C extends RequireUpdate<C, FBC, RC>, FBC extends FirebaseClass<C>, RC extends RepositoryClass<C, FBC>>
+    RC getRepositoryInstance(Class<C> modelClass, String ID) {
+        try {
+            C tempInstance = modelClass.getDeclaredConstructor().newInstance();
+            return tempInstance.getRepositoryClass().getDeclaredConstructor(String.class).newInstance(ID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     default DatabaseReference getDBRef(String ID){
         return FirebaseDatabase.getInstance().getReference(getFirebaseNode().getPath() + "/" + ID);
     }

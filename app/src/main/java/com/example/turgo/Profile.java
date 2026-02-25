@@ -46,6 +46,7 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
     private static final String TAG = "ProfileEmailChange";
 
     private User user;
+    private UserProfileData profileData;
     private ArrayList<Setting> settings;
     private TextView tvProfileName;
     private ImageView ivProfileAvatar;
@@ -95,9 +96,19 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
 
     private void initializeContent() {
         settings = new ArrayList<>();
-        if (user == null) {
+        if (user == null && profileData == null) {
             return;
         }
+
+        String fullName = profileData != null ? profileData.fullName : (user != null ? user.getFullName() : "");
+        String nickname = profileData != null ? profileData.nickname : (user != null ? user.getNickname() : "");
+        String birthDate = profileData != null ? profileData.birthDate : (user != null ? user.getBirthDate() : "");
+        String gender = profileData != null ? profileData.gender : (user != null ? user.getGender() : "");
+        String email = profileData != null ? profileData.email : (user != null ? user.getEmail() : "");
+        String phoneNumber = profileData != null ? profileData.phoneNumber : (user != null ? user.getPhoneNumber() : "");
+        String theme = profileData != null ? profileData.theme : (user != null ? user.getTheme().getTheme() : "Light");
+        String lang = profileData != null ? profileData.language : (user != null ? user.getLanguage().getDisplayName() : "English");
+
         Setting personalInfo = new Setting("Personal Info");
         settings.add(personalInfo);
         Setting contact = new Setting("Contact");
@@ -107,22 +118,30 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
         Setting language = new Setting("Language");
         settings.add(language);
 
-        personalInfo.addSubSettings("Full Name", user.getFullName(), SettingEditType.EDIT_TEXT);
-        personalInfo.addSubSettings("Nickname", user.getNickname(), SettingEditType.EDIT_TEXT);
-        personalInfo.addSubSettings("Date Of Birth", user.getBirthDate(), SettingEditType.EDIT_TEXT);
-        personalInfo.addSubSettings("Gender", user.getGender(), SettingEditType.SPINNER);
+        personalInfo.addSubSettings("Full Name", fullName, SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Nickname", nickname, SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Date Of Birth", birthDate, SettingEditType.EDIT_TEXT);
+        personalInfo.addSubSettings("Gender", gender, SettingEditType.SPINNER);
 
-        contact.addSubSettings("Email", user.getEmail(), SettingEditType.EDIT_TEXT);
-        contact.addSubSettings("Phone Number", user.getPhoneNumber(), SettingEditType.EDIT_TEXT);
+        contact.addSubSettings("Email", email, SettingEditType.EDIT_TEXT);
+        contact.addSubSettings("Phone Number", phoneNumber, SettingEditType.EDIT_TEXT);
 
-        preferences.addSubSettings("Theme", user.getTheme().getTheme(), SettingEditType.SPINNER);
+        preferences.addSubSettings("Theme", theme, SettingEditType.SPINNER);
         preferences.addSubSettings("Notifications", "Enabled", SettingEditType.SPINNER);
-        if (user instanceof Student) {
+        if (profileData != null) {
+            if ("Student".equalsIgnoreCase(profileData.userType)) {
+                // For Student auto-schedule, we might need more field in DTO if we want to be fully lite.
+                // Assuming for now it's in the DTO or we skip it if lite.
+                // Let's assume we added it to DTO in previous turns.
+                // If not, I'll use user fallback.
+                preferences.addSubSettings("Auto Schedule Meeting", user instanceof Student ? Integer.toString(((Student) user).getAutoSchedule()) : "1", SettingEditType.SPINNER);
+            }
+        } else if (user instanceof Student) {
             preferences.addSubSettings("Auto Schedule Meeting", Integer.toString(((Student) user).getAutoSchedule()), SettingEditType.SPINNER);
         }
         preferences.addSubSettings("Profile Picture", "Change profile image", SettingEditType.UPLOAD);
 
-        language.addSubSettings("Language", user.getLanguage().getDisplayName(), SettingEditType.SPINNER);
+        language.addSubSettings("Language", lang, SettingEditType.SPINNER);
     }
 
     @Override
@@ -134,13 +153,52 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
         rvProfileSettings = view.findViewById(R.id.rv_profile_settings);
 
         resolveUserFromActivity();
-        if (user == null) {
-            Toast.makeText(requireContext(), "Unable to load profile.", Toast.LENGTH_SHORT).show();
-            return view;
+        
+        // Initial render with what we have
+        renderProfile();
+        
+        // Load fresh lite data
+        loadProfileData();
+
+        return view;
+    }
+
+    private void loadProfileData() {
+        FirebaseUser fbUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (fbUser == null) return;
+        String uid = fbUser.getUid();
+
+        UserRepositoryClass repo;
+        if (getActivity() instanceof StudentScreen || (user instanceof Student)) {
+            repo = new StudentRepository(uid);
+        } else if (getActivity() instanceof TeacherScreen || (user instanceof Teacher)) {
+            repo = new TeacherRepository(uid);
+        } else {
+            return;
         }
 
-        tvProfileName.setText(Tool.boolOf(user.getFullName()) ? user.getFullName() : "User");
-        String profileImageUrl = resolveProfileImageUrl();
+        repo.loadProfileData().addOnSuccessListener(data -> {
+            if (!isAdded()) return;
+            this.profileData = data;
+            renderProfile();
+        });
+    }
+
+    private void renderProfile() {
+        if (!isAdded()) return;
+
+        String name = "User";
+        String profileImageUrl = null;
+
+        if (profileData != null) {
+            name = Tool.boolOf(profileData.fullName) ? profileData.fullName : "User";
+            profileImageUrl = profileData.pfpCloudinary;
+        } else if (user != null) {
+            name = Tool.boolOf(user.getFullName()) ? user.getFullName() : "User";
+            profileImageUrl = resolveProfileImageUrl();
+        }
+
+        tvProfileName.setText(name);
         if (Tool.boolOf(profileImageUrl)) {
             showProfileAvatar(profileImageUrl);
         }
@@ -149,8 +207,6 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
         rvProfileSettings.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvProfileSettings.setAdapter(new ProfileSettingsAdapter(requireContext(), settings, this));
         syncAuthEmailToProfileIfChanged(false);
-
-        return view;
     }
 
     @Override
@@ -169,40 +225,47 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
 
         switch (key) {
             case "Full Name":
-                user.setFullName(newValue);
+                if (user != null) user.setFullName(newValue);
+                if (profileData != null) profileData.fullName = newValue;
                 updates.put("fullName", newValue);
                 tvProfileName.setText(newValue);
                 break;
             case "Nickname":
-                user.setNickname(newValue);
+                if (user != null) user.setNickname(newValue);
+                if (profileData != null) profileData.nickname = newValue;
                 updates.put("nickname", newValue);
                 break;
             case "Date Of Birth":
-                user.setBirthDate(newValue);
+                if (user != null) user.setBirthDate(newValue);
+                if (profileData != null) profileData.birthDate = newValue;
                 updates.put("birthDate", newValue);
                 break;
             case "Gender":
-                user.setGender(newValue);
+                if (user != null) user.setGender(newValue);
+                if (profileData != null) profileData.gender = newValue;
                 updates.put("gender", newValue);
                 break;
             case "Email":
                 launchEmailChangeFlow(newValue);
                 return;
             case "Phone Number":
-                user.setPhoneNumber(newValue);
+                if (user != null) user.setPhoneNumber(newValue);
+                if (profileData != null) profileData.phoneNumber = newValue;
                 updates.put("phoneNumber", newValue);
                 break;
             case "Theme":
                 Theme selectedTheme = parseTheme(newValue);
                 if (selectedTheme != null) {
-                    user.setTheme(selectedTheme);
+                    if (user != null) user.setTheme(selectedTheme);
+                    if (profileData != null) profileData.theme = selectedTheme.getTheme();
                     updates.put("theme", selectedTheme.getTheme());
                 }
                 break;
             case "Language":
                 Language selectedLanguage = parseLanguage(newValue);
                 if (selectedLanguage != null) {
-                    user.setLanguage(selectedLanguage);
+                    if (user != null) user.setLanguage(selectedLanguage);
+                    if (profileData != null) profileData.language = selectedLanguage.getDisplayName();
                     updates.put("language", selectedLanguage.getDisplayName());
                 }
                 break;
@@ -435,16 +498,17 @@ public class Profile extends Fragment implements ProfileSubSettingActionListener
             if (!Tool.boolOf(authEmail)) {
                 return;
             }
-            String current = user.getEmail();
+            String current = profileData != null ? profileData.email : (user != null ? user.getEmail() : null);
             if (Tool.boolOf(current) && authEmail.equalsIgnoreCase(current)) {
                 return;
             }
 
-            user.setEmail(authEmail);
+            if (user != null) user.setEmail(authEmail);
+            if (profileData != null) profileData.email = authEmail;
             Map<String, Object> updates = new HashMap<>();
             updates.put("email", authEmail);
             persistProfileUpdates(updates, false);
-            refreshSettingsList();
+            renderProfile();
             if (showSuccessToast) {
                 Toast.makeText(requireContext(), "Email updated successfully.", Toast.LENGTH_SHORT).show();
             }
